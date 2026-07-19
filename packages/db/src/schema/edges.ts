@@ -32,6 +32,11 @@ import { documents } from "./sources";
  *   litigated_against      claimant -> defendant
  *   sponsored              sponsor -> event/organization sponsored
  *   attended               person/org -> event attended
+ *   divested               seller -> company/asset/stake divested
+ *   originated             lender -> loan_book asset or credit deal it originated
+ *   audits                 auditor -> client organization audited
+ *   values                 valuer -> asset (or company) valued
+ *   incubated              incubator/accelerator -> startup incubated
  */
 export const edgeType = pgEnum("edge_type", [
   "invested_in",
@@ -51,6 +56,11 @@ export const edgeType = pgEnum("edge_type", [
   "litigated_against",
   "sponsored",
   "attended",
+  "divested",
+  "originated",
+  "audits",
+  "values",
+  "incubated",
 ]);
 
 export const reviewStatus = pgEnum("review_status", ["proposed", "approved", "rejected"]);

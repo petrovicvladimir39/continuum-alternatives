@@ -9,7 +9,7 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "seed": "tsx src/seed.ts",
-    "verify": "tsx src/verify.ts && tsx src/verify-cli.ts && tsx src/verify-admin.ts",
+    "verify": "tsx src/verify.ts && tsx src/verify-cli.ts && tsx src/verify-admin.ts && tsx src/verify-resolve.ts",
     "cli": "tsx src/cli.ts"
   },
   "dependencies": {

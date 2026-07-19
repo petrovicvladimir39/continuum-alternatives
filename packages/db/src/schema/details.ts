@@ -57,6 +57,7 @@ export const dealType = pgEnum("deal_type", [
   "refinancing",
   "insolvency_process",
   "restructuring",
+  "fund_close",
 ]);
 
 export const deals = pgTable("deals", {

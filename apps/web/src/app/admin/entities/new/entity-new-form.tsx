@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { createEntityAction } from "@/app/admin/actions";
 import { errorClass, inputClass, labelClass } from "@/components/admin/form-styles";
@@ -79,6 +80,34 @@ export function EntityNewForm({ kinds }: { kinds: string[] }) {
           defaultValue={state.values.summary ?? ""}
         />
       </div>
+      {state.resolution ? (
+        <div className="rounded-md border border-line-strong bg-surface p-4">
+          <p className="text-[13px] font-medium">
+            {state.resolution.outcome === "matched"
+              ? "This looks like an existing entity."
+              : "Possible existing matches found."}
+          </p>
+          <ul className="mt-2 space-y-1 text-[13px]">
+            {state.resolution.candidates.map((candidate) => (
+              <li key={candidate.slug}>
+                <Link
+                  href={`/admin/entities/${candidate.slug}`}
+                  className="text-accent hover:underline"
+                >
+                  {candidate.name}
+                </Link>{" "}
+                <span className="type-data text-ink-muted">
+                  ({candidate.slug} · {candidate.score.toFixed(3)})
+                </span>
+              </li>
+            ))}
+          </ul>
+          <label className="mt-3 flex items-center gap-1.5 text-[13px]">
+            <input type="checkbox" name="createAnyway" />
+            Create anyway — this is a different entity
+          </label>
+        </div>
+      ) : null}
       <Button type="submit">Create entity</Button>
     </form>
   );

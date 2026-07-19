@@ -6,6 +6,7 @@ import { createEdge, listEdges, type EdgeTypeName } from "./repo/edges";
 import { createEntity, findEntities, getBySlug, type EntityKind } from "./repo/entities";
 import { findPath } from "./repo/graph";
 import { addFact, getTimeline } from "./repo/timeline";
+import { resolveEntity } from "./resolve";
 
 function fail(message: string): never {
   console.error(`error: ${message}`);
@@ -230,6 +231,35 @@ program
         console.log(`recorded fact "${opts.title}" on ${opts.entity} (${id})`);
       },
     ),
+  );
+
+program
+  .command("resolve")
+  .argument("<name>")
+  .option("--country <code>")
+  .option("--registry-id <id>")
+  .option("--tax-id <id>")
+  .action(
+    act(async (name: string, opts: { country?: string; registryId?: string; taxId?: string }) => {
+      const result = await resolveEntity({
+        name,
+        ...(opts.country !== undefined ? { country: opts.country } : {}),
+        ...(opts.registryId !== undefined ? { registryId: opts.registryId } : {}),
+        ...(opts.taxId !== undefined ? { taxId: opts.taxId } : {}),
+      });
+      console.log(
+        `outcome: ${result.outcome}` +
+          (result.via ? ` · via: ${result.via}` : "") +
+          (result.confidence !== undefined ? ` · confidence: ${result.confidence}` : ""),
+      );
+      if (result.candidates.length > 0) {
+        console.log("");
+        printTable(
+          ["slug", "name", "score"],
+          result.candidates.map((c) => [c.slug, c.name, c.score.toFixed(3)]),
+        );
+      }
+    }),
   );
 
 program

@@ -1,4 +1,4 @@
-import { normalizeAlias, slugify } from "@continuum/shared";
+import { companyNameCore, normalizeAlias, slugify } from "@continuum/shared";
 import { eq, ilike, inArray, like, or } from "drizzle-orm";
 import { db } from "../client";
 import {
@@ -71,11 +71,22 @@ export async function createEntity(input: {
     await db.insert(entityTags).values(tags.map((tag) => ({ entityId: entity.id, tag })));
   }
 
+  const normalized = normalizeAlias(input.name);
+  const core = companyNameCore(input.name);
   await db.insert(aliases).values({
     entityId: entity.id,
     alias: input.name,
-    aliasNormalized: normalizeAlias(input.name),
+    aliasNormalized: normalized,
   });
+  // Matching-only core alias (legal forms stripped) so fuzzy resolution compares
+  // like against like; display names stay untouched.
+  if (core !== normalized) {
+    await db.insert(aliases).values({
+      entityId: entity.id,
+      alias: input.name,
+      aliasNormalized: core,
+    });
+  }
 
   return entity;
 }

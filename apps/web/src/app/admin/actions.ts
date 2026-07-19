@@ -21,6 +21,7 @@ import {
   organizations,
   people,
   requireEntityBySlug,
+  resolveEntity,
   timelineFacts,
   and,
   eq,
@@ -97,6 +98,31 @@ export async function createEntityAction(_prev: FormState, formData: FormData): 
 
   if (Object.keys(errors).length > 0) {
     return { errors, values: echo(formData) };
+  }
+
+  // Duplicate gate: resolve the name first; matched/ambiguous requires the
+  // explicit "Create anyway" confirmation before an entity is created.
+  if (text(formData, "createAnyway") !== "on") {
+    const resolution = await resolveEntity({
+      name,
+      kindHint: kind as EntityKind,
+      ...(country !== "" ? { country: country.toUpperCase() } : {}),
+    });
+    if (resolution.outcome !== "new") {
+      return {
+        errors: {},
+        values: echo(formData),
+        resolution: {
+          outcome: resolution.outcome,
+          ...(resolution.via !== undefined ? { via: resolution.via } : {}),
+          candidates: resolution.candidates.map(({ slug, name: candidateName, score }) => ({
+            slug,
+            name: candidateName,
+            score,
+          })),
+        },
+      };
+    }
   }
 
   const entity = await createEntity({
