@@ -6,11 +6,13 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts"
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts"
   },
   "dependencies": {
     "@continuum/db": "workspace:*",
     "@continuum/shared": "workspace:*",
+    "@mendable/firecrawl-js": "^4.30.1",
+    "fast-xml-parser": "^5.10.1",
     "inngest": "^3.0.0"
   },
   "devDependencies": {

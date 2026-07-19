@@ -33,7 +33,12 @@ export const ingestHourly = inngest.createFunction(
     for (const source of due) {
       try {
         const result = await step.run(`fetch-${source.id}`, () => fetchSource(source.id));
-        outcomes[source.name] = result.changed ? "changed" : "unchanged";
+        outcomes[source.name] =
+          result.kind === "crawl"
+            ? `new ${result.newArticles}/${result.itemsInFeed}`
+            : result.changed
+              ? "changed"
+              : "unchanged";
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         outcomes[source.name] = `error: ${message}`;

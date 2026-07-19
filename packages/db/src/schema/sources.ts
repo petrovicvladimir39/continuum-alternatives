@@ -1,4 +1,5 @@
 import { boolean, char, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const sourceType = pgEnum("source_type", [
   "press",
@@ -23,6 +24,14 @@ export const sources = pgTable("sources", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   lastRunAt: timestamp("last_run_at", { withTimezone: true }),
   lastRunStatus: text("last_run_status"),
+  // Per-source crawl configuration (see @continuum/pipeline SourceConfig):
+  //   maxItemsPerRun     number, default 10 — cap on new articles per run
+  //   linkIncludePattern regex string articles must match (firecrawl_index only)
+  //   articleFetch       'simple' | 'firecrawl', default 'simple'
+  //   language           2-letter code stamped onto stored documents
+  config: jsonb("config")
+    .notNull()
+    .default(sql`'{}'::jsonb`),
 });
 
 export const documents = pgTable("documents", {

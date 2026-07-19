@@ -21,6 +21,14 @@ function compactStats(stats: unknown): string {
   }
   const record = stats as Record<string, unknown>;
   const parts: string[] = [];
+  if (typeof record.itemsInFeed === "number") {
+    parts.push(`found ${record.itemsInFeed}`);
+    parts.push(`new ${typeof record.newArticles === "number" ? record.newArticles : 0}`);
+    parts.push(
+      `skipped ${typeof record.skippedExisting === "number" ? record.skippedExisting : 0}`,
+    );
+    parts.push(`errors ${Array.isArray(record.errors) ? record.errors.length : 0}`);
+  }
   if (typeof record.changed === "boolean") {
     parts.push(record.changed ? "changed" : "unchanged");
   }
@@ -73,8 +81,15 @@ export default async function SourceDetailPage({ params }: { params: Promise<{ i
               url: source.url ?? "",
               country: source.country ?? "",
               sourceType: source.sourceType,
+              fetchMethod: source.fetchMethod ?? "http_simple",
               schedule: source.schedule ?? "daily",
               active: source.active ?? false,
+              config:
+                source.config !== null &&
+                typeof source.config === "object" &&
+                Object.keys(source.config).length > 0
+                  ? JSON.stringify(source.config, null, 2)
+                  : "",
             }}
           />
         </Section>

@@ -225,6 +225,9 @@ async function main() {
 
   console.log("seed: inserted 7 entities, 5 edges, 2 timeline facts (Danube NPL example deal)");
 
+  // Starter source set. RSS urls were probed live at seed-authoring time; sites
+  // without a resolvable feed use firecrawl_index. Only eKapija and SeeNews start
+  // active — the operator activates the rest in admin.
   const seedSources: (typeof sources.$inferInsert)[] = [
     {
       name: "Continuum Alternatives (canary)",
@@ -235,26 +238,126 @@ async function main() {
       active: true,
     },
     {
-      // Placeholder regional press source; activated with real crawling in Phase 8.
+      name: "eKapija",
+      url: "https://www.ekapija.com/",
+      country: "RS",
+      sourceType: "press",
+      fetchMethod: "firecrawl_index",
+      schedule: "daily",
+      active: true,
+      config: { linkIncludePattern: "/news/\\d+", language: "sr", maxItemsPerRun: 10 },
+    },
+    {
       name: "SeeNews (regional press)",
-      url: "https://seenews.com",
+      url: "https://seenews.com/news",
       country: "BG",
       sourceType: "press",
-      fetchMethod: "http_simple",
+      fetchMethod: "firecrawl_index",
+      schedule: "daily",
+      active: true,
+      config: {
+        linkIncludePattern: "seenews\\.com/news/",
+        language: "en",
+        articleFetch: "firecrawl",
+        maxItemsPerRun: 10,
+      },
+    },
+    {
+      name: "Biznis.rs",
+      url: "https://biznis.rs/feed/",
+      country: "RS",
+      sourceType: "press",
+      fetchMethod: "rss",
       schedule: "daily",
       active: false,
+      config: { language: "sr" },
+    },
+    {
+      name: "Nova Ekonomija",
+      url: "https://novaekonomija.rs/feed",
+      country: "RS",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "sr" },
+    },
+    {
+      name: "Poslovni dnevnik",
+      url: "https://www.poslovni.hr/feed",
+      country: "HR",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "hr" },
+    },
+    {
+      name: "Lider (verify url)",
+      url: "https://lider.media",
+      country: "HR",
+      sourceType: "press",
+      fetchMethod: "firecrawl_index",
+      schedule: "daily",
+      active: false,
+      config: { language: "hr" },
+    },
+    {
+      name: "Ziarul Financiar",
+      url: "https://www.zf.ro/rss",
+      country: "RO",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "ro" },
+    },
+    {
+      name: "Profit.ro",
+      url: "https://www.profit.ro/rss",
+      country: "RO",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "ro" },
+    },
+    {
+      name: "Capital.bg",
+      url: "https://www.capital.bg/rss/",
+      country: "BG",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "bg" },
+    },
+    {
+      name: "IntelliNews",
+      url: "https://www.intellinews.com/feed",
+      sourceType: "press",
+      fetchMethod: "rss",
+      schedule: "daily",
+      active: false,
+      config: { language: "en" },
     },
   ];
   for (const source of seedSources) {
-    const existing = await db
-      .select({ id: sources.id })
-      .from(sources)
-      .where(eq(sources.name, source.name));
-    if (existing.length === 0) {
+    const byUrl = source.url
+      ? await db.select({ id: sources.id }).from(sources).where(eq(sources.url, source.url))
+      : [];
+    const byName =
+      byUrl.length > 0
+        ? []
+        : await db.select({ id: sources.id }).from(sources).where(eq(sources.name, source.name));
+    const existingId = byUrl[0]?.id ?? byName[0]?.id;
+    if (existingId !== undefined) {
+      await db.update(sources).set(source).where(eq(sources.id, existingId));
+    } else {
       await db.insert(sources).values(source);
     }
   }
-  console.log("seed: ensured 2 ingestion sources (canary active, press placeholder inactive)");
+  console.log(`seed: ensured ${seedSources.length} ingestion sources (eKapija + SeeNews active)`);
 }
 
 main().catch((error) => {

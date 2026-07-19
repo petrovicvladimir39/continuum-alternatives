@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { initialFormState } from "../form-state";
 
 const SCHEDULES = ["hourly", "daily", "weekly"];
+const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index"];
 
 export function SourceForm({
   mode,
@@ -22,8 +23,10 @@ export function SourceForm({
     url: string;
     country: string;
     sourceType: string;
+    fetchMethod: string;
     schedule: string;
     active: boolean;
+    config: string;
   };
 }) {
   const [state, formAction] = useActionState(
@@ -119,10 +122,29 @@ export function SourceForm({
           id="source-fetch-method"
           name="fetchMethod"
           className={inputClass}
-          defaultValue="http_simple"
+          defaultValue={value("fetchMethod", initial?.fetchMethod ?? "http_simple")}
         >
-          <option value="http_simple">http_simple</option>
+          {FETCH_METHODS.map((method) => (
+            <option key={method} value={method}>
+              {method}
+            </option>
+          ))}
         </select>
+        {state.errors.fetchMethod ? <p className={errorClass}>{state.errors.fetchMethod}</p> : null}
+      </div>
+      <div>
+        <label className={labelClass} htmlFor="source-config">
+          Config (JSON: maxItemsPerRun, linkIncludePattern, articleFetch, language)
+        </label>
+        <textarea
+          id="source-config"
+          name="config"
+          rows={4}
+          className={`${inputClass} font-mono`}
+          placeholder='{"maxItemsPerRun": 10, "language": "en"}'
+          defaultValue={value("config", initial?.config ?? "")}
+        />
+        {state.errors.config ? <p className={errorClass}>{state.errors.config}</p> : null}
       </div>
       <label className="flex items-center gap-1.5 text-[13px]">
         <input

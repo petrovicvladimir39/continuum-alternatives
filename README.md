@@ -21,3 +21,10 @@ Ingestion is scheduled and executed by Inngest. To run jobs locally, start the
 Inngest dev server alongside the app: `npx inngest-cli@latest dev` (UI at
 http://localhost:8288) while `pnpm dev` is running; it discovers the app at
 http://localhost:3000/api/inngest.
+
+Sources support three fetch methods: `http_simple` (hash-based change detection
+on one page), `rss`, and `firecrawl_index` (scrape an index page, follow article
+links). Per-source JSON config keys: `maxItemsPerRun` (default 10),
+`linkIncludePattern` (regex article links must match, firecrawl_index only),
+`articleFetch` (`simple` | `firecrawl`, default `simple`), `language` (2-letter
+code stamped onto stored documents).

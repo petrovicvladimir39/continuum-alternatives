@@ -48,11 +48,20 @@ async function main() {
   }
 
   const first = await fetchSource(sourceId);
-  check(first.changed === true, `first fetch reports changed (${JSON.stringify(first)})`);
-  check(first.documentId !== undefined, "first fetch inserted a document");
+  check(
+    first.kind === "http_simple" && first.changed === true,
+    `first fetch reports changed (${JSON.stringify(first)})`,
+  );
+  check(
+    first.kind === "http_simple" && first.documentId !== undefined,
+    "first fetch inserted a document",
+  );
 
   const second = await fetchSource(sourceId);
-  check(second.changed === false, "second fetch reports unchanged (hash skip)");
+  check(
+    second.kind === "http_simple" && second.changed === false,
+    "second fetch reports unchanged (hash skip)",
+  );
 
   const docs = await db
     .select({ id: documents.id, title: documents.title, hash: documents.contentHash })

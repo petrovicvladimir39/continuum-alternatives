@@ -468,6 +468,7 @@ async function setFactStatus(factId: string, status: "approved" | "rejected") {
 }
 
 const SCHEDULES = ["hourly", "daily", "weekly"];
+const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index"];
 
 function validateSource(formData: FormData): {
   errors: Record<string, string>;
@@ -476,8 +477,10 @@ function validateSource(formData: FormData): {
     url: string;
     country: string | null;
     sourceType: (typeof sourceType.enumValues)[number];
+    fetchMethod: string;
     schedule: string;
     active: boolean;
+    config: Record<string, unknown>;
   };
 } {
   const errors: Record<string, string> = {};
@@ -485,7 +488,9 @@ function validateSource(formData: FormData): {
   const url = text(formData, "url");
   const country = text(formData, "country");
   const type = text(formData, "sourceType");
+  const fetchMethod = text(formData, "fetchMethod");
   const schedule = text(formData, "schedule");
+  const configRaw = text(formData, "config");
 
   if (name === "") {
     errors.name = "Name is required.";
@@ -499,9 +504,34 @@ function validateSource(formData: FormData): {
   if (!(sourceType.enumValues as readonly string[]).includes(type)) {
     errors.sourceType = `Type must be one of: ${sourceType.enumValues.join(", ")}`;
   }
+  if (!FETCH_METHODS.includes(fetchMethod)) {
+    errors.fetchMethod = `Fetch method must be one of: ${FETCH_METHODS.join(", ")}`;
+  }
   if (!SCHEDULES.includes(schedule)) {
     errors.schedule = `Schedule must be one of: ${SCHEDULES.join(", ")}`;
   }
+
+  let config: Record<string, unknown> = {};
+  if (configRaw !== "") {
+    try {
+      const parsed: unknown = JSON.parse(configRaw);
+      if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        errors.config = "Config must be a JSON object.";
+      } else {
+        config = parsed as Record<string, unknown>;
+      }
+    } catch {
+      errors.config = 'Config must be valid JSON (e.g. {"maxItemsPerRun": 5}).';
+    }
+  }
+  if (config.linkIncludePattern !== undefined && typeof config.linkIncludePattern === "string") {
+    try {
+      new RegExp(config.linkIncludePattern);
+    } catch {
+      errors.config = "config.linkIncludePattern is not a valid regex.";
+    }
+  }
+
   return {
     errors,
     values: {
@@ -509,8 +539,10 @@ function validateSource(formData: FormData): {
       url,
       country: country === "" ? null : country.toUpperCase(),
       sourceType: type as (typeof sourceType.enumValues)[number],
+      fetchMethod,
       schedule,
       active: formData.get("active") === "on",
+      config,
     },
   };
 }
@@ -520,10 +552,7 @@ export async function createSourceAction(_prev: FormState, formData: FormData): 
   if (Object.keys(errors).length > 0) {
     return { errors, values: echo(formData) };
   }
-  const inserted = await db
-    .insert(sources)
-    .values({ ...values, fetchMethod: "http_simple" })
-    .returning({ id: sources.id });
+  const inserted = await db.insert(sources).values(values).returning({ id: sources.id });
   const id = inserted[0]?.id;
   if (id === undefined) {
     return { errors: { form: "Insert failed." }, values: echo(formData) };
@@ -571,13 +600,15 @@ export async function fetchNowAction(_prev: FormState, formData: FormData): Prom
   try {
     const result = await fetchSource(sourceId);
     done();
+    const summary =
+      result.kind === "crawl"
+        ? `found ${result.itemsInFeed}, new ${result.newArticles}, skipped ${result.skippedExisting}, errors ${result.errors.length}`
+        : `changed=${result.changed}${
+            result.documentId !== undefined ? `, document ${result.documentId}` : ""
+          }`;
     return {
       errors: {},
-      values: {
-        message: `Ran directly (no INNGEST_EVENT_KEY set): changed=${result.changed}${
-          result.documentId !== undefined ? `, document ${result.documentId}` : ""
-        }`,
-      },
+      values: { message: `Ran directly (no INNGEST_EVENT_KEY set): ${summary}` },
     };
   } catch (err) {
     done();
