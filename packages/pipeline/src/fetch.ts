@@ -7,6 +7,7 @@ import {
   type CrawlStats,
 } from "./crawl-shared";
 import { fetchFirecrawlIndexSource } from "./firecrawl";
+import { fetchRegistrySource } from "./registry";
 import { fetchRssSource } from "./rss";
 
 export type FetchSourceResult =
@@ -99,6 +100,12 @@ export async function fetchSource(sourceId: string): Promise<FetchSourceResult> 
       }
       case "firecrawl_index": {
         const stats = await fetchFirecrawlIndexSource(source);
+        result = { kind: "crawl", ...stats };
+        runStats = { ...stats };
+        break;
+      }
+      case "registry_custom": {
+        const stats = await fetchRegistrySource(source);
         result = { kind: "crawl", ...stats };
         runStats = { ...stats };
         break;

@@ -14,6 +14,15 @@ export {
   type ScrapeFn,
 } from "./firecrawl";
 export { applyLinkPattern, partitionByExisting, stripHtml, type CrawlStats } from "./crawl-shared";
+export { existingCaseRefs, fetchRegistrySource } from "./registry";
+export {
+  REGISTRY_HANDLERS,
+  parseAlsuProdaje,
+  parseAlsuStecajevi,
+  type RegistryHandler,
+  type RegistryItem,
+} from "./registries";
+export { processDocumentFile, terminateOcrWorkers } from "./extract-text";
 
 import { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 

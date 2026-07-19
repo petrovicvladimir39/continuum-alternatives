@@ -468,7 +468,7 @@ async function setFactStatus(factId: string, status: "approved" | "rejected") {
 }
 
 const SCHEDULES = ["hourly", "daily", "weekly"];
-const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index"];
+const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index", "registry_custom"];
 
 function validateSource(formData: FormData): {
   errors: Record<string, string>;

@@ -6,14 +6,16 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts"
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts"
   },
   "dependencies": {
     "@continuum/db": "workspace:*",
     "@continuum/shared": "workspace:*",
     "@mendable/firecrawl-js": "^4.30.1",
     "fast-xml-parser": "^5.10.1",
-    "inngest": "^3.0.0"
+    "inngest": "^3.0.0",
+    "tesseract.js": "^7.0.0",
+    "unpdf": "^1.6.2"
   },
   "devDependencies": {
     "dotenv": "^17.2.3",

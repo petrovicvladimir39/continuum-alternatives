@@ -43,10 +43,16 @@ export const documents = pgTable("documents", {
   docType: text("doc_type"),
   contentHash: text("content_hash"),
   // Raw fetched content lives in Postgres for now; blob storage (storage_ref)
-  // arrives with PDFs in a later phase.
+  // arrives with PDFs in a later phase (R2-later — binaries are never stored,
+  // only url + extracted text).
   contentText: text("content_text"),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }),
   storageRef: text("storage_ref"),
+  // Registry listing metadata, raw strings verbatim from the source
+  // (e.g. caseRef, debtorName, court) + extraction markers (needsOcr, extraction).
+  meta: jsonb("meta")
+    .notNull()
+    .default(sql`'{}'::jsonb`),
 });
 
 export const ingestionRuns = pgTable("ingestion_runs", {

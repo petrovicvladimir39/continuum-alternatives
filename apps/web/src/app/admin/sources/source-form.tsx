@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { initialFormState } from "../form-state";
 
 const SCHEDULES = ["hourly", "daily", "weekly"];
-const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index"];
+const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index", "registry_custom"];
 
 export function SourceForm({
   mode,
@@ -134,7 +134,8 @@ export function SourceForm({
       </div>
       <div>
         <label className={labelClass} htmlFor="source-config">
-          Config (JSON: maxItemsPerRun, linkIncludePattern, articleFetch, language)
+          Config (JSON: maxItemsPerRun, linkIncludePattern, articleFetch, language, handler,
+          dedupKey, itemsArePdf, ocrLangs)
         </label>
         <textarea
           id="source-config"
