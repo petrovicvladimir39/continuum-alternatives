@@ -1,5 +1,7 @@
 export const SHARED_PACKAGE = "placeholder";
 
+export { slugify, normalizeAlias } from "./normalize";
+
 /**
  * Audience channel vocabulary. Used by timeline_facts.audience_channels and
  * contacts.channels in @continuum/db; the only valid channel values platform-wide.

@@ -9,11 +9,13 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "seed": "tsx src/seed.ts",
-    "verify": "tsx src/verify.ts"
+    "verify": "tsx src/verify.ts && tsx src/verify-cli.ts",
+    "cli": "tsx src/cli.ts"
   },
   "dependencies": {
     "@continuum/shared": "workspace:*",
     "@neondatabase/serverless": "^1.0.0",
+    "commander": "^14.0.0",
     "drizzle-orm": "^0.44.0"
   },
   "devDependencies": {
