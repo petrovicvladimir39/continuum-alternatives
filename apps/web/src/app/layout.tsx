@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col">
         <SiteHeader />
-        <main className="mx-auto w-full max-w-[1200px] flex-1 px-6">{children}</main>
+        <main className="flex w-full flex-1 flex-col">{children}</main>
         <SiteFooter />
         {plausibleDomain ? (
           <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />

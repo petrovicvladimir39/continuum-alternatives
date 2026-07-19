@@ -1,6 +1,7 @@
 export const SHARED_PACKAGE = "placeholder";
 
 export { slugify, normalizeAlias } from "./normalize";
+export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
 
 /**
  * Audience channel vocabulary. Used by timeline_facts.audience_channels and
