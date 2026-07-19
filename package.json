@@ -1,6 +1,7 @@
 {
   "name": "continuum-alternatives",
   "private": true,
+  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
