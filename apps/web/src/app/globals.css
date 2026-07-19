@@ -1,14 +1,88 @@
 @import "tailwindcss";
 
-body {
-  background: #fafaf8;
-  color: #111111;
-  font-family:
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
+@theme {
+  --color-ground: #fafaf8;
+  --color-surface: #ffffff;
+  --color-ink: #141311;
+  --color-ink-secondary: #5c5952;
+  --color-ink-muted: #8a867c;
+  --color-line: #e7e4dc;
+  --color-line-strong: #d2cec3;
+  --color-accent: #17456b;
+  --color-accent-ink: #ffffff;
+
+  --color-equity: #1d7a5f;
+  --color-equity-bg: #e9f3ef;
+  --color-credit: #96690f;
+  --color-credit-bg: #f6efdf;
+  --color-distressed: #a4442a;
+  --color-distressed-bg: #f7eae5;
+  --color-positive: #1d7a5f;
+  --color-negative: #a4442a;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+}
+
+@layer base {
+  body {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@utility type-h1 {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+@utility type-h2 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+@utility type-h3 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+@utility type-small {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+@utility type-data {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
