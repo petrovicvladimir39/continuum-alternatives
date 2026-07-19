@@ -22,6 +22,8 @@ import {
   people,
   requireEntityBySlug,
   resolveEntity,
+  sources,
+  sourceType,
   timelineFacts,
   and,
   eq,
@@ -29,6 +31,7 @@ import {
   type EdgeTypeName,
   type EntityKind,
 } from "@continuum/db";
+import { fetchSource, inngest } from "@continuum/pipeline";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "./form-state";
@@ -462,6 +465,131 @@ async function setFactStatus(factId: string, status: "approved" | "rejected") {
     .set({ status })
     .where(and(eq(timelineFacts.id, factId), eq(timelineFacts.status, "proposed")));
   revalidatePath("/admin/review");
+}
+
+const SCHEDULES = ["hourly", "daily", "weekly"];
+
+function validateSource(formData: FormData): {
+  errors: Record<string, string>;
+  values: {
+    name: string;
+    url: string;
+    country: string | null;
+    sourceType: (typeof sourceType.enumValues)[number];
+    schedule: string;
+    active: boolean;
+  };
+} {
+  const errors: Record<string, string> = {};
+  const name = text(formData, "name");
+  const url = text(formData, "url");
+  const country = text(formData, "country");
+  const type = text(formData, "sourceType");
+  const schedule = text(formData, "schedule");
+
+  if (name === "") {
+    errors.name = "Name is required.";
+  }
+  if (!/^https?:\/\/.+/.test(url)) {
+    errors.url = "URL must start with http:// or https://.";
+  }
+  if (country !== "" && !/^[A-Za-z]{2}$/.test(country)) {
+    errors.country = "Country must be a 2-letter code.";
+  }
+  if (!(sourceType.enumValues as readonly string[]).includes(type)) {
+    errors.sourceType = `Type must be one of: ${sourceType.enumValues.join(", ")}`;
+  }
+  if (!SCHEDULES.includes(schedule)) {
+    errors.schedule = `Schedule must be one of: ${SCHEDULES.join(", ")}`;
+  }
+  return {
+    errors,
+    values: {
+      name,
+      url,
+      country: country === "" ? null : country.toUpperCase(),
+      sourceType: type as (typeof sourceType.enumValues)[number],
+      schedule,
+      active: formData.get("active") === "on",
+    },
+  };
+}
+
+export async function createSourceAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { errors, values } = validateSource(formData);
+  if (Object.keys(errors).length > 0) {
+    return { errors, values: echo(formData) };
+  }
+  const inserted = await db
+    .insert(sources)
+    .values({ ...values, fetchMethod: "http_simple" })
+    .returning({ id: sources.id });
+  const id = inserted[0]?.id;
+  if (id === undefined) {
+    return { errors: { form: "Insert failed." }, values: echo(formData) };
+  }
+  revalidatePath("/admin/sources");
+  redirect(`/admin/sources/${id}`);
+}
+
+export async function updateSourceAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const sourceId = text(formData, "sourceId");
+  const { errors, values } = validateSource(formData);
+  if (Object.keys(errors).length > 0) {
+    return { errors, values: echo(formData) };
+  }
+  await db.update(sources).set(values).where(eq(sources.id, sourceId));
+  revalidatePath("/admin/sources");
+  revalidatePath(`/admin/sources/${sourceId}`);
+  return { errors: {}, values: { saved: "1" } };
+}
+
+export async function toggleSourceActiveAction(formData: FormData): Promise<void> {
+  const sourceId = text(formData, "sourceId");
+  await db
+    .update(sources)
+    .set({ active: sql`NOT coalesce(${sources.active}, false)` })
+    .where(eq(sources.id, sourceId));
+  revalidatePath("/admin/sources");
+  revalidatePath(`/admin/sources/${sourceId}`);
+}
+
+export async function fetchNowAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const sourceId = text(formData, "sourceId");
+  const done = () => {
+    revalidatePath("/admin/sources");
+    revalidatePath(`/admin/sources/${sourceId}`);
+  };
+  if (process.env.INNGEST_EVENT_KEY) {
+    await inngest.send({ name: "source/fetch.requested", data: { sourceId } });
+    done();
+    return {
+      errors: {},
+      values: { message: "Queued via Inngest (event source/fetch.requested)." },
+    };
+  }
+  try {
+    const result = await fetchSource(sourceId);
+    done();
+    return {
+      errors: {},
+      values: {
+        message: `Ran directly (no INNGEST_EVENT_KEY set): changed=${result.changed}${
+          result.documentId !== undefined ? `, document ${result.documentId}` : ""
+        }`,
+      },
+    };
+  } catch (err) {
+    done();
+    return {
+      errors: {
+        form: `Ran directly (no INNGEST_EVENT_KEY set) — fetch failed: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      },
+      values: {},
+    };
+  }
 }
 
 export async function approveEdgeAction(formData: FormData): Promise<void> {

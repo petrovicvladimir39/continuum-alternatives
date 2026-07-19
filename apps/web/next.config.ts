@@ -10,7 +10,7 @@ if (existsSync(rootEnv)) {
 }
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@continuum/db", "@continuum/shared"],
+  transpilePackages: ["@continuum/db", "@continuum/pipeline", "@continuum/shared"],
 };
 
 export default nextConfig;

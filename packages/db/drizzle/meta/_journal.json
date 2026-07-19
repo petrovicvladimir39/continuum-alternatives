@@ -15,6 +15,13 @@
       "when": 1784487594980,
       "tag": "0001_dizzy_falcon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784488523020,
+      "tag": "0002_dark_norrin_radd",
+      "breakpoints": true
     }
   ]
 }

@@ -5,6 +5,16 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify": "tsx src/verify-pipeline.ts"
+  },
+  "dependencies": {
+    "@continuum/db": "workspace:*",
+    "@continuum/shared": "workspace:*",
+    "inngest": "^3.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3",
+    "tsx": "^4.20.6"
   }
 }

@@ -1,7 +1,9 @@
 import "./env";
-import { inArray, or } from "drizzle-orm";
+import { companyNameCore, normalizeAlias } from "@continuum/shared";
+import { eq, inArray, or } from "drizzle-orm";
 import { db } from "./client";
 import {
+  aliases,
   assets,
   deals,
   edges,
@@ -9,6 +11,7 @@ import {
   entityTags,
   fundVehicles,
   organizations,
+  sources,
   timelineFacts,
 } from "./schema";
 
@@ -53,6 +56,7 @@ async function main() {
         ),
       );
     await db.delete(entityTags).where(inArray(entityTags.entityId, ids));
+    await db.delete(aliases).where(inArray(aliases.entityId, ids));
     await db.delete(organizations).where(inArray(organizations.entityId, ids));
     await db.delete(assets).where(inArray(assets.entityId, ids));
     await db.delete(fundVehicles).where(inArray(fundVehicles.entityId, ids));
@@ -198,7 +202,59 @@ async function main() {
     },
   ]);
 
+  const seededEntities = await db
+    .select({ id: entities.id, name: entities.name })
+    .from(entities)
+    .where(inArray(entities.slug, SLUGS));
+  for (const entity of seededEntities) {
+    const normalized = normalizeAlias(entity.name);
+    const core = companyNameCore(entity.name);
+    await db.insert(aliases).values({
+      entityId: entity.id,
+      alias: entity.name,
+      aliasNormalized: normalized,
+    });
+    if (core !== normalized) {
+      await db.insert(aliases).values({
+        entityId: entity.id,
+        alias: entity.name,
+        aliasNormalized: core,
+      });
+    }
+  }
+
   console.log("seed: inserted 7 entities, 5 edges, 2 timeline facts (Danube NPL example deal)");
+
+  const seedSources: (typeof sources.$inferInsert)[] = [
+    {
+      name: "Continuum Alternatives (canary)",
+      url: "https://continuumalternatives.com",
+      sourceType: "company_site",
+      fetchMethod: "http_simple",
+      schedule: "weekly",
+      active: true,
+    },
+    {
+      // Placeholder regional press source; activated with real crawling in Phase 8.
+      name: "SeeNews (regional press)",
+      url: "https://seenews.com",
+      country: "BG",
+      sourceType: "press",
+      fetchMethod: "http_simple",
+      schedule: "daily",
+      active: false,
+    },
+  ];
+  for (const source of seedSources) {
+    const existing = await db
+      .select({ id: sources.id })
+      .from(sources)
+      .where(eq(sources.name, source.name));
+    if (existing.length === 0) {
+      await db.insert(sources).values(source);
+    }
+  }
+  console.log("seed: ensured 2 ingestion sources (canary active, press placeholder inactive)");
 }
 
 main().catch((error) => {

@@ -14,3 +14,10 @@ Monorepo for Continuum Alternatives, a data platform for private capital in emer
 - `pnpm typecheck` — type-check every package and app
 - `pnpm lint` — lint the whole repo with ESLint
 - `pnpm format` — format the whole repo with Prettier
+
+## Background jobs (Inngest)
+
+Ingestion is scheduled and executed by Inngest. To run jobs locally, start the
+Inngest dev server alongside the app: `npx inngest-cli@latest dev` (UI at
+http://localhost:8288) while `pnpm dev` is running; it discovers the app at
+http://localhost:3000/api/inngest.

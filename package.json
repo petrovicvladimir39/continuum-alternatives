@@ -6,6 +6,7 @@
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
     "typecheck": "pnpm -r run typecheck",
+    "verify": "pnpm --filter @continuum/db verify && pnpm --filter @continuum/pipeline verify",
     "lint": "eslint .",
     "cli": "pnpm --filter @continuum/db cli",
     "format": "prettier --write ."

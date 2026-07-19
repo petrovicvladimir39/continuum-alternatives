@@ -21,6 +21,8 @@ export const sources = pgTable("sources", {
   schedule: text("schedule"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  lastRunAt: timestamp("last_run_at", { withTimezone: true }),
+  lastRunStatus: text("last_run_status"),
 });
 
 export const documents = pgTable("documents", {
@@ -31,6 +33,9 @@ export const documents = pgTable("documents", {
   language: char("language", { length: 2 }),
   docType: text("doc_type"),
   contentHash: text("content_hash"),
+  // Raw fetched content lives in Postgres for now; blob storage (storage_ref)
+  // arrives with PDFs in a later phase.
+  contentText: text("content_text"),
   fetchedAt: timestamp("fetched_at", { withTimezone: true }),
   storageRef: text("storage_ref"),
 });
