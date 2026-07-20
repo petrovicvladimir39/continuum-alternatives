@@ -5,6 +5,7 @@ import {
   addFact,
   aliases,
   anomalies,
+  articles,
   assets,
   createEdge,
   createEntity,
@@ -607,6 +608,119 @@ export async function toggleSourceActiveAction(formData: FormData): Promise<void
     .where(eq(sources.id, sourceId));
   revalidatePath("/admin/sources");
   revalidatePath(`/admin/sources/${sourceId}`);
+}
+
+/**
+ * News Desk article review (reset build Part 6). Headline/deck/body stay
+ * editable while proposed; Approve → published stamps published_at; there
+ * is NO auto-publish path anywhere.
+ */
+export async function updateArticleAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const articleId = text(formData, "articleId");
+  const headline = text(formData, "headline");
+  const deck = text(formData, "deck");
+  const bodyMd = text(formData, "bodyMd");
+  const errors: Record<string, string> = {};
+  if (headline === "" || headline.length > 90) {
+    errors.headline = "Headline is required, max 90 characters.";
+  }
+  if (deck.length > 160) {
+    errors.deck = "Deck max 160 characters.";
+  }
+  if (bodyMd.length < 100) {
+    errors.bodyMd = "Body too short.";
+  }
+  if (Object.keys(errors).length > 0) {
+    return { errors, values: echo(formData) };
+  }
+  await db
+    .update(articles)
+    .set({ headline, deck: deck === "" ? null : deck, bodyMd })
+    .where(and(eq(articles.id, articleId), eq(articles.status, "proposed")));
+  revalidatePath(`/admin/review/article/${articleId}`);
+  revalidatePath("/admin/review");
+  return { errors: {}, values: { saved: "1" } };
+}
+
+export async function approveArticleAction(formData: FormData): Promise<void> {
+  const articleId = text(formData, "articleId");
+  await db
+    .update(articles)
+    .set({ status: "published", publishedAt: new Date() })
+    .where(and(eq(articles.id, articleId), eq(articles.status, "proposed")));
+  revalidatePath("/admin/review");
+  revalidatePath("/news");
+  revalidatePath("/");
+  redirect("/admin/review?filter=articles");
+}
+
+export async function rejectArticleAction(formData: FormData): Promise<void> {
+  const articleId = text(formData, "articleId");
+  await db
+    .update(articles)
+    .set({ status: "rejected" })
+    .where(and(eq(articles.id, articleId), eq(articles.status, "proposed")));
+  revalidatePath("/admin/review");
+  redirect("/admin/review?filter=articles");
+}
+
+/**
+ * Bulk tag add/remove over the universe filtered view (reset build Part 5).
+ * Applies to EVERY entity matching the filter, not just the visible page.
+ */
+export async function bulkTagAction(formData: FormData): Promise<void> {
+  const country = text(formData, "country").toUpperCase();
+  const tag = text(formData, "tag");
+  const status = text(formData, "status");
+  const kind = text(formData, "kind");
+  const bulkTag = text(formData, "bulkTag");
+  const op = text(formData, "op");
+  if (bulkTag === "" || !/^[a-z0-9_]+$/.test(bulkTag)) {
+    return;
+  }
+  const filterSql = sql`
+    SELECT e.id FROM entities e
+    WHERE (${country === "" ? null : country}::text IS NULL OR e.country = ${country === "" ? null : country})
+      AND (${kind === "" ? null : kind}::text IS NULL OR e.kind::text = ${kind === "" ? null : kind})
+      AND (${status === "" ? null : status}::text IS NULL OR e.status = ${status === "" ? null : status})
+      AND (${tag === "" ? null : tag}::text IS NULL OR EXISTS
+             (SELECT 1 FROM entity_tags t WHERE t.entity_id = e.id AND t.tag = ${tag === "" ? null : tag}))
+  `;
+  if (op === "remove") {
+    await db.execute(sql`
+      DELETE FROM entity_tags WHERE tag = ${bulkTag} AND entity_id IN (${filterSql})
+    `);
+  } else {
+    await db.execute(sql`
+      INSERT INTO entity_tags (entity_id, tag)
+      SELECT id, ${bulkTag} FROM (${filterSql}) f(id)
+      ON CONFLICT DO NOTHING
+    `);
+  }
+  revalidatePath("/admin/universe");
+}
+
+/**
+ * Bulk activate/deactivate sources by country + type (reset build Part 4d).
+ * The cost estimate shown at the point of decision lives in the sources page;
+ * this action only flips the matching group.
+ */
+export async function bulkSetSourcesActiveAction(formData: FormData): Promise<void> {
+  const country = text(formData, "country");
+  const type = text(formData, "sourceType");
+  const activate = text(formData, "activate") === "1";
+  const conditions = [eq(sources.active, !activate)];
+  if (country !== "" && country !== "all") {
+    conditions.push(eq(sources.country, country));
+  }
+  if (type !== "" && type !== "all") {
+    conditions.push(eq(sources.sourceType, type as (typeof sourceType.enumValues)[number]));
+  }
+  await db
+    .update(sources)
+    .set({ active: activate })
+    .where(and(...conditions));
+  revalidatePath("/admin/sources");
 }
 
 export async function fetchNowAction(_prev: FormState, formData: FormData): Promise<FormState> {

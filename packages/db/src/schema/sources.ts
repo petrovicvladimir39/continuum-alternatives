@@ -1,5 +1,6 @@
 import { boolean, char, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { entities } from "./entities";
 
 export const sourceType = pgEnum("source_type", [
   "press",
@@ -18,7 +19,12 @@ export const sources = pgTable("sources", {
   url: text("url"),
   country: char("country", { length: 2 }),
   sourceType: sourceType("source_type").notNull(),
+  // fetch_method values: http_simple | rss | firecrawl_index | registry_custom
+  // | newsletter_rss (operator-supplied newsletter/blog feeds — the "voices"
+  // layer; X/Twitter is deliberately excluded: paid API, ToS restrictions).
   fetchMethod: text("fetch_method"),
+  // Org newsrooms discovered by sources:discover link back to their entity.
+  entityId: uuid("entity_id").references(() => entities.id),
   schedule: text("schedule"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),

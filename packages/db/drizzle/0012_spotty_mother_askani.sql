@@ -1,0 +1,2 @@
+ALTER TABLE "sources" ADD COLUMN "entity_id" uuid;--> statement-breakpoint
+ALTER TABLE "sources" ADD CONSTRAINT "sources_entity_id_entities_id_fk" FOREIGN KEY ("entity_id") REFERENCES "public"."entities"("id") ON DELETE no action ON UPDATE no action;

@@ -96,6 +96,11 @@ export async function fetchSource(sourceId: string): Promise<FetchSourceResult> 
 
   try {
     switch (source.fetchMethod) {
+      // newsletter_rss = the "voices" layer: operator-supplied newsletter/blog
+      // feeds of industry voices, same RSS pipeline. X/Twitter is deliberately
+      // excluded (paid API, ToS restrictions on scraping) — newsletters and
+      // blogs are the legitimate substitute.
+      case "newsletter_rss":
       case "rss": {
         const stats = await fetchRssSource(source);
         result = { kind: "crawl", ...stats };

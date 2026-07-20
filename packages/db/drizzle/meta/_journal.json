@@ -85,6 +85,20 @@
       "when": 1784556963109,
       "tag": "0011_legal_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1784563983579,
+      "tag": "0012_spotty_mother_askani",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1784564438264,
+      "tag": "0013_futuristic_sleeper",
+      "breakpoints": true
     }
   ]
 }

@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { initialFormState } from "../form-state";
 
 const SCHEDULES = ["hourly", "daily", "weekly"];
-const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index", "registry_custom"];
+// newsletter_rss = operator-supplied newsletter/blog feeds (the "voices"
+// layer) — same RSS pipeline; X/Twitter is excluded (paid API, ToS).
+const FETCH_METHODS = ["http_simple", "rss", "firecrawl_index", "registry_custom", "newsletter_rss"];
 
 export function SourceForm({
   mode,
