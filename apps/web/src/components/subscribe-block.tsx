@@ -24,7 +24,13 @@ const CHANNEL_DESCRIPTIONS: Record<string, string> = {
 
 const initialState: SubscribeState = { status: "idle" };
 
-export function SubscribeBlock({ compact = false }: { compact?: boolean }) {
+export function SubscribeBlock({
+  compact = false,
+  defaultEmail = "",
+}: {
+  compact?: boolean;
+  defaultEmail?: string;
+}) {
   const [state, formAction] = useActionState(subscribeAction, initialState);
   const tracked = useRef(false);
 
@@ -60,6 +66,7 @@ export function SubscribeBlock({ compact = false }: { compact?: boolean }) {
           name="email"
           required
           placeholder="you@firm.com"
+          defaultValue={defaultEmail}
           className="min-w-[220px] flex-1 border border-line bg-surface px-2.5 py-1.5 text-[13px] text-ink outline-none focus:border-line-strong"
         />
         <Button type="submit">Subscribe</Button>

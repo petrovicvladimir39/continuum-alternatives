@@ -1,9 +1,35 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Instrument_Sans, Newsreader } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteHeader, type HeaderIdentity } from "@/components/site-header";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
+
+// Clerk is active only when both keys exist (Phase 24A). Without them the
+// public site runs untouched and /admin + /account 404 in the middleware.
+const clerkEnabled = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
+);
+
+async function headerIdentity(): Promise<HeaderIdentity> {
+  if (!clerkEnabled) {
+    return { status: "off" };
+  }
+  const { userId } = await auth();
+  if (userId === null) {
+    return { status: "anon" };
+  }
+  const user = await currentUser();
+  const name =
+    user?.firstName ??
+    user?.username ??
+    user?.primaryEmailAddress?.emailAddress ??
+    "Account";
+  return { status: "signed_in", name };
+}
 
 const serif = Newsreader({
   subsets: ["latin", "latin-ext"],
@@ -38,13 +64,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
+  const identity = await headerIdentity();
 
-  return (
+  const page = (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col">
-        <SiteHeader />
+        <SiteHeader identity={identity} />
         <main className="flex w-full flex-1 flex-col">{children}</main>
         <SiteFooter />
         {plausibleDomain ? (
@@ -53,4 +80,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
+
+  return clerkEnabled ? <ClerkProvider appearance={clerkAppearance}>{page}</ClerkProvider> : page;
 }

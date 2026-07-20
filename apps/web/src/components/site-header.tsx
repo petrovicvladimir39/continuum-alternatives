@@ -8,8 +8,17 @@ import { NAV_ITEMS } from "@continuum/shared";
  * Site IA (Phase 19): wordmark left · primary nav with active-state underline
  * (1px, per styleguide — elevation and emphasis by hairline only) · Search as
  * an icon-free right-aligned input-shaped link.
+ *
+ * Identity (Phase 24D): deliberately quiet on a public news site — signed-out
+ * shows only a right-aligned "Sign in" text link (nothing when Clerk is not
+ * configured); signed-in shows the display name linking to /account.
  */
-export function SiteHeader() {
+export type HeaderIdentity =
+  | { status: "off" }
+  | { status: "anon" }
+  | { status: "signed_in"; name: string };
+
+export function SiteHeader({ identity = { status: "off" } }: { identity?: HeaderIdentity }) {
   const pathname = usePathname();
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)) ||
@@ -43,6 +52,21 @@ export function SiteHeader() {
         >
           Search…
         </Link>
+        {identity.status === "signed_in" ? (
+          <Link
+            href="/account"
+            className="shrink-0 whitespace-nowrap text-[13px] text-ink-secondary hover:text-accent"
+          >
+            {identity.name}
+          </Link>
+        ) : identity.status === "anon" ? (
+          <Link
+            href="/sign-in"
+            className="shrink-0 whitespace-nowrap text-[13px] text-ink-muted hover:text-accent"
+          >
+            Sign in
+          </Link>
+        ) : null}
       </div>
     </header>
   );

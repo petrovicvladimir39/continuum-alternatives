@@ -15,6 +15,12 @@ export {
   EUROPE_MAP_BOUNDS,
   isEuropeCountry,
 } from "./countries";
+export {
+  canAccessAccount,
+  canAccessAdmin,
+  resolveAccessRole,
+  type AccessRole,
+} from "./auth";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";
 export { stripBaseLabels, isCountryLabelLayer, type MapStyleLike } from "./map-style";
 export {

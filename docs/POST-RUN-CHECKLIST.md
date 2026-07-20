@@ -48,6 +48,20 @@ Suggested first batches:
 
 ## 3. Keys and integrations (operator-held)
 
+- [ ] **Clerk (Phase 24 — admin is UNREACHABLE until done).** Basic auth is
+      retired. Steps, in order:
+      1. Create the Clerk application; put `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+         and `CLERK_SECRET_KEY` in .env / Vercel env.
+      2. In the dashboard, enable the sign-in methods: **passkeys + email**
+         (code asserts nothing about methods).
+      3. Sign up once at /sign-up, then in the Clerk dashboard set your own
+         user's `publicMetadata.role` to `"admin"`. Until then every /admin
+         URL answers 404 — for everyone, including you.
+      4. Add a webhook endpoint for `user.created`, `user.updated`,
+         `user.deleted` → `https://…/api/webhooks/clerk`, and put its signing
+         secret in `CLERK_WEBHOOK_SECRET`. (Until then the on-demand upsert
+         on first /account visit keeps member profiles fresh.)
+
 - [ ] **CH_API_KEY** — free key from
       developer.company-information.service.gov.uk, then
       `pnpm ch:enrich -- --limit 200` to stamp official Companies House

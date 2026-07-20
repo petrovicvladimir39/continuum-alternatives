@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
+import { canAccessAdmin, resolveAccessRole } from "@continuum/shared";
 import { anomalies, db, edges, eq, sql, timelineFacts } from "@continuum/db";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +16,21 @@ export const metadata: Metadata = {
 const navLinkClass = "block px-2 py-1.5 text-[13px] text-ink-secondary hover:text-accent";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
+  // Phase 24B: /admin requires publicMetadata.role === 'admin'. Everyone
+  // else — signed-in members included — gets a clean 404: no admin
+  // existence hints. (Middleware already 404s when Clerk is unconfigured
+  // and redirects anonymous users to sign-in.)
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
+    notFound();
+  }
+  const user = await currentUser();
+  const role = resolveAccessRole(
+    user === null ? null : { userId: user.id, publicMetadata: user.publicMetadata },
+  );
+  if (!canAccessAdmin(role)) {
+    notFound();
+  }
+
   const [factCount, edgeCount, anomalyCount] = await Promise.all([
     db
       .select({ n: sql<number>`count(*)::int` })

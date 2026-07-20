@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts && tsx src/verify-enrich.ts && tsx src/verify-site.ts && tsx src/verify-gleif.ts && tsx src/verify-discover.ts && tsx src/verify-export.ts && tsx src/verify-articles.ts && tsx src/verify-balance.ts && tsx src/verify-audience.ts",
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts && tsx src/verify-enrich.ts && tsx src/verify-site.ts && tsx src/verify-gleif.ts && tsx src/verify-discover.ts && tsx src/verify-export.ts && tsx src/verify-articles.ts && tsx src/verify-balance.ts && tsx src/verify-audience.ts && tsx src/verify-identity.ts",
     "extract:benchmark": "tsx src/extract-benchmark.ts",
     "filings:backfill": "tsx src/filings-backfill.ts",
     "alsu:history": "tsx src/alsu-history.ts",
@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "dotenv": "^17.2.3",
+    "svix": "^1.98.0",
     "tsx": "^4.20.6"
   }
 }
