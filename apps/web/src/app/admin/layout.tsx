@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { db, edges, eq, sql, timelineFacts } from "@continuum/db";
+import { anomalies, db, edges, eq, sql, timelineFacts } from "@continuum/db";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 const navLinkClass = "block px-2 py-1.5 text-[13px] text-ink-secondary hover:text-accent";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const [factCount, edgeCount] = await Promise.all([
+  const [factCount, edgeCount, anomalyCount] = await Promise.all([
     db
       .select({ n: sql<number>`count(*)::int` })
       .from(timelineFacts)
@@ -22,8 +22,13 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       .select({ n: sql<number>`count(*)::int` })
       .from(edges)
       .where(eq(edges.status, "proposed")),
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(anomalies)
+      .where(eq(anomalies.status, "new")),
   ]);
   const pending = (factCount[0]?.n ?? 0) + (edgeCount[0]?.n ?? 0);
+  const newAnomalies = anomalyCount[0]?.n ?? 0;
 
   return (
     <div className="flex w-full flex-1">
@@ -51,6 +56,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           </Link>
           <Link href="/admin/documents" className={navLinkClass}>
             Documents
+          </Link>
+          <Link
+            href="/admin/anomalies"
+            className={`${navLinkClass} flex items-baseline justify-between`}
+          >
+            <span>Anomalies</span>
+            {newAnomalies > 0 ? (
+              <span className="type-data text-ink-muted">{newAnomalies}</span>
+            ) : null}
           </Link>
         </nav>
       </aside>

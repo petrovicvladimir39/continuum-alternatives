@@ -6,9 +6,11 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts",
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts",
     "extract:benchmark": "tsx src/extract-benchmark.ts",
-    "filings:backfill": "tsx src/filings-backfill.ts"
+    "filings:backfill": "tsx src/filings-backfill.ts",
+    "alsu:history": "tsx src/alsu-history.ts",
+    "anomalies:scan": "tsx src/anomalies-scan.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

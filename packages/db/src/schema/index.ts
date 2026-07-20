@@ -5,3 +5,4 @@ export * from "./timeline";
 export * from "./taxonomy";
 export * from "./sources";
 export * from "./engagement";
+export * from "./anomalies";

@@ -12,6 +12,15 @@ export {
 export { extractDocumentFn } from "./functions/extract-document";
 export { fetchSource, type FetchSourceResult } from "./fetch";
 export { notifyQueue, pendingCounts, sendAlert } from "./alert";
+export {
+  bucketWeekly,
+  detectAnomalies,
+  isoWeekStart,
+  notifyAnomalies,
+  scanAnomalies,
+  type AnomalyVerdict,
+} from "./anomalies";
+export { anomaliesWeekly } from "./functions/anomalies-weekly";
 export { mapFilingById, mapFilingToFact, type MappedFiling } from "./filings-map";
 export { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 export { parseSourceConfig, type SourceConfig } from "./config";
@@ -34,8 +43,9 @@ export {
 } from "./registries";
 export { processDocumentFile, terminateOcrWorkers } from "./extract-text";
 
+import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { extractDocumentFn } from "./functions/extract-document";
 import { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 
 /** Every pipeline function, for the Next.js serve route. */
-export const functions = [ingestHourly, ingestSource, extractDocumentFn];
+export const functions = [ingestHourly, ingestSource, extractDocumentFn, anomaliesWeekly];

@@ -11,7 +11,9 @@
     "cli": "pnpm --filter @continuum/db cli",
     "format": "prettier --write .",
     "extract:benchmark": "pnpm --filter @continuum/pipeline extract:benchmark",
-    "filings:backfill": "pnpm --filter @continuum/pipeline filings:backfill"
+    "filings:backfill": "pnpm --filter @continuum/pipeline filings:backfill",
+    "alsu:history": "pnpm --filter @continuum/pipeline alsu:history",
+    "anomalies:scan": "pnpm --filter @continuum/pipeline anomalies:scan"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

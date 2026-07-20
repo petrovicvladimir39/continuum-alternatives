@@ -54,8 +54,19 @@ async function resolveDebtor(
  * handlers. Idempotent via documents.meta.mapped = true. Returns null when the
  * document is not a mappable ALSU filing or was already mapped.
  */
+export type MapFilingOptions = {
+  /**
+   * Store the fact as already approved (verified_by 'operator-backfill' in
+   * data — timeline_facts has no verified_by column). Used ONLY by the history
+   * backfill where the operator's explicit --approve flag IS the approval act.
+   * Provisional entities are promoted immediately for approved facts.
+   */
+  approve?: boolean;
+};
+
 export async function mapFilingToFact(
   doc: typeof documents.$inferSelect,
+  options: MapFilingOptions = {},
 ): Promise<MappedFiling | null> {
   const meta = (doc.meta ?? {}) as Record<string, unknown>;
   const listing = metaString(meta, "listing");
@@ -70,6 +81,12 @@ export async function mapFilingToFact(
 
   const registryId = metaString(meta, "registryId");
   const { entityId, outcome } = await resolveDebtor(debtorName, registryId);
+  const approve = options.approve === true;
+  if (approve && outcome === "provisional") {
+    await db.update(entities).set({ status: "active" }).where(eq(entities.id, entityId));
+  }
+  const status = approve ? "approved" : "proposed";
+  const approvalData = approve ? { verified_by: "operator-backfill" } : {};
   const fallbackDate = (doc.fetchedAt ?? new Date()).toISOString().slice(0, 10);
 
   let factValues: typeof timelineFacts.$inferInsert;
@@ -83,8 +100,9 @@ export async function mapFilingToFact(
       audienceChannels: ["distressed"],
       sourceDocumentId: doc.id,
       confidence: "0.95",
-      status: "proposed",
+      status,
       data: {
+        ...approvalData,
         entities: [entityId],
         source: "alsu-mapper",
         caseRef: metaString(meta, "caseRef") ?? null,
@@ -105,8 +123,9 @@ export async function mapFilingToFact(
       audienceChannels: ["distressed", "private_credit"],
       sourceDocumentId: doc.id,
       confidence: "0.95",
-      status: "proposed",
+      status,
       data: {
+        ...approvalData,
         entities: [entityId],
         source: "alsu-mapper",
         method: metaString(meta, "saleMethod") ?? null,

@@ -4,6 +4,7 @@ import { CHANNELS, ENTITY_TAGS, normalizeAlias } from "@continuum/shared";
 import {
   addFact,
   aliases,
+  anomalies,
   assets,
   createEdge,
   createEntity,
@@ -728,6 +729,14 @@ export async function deleteProvisionalAction(formData: FormData): Promise<void>
   await db.delete(events).where(eq(events.entityId, entityId));
   await db.delete(entities).where(eq(entities.id, entityId));
   revalidatePath("/admin/review");
+}
+
+export async function dismissAnomalyAction(formData: FormData): Promise<void> {
+  await db
+    .update(anomalies)
+    .set({ status: "dismissed" })
+    .where(and(eq(anomalies.id, text(formData, "anomalyId")), eq(anomalies.status, "new")));
+  revalidatePath("/admin/anomalies");
 }
 
 export async function extractNowAction(_prev: FormState, formData: FormData): Promise<FormState> {
