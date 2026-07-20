@@ -82,16 +82,25 @@ export function SiteHeader({
         </nav>
         <QuickSearch />
         {identity.status === "signed_in" ? (
-          <Link
-            href="/account"
-            className="shrink-0 whitespace-nowrap text-[13px] text-ink-secondary hover:text-accent"
-          >
-            {identity.name}
-            {/* quiet unseen count — a number, never a badge bubble */}
-            {identity.unseen !== undefined && identity.unseen > 0 ? (
-              <span className="type-data ml-1.5 text-ink-muted">{identity.unseen}</span>
-            ) : null}
-          </Link>
+          <span className="flex shrink-0 items-baseline gap-3">
+            {/* Phase 32C: the member's egocentric map lives under their name. */}
+            <Link
+              href="/universe"
+              className="whitespace-nowrap text-[13px] text-ink-muted hover:text-accent"
+            >
+              Universe
+            </Link>
+            <Link
+              href="/account"
+              className="whitespace-nowrap text-[13px] text-ink-secondary hover:text-accent"
+            >
+              {identity.name}
+              {/* quiet unseen count — a number, never a badge bubble */}
+              {identity.unseen !== undefined && identity.unseen > 0 ? (
+                <span className="type-data ml-1.5 text-ink-muted">{identity.unseen}</span>
+              ) : null}
+            </Link>
+          </span>
         ) : identity.status === "anon" ? (
           <Link
             href="/sign-in"

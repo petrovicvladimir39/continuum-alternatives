@@ -3,16 +3,25 @@ import { notFound } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import { canExport, CHANNELS } from "@continuum/shared";
 import {
+  countPrivateEdges,
   findContactByEmail,
+  getMemberAffiliation,
   getMemberByClerkId,
   getSubscription,
   listSavedViews,
   resolveMemberTier,
+  searchPublic,
   upsertMemberProfile,
 } from "@continuum/db";
 import { deleteSavedViewAction } from "@/app/(site)/news/actions";
 import { openPortalAction } from "@/app/(site)/pricing/actions";
 import { updateProfessionalLineAction } from "@/lib/community-actions";
+import {
+  clearAffiliationAction,
+  deleteContactsAction,
+  importLinkedInAction,
+  setAffiliationAction,
+} from "@/lib/universe-actions";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass } from "@/components/admin/form-styles";
@@ -33,7 +42,12 @@ export const metadata: Metadata = {
  * The upsert below is the webhook-resilience fallback: the first
  * authenticated visit guarantees a member_profiles row exists.
  */
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ firm?: string; import?: string; n?: string; m?: string; d?: string; capped?: string }>;
+}) {
+  const params = await searchParams;
   if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
     notFound();
   }
@@ -55,10 +69,18 @@ export default async function AccountPage() {
 
   const contact = email !== null ? await findContactByEmail(email) : null;
   const savedViews = await listSavedViews(profile.id);
-  const [tier, subscription] = await Promise.all([
+  const [tier, subscription, affiliation, contactCounts] = await Promise.all([
     resolveMemberTier(profile.id),
     getSubscription(profile.id),
+    getMemberAffiliation(profile.id),
+    countPrivateEdges(profile.id),
   ]);
+  // "This is my firm" candidates — plain GET search, member picks explicitly.
+  const firmQuery = (params.firm ?? "").trim();
+  const firmCandidates =
+    firmQuery === ""
+      ? []
+      : (await searchPublic(firmQuery)).filter((hit) => hit.kind === "organization").slice(0, 8);
   const renewalDate =
     tier === "founding" && subscription?.currentPeriodEnd != null
       ? subscription.currentPeriodEnd.toISOString().slice(0, 10)
@@ -178,6 +200,127 @@ export default async function AccountPage() {
             )}
           </p>
         )}
+      </div>
+
+      {/* ── Your firm (Phase 32A) — ONE confirmed affiliation, member-set,
+          changeable, never auto-inferred. The start node of /universe. */}
+      <h2 className="type-h2 mt-8">Your firm</h2>
+      <div className="mt-3 border border-line p-4">
+        {affiliation !== null ? (
+          <div className="flex flex-wrap items-baseline gap-3 text-[13px]">
+            <a href={`/companies/${affiliation.slug}`} className="font-medium text-accent hover:underline">
+              {affiliation.name}
+            </a>
+            <span className="type-small text-ink-muted">confirmed affiliation</span>
+            <form action={clearAffiliationAction}>
+              <button type="submit" className="text-[11px] text-ink-muted hover:text-distressed">
+                remove
+              </button>
+            </form>
+          </div>
+        ) : (
+          <>
+            <p className="text-[13px] text-ink-secondary">
+              Link your firm on the record — it anchors your universe and warm paths. Only you set
+              this; we never infer it.
+            </p>
+            <form action="/account" method="get" className="mt-2 flex flex-wrap gap-2">
+              <input
+                name="firm"
+                defaultValue={firmQuery}
+                placeholder="Search companies…"
+                className={`${inputClass} min-w-[220px] flex-1`}
+              />
+              <Button type="submit" variant="ghost">
+                Search
+              </Button>
+            </form>
+            {firmQuery !== "" ? (
+              firmCandidates.length === 0 ? (
+                <p className="type-small mt-2 text-ink-muted">No record for “{firmQuery}”.</p>
+              ) : (
+                <ul className="mt-2 space-y-1.5">
+                  {firmCandidates.map((hit) => (
+                    <li key={hit.id} className="flex items-baseline gap-3 text-[13px]">
+                      <span className="font-medium">{hit.name}</span>
+                      <form action={setAffiliationAction}>
+                        <input type="hidden" name="entityId" value={hit.id} />
+                        <button type="submit" className="text-[12px] text-accent hover:underline">
+                          This is my firm
+                        </button>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              )
+            ) : null}
+          </>
+        )}
+      </div>
+
+      {/* ── Imported contacts (Phase 32A) — consent-first LinkedIn import.
+          PRIVACY LAW: private to THIS member only; emails dropped at parse;
+          one click deletes everything. */}
+      <h2 className="type-h2 mt-8">Imported contacts</h2>
+      <div className="mt-3 border border-line p-4">
+        {params.import === "ok" ? (
+          <p className="mb-3 text-[13px] text-ink-secondary">
+            Imported {params.n ?? 0} contact{params.n === "1" ? "" : "s"} · {params.m ?? 0} matched
+            to the record
+            {params.d !== undefined && params.d !== "0" ? ` · ${params.d} duplicate(s) skipped` : ""}
+            {params.capped === "1" ? " · file truncated at 2,000 rows" : ""}.
+          </p>
+        ) : params.import === "consent" ? (
+          <p className="mb-3 text-[13px] text-distressed">Nothing was parsed — consent unchecked.</p>
+        ) : params.import === "unparseable" ? (
+          <p className="mb-3 text-[13px] text-distressed">
+            That file does not look like a LinkedIn Connections.csv — no First/Last Name columns.
+          </p>
+        ) : params.import === "nofile" || params.import === "toolarge" ? (
+          <p className="mb-3 text-[13px] text-distressed">
+            {params.import === "nofile" ? "No file selected." : "File too large (5 MB limit)."}
+          </p>
+        ) : null}
+
+        {contactCounts.total > 0 ? (
+          <div className="flex flex-wrap items-baseline gap-3 text-[13px]">
+            <span>
+              <span className="type-data font-medium">{contactCounts.total}</span> private contacts
+              · <span className="type-data">{contactCounts.matched}</span> matched to the record
+            </span>
+            <a href="/universe" className="text-accent hover:underline">
+              Your universe →
+            </a>
+            <form action={deleteContactsAction}>
+              <button type="submit" className="text-[12px] text-ink-muted hover:text-distressed">
+                Delete all imported contacts
+              </button>
+            </form>
+          </div>
+        ) : null}
+
+        {/* Consent BEFORE parse: the statement and checkbox gate the upload;
+            the server refuses without it. */}
+        <form action={importLinkedInAction} className="mt-3">
+          <p className="text-[13px] leading-[1.55] text-ink-secondary">
+            Upload your own LinkedIn data-export <span className="type-data">Connections.csv</span>.
+            What we store, privately and visibly only to you: names, companies, positions, and
+            connection dates. What we never store: email addresses or phone numbers — the email
+            column is dropped before anything is saved. Delete everything with one click, any time.
+            Your contacts are never shown to anyone else, never aggregated, and never used for
+            suggestions to other members.
+          </p>
+          <label className="mt-2 flex items-baseline gap-1.5 text-[12px] text-ink-secondary">
+            <input type="checkbox" name="consent" required className="translate-y-[1px]" />
+            I understand and consent to importing my connections on these terms.
+          </label>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <input type="file" name="connections" accept=".csv,text/csv" className="text-[12px]" />
+            <Button type="submit" variant="ghost">
+              Import
+            </Button>
+          </div>
+        </form>
       </div>
 
       <h2 className="type-h2 mt-8">Saved views</h2>

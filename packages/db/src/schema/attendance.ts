@@ -52,9 +52,14 @@ export const contactRequests = pgTable(
     toMemberId: uuid("to_member_id")
       .notNull()
       .references(() => memberProfiles.id),
-    eventEntityId: uuid("event_entity_id")
-      .notNull()
-      .references(() => entities.id),
+    // Phase 32D generalization: 'event' requests carry the event entity;
+    // 'universe' (intro) requests carry NO event and name an intro target
+    // instead. An intro request references PUBLIC facts only (the
+    // intermediary's own confirmed affiliation) — it never discloses that
+    // the requester holds any private edge, to anyone.
+    contextKind: text("context_kind").notNull().default("event"), // 'event' | 'universe'
+    eventEntityId: uuid("event_entity_id").references(() => entities.id),
+    introTargetEntityId: uuid("intro_target_entity_id").references(() => entities.id),
     message: text("message"),
     status: text("status").notNull().default("pending"), // 'pending' | 'accepted' | 'declined'
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
@@ -62,5 +67,11 @@ export const contactRequests = pgTable(
   },
   (t) => [
     uniqueIndex("contact_requests_pair_event_idx").on(t.fromMemberId, t.toMemberId, t.eventEntityId),
+    // One intro request per (from, to, target) — ever; mirrors the event rule.
+    uniqueIndex("contact_requests_pair_target_idx").on(
+      t.fromMemberId,
+      t.toMemberId,
+      t.introTargetEntityId,
+    ),
   ],
 );

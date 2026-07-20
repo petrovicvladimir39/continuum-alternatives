@@ -1,4 +1,5 @@
 import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { entities } from "./entities";
 
 /**
  * Member identity foundation (Phase 24C). One row per Clerk user, synced by
@@ -19,6 +20,11 @@ export const memberProfiles = pgTable("member_profiles", {
   // Capital"). Set on /account; never inferred, never required.
   roleTitle: text("role_title"),
   organization: text("organization"),
+  // Phase 32A — ONE confirmed affiliation, member-set via the /account
+  // picker ("This is my firm"), changeable, NEVER auto-inferred. This is
+  // the start node of the member's warm-path graph and the only public-ish
+  // fact intro requests may reference.
+  organizationEntityId: uuid("organization_entity_id").references(() => entities.id),
   // Phase 30D — posting ban (moderation). NULL = not banned; a timestamp
   // blocks posting/reacting until it passes. Enforced server-side in the
   // community actions, surfaced only in /admin/moderation.

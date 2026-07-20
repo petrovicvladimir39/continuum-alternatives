@@ -15,7 +15,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  *   the Clerk dashboard steps in docs/POST-RUN-CHECKLIST.md).
  */
 
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/account(.*)"]);
+// /universe joined in Phase 32C — the egocentric map is signed-in only.
+const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/account(.*)", "/universe(.*)"]);
 
 const clerkEnabled = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,

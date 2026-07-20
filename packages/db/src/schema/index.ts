@@ -17,3 +17,4 @@ export * from "./billing";
 export * from "./briefs";
 export * from "./community";
 export * from "./attendance";
+export * from "./private-graph";

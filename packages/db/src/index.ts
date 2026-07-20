@@ -18,6 +18,8 @@ export * from "./repo/briefs";
 export * from "./repo/community";
 export * from "./repo/events";
 export * from "./repo/attendance";
+export * from "./repo/private-graph";
+export * from "./repo/universe";
 export * from "./resolve";
 export * from "./register-import";
 export * from "./export";

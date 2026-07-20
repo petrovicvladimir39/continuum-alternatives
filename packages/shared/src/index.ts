@@ -60,6 +60,21 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export {
+  findWarmPaths,
+  MEMBER_NODE,
+  recencyBonus,
+  warmthWeight,
+  type WarmEdge,
+  type WarmPath,
+} from "./paths";
+export {
+  parseConnectedOn,
+  parseConnectionsCsv,
+  parseCsv,
+  type ConnectionsParseResult,
+  type ParsedConnection,
+} from "./linkedin";
+export {
   buildIcsCalendar,
   exclusiveEnd,
   parseIcsCalendar,

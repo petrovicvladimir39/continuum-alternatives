@@ -77,10 +77,31 @@ export default async function UpdatesPage() {
                   ) : null}
                   <span className="type-small text-ink-muted">
                     {" "}
-                    · {request.direction === "incoming" ? "wants to connect at" : "your request for"}{" "}
-                    <Link href={`/events/${request.eventSlug}`} className="text-accent hover:underline">
-                      {request.eventName}
-                    </Link>
+                    ·{" "}
+                    {request.contextKind === "universe" ? (
+                      // Phase 32D intro request: requester + target + note.
+                      // References the intermediary's PUBLIC affiliation only —
+                      // never anyone's private contacts.
+                      <>
+                        {request.direction === "incoming"
+                          ? "asks you for an intro toward"
+                          : "your intro request toward"}{" "}
+                        {request.introTargetHref !== null ? (
+                          <Link href={request.introTargetHref} className="text-accent hover:underline">
+                            {request.introTargetName ?? "an entity"}
+                          </Link>
+                        ) : (
+                          (request.introTargetName ?? "an entity")
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {request.direction === "incoming" ? "wants to connect at" : "your request for"}{" "}
+                        <Link href={`/events/${request.eventSlug}`} className="text-accent hover:underline">
+                          {request.eventName}
+                        </Link>
+                      </>
+                    )}
                   </span>
                 </p>
                 {request.message !== null ? (
