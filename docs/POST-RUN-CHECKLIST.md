@@ -81,6 +81,17 @@ Suggested first batches:
          Stripe keys existed in the environment.
       Requires Clerk first (checkout binds to the signed-in member).
 
+- [ ] **22 proposed events (Phase 31A)** — /admin/review?filter=events.
+      18 seeded from data/events-seed.csv (probe-confirmed dates for the
+      SmithNovak/TMA rows; majors like SuperReturn/IPEM/MIPIM carry
+      expected=true pattern dates awaiting confirmation) + 4 from
+      `pnpm events:harvest` (SmithNovak + TMA parsers). NOTE one
+      near-duplicate pair to resolve: "European Distressed Investing & Asset
+      Based Lending Summit 2026" (seed) vs "2026 European Distressed
+      Investing & Asset Based Lending Summit" (harvest, title-verbatim) —
+      approve one, reject the other. Nothing renders on /events, the iCal
+      feed, or the homepage band until approved.
+
 - [ ] **Terms of Service + privacy policy (Phase 30 legal hygiene).**
       Member discussion (posts under real names) is live behind sign-in;
       /community-guidelines states conduct rules in plain language, but a

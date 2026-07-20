@@ -16,6 +16,8 @@ export * from "./repo/map";
 export * from "./repo/billing";
 export * from "./repo/briefs";
 export * from "./repo/community";
+export * from "./repo/events";
+export * from "./repo/attendance";
 export * from "./resolve";
 export * from "./register-import";
 export * from "./export";

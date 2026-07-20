@@ -29,13 +29,15 @@ import {
 import type { EdgeTypeName } from "./edges";
 import type { EntityKind, EntityRow } from "./entities";
 
-/** The three publicly routable kinds. People pages are deliberately excluded (GDPR). */
-export type PublicKind = "organization" | "fund_vehicle" | "deal";
+/** The publicly routable kinds. People pages are deliberately excluded (GDPR). */
+export type PublicKind = "organization" | "fund_vehicle" | "deal" | "event";
 
 export const PUBLIC_KIND_PATHS: Record<PublicKind, string> = {
   organization: "companies",
   fund_vehicle: "funds",
   deal: "deals",
+  // Phase 31B: events joined the public record — /events/[slug].
+  event: "events",
 };
 
 const PUBLIC_KINDS = Object.keys(PUBLIC_KIND_PATHS) as PublicKind[];
@@ -786,7 +788,10 @@ export async function countPublicByKind(): Promise<Record<PublicKind, number>> {
     .from(entities)
     .where(and(eq(entities.status, "active"), inArray(entities.kind, PUBLIC_KINDS)))
     .groupBy(entities.kind);
-  const counts = { organization: 0, fund_vehicle: 0, deal: 0 } as Record<PublicKind, number>;
+  const counts = { organization: 0, fund_vehicle: 0, deal: 0, event: 0 } as Record<
+    PublicKind,
+    number
+  >;
   for (const row of rows) {
     counts[row.kind as PublicKind] = Number(row.n);
   }

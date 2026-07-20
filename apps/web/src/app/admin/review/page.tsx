@@ -9,6 +9,7 @@ import {
   eq,
   listArticlesByStatus,
   listProposedClassifications,
+  listProvisionalEvents,
   ne,
   organizations,
   sources,
@@ -18,12 +19,14 @@ import {
 import {
   approveAllVisibleAction,
   approveEdgeAction,
+  approveEventAction,
   classificationGroupAction,
   approveEnrichmentAction,
   approveFactAction,
   deleteProvisionalAction,
   rejectEdgeAction,
   rejectEnrichmentAction,
+  rejectEventAction,
   rejectFactAction,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
@@ -48,7 +51,7 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-const FILTERS = ["all", "facts", "edges", "articles", "classifications", ...CHANNELS] as const;
+const FILTERS = ["all", "facts", "edges", "articles", "classifications", "events", ...CHANNELS] as const;
 
 export default async function ReviewPage({
   searchParams,
@@ -64,6 +67,9 @@ export default async function ReviewPage({
   const proposedArticles = showArticles ? await listArticlesByStatus("proposed") : [];
   const showClassifications = filter === "all" || filter === "classifications";
   const proposedClassifications = showClassifications ? await listProposedClassifications() : [];
+  // Phase 31A: imported events (CSV/harvest) awaiting the operator's thumb.
+  const showEvents = filter === "all" || filter === "events";
+  const proposedEvents = showEvents ? await listProvisionalEvents() : [];
   // Grouped by (class, strategy) for batch decisions (Phase 26B).
   const classificationGroups = new Map<string, typeof proposedClassifications>();
   for (const row of proposedClassifications) {
@@ -270,6 +276,56 @@ export default async function ReviewPage({
                   </div>
                 );
               })}
+            </div>
+          </Section>
+        ) : null}
+
+        {proposedEvents.length > 0 ? (
+          <Section title="Proposed events (import/harvest)">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Imported from the operator CSV or the SmithNovak/TMA harvesters. Approve → live on
+              /events + the iCal feed; reject deletes the proposal (it never published).
+            </p>
+            <div className="space-y-2">
+              {proposedEvents.map((event) => (
+                <div key={event.entityId} className="flex flex-wrap items-baseline gap-3 border border-line p-2.5">
+                  <span className="type-data w-[170px] shrink-0">
+                    {event.startsOn}
+                    {event.endsOn !== event.startsOn ? ` → ${event.endsOn}` : ""}
+                    {event.expected ? " (expected)" : ""}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="text-[13px] font-medium">{event.name}</span>
+                    <span className="type-small text-ink-muted">
+                      {" "}
+                      · {[event.city, event.country, event.format.replace("_", " ")].filter(Boolean).join(" · ")}
+                      {event.classes.length > 0 ? ` · ${event.classes.join(", ")}` : ""}
+                      {event.url !== null ? (
+                        <>
+                          {" · "}
+                          <a href={event.url} rel="noopener noreferrer" className="text-accent hover:underline">
+                            official ↗
+                          </a>
+                        </>
+                      ) : null}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 gap-2">
+                    <form action={approveEventAction}>
+                      <input type="hidden" name="entityId" value={event.entityId} />
+                      <Button type="submit" variant="ghost">
+                        Approve
+                      </Button>
+                    </form>
+                    <form action={rejectEventAction}>
+                      <input type="hidden" name="entityId" value={event.entityId} />
+                      <button type="submit" className="text-[12px] text-ink-muted hover:text-distressed">
+                        Reject
+                      </button>
+                    </form>
+                  </span>
+                </div>
+              ))}
             </div>
           </Section>
         ) : null}

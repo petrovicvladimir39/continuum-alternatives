@@ -51,6 +51,11 @@ export const NAV_TREE: NavNode[] = [
   {
     label: "Resources",
     items: [
+      // Phase 31B: /events lives HERE, not under Data ▾ — Data holds the
+      // record's datasets (entities, facts, rankings); the calendar is a
+      // reader utility like the Digest, and it links back into the record
+      // rather than being part of it.
+      { label: "Events", href: "/events" },
       { label: "Digest", href: "/digest" },
       { label: "Reports", href: "/reports" },
       { label: "Coverage", href: "/coverage" },

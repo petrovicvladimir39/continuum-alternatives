@@ -43,7 +43,7 @@ import {
   persistDraft,
   type DeliveryReport,
 } from "@continuum/pipeline";
-import { contacts, digestItems, digests } from "@continuum/db";
+import { approveEvent, contacts, digestItems, digests, rejectEvent } from "@continuum/db";
 import {
   decideClassificationGroup,
   enqueueAlertsForEntities,
@@ -926,6 +926,25 @@ export async function deleteProvisionalAction(formData: FormData): Promise<void>
   await db.delete(assets).where(eq(assets.entityId, entityId));
   await db.delete(events).where(eq(events.entityId, entityId));
   await db.delete(entities).where(eq(entities.id, entityId));
+  revalidatePath("/admin/review");
+}
+
+/** Phase 31A: imported events go live (entity active + class rows approved). */
+export async function approveEventAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  if (entityId !== "") {
+    await approveEvent(entityId);
+  }
+  revalidatePath("/admin/review");
+  revalidatePath("/events");
+}
+
+/** Reject an imported event — provisional-only delete (it never published). */
+export async function rejectEventAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  if (entityId !== "") {
+    await rejectEvent(entityId);
+  }
   revalidatePath("/admin/review");
 }
 

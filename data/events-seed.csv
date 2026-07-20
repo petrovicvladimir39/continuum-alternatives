@@ -1,0 +1,19 @@
+name,starts_on,ends_on,city,country,format,venue,url,classes,expected
+NPL Global 2026,2026-09-29,2026-09-30,London,GB,in_person,,https://www.smithnovak.com/conferences/npl-global-2026.html,private_credit,false
+NPL Iberia 2026,2026-11-24,2026-11-24,Madrid,ES,in_person,,https://www.smithnovak.com/conferences/npl-iberia-2026.html,private_credit,false
+NPL & Restructuring Germany 2026,2026-11-26,2026-11-26,Frankfurt,DE,in_person,,https://www.smithnovak.com/conferences/npl-restructuring-germany-2026.html,private_credit,false
+European Distressed Investing & Asset Based Lending Summit 2026,2026-09-23,2026-09-24,,RO,in_person,,https://www.tma-europe.org/events/2026-european-distressed-investing-asset-based-lending-summit/,private_credit,false
+TMA UK Annual Conference 2026,2026-11-11,2026-11-12,,GB,in_person,,https://www.tma-europe.org/events/tma-uk-annual-conference-3/,private_credit,false
+IPEM Paris 2026,2026-09-08,2026-09-10,Paris,FR,in_person,,https://www.ipem-market.com/,private_equity,true
+IPEM Cannes 2027,2027-01-26,2027-01-28,Cannes,FR,in_person,,https://www.ipem-market.com/,private_equity,true
+SuperReturn International 2027,2027-06-07,2027-06-10,Berlin,DE,in_person,,https://informaconnect.com/superreturn-international/,private_equity,true
+SuperVenture 2027,2027-06-07,2027-06-09,Berlin,DE,in_person,,https://informaconnect.com/superventure/,private_equity,true
+Invest Europe Investors' Forum 2027,2027-03-10,2027-03-11,Geneva,CH,in_person,,https://www.investeurope.eu/events/,private_equity,true
+BVCA Summit 2026,2026-10-07,2026-10-08,London,GB,in_person,,https://www.bvca.co.uk/,private_equity,true
+0100 Conference CEE 2027,2027-04-14,2027-04-15,Prague,CZ,in_person,,https://www.0100conferences.com/conferences,private_equity,true
+0100 Conference DACH 2027,2027-02-24,2027-02-25,Vienna,AT,in_person,,https://www.0100conferences.com/conferences,private_equity,true
+EXPO REAL 2026,2026-10-05,2026-10-07,Munich,DE,in_person,Messe München,https://exporeal.net/,real_assets,true
+MIPIM 2027,2027-03-09,2027-03-12,Cannes,FR,in_person,Palais des Festivals,https://www.mipim.com/,real_assets,true
+Infrastructure Investor Global Summit 2027,2027-03-15,2027-03-18,Berlin,DE,in_person,,https://www.peievents.com/en/event/infrastructure-investor-global-summit/,real_assets,true
+Slush 2026,2026-11-19,2026-11-20,Helsinki,FI,in_person,,https://slush.org/,private_equity,true
+PDI Europe Summit 2027,2027-05-11,2027-05-12,London,GB,in_person,,https://www.peievents.com/en/event/pdi-europe-summit/,private_credit,true

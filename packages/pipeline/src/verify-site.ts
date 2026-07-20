@@ -38,8 +38,9 @@ function main() {
     resources !== undefined &&
       "items" in resources &&
       JSON.stringify(resources.items.map((item) => item.label)) ===
-        JSON.stringify(["Digest", "Reports", "Coverage", "Methodology", "About"]),
-    "Resources dropdown is Digest·Reports·Coverage·Methodology·About",
+        // Phase 31B added Events (reader utility, not a Data ▾ dataset).
+        JSON.stringify(["Events", "Digest", "Reports", "Coverage", "Methodology", "About"]),
+    "Resources dropdown is Events·Digest·Reports·Coverage·Methodology·About",
   );
   const leaves = navLeaves(NAV_TREE);
   check(

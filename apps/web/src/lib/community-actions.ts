@@ -145,8 +145,8 @@ export async function createPostAction(
     anchorId,
     body: verdict.body,
   });
-  // Watchers of the entity hear about it via the existing outbox (daily batch).
-  if (anchorKind === "entity") {
+  // Watchers of the (event) entity hear about it via the outbox (daily batch).
+  if (anchorKind === "entity" || anchorKind === "event") {
     await enqueuePostAlerts(id, anchorId, member.id);
   }
   safeRevalidate(backPath);

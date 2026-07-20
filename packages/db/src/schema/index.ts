@@ -16,3 +16,4 @@ export * from "./watchlist";
 export * from "./billing";
 export * from "./briefs";
 export * from "./community";
+export * from "./attendance";

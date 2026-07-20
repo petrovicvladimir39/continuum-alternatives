@@ -117,7 +117,8 @@ async function main() {
   check(publicPathFor("deal", "x") === "/deals/x", "deal → /deals");
   check(publicPathFor("person", "x") === null, "person has NO public path (GDPR)");
   check(publicPathFor("asset", "x") === null, "asset has no public path");
-  check(publicPathFor("event", "x") === null, "event has no public path");
+  // Phase 31B: events joined the public record.
+  check(publicPathFor("event", "x") === "/events/x", "event → /events");
 
   console.log("\n— fixtures —");
   const alpha = await createEntity({

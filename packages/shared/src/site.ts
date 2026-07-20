@@ -137,18 +137,19 @@ export function pickRotatedLead<T>(
  */
 export type SitemapChunk = {
   id: number;
-  kind: "core" | "organization" | "fund_vehicle" | "deal";
+  kind: "core" | "organization" | "fund_vehicle" | "deal" | "event";
   offset: number;
 };
 
 export function sitemapChunkPlan(
-  counts: { organization: number; fund_vehicle: number; deal: number },
+  // `event` optional — Phase 31 added the kind; pre-31 fixtures stay valid.
+  counts: { organization: number; fund_vehicle: number; deal: number; event?: number },
   chunkSize = 1000,
 ): SitemapChunk[] {
   const plan: SitemapChunk[] = [{ id: 0, kind: "core", offset: 0 }];
   let id = 1;
-  for (const kind of ["organization", "fund_vehicle", "deal"] as const) {
-    const total = Math.max(0, counts[kind]);
+  for (const kind of ["organization", "fund_vehicle", "deal", "event"] as const) {
+    const total = Math.max(0, counts[kind] ?? 0);
     for (let offset = 0; offset < total; offset += chunkSize) {
       plan.push({ id, kind, offset });
       id += 1;

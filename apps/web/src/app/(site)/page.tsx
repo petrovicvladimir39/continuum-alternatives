@@ -11,6 +11,7 @@ import {
   leadCandidates,
   listAuctions,
   listPublishedArticles,
+  upcomingEventsForHome,
   type ArticleListItem,
   type FeedItem,
   type LeadCandidate,
@@ -97,6 +98,8 @@ export default async function Home() {
     ]);
   const upcoming = await listAuctions("upcoming");
   const nextAuctions = upcoming.rows.slice(0, 5);
+  // Phase 31B: next 3 APPROVED events; band hides entirely when none.
+  const upcomingEvents = await upcomingEventsForHome(3);
 
   // Lead rotation (anti-skew): don't repeat yesterday's lead country when an
   // alternative exists. "Yesterday's lead" = the newest article published on
@@ -419,6 +422,34 @@ export default async function Home() {
                     {row.debtorName}
                   </span>
                 )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* 6 · Upcoming events (Phase 31B) — bottom quiet band, next 3 approved. */}
+      {upcomingEvents.length > 0 ? (
+        <section className="mt-8 border-t border-line pt-4">
+          <div className="flex items-baseline justify-between">
+            <h2 className="type-label text-ink-muted">Upcoming events</h2>
+            <Link href="/events" className="type-small text-ink-muted hover:text-accent">
+              Calendar →
+            </Link>
+          </div>
+          <div className="mt-1 grid grid-cols-1 gap-x-8 sm:grid-cols-3">
+            {upcomingEvents.map((event) => (
+              <div key={event.entityId} className="py-1.5">
+                <p className="type-small text-ink-muted">
+                  <span className="type-data">{event.startsOn}</span>
+                  {event.expected ? " · expected" : ""}
+                </p>
+                <Link
+                  href={`/events/${event.slug}`}
+                  className="block truncate text-[13px] text-ink-secondary hover:text-accent"
+                >
+                  {event.name}
+                </Link>
               </div>
             ))}
           </div>

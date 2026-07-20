@@ -5,6 +5,7 @@ export const KIND_LABELS: Record<PublicKind, string> = {
   organization: "Company",
   fund_vehicle: "Fund",
   deal: "Deal",
+  event: "Event",
 };
 
 export const KIND_LABELS_ANY: Record<string, string> = {

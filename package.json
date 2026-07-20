@@ -34,7 +34,9 @@
     "articles:compose": "pnpm --filter @continuum/pipeline articles:compose",
     "contacts:send-confirmations": "pnpm --filter @continuum/pipeline contacts:send-confirmations",
     "classify:corpus": "pnpm --filter @continuum/pipeline classify:corpus",
-    "alerts:backfill": "pnpm --filter @continuum/pipeline alerts:backfill"
+    "alerts:backfill": "pnpm --filter @continuum/pipeline alerts:backfill",
+    "events:import": "pnpm --filter @continuum/pipeline events:import",
+    "events:harvest": "pnpm --filter @continuum/pipeline events:harvest"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

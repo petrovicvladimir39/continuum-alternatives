@@ -1,4 +1,5 @@
 import {
+  boolean,
   char,
   date,
   integer,
@@ -122,4 +123,8 @@ export const events = pgTable("events", {
   venue: text("venue"),
   city: text("city"),
   eventUrl: text("event_url"),
+  // Phase 31A: recurring-annual events whose next edition's dates are the
+  // EXPECTED pattern rather than a published confirmation render with an
+  // explicit "expected" marker — the calendar never states a guess as fact.
+  expected: boolean("expected").notNull().default(false),
 });

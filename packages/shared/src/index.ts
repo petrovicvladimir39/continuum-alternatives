@@ -60,6 +60,13 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export {
+  buildIcsCalendar,
+  exclusiveEnd,
+  parseIcsCalendar,
+  type IcsEvent,
+  type ParsedIcs,
+} from "./ical";
+export {
   isPostingBanned,
   POST_MAX_CHARS,
   POST_MAX_LINKS,
