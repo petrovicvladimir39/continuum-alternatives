@@ -1,15 +1,21 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { MapEntity } from "@continuum/db";
+import type { MapCity, MapData, MapEntityCard } from "@continuum/db";
+import { MapPanel, type PanelState } from "@/components/map/map-panel";
+import { countryName } from "@/lib/public-labels";
 
 /**
  * The one client-side island of the platform — all client JS stays confined
- * to this map. Base tiles: OpenFreeMap positron (keyless), the lightest
+ * to the map. Base tiles: OpenFreeMap positron (keyless), the lightest
  * monochrome style; everything painted on top follows the styleguide tokens.
+ *
+ * Phase 16 model: ONE dot per CITY (aggregated server-side) — no per-entity
+ * jitter. Hover = tooltip peek, click = right panel with the firm list,
+ * row click = in-panel entity card, and only the card's explicit button
+ * navigates to the full profile.
  */
 
 const COLORS = {
@@ -23,60 +29,64 @@ const SURFACE = "#FFFFFF";
 const LINE_STRONG = "#D2CEC3";
 const INK = "#141311";
 
-const PUBLIC_PATHS: Record<string, string> = {
-  organization: "companies",
-  fund_vehicle: "funds",
-  deal: "deals",
+type Hover = {
+  city: string;
+  country: string;
+  count: number;
+  equity: number;
+  credit: number;
+  distressed: number;
+  neutral: number;
+  x: number;
+  y: number;
 };
 
-/**
- * Same-city stacks share identical coordinates after geocoding. At max zoom
- * we spread them on a deterministic ~12m ring (index-based golden-angle
- * rosette) so every dot stays clickable. DISPLAY-ONLY: stored geo is never
- * touched; the offset is recomputed identically on every render.
- */
-type PointFeature = {
-  type: "Feature";
-  geometry: { type: "Point"; coordinates: [number, number] };
-  properties: Record<string, string | number>;
-};
-
-function ringOffset(entities: MapEntity[]): PointFeature[] {
-  const seen = new Map<string, number>();
-  return entities.map((entity) => {
-    const key = `${entity.lat},${entity.lng}`;
-    const index = seen.get(key) ?? 0;
-    seen.set(key, index + 1);
-    let { lat, lng } = entity;
-    if (index > 0) {
-      const angle = index * 2.399963; // golden angle — no two dots align
-      const radius = 0.000108 * (1 + Math.floor(index / 24)); // ~12m per ring
-      lat += radius * Math.sin(angle);
-      lng += (radius * Math.cos(angle)) / Math.cos((entity.lat * Math.PI) / 180);
-    }
-    return {
+function cityFeatures(cities: MapCity[]) {
+  return {
+    type: "FeatureCollection",
+    features: cities.map((city) => ({
       type: "Feature",
-      geometry: { type: "Point", coordinates: [lng, lat] },
+      geometry: { type: "Point", coordinates: [city.lng, city.lat] },
       properties: {
-        slug: entity.slug,
-        kind: entity.kind,
-        name: entity.name,
-        dominant: entity.capitalTypes[0] ?? "neutral",
-        factsCount: entity.factsCount,
+        key: city.key,
+        city: city.city,
+        country: city.country,
+        count: city.count,
+        dominant: city.dominant,
+        equity: city.capitalTypeCounts.equity,
+        credit: city.capitalTypeCounts.credit,
+        distressed: city.capitalTypeCounts.distressed,
+        neutral: city.capitalTypeCounts.neutral,
       },
-    };
-  });
+    })),
+  };
 }
 
-export function EntityMap({
-  entities,
-  missingCount,
-}: {
-  entities: MapEntity[];
-  missingCount: number;
-}) {
+const EMPTY_LINES = { type: "FeatureCollection", features: [] } as const;
+
+export function EntityMap({ data, missingCount }: { data: MapData; missingCount: number }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const router = useRouter();
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const [hover, setHover] = useState<Hover | null>(null);
+  const [panel, setPanel] = useState<PanelState | null>(null);
+  const [card, setCard] = useState<MapEntityCard | null>(null);
+
+  // Entity card fetch — small on-demand payload; the map list itself stays inline.
+  const selectEntity = useCallback(
+    (entityId: string, cityKey: string) => {
+      setPanel({ mode: "entity", entityId, cityKey });
+      setCard(null);
+      void fetch(`/api/map/entity/${entityId}`)
+        .then((response) => (response.ok ? (response.json() as Promise<MapEntityCard>) : null))
+        .then((result) => {
+          setCard(result);
+        })
+        .catch(() => {
+          setCard(null);
+        });
+    },
+    [],
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -100,52 +110,77 @@ export function EntityMap({
           '<a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
       },
     });
-    // Zoom only — no compass, no extra chrome.
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    mapRef.current = map;
     // Test hook: lets verification scripts reach the map instance.
     (container as HTMLDivElement & { _map?: maplibregl.Map })._map = map;
 
     map.on("load", () => {
-      const collection = { type: "FeatureCollection", features: ringOffset(entities) };
-      map.addSource("entities", {
+      map.addSource("cities", {
         type: "geojson",
-        data: collection as never,
+        data: cityFeatures(data.cities) as never,
+        // Clustering kept ONLY for zoomed-out city-of-cities aggregation:
+        // maxZoom 5 means every individual city is visible from mid-zoom on.
         cluster: true,
-        clusterRadius: 44,
-        clusterMaxZoom: 13,
+        clusterRadius: 40,
+        clusterMaxZoom: 5,
+        clusterProperties: { total: ["+", ["get", "count"]] },
+      });
+      // Connection lines (entity card selection) — empty until a card opens.
+      map.addSource("connections", { type: "geojson", data: EMPTY_LINES as never });
+
+      map.addLayer({
+        id: "connection-lines",
+        type: "line",
+        source: "connections",
+        paint: {
+          "line-color": [
+            "match",
+            ["get", "group"],
+            "equity",
+            COLORS.equity,
+            "credit",
+            COLORS.credit,
+            "distressed",
+            COLORS.distressed,
+            COLORS.neutral,
+          ],
+          "line-width": 1.5,
+          "line-opacity": 0.75,
+        },
       });
 
-      // Clusters: surface fill + 1px line-strong stroke — never default blue.
+      // City-of-cities clusters (low zoom only): surface fill, 1px stroke.
       map.addLayer({
-        id: "clusters",
+        id: "city-clusters",
         type: "circle",
-        source: "entities",
+        source: "cities",
         filter: ["has", "point_count"],
         paint: {
           "circle-color": SURFACE,
           "circle-stroke-color": LINE_STRONG,
           "circle-stroke-width": 1,
-          "circle-radius": ["step", ["get", "point_count"], 13, 25, 17, 100, 22],
+          "circle-radius": ["step", ["get", "total"], 14, 50, 18, 250, 24],
         },
       });
       map.addLayer({
-        id: "cluster-count",
+        id: "city-cluster-count",
         type: "symbol",
-        source: "entities",
+        source: "cities",
         filter: ["has", "point_count"],
         layout: {
-          "text-field": ["get", "point_count_abbreviated"],
+          "text-field": ["to-string", ["get", "total"]],
           "text-font": ["Noto Sans Regular"],
           "text-size": 12,
         },
         paint: { "text-color": INK },
       });
 
-      // Dots: dominant capital type fill, radius 4–10 by sqrt(factsCount).
+      // City dots: dominant capital type fill, radius 6–22 by sqrt(count).
       map.addLayer({
-        id: "dots",
+        id: "cities",
         type: "circle",
-        source: "entities",
+        source: "cities",
         filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-color": [
@@ -159,27 +194,34 @@ export function EntityMap({
             COLORS.distressed,
             COLORS.neutral,
           ],
-          "circle-radius": [
-            "interpolate",
-            ["linear"],
-            ["sqrt", ["get", "factsCount"]],
-            0,
-            4,
-            6,
-            10,
-          ],
+          "circle-radius": ["interpolate", ["linear"], ["sqrt", ["get", "count"]], 1, 6, 15, 22],
           "circle-stroke-color": SURFACE,
           "circle-stroke-width": 1,
         },
       });
+      // Count label centered on the dot when it is large enough (radius ≥ 14
+      // ⇔ count ≥ 64 under the interpolation above).
+      map.addLayer({
+        id: "city-count",
+        type: "symbol",
+        source: "cities",
+        filter: ["all", ["!", ["has", "point_count"]], [">=", ["get", "count"], 64]],
+        layout: {
+          "text-field": ["to-string", ["get", "count"]],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 12,
+          "text-allow-overlap": true,
+        },
+        paint: { "text-color": SURFACE },
+      });
 
-      map.on("click", "clusters", (event) => {
+      map.on("click", "city-clusters", (event) => {
         const feature = event.features?.[0];
         if (feature === undefined) {
           return;
         }
         const clusterId = feature.properties?.cluster_id as number;
-        const source = map.getSource("entities") as maplibregl.GeoJSONSource;
+        const source = map.getSource("cities") as maplibregl.GeoJSONSource;
         void source.getClusterExpansionZoom(clusterId).then((zoom) => {
           map.easeTo({
             center: (feature.geometry as { coordinates: [number, number] }).coordinates,
@@ -188,18 +230,38 @@ export function EntityMap({
         });
       });
 
-      map.on("click", "dots", (event) => {
+      map.on("click", "cities", (event) => {
         const properties = event.features?.[0]?.properties;
         if (!properties) {
           return;
         }
-        const base = PUBLIC_PATHS[String(properties.kind)];
-        if (base !== undefined) {
-          router.push(`/${base}/${String(properties.slug)}`);
-        }
+        setHover(null);
+        setPanel({ mode: "city", cityKey: String(properties.key) });
+        setCard(null);
       });
 
-      for (const layer of ["clusters", "dots"]) {
+      map.on("mousemove", "cities", (event) => {
+        const properties = event.features?.[0]?.properties;
+        if (!properties) {
+          return;
+        }
+        setHover({
+          city: String(properties.city),
+          country: String(properties.country),
+          count: Number(properties.count),
+          equity: Number(properties.equity),
+          credit: Number(properties.credit),
+          distressed: Number(properties.distressed),
+          neutral: Number(properties.neutral),
+          x: event.point.x,
+          y: event.point.y,
+        });
+      });
+      map.on("mouseleave", "cities", () => {
+        setHover(null);
+      });
+
+      for (const layer of ["city-clusters", "cities"]) {
         map.on("mouseenter", layer, () => {
           map.getCanvas().style.cursor = "pointer";
         });
@@ -210,13 +272,112 @@ export function EntityMap({
     });
 
     return () => {
+      mapRef.current = null;
       map.remove();
     };
-  }, [entities, router]);
+  }, [data]);
+
+  // Connection lines follow the selected entity card.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map === null) {
+      return;
+    }
+    const apply = () => {
+      const source = map.getSource("connections") as maplibregl.GeoJSONSource | undefined;
+      if (source === undefined) {
+        return;
+      }
+      if (card === null || card.lat === null || card.lng === null) {
+        source.setData(EMPTY_LINES as never);
+        return;
+      }
+      source.setData({
+        type: "FeatureCollection",
+        features: card.lines.map((line) => ({
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              [card.lng, card.lat],
+              [line.toLng, line.toLat],
+            ],
+          },
+          properties: { group: line.group },
+        })),
+      } as never);
+    };
+    if (map.loaded()) {
+      apply();
+    } else {
+      map.once("load", apply);
+    }
+  }, [card]);
+
+  const breakdown =
+    hover === null
+      ? []
+      : (
+          [
+            ["equity", hover.equity],
+            ["credit", hover.credit],
+            ["distressed", hover.distressed],
+            ["neutral", hover.neutral],
+          ] as const
+        ).filter(([, n]) => n > 0);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <div ref={containerRef} className="h-full w-full" />
+
+      {/* Hover peek — no navigation. */}
+      {hover !== null && panel === null ? (
+        <div
+          className="pointer-events-none absolute z-20 rounded-sm border border-line bg-surface px-3 py-2"
+          style={{ left: hover.x + 12, top: hover.y + 12 }}
+        >
+          <p className="font-serif text-[14px] leading-[1.2] font-medium">
+            {hover.city}, {countryName(hover.country) ?? hover.country}
+          </p>
+          <p className="type-data mt-0.5 text-ink-secondary">
+            {hover.count} firm{hover.count === 1 ? "" : "s"}
+          </p>
+          {breakdown.length > 0 ? (
+            <p className="mt-1 flex items-center gap-2">
+              {breakdown.map(([type, n]) => (
+                <span key={type} className="flex items-center gap-1 text-[11px] text-ink-secondary">
+                  <span
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{ backgroundColor: COLORS[type] }}
+                  />
+                  {n} {type === "neutral" ? "other" : type}
+                </span>
+              ))}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {panel !== null ? (
+        <MapPanel
+          state={panel}
+          cities={data.cities}
+          entities={data.entities}
+          card={card}
+          onSelectEntity={(id) => {
+            selectEntity(id, panel.cityKey);
+          }}
+          onBackToCity={() => {
+            setPanel({ mode: "city", cityKey: panel.cityKey });
+            setCard(null);
+          }}
+          onClose={() => {
+            setPanel(null);
+            setCard(null);
+          }}
+        />
+      ) : null}
+
       <div className="absolute bottom-6 left-4 rounded-md border border-line bg-surface p-3">
         <div className="space-y-1.5">
           {(
@@ -236,9 +397,13 @@ export function EntityMap({
             </div>
           ))}
         </div>
-        <p className="type-label mt-2.5">Size = recorded facts</p>
+        <p className="type-label mt-2.5">Size = firms in city</p>
+        <p className="type-data mt-1.5 text-ink-secondary">
+          {data.cities.length} cities · {data.entities.length} entities · {data.countries}{" "}
+          countries
+        </p>
         {missingCount > 0 ? (
-          <p className="mt-1.5 max-w-[200px] text-[11px] leading-[1.4] text-ink-muted">
+          <p className="mt-1 max-w-[200px] text-[11px] leading-[1.4] text-ink-muted">
             {missingCount} active {missingCount === 1 ? "entity" : "entities"} without a mappable
             HQ {missingCount === 1 ? "is" : "are"} not shown.
           </p>

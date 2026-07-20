@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { PublicConnection, PublicProfile, SimilarEntity } from "@continuum/db";
 import { hasCyrillic, transliterateDisplay } from "@continuum/shared";
+import { ConnectionsGraph } from "@/components/public/connections-graph";
+import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
 import { Tag } from "@/components/ui/tag";
 import {
@@ -23,16 +25,32 @@ function groupConnections(connections: PublicConnection[]): [string, PublicConne
 }
 
 function ProfileStats({ profile }: { profile: PublicProfile }) {
-  const { entity, deal, fund, dealAmountRaw } = profile;
+  const { entity, deal, fund, dealAmountRaw, factSplit } = profile;
   const blocks: { value: string; label: string }[] = [];
 
-  if (entity.kind === "organization") {
-    blocks.push({ value: String(profile.factsCount), label: "Recorded facts" });
-    blocks.push({ value: String(profile.connectionsCount), label: "Connections" });
-    if (profile.firstSeenYear !== null) {
-      blocks.push({ value: String(profile.firstSeenYear), label: "First seen" });
-    }
-  } else if (entity.kind === "deal" && deal !== null) {
+  // Shared institutional row — every kind.
+  blocks.push({ value: String(profile.factsCount), label: "Recorded facts" });
+  blocks.push({ value: String(profile.connectionsCount), label: "Connections" });
+  if (profile.counterpartiesCount > 0) {
+    blocks.push({ value: String(profile.counterpartiesCount), label: "Counterparties" });
+  }
+  if (profile.firstSeenYear !== null) {
+    blocks.push({ value: String(profile.firstSeenYear), label: "First seen" });
+  }
+  if (profile.latestActivityOn !== null) {
+    blocks.push({ value: profile.latestActivityOn, label: "Latest activity" });
+  }
+  if (factSplit.distressed > 0) {
+    blocks.push({ value: String(factSplit.distressed), label: "Distressed facts" });
+  }
+  if (factSplit.credit > 0) {
+    blocks.push({ value: String(factSplit.credit), label: "Credit facts" });
+  }
+  if (factSplit.equity > 0) {
+    blocks.push({ value: String(factSplit.equity), label: "Equity facts" });
+  }
+
+  if (entity.kind === "deal" && deal !== null) {
     // Stored numerics only; raw extracted text verbatim when unparsed. Never computed.
     if (deal.amount !== null) {
       blocks.push({ value: formatAmount(deal.amount, deal.currency), label: "Amount" });
@@ -71,11 +89,8 @@ function ProfileStats({ profile }: { profile: PublicProfile }) {
       </div>
     ) : null;
 
-  if (blocks.length === 0 && managerBlock === null) {
-    return null;
-  }
   return (
-    <div className="mt-8 flex flex-wrap gap-x-12 gap-y-4 border-y border-line py-4">
+    <div className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-y border-line py-4">
       {managerBlock}
       {blocks.map((block) => (
         <StatBlock key={block.label} value={block.value} label={block.label} />
@@ -108,6 +123,48 @@ function Citation({ citation }: { citation: PublicProfile["facts"][number]["cita
   );
 }
 
+/** Chronological facts grouped by year on a vertical rail. */
+function ActivityTimeline({ facts }: { facts: PublicProfile["facts"] }) {
+  const byYear = new Map<string, PublicProfile["facts"]>();
+  for (const fact of facts) {
+    const year = fact.occurredOn.slice(0, 4);
+    const list = byYear.get(year) ?? [];
+    list.push(fact);
+    byYear.set(year, list);
+  }
+  return (
+    <div className="mt-4">
+      {[...byYear.entries()].map(([year, yearFacts]) => (
+        <div key={year} className="mb-2">
+          <h3 className="font-serif text-[18px] leading-[1.25] font-medium">{year}</h3>
+          <div className="mt-2 border-l border-line-strong">
+            {yearFacts.map((fact) => (
+              <div key={fact.id} className="relative pb-5 pl-6">
+                <span className="absolute top-[5px] -left-[4.5px] h-2 w-2 rounded-full border border-surface bg-ink-muted" />
+                <div className="type-data text-ink-muted">{fact.occurredOn}</div>
+                <h4 className="type-h3 mt-0.5">{fact.title}</h4>
+                {fact.body !== null && fact.body !== "" ? (
+                  <p className="type-small mt-1 max-w-2xl text-ink-secondary">{fact.body}</p>
+                ) : null}
+                {fact.channels.length > 0 ? (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {fact.channels.map((channel) => (
+                      <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
+                        {channel}
+                      </Tag>
+                    ))}
+                  </div>
+                ) : null}
+                <Citation citation={fact.citation} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function EntityProfile({
   profile,
   similar,
@@ -115,63 +172,79 @@ export function EntityProfile({
   profile: PublicProfile;
   similar: SimilarEntity[];
 }) {
-  const { entity, tags, facts, connections } = profile;
+  const { entity, tags, facts, connections, organization, mentions } = profile;
   const kindLabel = KIND_LABELS[entity.kind as keyof typeof KIND_LABELS] ?? entity.kind;
   const country = countryName(entity.country);
   const connectionGroups = groupConnections(connections);
+  const website = organization?.website ?? null;
+  const websiteHost = website !== null ? website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "") : null;
 
   return (
     <article className="py-10">
-      <header>
-        <h1 className="type-h1">{entity.name}</h1>
-        {hasCyrillic(entity.name) ? (
-          <p className="type-small mt-1 text-ink-muted">{transliterateDisplay(entity.name)}</p>
-        ) : null}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="type-label">{kindLabel}</span>
-          {country !== null ? (
-            <>
-              <span className="text-ink-muted">·</span>
-              <span className="type-label">{country}</span>
-            </>
+      <header className="flex items-start gap-4">
+        <EntityLogo
+          name={entity.name}
+          logoUrl={organization?.logoUrl ?? null}
+          size="lg"
+        />
+        <div className="min-w-0">
+          <h1 className="type-h1">{entity.name}</h1>
+          {hasCyrillic(entity.name) ? (
+            <p className="type-small mt-1 text-ink-muted">{transliterateDisplay(entity.name)}</p>
           ) : null}
-          {tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="type-label">{kindLabel}</span>
+            {country !== null ? (
+              <>
+                <span className="text-ink-muted">·</span>
+                <span className="type-label">{country}</span>
+              </>
+            ) : null}
+            {organization?.hqCity ? (
+              <>
+                <span className="text-ink-muted">·</span>
+                <span className="type-label">{organization.hqCity}</span>
+              </>
+            ) : null}
+            {tags.map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+            {websiteHost !== null && website !== null ? (
+              <a
+                href={website}
+                rel="noopener noreferrer"
+                className="type-small text-accent underline decoration-line-strong underline-offset-2 hover:decoration-accent"
+              >
+                {websiteHost} ↗
+              </a>
+            ) : null}
+          </div>
+          {entity.summary !== null && entity.summary !== "" ? (
+            <p className="mt-3 max-w-2xl text-ink-secondary">{entity.summary}</p>
+          ) : null}
         </div>
-        {entity.summary !== null && entity.summary !== "" ? (
-          <p className="mt-3 max-w-2xl text-ink-secondary">{entity.summary}</p>
-        ) : null}
       </header>
+
+      {/* ── COMPANY OVERVIEW — Phase 17 AI enrichment slot ─────────────────
+          A structured, source-grounded overview (business description, key
+          figures, recent developments) generated in Phase 17 renders here.
+          Reserved so the layout already has its place. */}
 
       <ProfileStats profile={profile} />
 
+      {connections.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="type-h2">Connections graph</h2>
+          <div className="mt-4 rounded-md border border-line bg-surface p-4">
+            <ConnectionsGraph entityName={entity.name} connections={connections} />
+          </div>
+        </section>
+      ) : null}
+
       {facts.length > 0 ? (
         <section className="mt-10">
-          <h2 className="type-h2">Timeline</h2>
-          <div className="mt-4">
-            {facts.map((fact) => (
-              <div key={fact.id} className="grid grid-cols-[110px_1fr] gap-4 border-t border-line py-4">
-                <div className="type-data text-ink-muted">{fact.occurredOn}</div>
-                <div>
-                  <h3 className="type-h3">{fact.title}</h3>
-                  {fact.body !== null && fact.body !== "" ? (
-                    <p className="type-small mt-1 max-w-2xl text-ink-secondary">{fact.body}</p>
-                  ) : null}
-                  {fact.channels.length > 0 ? (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {fact.channels.map((channel) => (
-                        <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
-                          {channel}
-                        </Tag>
-                      ))}
-                    </div>
-                  ) : null}
-                  <Citation citation={fact.citation} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <h2 className="type-h2">Activity</h2>
+          <ActivityTimeline facts={facts} />
         </section>
       ) : null}
 
@@ -201,6 +274,39 @@ export function EntityProfile({
                     </li>
                   ))}
                 </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {mentions.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="type-h2">Mentions &amp; sources</h2>
+          <div className="mt-4">
+            {mentions.map((mention, index) => (
+              <div
+                key={index}
+                className="flex items-baseline gap-3 border-t border-line py-2.5 text-[13px]"
+              >
+                <span className="type-data w-[88px] shrink-0 text-ink-muted">
+                  {mention.date ?? "—"}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="font-medium">{mention.sourceName ?? "Source document"}</span>
+                  {mention.title !== null ? (
+                    <span className="text-ink-secondary"> — {mention.title}</span>
+                  ) : null}
+                </span>
+                {mention.url !== null ? (
+                  <a
+                    href={mention.url}
+                    rel="noopener noreferrer"
+                    className="shrink-0 text-accent underline decoration-line-strong underline-offset-2 hover:decoration-accent"
+                  >
+                    open ↗
+                  </a>
+                ) : null}
               </div>
             ))}
           </div>

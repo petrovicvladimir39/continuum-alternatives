@@ -117,6 +117,16 @@ export function hasCyrillic(value: string): boolean {
   return /[Ѐ-ӿ]/.test(value);
 }
 
+/**
+ * Monogram fallback character for entity logos: first letter of the name,
+ * uppercased (Cyrillic kept as-is — it renders fine). Non-letter prefixes
+ * (quotes, digits-only names) fall back to the first alphanumeric, else "•".
+ */
+export function monogramFor(name: string): string {
+  const match = /[\p{L}\p{N}]/u.exec(name);
+  return (match?.[0] ?? "•").toUpperCase();
+}
+
 export function slugify(name: string): string {
   const base = transliterate(name.toLowerCase())
     .replace(/[^a-z0-9\s-]/g, "")

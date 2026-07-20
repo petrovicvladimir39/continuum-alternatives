@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPublicProfile, getSimilar } from "@continuum/db";
+import { getPublicProfile, getRelated } from "@continuum/db";
 import { EntityProfile } from "@/components/public/entity-profile";
 import { profileJsonLd, profileMetadata } from "@/lib/profile-seo";
 
@@ -28,7 +28,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ slug: 
   if (profile === null) {
     notFound();
   }
-  const similar = await getSimilar(profile.entity.id);
+  const similar = await getRelated(profile.entity.id);
   return (
     <>
       <script

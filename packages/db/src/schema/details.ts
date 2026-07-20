@@ -25,6 +25,10 @@ export const organizations = pgTable("organizations", {
   // Universe-seeding audit trail (Phase 15): how/when this org passed or failed
   // the live homepage verification gate. Never rendered publicly.
   verificationNote: text("verification_note"),
+  // Resolved external favicon URL only (Phase 16) — self-hosting fetched logo
+  // binaries on R2 is BACKLOG; we never store image bytes.
+  logoUrl: text("logo_url"),
+  logoFetchedAt: timestamp("logo_fetched_at", { withTimezone: true }),
 });
 
 // Deliberately minimal — GDPR.

@@ -6,6 +6,7 @@ export {
   companyNameCore,
   transliterateDisplay,
   hasCyrillic,
+  monogramFor,
 } from "./normalize";
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";

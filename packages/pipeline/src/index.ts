@@ -57,6 +57,7 @@ export {
   type RegistryItem,
 } from "./registries";
 export { processDocumentFile, terminateOcrWorkers } from "./extract-text";
+export { resolveLogo } from "./logos";
 export {
   backfillEmbeddings,
   embedEntityText,

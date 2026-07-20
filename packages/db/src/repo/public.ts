@@ -96,6 +96,14 @@ export type PublicConnection = {
   startedOn: string | null;
 };
 
+/** Distinct source documents referencing an entity — the provenance section. */
+export type PublicMention = {
+  url: string | null;
+  title: string | null;
+  sourceName: string | null;
+  date: string | null;
+};
+
 export type PublicProfile = {
   entity: EntityRow;
   tags: string[];
@@ -103,6 +111,13 @@ export type PublicProfile = {
   connections: PublicConnection[];
   factsCount: number;
   connectionsCount: number;
+  /** Distinct counterpart entities across approved edges. */
+  counterpartiesCount: number;
+  /** occurred_on of the most recent approved fact. */
+  latestActivityOn: string | null;
+  /** Facts per capital channel group: distressed / private_credit→credit / pe+vc_founders→equity. */
+  factSplit: { equity: number; credit: number; distressed: number };
+  mentions: PublicMention[];
   firstSeenYear: number | null;
   /** Raw amount text from extraction, shown verbatim ONLY when deals.amount is unparsed. */
   dealAmountRaw: string | null;
@@ -221,6 +236,45 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
       : entity.createdAt !== null
         ? entity.createdAt.getFullYear()
         : null;
+  const lastFact = facts[facts.length - 1];
+  const latestActivityOn = lastFact?.occurredOn ?? null;
+
+  // Channel → capital group; a multi-channel fact counts once per group.
+  const factSplit = { equity: 0, credit: 0, distressed: 0 };
+  for (const fact of facts) {
+    const channels = new Set(fact.channels);
+    if (channels.has("distressed")) {
+      factSplit.distressed += 1;
+    }
+    if (channels.has("private_credit")) {
+      factSplit.credit += 1;
+    }
+    if (channels.has("pe") || channels.has("vc_founders")) {
+      factSplit.equity += 1;
+    }
+  }
+
+  const counterpartiesCount = counterpartIds.length;
+
+  const mentionRows = await db
+    .select({
+      url: documents.url,
+      title: documents.title,
+      sourceName: sources.name,
+      date: sql<string | null>`min(${timelineFacts.occurredOn})`,
+    })
+    .from(timelineFacts)
+    .innerJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
+    .leftJoin(sources, eq(sources.id, documents.sourceId))
+    .where(and(eq(timelineFacts.entityId, entity.id), eq(timelineFacts.status, "approved")))
+    .groupBy(documents.id, documents.url, documents.title, sources.name)
+    .orderBy(sql`min(${timelineFacts.occurredOn}) desc`);
+  const mentions: PublicMention[] = mentionRows.map((row) => ({
+    url: row.url,
+    title: row.title,
+    sourceName: row.sourceName,
+    date: row.date === null ? null : String(row.date).slice(0, 10),
+  }));
 
   let organization: PublicProfile["organization"] = null;
   let fund: PublicProfile["fund"] = null;
@@ -285,6 +339,10 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
     connections,
     factsCount: facts.length,
     connectionsCount: connections.length,
+    counterpartiesCount,
+    latestActivityOn,
+    factSplit,
+    mentions,
     firstSeenYear,
     dealAmountRaw,
     organization,
@@ -353,6 +411,67 @@ export async function getSimilar(entityId: string, k = 5): Promise<SimilarEntity
     return [];
   }
 
+  const tagRows = await db
+    .select()
+    .from(entityTags)
+    .where(
+      inArray(
+        entityTags.entityId,
+        hits.map((row) => row.id),
+      ),
+    );
+  return hits.map((row) => ({
+    ...row,
+    tags: tagRows
+      .filter((tag) => tag.entityId === row.id)
+      .map((tag) => tag.tag)
+      .slice(0, 3),
+    href: publicPathFor(row.kind, row.slug),
+  }));
+}
+
+/**
+ * Related entities with a NEVER-EMPTY guarantee: cosine neighbors when the
+ * entity has an embedding, else a deterministic fallback ranked by shared
+ * tags, then same city (geo within 200m — geocoded city centroids coincide),
+ * then same country, then activity. With ≥k other active public entities in
+ * the corpus, this always returns k rows.
+ */
+export async function getRelated(entityId: string, k = 5): Promise<SimilarEntity[]> {
+  const viaEmbeddings = await getSimilar(entityId, k);
+  if (viaEmbeddings.length > 0) {
+    return viaEmbeddings;
+  }
+  const result = await db.execute(sql`
+    with me as (
+      select id, country, geo,
+        coalesce((select array_agg(tag) from entity_tags t where t.entity_id = ${entityId}), '{}') as tags
+      from entities where id = ${entityId}
+    )
+    select e.id, e.slug, e.kind, e.name, e.country,
+      (select count(*)::int from entity_tags t
+        where t.entity_id = e.id and t.tag = any(me.tags)) as shared_tags,
+      case when me.geo is not null and e.geo is not null
+           and ST_DWithin(e.geo, me.geo, 200) then 1 else 0 end as same_city,
+      case when e.country is not null and e.country = me.country then 1 else 0 end as same_country,
+      (select count(*)::int from timeline_facts tf
+        where tf.entity_id = e.id and tf.status = 'approved') as facts_count
+    from entities e, me
+    where e.status = 'active' and e.id <> me.id
+      and e.kind in ('organization', 'fund_vehicle', 'deal')
+    order by shared_tags desc, same_city desc, same_country desc, facts_count desc, e.name
+    limit ${k}
+  `);
+  const hits = result.rows.map((row) => ({
+    id: String(row.id),
+    slug: String(row.slug),
+    kind: String(row.kind) as EntityKind,
+    name: String(row.name),
+    country: row.country === null ? null : String(row.country),
+  }));
+  if (hits.length === 0) {
+    return [];
+  }
   const tagRows = await db
     .select()
     .from(entityTags)
