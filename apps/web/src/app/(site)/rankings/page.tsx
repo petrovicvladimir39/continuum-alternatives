@@ -4,10 +4,13 @@ import {
   administratorRanking,
   cityRanking,
   courtRanking,
+  db,
   degreeRanking,
+  sql,
   type RankingRow,
 } from "@continuum/db";
 import { DataTable, numericCell } from "@/components/ui/data-table";
+import { countryName } from "@/lib/public-labels";
 
 export const dynamic = "force-dynamic";
 
@@ -75,13 +78,29 @@ function RankingTable({
   );
 }
 
-export default async function RankingsPage() {
-  const [courts, cities, administrators, degree] = await Promise.all([
-    courtRanking(),
-    cityRanking(),
-    administratorRanking(),
-    degreeRanking(),
+export default async function RankingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ country?: string }>;
+}) {
+  // Default "All countries" (anti-skew) — the selector narrows honestly;
+  // thin slices show their empty state rather than a fake table.
+  const params = await searchParams;
+  const rawCountry = params.country?.toUpperCase() ?? "";
+  const country = /^[A-Z]{2}$/.test(rawCountry) ? rawCountry : undefined;
+
+  const [courts, cities, administrators, degree, countryRows] = await Promise.all([
+    courtRanking(10, country),
+    cityRanking(10, country),
+    administratorRanking(10, country),
+    degreeRanking(20, country),
+    db.execute(sql`
+      select distinct e.country from entities e
+      where e.status = 'active' and e.country is not null
+      order by e.country
+    `),
   ]);
+  const countries = countryRows.rows.map((row) => String(row.country));
 
   return (
     <div className="py-10">
@@ -90,6 +109,24 @@ export default async function RankingsPage() {
         League tables computed from the approved record. Each table states its basis; where the
         data is thin, no table is shown.
       </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-1 border-b border-line pb-2 text-[13px]">
+        <Link
+          href="/rankings"
+          className={`px-2 py-1 ${country === undefined ? "font-medium text-accent" : "text-ink-secondary hover:text-accent"}`}
+        >
+          All countries
+        </Link>
+        {countries.map((code) => (
+          <Link
+            key={code}
+            href={`/rankings?country=${code}`}
+            className={`px-2 py-1 ${country === code ? "font-medium text-accent" : "text-ink-secondary hover:text-accent"}`}
+          >
+            {countryName(code)}
+          </Link>
+        ))}
+      </div>
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-2">
         <RankingTable

@@ -5,7 +5,7 @@
  */
 
 export const NAV_ITEMS = [
-  { href: "/feed", label: "News" },
+  { href: "/news", label: "News" },
   { href: "/map", label: "Map" },
   { href: "/auctions", label: "Auctions" },
   { href: "/rankings", label: "Rankings" },
@@ -18,6 +18,94 @@ export const FOOTER_PLATFORM_LINKS = [
   { href: "/about", label: "About" },
   { href: "/search", label: "Search" },
 ] as const;
+
+/**
+ * Anti-skew rail diversity (reset build Part 7): order-preserving cap of
+ * 2 items per country, plus — once a rail is 5+ long — no single country
+ * above 40% of it. Items with unknown country always pass. Deferred items
+ * refill the tail when caps allow, so rails stay dense without one market
+ * drowning the front page.
+ */
+export function diversifyRail<T>(
+  items: T[],
+  limit: number,
+  countryOf: (item: T) => string | null,
+): T[] {
+  const kept: T[] = [];
+  const deferred: T[] = [];
+  const counts = new Map<string, number>();
+  const allows = (country: string | null, railLength: number): boolean => {
+    if (country === null || country === "") {
+      return true;
+    }
+    const current = counts.get(country) ?? 0;
+    if (current >= 2) {
+      return false;
+    }
+    const nextLength = railLength + 1;
+    if (nextLength >= 5 && current + 1 > Math.floor(0.4 * nextLength)) {
+      return false;
+    }
+    return true;
+  };
+  const take = (item: T) => {
+    kept.push(item);
+    const country = countryOf(item);
+    if (country !== null && country !== "") {
+      counts.set(country, (counts.get(country) ?? 0) + 1);
+    }
+  };
+  for (const item of items) {
+    if (kept.length >= limit) {
+      break;
+    }
+    if (allows(countryOf(item), kept.length)) {
+      take(item);
+    } else {
+      deferred.push(item);
+    }
+  }
+  for (const item of deferred) {
+    if (kept.length >= limit) {
+      break;
+    }
+    if (allows(countryOf(item), kept.length)) {
+      take(item);
+    }
+  }
+  return kept;
+}
+
+/**
+ * Lead rotation (reset build Part 7): today's lead should not repeat
+ * yesterday's lead country when an alternative exists. Given candidates in
+ * recency order and the previous lead's country, returns the index to lead
+ * with — the first candidate from a different country, else 0.
+ */
+export function pickRotatedLead<T>(
+  candidates: T[],
+  previousLeadCountry: string | null,
+  countryOf: (item: T) => string | null,
+): number {
+  if (candidates.length === 0) {
+    return 0;
+  }
+  const firstCountry = countryOf(candidates[0]!);
+  if (
+    previousLeadCountry === null ||
+    firstCountry === null ||
+    firstCountry !== previousLeadCountry
+  ) {
+    return 0;
+  }
+  for (let i = 1; i < candidates.length; i++) {
+    const country = countryOf(candidates[i]!);
+    if (country !== null && country !== previousLeadCountry) {
+      return i;
+    }
+  }
+  return 0;
+}
 
 /** Bloomberg-rail "2h ago" prefixes, deterministic from an injected now. */
 export function timeAgo(recordedAt: string | Date, now: string | Date): string {

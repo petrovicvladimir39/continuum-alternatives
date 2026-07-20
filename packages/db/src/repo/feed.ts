@@ -286,25 +286,29 @@ export async function auctionStats(today?: string): Promise<AuctionStats> {
 
 export type RankingRow = { label: string; n: number; href?: string | null };
 
-export async function courtRanking(limit = 10): Promise<RankingRow[]> {
+export async function courtRanking(limit = 10, country?: string): Promise<RankingRow[]> {
   const result = await db.execute(sql`
-    select data->>'court' as label, count(*)::int as n
-    from timeline_facts
-    where status = 'approved' and fact_type = 'insolvency_opened'
-      and data->>'court' is not null
-      and occurred_on >= current_date - interval '12 months'
+    select f.data->>'court' as label, count(*)::int as n
+    from timeline_facts f
+    join entities e on e.id = f.entity_id
+    where f.status = 'approved' and f.fact_type = 'insolvency_opened'
+      and f.data->>'court' is not null
+      and f.occurred_on >= current_date - interval '12 months'
+      and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1 order by n desc, label limit ${limit}
   `);
   return result.rows.map((row) => ({ label: String(row.label), n: Number(row.n) }));
 }
 
-export async function cityRanking(limit = 10): Promise<RankingRow[]> {
+export async function cityRanking(limit = 10, country?: string): Promise<RankingRow[]> {
   const result = await db.execute(sql`
-    select coalesce(data->>'city', data->>'place') as label, count(*)::int as n
-    from timeline_facts
-    where status = 'approved'
-      and coalesce(data->>'city', data->>'place') is not null
-      and occurred_on >= current_date - interval '12 months'
+    select coalesce(f.data->>'city', f.data->>'place') as label, count(*)::int as n
+    from timeline_facts f
+    join entities e on e.id = f.entity_id
+    where f.status = 'approved'
+      and coalesce(f.data->>'city', f.data->>'place') is not null
+      and f.occurred_on >= current_date - interval '12 months'
+      and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1 order by n desc, label limit ${limit}
   `);
   return result.rows.map((row) => ({ label: String(row.label), n: Number(row.n) }));
@@ -339,12 +343,14 @@ export function groupAdministrators(
     .sort((a, b) => b.n - a.n || a.label.localeCompare(b.label));
 }
 
-export async function administratorRanking(limit = 10): Promise<RankingRow[]> {
+export async function administratorRanking(limit = 10, country?: string): Promise<RankingRow[]> {
   const result = await db.execute(sql`
-    select data->>'administrator' as name, count(*)::int as n
-    from timeline_facts
-    where status = 'approved' and data->>'administrator' is not null
-      and occurred_on >= current_date - interval '12 months'
+    select f.data->>'administrator' as name, count(*)::int as n
+    from timeline_facts f
+    join entities e on e.id = f.entity_id
+    where f.status = 'approved' and f.data->>'administrator' is not null
+      and f.occurred_on >= current_date - interval '12 months'
+      and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1
   `);
   return groupAdministrators(
@@ -352,13 +358,14 @@ export async function administratorRanking(limit = 10): Promise<RankingRow[]> {
   ).slice(0, limit);
 }
 
-export async function degreeRanking(limit = 20): Promise<RankingRow[]> {
+export async function degreeRanking(limit = 20, country?: string): Promise<RankingRow[]> {
   const result = await db.execute(sql`
     select e.name as label, e.slug, e.kind, count(*)::int as n
     from entities e
     join edges ed on ed.status = 'approved'
       and (ed.source_entity_id = e.id or ed.target_entity_id = e.id)
     where e.status = 'active'
+      and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by e.id, e.name, e.slug, e.kind
     order by n desc, e.name limit ${limit}
   `);

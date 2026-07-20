@@ -1,0 +1,175 @@
+import { desc, eq, inArray, sql } from "drizzle-orm";
+import { db } from "../client";
+import { articles, entities, organizations, timelineFacts, documents, sources } from "../schema";
+
+/**
+ * News Desk article queries (reset build Part 6). Public surfaces show
+ * PUBLISHED articles only; the review queue works on proposed ones. The
+ * citation footer data is assembled here at render time — never model text.
+ */
+
+export type ArticleRow = typeof articles.$inferSelect;
+
+export type ArticleListItem = {
+  id: string;
+  slug: string;
+  headline: string;
+  deck: string | null;
+  channels: string[];
+  byline: string;
+  publishedAt: Date | null;
+  entityName: string | null;
+  entitySlug: string | null;
+  entityKind: string | null;
+  logoUrl: string | null;
+  entityCountry: string | null;
+};
+
+const listSelection = {
+  id: articles.id,
+  slug: articles.slug,
+  headline: articles.headline,
+  deck: articles.deck,
+  channels: articles.channels,
+  byline: articles.byline,
+  publishedAt: articles.publishedAt,
+  entityName: entities.name,
+  entitySlug: entities.slug,
+  entityKind: sql<string | null>`${entities.kind}::text`,
+  logoUrl: organizations.logoUrl,
+  entityCountry: entities.country,
+};
+
+export async function listPublishedArticles(limit = 50): Promise<ArticleListItem[]> {
+  return db
+    .select(listSelection)
+    .from(articles)
+    .leftJoin(entities, eq(entities.id, articles.primaryEntityId))
+    .leftJoin(organizations, eq(organizations.entityId, articles.primaryEntityId))
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt))
+    .limit(limit);
+}
+
+export type ArticleCitation = {
+  factId: string;
+  factTitle: string;
+  occurredOn: string;
+  excerpt: string | null;
+  sourceName: string | null;
+  documentUrl: string | null;
+  documentTitle: string | null;
+};
+
+export type ArticleDetail = {
+  article: ArticleRow;
+  entity: { name: string; slug: string; kind: string; country: string | null; logoUrl: string | null } | null;
+  citations: ArticleCitation[];
+};
+
+async function citationsFor(article: ArticleRow): Promise<ArticleCitation[]> {
+  if (article.factIds.length === 0) {
+    return [];
+  }
+  const rows = await db
+    .select({
+      factId: timelineFacts.id,
+      factTitle: timelineFacts.title,
+      occurredOn: timelineFacts.occurredOn,
+      data: timelineFacts.data,
+      sourceName: sources.name,
+      documentUrl: documents.url,
+      documentTitle: documents.title,
+    })
+    .from(timelineFacts)
+    .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
+    .leftJoin(sources, eq(sources.id, documents.sourceId))
+    .where(inArray(timelineFacts.id, article.factIds));
+  return rows.map((row) => {
+    const data = (row.data ?? {}) as Record<string, unknown>;
+    const excerpt = typeof data.excerpt_original === "string" ? data.excerpt_original : null;
+    return {
+      factId: row.factId,
+      factTitle: row.factTitle,
+      occurredOn: String(row.occurredOn),
+      excerpt,
+      sourceName: row.sourceName,
+      documentUrl: row.documentUrl,
+      documentTitle: row.documentTitle,
+    };
+  });
+}
+
+async function detailFor(article: ArticleRow | undefined): Promise<ArticleDetail | null> {
+  if (article === undefined) {
+    return null;
+  }
+  let entity: ArticleDetail["entity"] = null;
+  if (article.primaryEntityId !== null) {
+    const entityRows = await db
+      .select({
+        name: entities.name,
+        slug: entities.slug,
+        kind: sql<string>`${entities.kind}::text`,
+        country: entities.country,
+        logoUrl: organizations.logoUrl,
+      })
+      .from(entities)
+      .leftJoin(organizations, eq(organizations.entityId, entities.id))
+      .where(eq(entities.id, article.primaryEntityId));
+    entity = entityRows[0] ?? null;
+  }
+  return { article, entity, citations: await citationsFor(article) };
+}
+
+export async function publishedArticleBySlug(slug: string): Promise<ArticleDetail | null> {
+  const rows = await db.select().from(articles).where(eq(articles.slug, slug));
+  const article = rows[0];
+  if (article === undefined || article.status !== "published") {
+    return null;
+  }
+  return detailFor(article);
+}
+
+export async function articleDetailById(id: string): Promise<ArticleDetail | null> {
+  const rows = await db.select().from(articles).where(eq(articles.id, id));
+  return detailFor(rows[0]);
+}
+
+export async function listArticlesByStatus(
+  status: "proposed" | "published" | "rejected",
+  limit = 100,
+): Promise<ArticleListItem[]> {
+  return db
+    .select(listSelection)
+    .from(articles)
+    .leftJoin(entities, eq(entities.id, articles.primaryEntityId))
+    .leftJoin(organizations, eq(organizations.entityId, articles.primaryEntityId))
+    .where(eq(articles.status, status))
+    .orderBy(desc(articles.createdAt))
+    .limit(limit);
+}
+
+/** Fact ids already covered by a proposed or published article. */
+export async function coveredFactIds(): Promise<Set<string>> {
+  const rows = await db
+    .select({ factIds: articles.factIds })
+    .from(articles)
+    .where(sql`${articles.status} IN ('proposed', 'published')`);
+  const covered = new Set<string>();
+  for (const row of rows) {
+    for (const id of row.factIds) {
+      covered.add(id);
+    }
+  }
+  return covered;
+}
+
+/** Published article slugs + dates for the sitemap. */
+export async function listArticleUrls(): Promise<{ slug: string; publishedAt: Date | null }[]> {
+  return db
+    .select({ slug: articles.slug, publishedAt: articles.publishedAt })
+    .from(articles)
+    .where(eq(articles.status, "published"))
+    .orderBy(desc(articles.publishedAt));
+}

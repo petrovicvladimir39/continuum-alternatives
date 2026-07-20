@@ -10,22 +10,32 @@ import {
   latestRecorded,
   leadCandidates,
   listAuctions,
+  listPublishedArticles,
+  type ArticleListItem,
   type FeedItem,
   type LeadCandidate,
 } from "@continuum/db";
 import { FACT_PRIORITY } from "@continuum/pipeline";
-import { timeAgo, visibleHomeSections } from "@continuum/shared";
+import { diversifyRail, pickRotatedLead, timeAgo, visibleHomeSections } from "@continuum/shared";
+import { EntityLogo } from "@/components/ui/entity-logo";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Bloomberg-density front page (Phase 19): stat strip · lead story · latest
- * rail · channel band · auctions rail · bottom band. Strictly tokens — density
- * comes from hairlines and tabular figures, not decoration. Sections render
- * only when populated (visibleHomeSections — zero empty states).
+ * Bloomberg front (reset build Part 6): stat strip · LEAD article (oversized
+ * serif, entity logo anchor) · timestamped Latest rail · three dense channel
+ * rails (article headlines serif, wire fact-lines sans) · auctions demoted to
+ * the bottom quiet band. Strictly tokens; sections render only when populated.
+ * When no article is published yet, the lead falls back to the ranked fact.
  */
+
+const CHANNEL_GROUPS: { title: string; channels: string[] }[] = [
+  { title: "Distressed & credit", channels: ["distressed", "private_credit"] },
+  { title: "Private equity & VC", channels: ["pe", "vc_founders"] },
+  { title: "Institutions & funds", channels: ["lp_institutional", "vendors"] },
+];
 
 function rankLead(candidates: LeadCandidate[]): LeadCandidate | null {
   const sorted = [...candidates].sort((a, b) => {
@@ -65,30 +75,53 @@ function CompactRow({ item }: { item: FeedItem }) {
 
 export default async function Home() {
   const now = new Date();
-  const [stats, auctionsAll, candidates, latest, colDistressed, colEquity, colInstitutions, sentDigests] =
+  const [stats, auctionsAll, candidates, latest, colDistressed, colEquity, colInstitutions, sentDigests, publishedArticles] =
     await Promise.all([
       homeStats(),
       auctionStats(),
       leadCandidates(),
-      latestRecorded(8),
-      channelColumn(["distressed", "private_credit"], 5),
-      channelColumn(["pe", "vc_founders"], 5),
-      channelColumn(["lp_institutional", "vendors"], 5),
+      // Over-fetch so the diversity cap still fills the rails.
+      latestRecorded(20),
+      channelColumn(["distressed", "private_credit"], 12),
+      channelColumn(["pe", "vc_founders"], 12),
+      channelColumn(["lp_institutional", "vendors"], 12),
       db
         .select({ digestDate: digests.digestDate })
         .from(digests)
         .where(eq(digests.status, "sent"))
         .orderBy(desc(digests.digestDate))
         .limit(1),
+      listPublishedArticles(20),
     ]);
   const upcoming = await listAuctions("upcoming");
   const nextAuctions = upcoming.rows.slice(0, 5);
-  const lead = rankLead(candidates);
-  const latestRail = latest.filter((item) => item.id !== lead?.id).slice(0, 8);
+
+  // Lead rotation (anti-skew): don't repeat yesterday's lead country when an
+  // alternative exists. "Yesterday's lead" = the newest article published on
+  // an earlier calendar day than the newest one.
+  const newestDay = publishedArticles[0]?.publishedAt?.toISOString().slice(0, 10) ?? null;
+  const previousLead = publishedArticles.find(
+    (article) =>
+      article.publishedAt !== null &&
+      newestDay !== null &&
+      article.publishedAt.toISOString().slice(0, 10) < newestDay,
+  );
+  const leadIndex = pickRotatedLead(
+    publishedArticles,
+    previousLead?.entityCountry ?? null,
+    (article) => article.entityCountry,
+  );
+  const leadArticle = publishedArticles[leadIndex] ?? null;
+  const factLead = leadArticle === null ? rankLead(candidates) : null;
+  const latestRail = diversifyRail(
+    latest.filter((item) => item.id !== factLead?.id),
+    8,
+    (item) => item.entityCountry,
+  );
   const latestDigest = sentDigests[0]?.digestDate ?? null;
 
   const sections = visibleHomeSections({
-    lead: lead !== null,
+    lead: leadArticle !== null || factLead !== null,
     latestCount: latestRail.length,
     channelColumnCounts: [colDistressed.length, colEquity.length, colInstitutions.length],
     auctionsCount: nextAuctions.length,
@@ -96,11 +129,23 @@ export default async function Home() {
   });
   const show = (key: string) => sections.includes(key);
 
-  const channelColumns: { title: string; items: FeedItem[] }[] = [
-    { title: "Distressed & credit", items: colDistressed },
-    { title: "Private equity & VC", items: colEquity },
-    { title: "Institutions & funds", items: colInstitutions },
-  ].filter((column) => column.items.length > 0);
+  // Channel rails: article headlines (serif) above wire fact-lines (sans),
+  // both passed through the anti-skew diversity cap.
+  const railArticles = publishedArticles.filter((article) => article.id !== leadArticle?.id);
+  const articlesFor = (channels: string[]): ArticleListItem[] =>
+    diversifyRail(
+      railArticles.filter((article) => article.channels.some((c) => channels.includes(c))),
+      2,
+      (article) => article.entityCountry,
+    );
+  const diverseItems = (items: FeedItem[]): FeedItem[] =>
+    diversifyRail(items, 5, (item) => item.entityCountry);
+
+  const channelColumns: { title: string; items: FeedItem[]; articles: ArticleListItem[] }[] = [
+    { ...CHANNEL_GROUPS[0]!, items: diverseItems(colDistressed), articles: articlesFor(CHANNEL_GROUPS[0]!.channels) },
+    { ...CHANNEL_GROUPS[1]!, items: diverseItems(colEquity), articles: articlesFor(CHANNEL_GROUPS[1]!.channels) },
+    { ...CHANNEL_GROUPS[2]!, items: diverseItems(colInstitutions), articles: articlesFor(CHANNEL_GROUPS[2]!.channels) },
+  ].filter((column) => column.items.length > 0 || column.articles.length > 0);
 
   return (
     <div className="pb-12">
@@ -127,46 +172,92 @@ export default async function Home() {
       {/* 2 · Lead story + latest rail. */}
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <div>
-          {show("lead") && lead !== null ? (
+          {show("lead") && leadArticle !== null ? (
+            <article className="flex flex-wrap items-start gap-6">
+              <div className="min-w-0 flex-1">
+                <p className="type-label">Lead</p>
+                <Link href={`/news/${leadArticle.slug}`} className="hover:text-accent">
+                  <h1 className="mt-2 max-w-2xl font-serif text-[38px] font-medium leading-[1.12]">
+                    {leadArticle.headline}
+                  </h1>
+                </Link>
+                {leadArticle.deck !== null ? (
+                  <p className="mt-3 max-w-xl text-[15px] leading-[1.5] text-ink-secondary">
+                    {leadArticle.deck}
+                  </p>
+                ) : null}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="type-data text-ink-muted">
+                    {leadArticle.byline}
+                    {leadArticle.publishedAt !== null
+                      ? ` · ${leadArticle.publishedAt.toISOString().slice(0, 10)}`
+                      : ""}
+                  </span>
+                  {leadArticle.channels.map((channel) => (
+                    <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
+                      {channel}
+                    </Tag>
+                  ))}
+                </div>
+              </div>
+              {leadArticle.entityName !== null ? (
+                <div className="w-[150px] shrink-0 border border-line p-3">
+                  <EntityLogo
+                    name={leadArticle.entityName}
+                    logoUrl={leadArticle.logoUrl}
+                    size="md"
+                  />
+                  <p className="mt-2 text-[13px] font-medium leading-snug">
+                    {leadArticle.entityName}
+                  </p>
+                  {leadArticle.entityCountry !== null ? (
+                    <p className="type-small text-ink-muted">
+                      {countryName(leadArticle.entityCountry)}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </article>
+          ) : show("lead") && factLead !== null ? (
             <article>
               <p className="type-label">Lead</p>
-              {lead.entityHref !== null ? (
-                <Link href={lead.entityHref} className="hover:text-accent">
-                  <h1 className="type-h1 mt-2 max-w-xl">{lead.title}</h1>
+              {factLead.entityHref !== null ? (
+                <Link href={factLead.entityHref} className="hover:text-accent">
+                  <h1 className="type-h1 mt-2 max-w-xl">{factLead.title}</h1>
                 </Link>
               ) : (
-                <h1 className="type-h1 mt-2 max-w-xl">{lead.title}</h1>
+                <h1 className="type-h1 mt-2 max-w-xl">{factLead.title}</h1>
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="type-data text-ink-muted">{lead.occurredOn}</span>
+                <span className="type-data text-ink-muted">{factLead.occurredOn}</span>
                 <span className="text-[13px] text-ink-secondary">
-                  {lead.entityName}
-                  {lead.entityCountry !== null ? ` · ${countryName(lead.entityCountry)}` : ""}
+                  {factLead.entityName}
+                  {factLead.entityCountry !== null ? ` · ${countryName(factLead.entityCountry)}` : ""}
                 </span>
-                {lead.channels.map((channel) => (
+                {factLead.channels.map((channel) => (
                   <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
                     {channel}
                   </Tag>
                 ))}
               </div>
-              {lead.excerpt !== null && lead.excerpt !== "" ? (
+              {factLead.excerpt !== null && factLead.excerpt !== "" ? (
                 <blockquote className="type-small mt-4 max-w-xl border-l-2 border-line-strong pl-3 text-ink-secondary">
-                  “{lead.excerpt}”
+                  “{factLead.excerpt}”
                 </blockquote>
               ) : null}
-              {lead.sourceName !== null ? (
+              {factLead.sourceName !== null ? (
                 <p className="type-small mt-3 text-ink-muted">
                   Source:{" "}
-                  {lead.sourceUrl !== null ? (
+                  {factLead.sourceUrl !== null ? (
                     <a
-                      href={lead.sourceUrl}
+                      href={factLead.sourceUrl}
                       rel="noopener noreferrer"
                       className="underline decoration-line-strong underline-offset-2 hover:text-accent"
                     >
-                      {lead.sourceName}
+                      {factLead.sourceName}
                     </a>
                   ) : (
-                    lead.sourceName
+                    factLead.sourceName
                   )}
                 </p>
               ) : null}
@@ -189,6 +280,22 @@ export default async function Home() {
                 <section key={column.title}>
                   <h2 className="type-label">{column.title}</h2>
                   <div className="mt-1">
+                    {column.articles.map((article) => (
+                      <div key={article.id} className="border-t border-line py-2.5">
+                        <Link
+                          href={`/news/${article.slug}`}
+                          className="font-serif text-[17px] font-medium leading-[1.25] text-ink hover:text-accent"
+                        >
+                          {article.headline}
+                        </Link>
+                        <p className="type-small mt-0.5 text-ink-muted">
+                          {article.byline}
+                          {article.entityCountry !== null
+                            ? ` · ${countryName(article.entityCountry)}`
+                            : ""}
+                        </p>
+                      </div>
+                    ))}
                     {column.items.map((item) => (
                       <CompactRow key={item.id} item={item} />
                     ))}
@@ -223,52 +330,13 @@ export default async function Home() {
               ))}
             </div>
             <Link href="/feed" className="type-small mt-2 inline-block text-accent hover:underline">
-              All news →
+              All signals →
             </Link>
           </aside>
         ) : null}
       </div>
 
-      {/* 4 · Auctions rail. */}
-      {show("auctions-rail") ? (
-        <section className="mt-10 border-t border-line pt-6">
-          <div className="flex items-baseline justify-between">
-            <h2 className="type-label">Next auctions</h2>
-            <Link href="/auctions" className="type-small text-accent hover:underline">
-              Auction tracker →
-            </Link>
-          </div>
-          <div className="mt-2 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
-            {nextAuctions.map((row) => (
-              <div key={row.factId} className="border-t border-line py-2.5">
-                <p className="type-data text-ink-muted">
-                  {row.saleDate} ·{" "}
-                  {row.daysUntil === 0
-                    ? "today"
-                    : `in ${row.daysUntil} day${row.daysUntil === 1 ? "" : "s"}`}
-                </p>
-                {row.debtorHref !== null ? (
-                  <Link
-                    href={row.debtorHref}
-                    className="mt-0.5 block truncate text-[13px] font-medium hover:text-accent"
-                  >
-                    {row.debtorName}
-                  </Link>
-                ) : (
-                  <span className="mt-0.5 block truncate text-[13px] font-medium">
-                    {row.debtorName}
-                  </span>
-                )}
-                {row.place !== null ? (
-                  <p className="type-small text-ink-muted">{row.place}</p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {/* 5 · Bottom band — map teaser · digest · reports promo. */}
+      {/* 4 · Bottom band — map teaser · digest · reports promo. */}
       <section className="mt-10 grid grid-cols-1 gap-8 border-t border-line pt-6 sm:grid-cols-3">
         <div>
           <h2 className="type-label">The map</h2>
@@ -301,6 +369,42 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+      {/* 5 · Auctions — demoted to the bottom quiet band. */}
+      {show("auctions-rail") ? (
+        <section className="mt-8 border-t border-line pt-4">
+          <div className="flex items-baseline justify-between">
+            <h2 className="type-label text-ink-muted">Next auctions</h2>
+            <Link href="/auctions" className="type-small text-ink-muted hover:text-accent">
+              Auction tracker →
+            </Link>
+          </div>
+          <div className="mt-1 grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
+            {nextAuctions.map((row) => (
+              <div key={row.factId} className="py-1.5">
+                <p className="type-small text-ink-muted">
+                  <span className="type-data">{row.saleDate}</span> ·{" "}
+                  {row.daysUntil === 0
+                    ? "today"
+                    : `in ${row.daysUntil} day${row.daysUntil === 1 ? "" : "s"}`}
+                </p>
+                {row.debtorHref !== null ? (
+                  <Link
+                    href={row.debtorHref}
+                    className="block truncate text-[13px] text-ink-secondary hover:text-accent"
+                  >
+                    {row.debtorName}
+                  </Link>
+                ) : (
+                  <span className="block truncate text-[13px] text-ink-secondary">
+                    {row.debtorName}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

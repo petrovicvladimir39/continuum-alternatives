@@ -80,8 +80,10 @@ export {
 } from "./embeddings";
 
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
+import { articlesWeekly } from "./functions/articles-weekly";
 import { extractDocumentFn } from "./functions/extract-document";
 import { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 
-/** Every pipeline function, for the Next.js serve route. */
-export const functions = [ingestHourly, ingestSource, extractDocumentFn, anomaliesWeekly];
+/** Every pipeline function, for the Next.js serve route. articlesWeekly
+ * ships DISABLED (no-op until ARTICLES_WEEKLY_ENABLED=1). */
+export const functions = [ingestHourly, ingestSource, extractDocumentFn, anomaliesWeekly, articlesWeekly];

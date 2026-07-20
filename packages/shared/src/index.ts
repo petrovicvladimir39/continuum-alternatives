@@ -20,6 +20,8 @@ export { stripBaseLabels, isCountryLabelLayer, type MapStyleLike } from "./map-s
 export {
   NAV_ITEMS,
   FOOTER_PLATFORM_LINKS,
+  diversifyRail,
+  pickRotatedLead,
   timeAgo,
   visibleHomeSections,
   validateReportGate,

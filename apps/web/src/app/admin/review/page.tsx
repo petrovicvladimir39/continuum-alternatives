@@ -7,6 +7,7 @@ import {
   edges,
   entities,
   eq,
+  listArticlesByStatus,
   ne,
   organizations,
   sources,
@@ -45,7 +46,7 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-const FILTERS = ["all", "facts", "edges", ...CHANNELS] as const;
+const FILTERS = ["all", "facts", "edges", "articles", ...CHANNELS] as const;
 
 export default async function ReviewPage({
   searchParams,
@@ -57,6 +58,8 @@ export default async function ReviewPage({
   const channelFilter = (CHANNELS as readonly string[]).includes(filter) ? filter : null;
   const showFacts = filter === "all" || filter === "facts" || channelFilter !== null;
   const showEdges = filter === "all" || filter === "edges";
+  const showArticles = filter === "all" || filter === "articles";
+  const proposedArticles = showArticles ? await listArticlesByStatus("proposed") : [];
 
   const sourceEntity = alias(entities, "source_entity");
   const targetEntity = alias(entities, "target_entity");
@@ -207,6 +210,39 @@ export default async function ReviewPage({
       )}
 
       <div className="mt-6">
+        {proposedArticles.length > 0 ? (
+          <Section title="Proposed articles (News Desk)">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Composed from approved facts only, mechanically guarded. Open to edit and decide —
+              nothing auto-publishes.
+            </p>
+            <div className="space-y-3">
+              {proposedArticles.map((article) => (
+                <div key={article.id} className="border border-line bg-surface p-4">
+                  <Link
+                    href={`/admin/review/article/${article.id}`}
+                    className="font-serif text-[19px] font-medium leading-snug text-ink hover:text-accent"
+                  >
+                    {article.headline}
+                  </Link>
+                  {article.deck !== null ? (
+                    <p className="mt-1 text-[13px] text-ink-secondary">{article.deck}</p>
+                  ) : null}
+                  <p className="type-data mt-1.5 text-ink-muted">
+                    {article.entityName ?? "—"} · {article.channels.join(", ") || "no channels"} ·{" "}
+                    <Link
+                      href={`/admin/review/article/${article.id}`}
+                      className="text-accent hover:underline"
+                    >
+                      review →
+                    </Link>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
         {proposedFacts.length > 0 ? (
           <Section title="Proposed timeline facts">
             <div className="space-y-4">

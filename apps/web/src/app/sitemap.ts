@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { db, desc, digests, eq, listPublicUrls } from "@continuum/db";
+import { db, desc, digests, eq, listArticleUrls, listPublicUrls } from "@continuum/db";
 
 const ORIGIN = "https://continuumalternatives.com";
 
@@ -15,9 +15,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // which is fine up to the protocol's 50k-URL cap; revisit with
   // generateSitemaps() chunking if the entity count approaches that.
   const entityUrls = await listPublicUrls();
+  const articleUrls = await listArticleUrls();
 
   return [
     { url: ORIGIN },
+    { url: `${ORIGIN}/news` },
+    ...articleUrls.map((article) => ({
+      url: `${ORIGIN}/news/${article.slug}`,
+      ...(article.publishedAt !== null ? { lastModified: article.publishedAt } : {}),
+    })),
     { url: `${ORIGIN}/digest` },
     { url: `${ORIGIN}/search` },
     { url: `${ORIGIN}/companies` },
