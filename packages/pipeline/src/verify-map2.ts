@@ -22,7 +22,8 @@ import {
   sources,
 } from "@continuum/db";
 import { createEdge, createEntity } from "@continuum/db";
-import { monogramFor } from "@continuum/shared";
+import { monogramFor, stripBaseLabels } from "@continuum/shared";
+import { normalizeCityName } from "./geocode";
 import { resolveLogo } from "./logos";
 
 let failures = 0;
@@ -96,13 +97,13 @@ async function main() {
     belgrade?.capitalTypeCounts.neutral === 2 && belgrade?.capitalTypeCounts.distressed === 1,
     "capitalTypeCounts aggregate per dominant type",
   );
-  check(belgrade?.dominant === "neutral", "city dominant = max of counts");
+  check(belgrade?.dominant === "distressed", "city dominant = dominant non-neutral type");
   check(
     belgrade?.entityIds.length === 3 && belgrade.entityIds.includes("2"),
     "entityIds carried per city",
   );
 
-  console.log("\n— dominance rules (pure) —");
+  console.log("\n— dominance rules (pure, Phase 17: non-neutral preferred) —");
   check(
     dominantOf({ equity: 2, credit: 2, distressed: 0, neutral: 0 }) === "credit",
     "tie breaks credit over equity",
@@ -115,12 +116,56 @@ async function main() {
     dominantOf({ equity: 0, credit: 0, distressed: 0, neutral: 1 }) === "neutral",
     "all-neutral city stays neutral",
   );
+  check(
+    dominantOf({ equity: 1, credit: 0, distressed: 0, neutral: 180 }) === "equity",
+    "any non-neutral firm outranks the debtor mass (the Beograd rule)",
+  );
+  check(
+    dominantOf({ equity: 2, credit: 3, distressed: 1, neutral: 181 }) === "credit",
+    "dominant non-neutral wins among non-neutrals",
+  );
   const dual = capitalTypesFor(["servicer", "bank"]);
   check(
     dual[0] === "distressed" && dual[1] === "credit",
     "capitalTypesFor orders equal matches by specialization",
   );
   check(capitalTypesFor([]).length === 0, "no mapped tags → no capital types (neutral)");
+
+  console.log("\n— base-map label stripping (pure) —");
+  const strippedStyle = stripBaseLabels({
+    version: 8,
+    layers: [
+      { id: "water", type: "fill" },
+      { id: "boundary_country", type: "line" },
+      { id: "place_city", type: "symbol" },
+      { id: "label_country_1", type: "symbol" },
+      { id: "poi_label", type: "symbol" },
+      { id: "road_label", type: "symbol" },
+      { id: "water_name", type: "symbol" },
+    ],
+  });
+  const keptIds = (strippedStyle.layers ?? []).map((layer) => layer.id);
+  check(
+    keptIds.includes("water") && keptIds.includes("boundary_country"),
+    "fills and boundaries survive the label strip",
+  );
+  check(keptIds.includes("label_country_1"), "country labels survive");
+  check(
+    !keptIds.includes("place_city") && !keptIds.includes("poi_label") &&
+      !keptIds.includes("road_label") && !keptIds.includes("water_name"),
+    "place/POI/road/water labels are stripped",
+  );
+
+  console.log("\n— municipality normalization (pure) —");
+  check(normalizeCityName("Београд – Стари Град") === "Београд", "dash suffix strips to Beograd");
+  check(normalizeCityName("Стари Град") === "Београд", "bare municipality maps to Beograd");
+  check(normalizeCityName("Novi Beograd") === "Београд", "Latin municipality maps to Beograd");
+  check(normalizeCityName("Земун") === "Београд", "Cyrillic municipality maps to Beograd");
+  check(normalizeCityName("Нови Сад") === "Нови Сад", "non-municipality city unchanged");
+  check(
+    normalizeCityName("Крагујевац - Центар") === "Крагујевац",
+    "non-Belgrade suffix strips to the city",
+  );
 
   console.log("\n— logo resolution + monogram (pure) —");
   check(

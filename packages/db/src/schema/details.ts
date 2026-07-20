@@ -2,6 +2,7 @@ import {
   char,
   date,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -29,6 +30,17 @@ export const organizations = pgTable("organizations", {
   // binaries on R2 is BACKLOG; we never store image bytes.
   logoUrl: text("logo_url"),
   logoFetchedAt: timestamp("logo_fetched_at", { withTimezone: true }),
+  // AI enrichment (Phase 17). Shape (see @continuum/pipeline enrich.ts):
+  //   overview_en      published directly — labeled "From the company's website"
+  //   strategy_focus   string[] rendered as neutral tags
+  //   source_urls      the fetched pages grounding the overview
+  //   proposed         {founded_year?, hq_address?, aum_text?, team_size_text?}
+  //                    — guarded factual fields awaiting review-queue approval
+  //   approved         same fields after approval (founded_year also written
+  //                    to founded_year column); nothing here publishes
+  //                    without a human decision
+  enrichment: jsonb("enrichment"),
+  enrichedAt: timestamp("enriched_at", { withTimezone: true }),
 });
 
 // Deliberately minimal — GDPR.

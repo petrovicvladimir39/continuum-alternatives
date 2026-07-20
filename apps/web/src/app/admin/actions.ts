@@ -920,3 +920,60 @@ export async function extractNowAction(_prev: FormState, formData: FormData): Pr
     };
   }
 }
+
+export async function approveEnrichmentAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  if (entityId === "") {
+    return;
+  }
+  const rows = await db
+    .select({ enrichment: organizations.enrichment, foundedYear: organizations.foundedYear })
+    .from(organizations)
+    .where(eq(organizations.entityId, entityId));
+  const row = rows[0];
+  const enrichment = (row?.enrichment ?? null) as Record<string, unknown> | null;
+  if (enrichment === null) {
+    return;
+  }
+  const proposed = (enrichment.proposed ?? {}) as Record<string, string | number>;
+  if (Object.keys(proposed).length === 0) {
+    return;
+  }
+  // founded_year has a real column; the other approved fields live in the
+  // enrichment jsonb under `approved` and render in the profile stat band.
+  const foundedYear =
+    typeof proposed.founded_year === "number" ? proposed.founded_year : undefined;
+  const approvedPrev = (enrichment.approved ?? {}) as Record<string, string | number>;
+  await db
+    .update(organizations)
+    .set({
+      ...(foundedYear !== undefined ? { foundedYear } : {}),
+      enrichment: {
+        ...enrichment,
+        approved: { ...approvedPrev, ...proposed },
+        proposed: {},
+      },
+    })
+    .where(eq(organizations.entityId, entityId));
+  revalidatePath("/admin/review");
+}
+
+export async function rejectEnrichmentAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  if (entityId === "") {
+    return;
+  }
+  const rows = await db
+    .select({ enrichment: organizations.enrichment })
+    .from(organizations)
+    .where(eq(organizations.entityId, entityId));
+  const enrichment = (rows[0]?.enrichment ?? null) as Record<string, unknown> | null;
+  if (enrichment === null) {
+    return;
+  }
+  await db
+    .update(organizations)
+    .set({ enrichment: { ...enrichment, proposed: {} } })
+    .where(eq(organizations.entityId, entityId));
+  revalidatePath("/admin/review");
+}

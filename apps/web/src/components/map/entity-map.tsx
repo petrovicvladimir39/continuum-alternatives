@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapCity, MapData, MapEntityCard } from "@continuum/db";
+import { stripBaseLabels, type MapStyleLike } from "@continuum/shared";
 import { MapPanel, type PanelState } from "@/components/map/map-panel";
 import { countryName } from "@/lib/public-labels";
 
@@ -28,6 +29,9 @@ const COLORS = {
 const SURFACE = "#FFFFFF";
 const LINE_STRONG = "#D2CEC3";
 const INK = "#141311";
+const INK_SECONDARY = "#5C5952";
+
+const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 
 type Hover = {
   city: string;
@@ -94,9 +98,31 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
       return;
     }
 
-    const map = new maplibregl.Map({
-      container,
-      style: "https://tiles.openfreemap.org/styles/positron",
+    let activeMap: maplibregl.Map | null = null;
+    let cancelled = false;
+
+    // Fetch the base style and strip its label layers (everything except
+    // country labels) before the map ever renders — the canvas stays quiet
+    // and OUR city labels (below) are the only town names on it.
+    void fetch(STYLE_URL)
+      .then((response) => response.json() as Promise<MapStyleLike>)
+      .then((baseStyle) => {
+        if (cancelled || containerRef.current === null) {
+          return;
+        }
+        initMap(stripBaseLabels(baseStyle));
+      })
+      .catch(() => {
+        // Style fetch failed — fall back to the untransformed hosted style.
+        if (!cancelled && containerRef.current !== null) {
+          initMap(STYLE_URL);
+        }
+      });
+
+    function initMap(style: MapStyleLike | string) {
+      const map = new maplibregl.Map({
+      container: container as HTMLDivElement,
+      style: style as never,
       bounds: [
         [11.5, 36.5],
         [31.0, 60.0],
@@ -111,6 +137,7 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
       },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    activeMap = map;
     mapRef.current = map;
     // Test hook: lets verification scripts reach the map instance.
     (container as HTMLDivElement & { _map?: maplibregl.Map })._map = map;
@@ -214,6 +241,30 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
         },
         paint: { "text-color": SURFACE },
       });
+      // OUR city labels — only cities we have firms in, visible exactly when
+      // the city's dot is unclustered (same source + filter). 11px in the
+      // ink-secondary token. NOTE: MapLibre glyphs come from the tile server's
+      // glyph set, which does not include Instrument Sans — Noto Sans Regular
+      // is the closest available face; collision handling is MapLibre default.
+      map.addLayer({
+        id: "city-labels",
+        type: "symbol",
+        source: "cities",
+        filter: ["!", ["has", "point_count"]],
+        layout: {
+          "text-field": ["get", "city"],
+          "text-font": ["Noto Sans Regular"],
+          "text-size": 11,
+          "text-offset": [0, 1.1],
+          "text-anchor": "top",
+          "text-variable-anchor-offset": ["top", [0, 1.1], "bottom", [0, -1.1]],
+        },
+        paint: {
+          "text-color": INK_SECONDARY,
+          "text-halo-color": SURFACE,
+          "text-halo-width": 1,
+        },
+      });
 
       map.on("click", "city-clusters", (event) => {
         const feature = event.features?.[0];
@@ -270,10 +321,12 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
         });
       }
     });
+    }
 
     return () => {
+      cancelled = true;
       mapRef.current = null;
-      map.remove();
+      activeMap?.remove();
     };
   }, [data]);
 

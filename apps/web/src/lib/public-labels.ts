@@ -15,6 +15,10 @@ export const KIND_LABELS_ANY: Record<string, string> = {
 
 export const COUNTRY_NAMES: Record<string, string> = {
   AL: "Albania",
+  AT: "Austria",
+  GB: "United Kingdom",
+  LU: "Luxembourg",
+  US: "United States",
   BA: "Bosnia and Herzegovina",
   BG: "Bulgaria",
   CZ: "Czechia",

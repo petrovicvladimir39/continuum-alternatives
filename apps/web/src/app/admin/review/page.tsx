@@ -8,15 +8,19 @@ import {
   entities,
   eq,
   ne,
+  organizations,
   sources,
+  sql,
   timelineFacts,
 } from "@continuum/db";
 import {
   approveAllVisibleAction,
   approveEdgeAction,
+  approveEnrichmentAction,
   approveFactAction,
   deleteProvisionalAction,
   rejectEdgeAction,
+  rejectEnrichmentAction,
   rejectFactAction,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
@@ -60,6 +64,19 @@ export default async function ReviewPage({
   const edgeSource = alias(sources, "edge_source");
   const factDoc = alias(documents, "fact_doc");
   const edgeDoc = alias(documents, "edge_doc");
+
+  // One grouped enrichment item per org with pending proposed fields.
+  const enrichmentRows = await db
+    .select({
+      entityId: organizations.entityId,
+      enrichment: organizations.enrichment,
+      name: entities.name,
+      slug: entities.slug,
+    })
+    .from(organizations)
+    .innerJoin(entities, eq(entities.id, organizations.entityId))
+    .where(sql`${organizations.enrichment}->'proposed' is not null
+      and ${organizations.enrichment}->'proposed' != '{}'::jsonb`);
 
   const [allEdges, allFacts, provisionals, factRefs, edgeRefs] = await Promise.all([
     db
@@ -359,6 +376,75 @@ export default async function ReviewPage({
                 ))}
               </tbody>
             </DataTable>
+          </Section>
+        ) : null}
+
+        {filter === "all" && enrichmentRows.length > 0 ? (
+          <Section title="Enrichment proposals">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Guarded factual fields extracted from company websites. Approving writes them to the
+              org detail; the overview itself is already published (labeled, sourced).
+            </p>
+            <div className="space-y-4">
+              {enrichmentRows.map((row) => {
+                const enrichment = (row.enrichment ?? {}) as {
+                  proposed?: Record<string, string | number>;
+                  source_urls?: string[];
+                };
+                const proposed = enrichment.proposed ?? {};
+                return (
+                  <div key={row.entityId} className="border border-line bg-surface p-4">
+                    <div className="flex flex-wrap items-baseline gap-3">
+                      <span className="type-h3">Enrichment: {row.name}</span>
+                      <Link
+                        href={`/admin/entities/${row.slug}`}
+                        className="text-[13px] text-accent hover:underline"
+                      >
+                        entity
+                      </Link>
+                    </div>
+                    <dl className="mt-2 space-y-1">
+                      {Object.entries(proposed).map(([field, value]) => (
+                        <div key={field} className="flex gap-3 text-[13px]">
+                          <dt className="type-label w-[120px] shrink-0 pt-0.5">
+                            {field.replaceAll("_", " ")}
+                          </dt>
+                          <dd className="tabular-nums">{String(value)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    {(enrichment.source_urls ?? []).length > 0 ? (
+                      <p className="type-small mt-2 text-ink-muted">
+                        Sources:{" "}
+                        {(enrichment.source_urls ?? []).map((url, i) => (
+                          <a
+                            key={url}
+                            href={url}
+                            rel="noopener noreferrer"
+                            className="text-accent hover:underline"
+                          >
+                            {i > 0 ? ", " : ""}
+                            {url.replace(/^https?:\/\/(www\.)?/, "")}
+                          </a>
+                        ))}
+                      </p>
+                    ) : null}
+                    <div className="mt-3 flex items-center gap-2">
+                      <form action={approveEnrichmentAction}>
+                        <input type="hidden" name="entityId" value={row.entityId} />
+                        <Button type="submit">Approve fields</Button>
+                      </form>
+                      <form action={rejectEnrichmentAction}>
+                        <input type="hidden" name="entityId" value={row.entityId} />
+                        <Button type="submit" variant="ghost">
+                          Reject
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </Section>
         ) : null}
 

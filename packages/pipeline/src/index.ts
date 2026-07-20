@@ -58,6 +58,17 @@ export {
 } from "./registries";
 export { processDocumentFile, terminateOcrWorkers } from "./extract-text";
 export { resolveLogo } from "./logos";
+export { geocodeCity, normalizeCityName } from "./geocode";
+export {
+  applyEnrichmentGuards,
+  enrichOrganization,
+  enrichmentSchema,
+  fetchCompanyText,
+  proposedFieldsOf,
+  type EnrichmentGuardStats,
+  type EnrichmentRaw,
+  type GuardedEnrichment,
+} from "./enrich";
 export {
   backfillEmbeddings,
   embedEntityText,

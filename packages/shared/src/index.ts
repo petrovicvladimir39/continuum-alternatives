@@ -10,6 +10,7 @@ export {
 } from "./normalize";
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";
+export { stripBaseLabels, isCountryLabelLayer, type MapStyleLike } from "./map-style";
 
 /**
  * Audience channel vocabulary. Used by timeline_facts.audience_channels and

@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts",
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts && tsx src/verify-enrich.ts",
     "extract:benchmark": "tsx src/extract-benchmark.ts",
     "filings:backfill": "tsx src/filings-backfill.ts",
     "alsu:history": "tsx src/alsu-history.ts",
@@ -14,7 +14,8 @@
     "embeddings:backfill": "tsx src/embeddings-backfill.ts",
     "universe:verify": "tsx src/universe-verify.ts",
     "geocode:backfill": "tsx src/geocode-backfill.ts",
-    "logos:backfill": "tsx src/logos-backfill.ts"
+    "logos:backfill": "tsx src/logos-backfill.ts",
+    "enrich:batch": "tsx src/enrich-batch.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

@@ -22,6 +22,45 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Municipality alias pass (Phase 17), applied BEFORE the cache lookup:
+ * 1. Strip " – {municipality}" / " - {municipality}" suffixes ("Београд –
+ *    Стари Град" → "Београд") — registry city strings often carry them.
+ * 2. Map known Belgrade municipality names to Beograd, so debtor rows filed
+ *    under a municipality land on the same city dot as the capital.
+ * Keys are normalizeAlias forms (transliterated, lowercased). Exported pure
+ * for verification.
+ */
+const BELGRADE_MUNICIPALITIES = new Set([
+  "stari grad",
+  "novi beograd",
+  "zemun",
+  "vracar",
+  "palilula",
+  "savski venac",
+  "zvezdara",
+  "vozdovac",
+  "cukarica",
+  "rakovica",
+  "grocka",
+  "lazarevac",
+  "mladenovac",
+  "obrenovac",
+  "sopot",
+  "surcin",
+  "barajevo",
+]);
+
+export function normalizeCityName(cityDisplay: string): string {
+  // En dash, em dash, or spaced hyphen all separate city from municipality.
+  const stripped = cityDisplay.split(/\s+[–—-]\s+/)[0]?.trim() ?? cityDisplay.trim();
+  const key = normalizeAlias(stripped);
+  if (key === "beograd" || BELGRADE_MUNICIPALITIES.has(key)) {
+    return "Београд";
+  }
+  return stripped;
+}
+
 export type GeocodeOutcome = {
   lat: number | null;
   lng: number | null;
@@ -29,7 +68,8 @@ export type GeocodeOutcome = {
 };
 
 export async function geocodeCity(country: string, cityDisplay: string): Promise<GeocodeOutcome> {
-  const key = normalizeAlias(cityDisplay);
+  const normalizedCity = country === "RS" ? normalizeCityName(cityDisplay) : cityDisplay.trim();
+  const key = normalizeAlias(normalizedCity);
   const hit = (
     await db
       .select()
@@ -47,7 +87,7 @@ export async function geocodeCity(country: string, cityDisplay: string): Promise
   lastApiCall = Date.now();
 
   const url = new URL(NOMINATIM_URL);
-  url.searchParams.set("city", cityDisplay);
+  url.searchParams.set("city", normalizedCity);
   url.searchParams.set("country", country);
   url.searchParams.set("format", "json");
   url.searchParams.set("limit", "1");
@@ -68,7 +108,7 @@ export async function geocodeCity(country: string, cityDisplay: string): Promise
   await db.insert(cityGeocodes).values({
     country,
     cityNormalized: key,
-    cityDisplay,
+    cityDisplay: normalizedCity,
     lat: resolved ? lat : null,
     lng: resolved ? lng : null,
   });

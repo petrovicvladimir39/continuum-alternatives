@@ -121,19 +121,24 @@ export type MapData = {
   countries: number;
 };
 
-/** Pure city-dominance rule, exported for verification. */
+/**
+ * Pure city-dominance rule, exported for verification. Phase 17: a city with
+ * ANY non-neutral firms is colored by its dominant NON-NEUTRAL capital type
+ * (ties break by the fixed rarity-weighted order distressed > credit > equity)
+ * — Beograd renders by its capital firms, not its debtor mass. Only all-neutral
+ * cities stay ink-secondary.
+ */
 export function dominantOf(counts: CapitalTypeCounts): CapitalType {
-  const priority: Record<CapitalType, number> = {
-    distressed: 3,
-    credit: 2,
-    equity: 1,
-    neutral: 0,
-  };
-  return (Object.keys(counts) as CapitalType[]).reduce((best, type) =>
-    counts[type] > counts[best] || (counts[type] === counts[best] && priority[type] > priority[best])
-      ? type
-      : best,
-  );
+  const order: Exclude<CapitalType, "neutral">[] = ["distressed", "credit", "equity"];
+  let best: CapitalType = "neutral";
+  let bestCount = 0;
+  for (const type of order) {
+    if (counts[type] > bestCount) {
+      best = type;
+      bestCount = counts[type];
+    }
+  }
+  return best === "neutral" ? "neutral" : best;
 }
 
 /** Pure aggregation core, exported for verification: entity rows → city features. */

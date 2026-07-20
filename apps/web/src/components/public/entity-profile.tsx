@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { orgEnrichmentOf } from "@continuum/db";
 import type { PublicConnection, PublicProfile, SimilarEntity } from "@continuum/db";
 import { hasCyrillic, transliterateDisplay } from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
@@ -25,12 +26,27 @@ function groupConnections(connections: PublicConnection[]): [string, PublicConne
 }
 
 function ProfileStats({ profile }: { profile: PublicProfile }) {
-  const { entity, deal, fund, dealAmountRaw, factSplit } = profile;
+  const { entity, deal, fund, dealAmountRaw, factSplit, organization } = profile;
   const blocks: { value: string; label: string }[] = [];
+  const enrichment = orgEnrichmentOf(organization?.enrichment ?? null);
 
   // Shared institutional row — every kind.
   blocks.push({ value: String(profile.factsCount), label: "Recorded facts" });
   blocks.push({ value: String(profile.connectionsCount), label: "Connections" });
+
+  // Reviewer-approved enrichment fields (never rendered pre-approval).
+  if (organization?.foundedYear != null) {
+    blocks.push({ value: String(organization.foundedYear), label: "Founded" });
+  }
+  if (typeof enrichment?.approved.hq_address === "string") {
+    blocks.push({ value: enrichment.approved.hq_address, label: "HQ address" });
+  }
+  if (typeof enrichment?.approved.aum_text === "string") {
+    blocks.push({ value: enrichment.approved.aum_text, label: "AUM (as stated)" });
+  }
+  if (typeof enrichment?.approved.team_size_text === "string") {
+    blocks.push({ value: enrichment.approved.team_size_text, label: "Team (as stated)" });
+  }
   if (profile.counterpartiesCount > 0) {
     blocks.push({ value: String(profile.counterpartiesCount), label: "Counterparties" });
   }
@@ -225,10 +241,44 @@ export function EntityProfile({
         </div>
       </header>
 
-      {/* ── COMPANY OVERVIEW — Phase 17 AI enrichment slot ─────────────────
-          A structured, source-grounded overview (business description, key
-          figures, recent developments) generated in Phase 17 renders here.
-          Reserved so the layout already has its place. */}
+      {/* ── COMPANY OVERVIEW — AI enrichment (Phase 17). The overview is the
+          one generated field; it publishes because it is labeled and carries
+          its source links. Factual fields render only post-approval, in the
+          stat band below. */}
+      {(() => {
+        const enrichment = orgEnrichmentOf(organization?.enrichment ?? null);
+        if (enrichment === null) {
+          return null;
+        }
+        return (
+          <section className="mt-8 max-w-2xl">
+            <h2 className="type-label">Company overview</h2>
+            <p className="mt-2 text-[14px] leading-[1.55] text-ink">{enrichment.overview_en}</p>
+            {enrichment.strategy_focus.length > 0 ? (
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {enrichment.strategy_focus.map((focus) => (
+                  <Tag key={focus}>{focus}</Tag>
+                ))}
+              </div>
+            ) : null}
+            <p className="type-small mt-2 text-ink-muted">
+              From the company&apos;s website
+              {enrichment.source_urls.map((url, i) => (
+                <span key={url}>
+                  {i === 0 ? ": " : ", "}
+                  <a
+                    href={url}
+                    rel="noopener noreferrer"
+                    className="underline decoration-line-strong underline-offset-2 hover:text-accent"
+                  >
+                    {url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                  </a>
+                </span>
+              ))}
+            </p>
+          </section>
+        );
+      })()}
 
       <ProfileStats profile={profile} />
 

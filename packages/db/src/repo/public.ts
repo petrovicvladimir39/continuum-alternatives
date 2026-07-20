@@ -96,6 +96,52 @@ export type PublicConnection = {
   startedOn: string | null;
 };
 
+/**
+ * Parsed shape of organizations.enrichment (written by @continuum/pipeline
+ * enrich.ts). `overview_en` publishes directly (labeled + sourced); `proposed`
+ * awaits review-queue approval; `approved` holds reviewer-accepted fields.
+ */
+export type OrgEnrichment = {
+  overview_en: string;
+  strategy_focus: string[];
+  source_urls: string[];
+  proposed: Record<string, string | number>;
+  approved: Record<string, string | number>;
+};
+
+export function orgEnrichmentOf(value: unknown): OrgEnrichment | null {
+  if (value === null || typeof value !== "object") {
+    return null;
+  }
+  const raw = value as Record<string, unknown>;
+  if (typeof raw.overview_en !== "string" || raw.overview_en === "") {
+    return null;
+  }
+  const record = (input: unknown): Record<string, string | number> => {
+    if (input === null || typeof input !== "object") {
+      return {};
+    }
+    const out: Record<string, string | number> = {};
+    for (const [key, entry] of Object.entries(input as Record<string, unknown>)) {
+      if (typeof entry === "string" || typeof entry === "number") {
+        out[key] = entry;
+      }
+    }
+    return out;
+  };
+  return {
+    overview_en: raw.overview_en,
+    strategy_focus: Array.isArray(raw.strategy_focus)
+      ? raw.strategy_focus.filter((tag): tag is string => typeof tag === "string")
+      : [],
+    source_urls: Array.isArray(raw.source_urls)
+      ? raw.source_urls.filter((url): url is string => typeof url === "string")
+      : [],
+    proposed: record(raw.proposed),
+    approved: record(raw.approved),
+  };
+}
+
 /** Distinct source documents referencing an entity — the provenance section. */
 export type PublicMention = {
   url: string | null;
