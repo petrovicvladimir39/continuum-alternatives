@@ -57,6 +57,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/documents" className={navLinkClass}>
             Documents
           </Link>
+          <Link href="/admin/digests" className={navLinkClass}>
+            Digests
+          </Link>
+          <Link href="/admin/contacts" className={navLinkClass}>
+            Contacts
+          </Link>
           <Link
             href="/admin/anomalies"
             className={`${navLinkClass} flex items-baseline justify-between`}

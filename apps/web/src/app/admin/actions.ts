@@ -33,7 +33,16 @@ import {
   type EdgeTypeName,
   type EntityKind,
 } from "@continuum/db";
-import { extractDocument, fetchSource, inngest } from "@continuum/pipeline";
+import {
+  composeDigest,
+  deliverDigest,
+  extractDocument,
+  fetchSource,
+  inngest,
+  persistDraft,
+  type DeliveryReport,
+} from "@continuum/pipeline";
+import { contacts, digestItems, digests } from "@continuum/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "./form-state";
@@ -729,6 +738,144 @@ export async function deleteProvisionalAction(formData: FormData): Promise<void>
   await db.delete(events).where(eq(events.entityId, entityId));
   await db.delete(entities).where(eq(entities.id, entityId));
   revalidatePath("/admin/review");
+}
+
+export async function generateDigestAction(): Promise<FormState> {
+  const today = new Date().toISOString().slice(0, 10);
+  const existing = await db
+    .select({ id: digests.id })
+    .from(digests)
+    .where(eq(digests.digestDate, today));
+  if (existing.length > 0) {
+    return { errors: {}, values: { message: `A digest for ${today} already exists.` } };
+  }
+  const composition = await composeDigest(today);
+  const itemCount = composition.sections.reduce((sum, section) => sum + section.items.length, 0);
+  if (itemCount === 0) {
+    return {
+      errors: {},
+      values: { message: "No eligible approved facts in the 7-day window — nothing to draft." },
+    };
+  }
+  const digestId = await persistDraft(composition);
+  revalidatePath("/admin/digests");
+  redirect(`/admin/digests/${digestId}`);
+}
+
+export async function toggleDigestItemAction(formData: FormData): Promise<void> {
+  const itemId = text(formData, "itemId");
+  const digestId = text(formData, "digestId");
+  const digestRows = await db.select().from(digests).where(eq(digests.id, digestId));
+  if (digestRows[0]?.status !== "draft") {
+    return; // include/exclude is a draft-only edit
+  }
+  await db
+    .update(digestItems)
+    .set({ included: sql`NOT coalesce(${digestItems.included}, true)` })
+    .where(eq(digestItems.id, itemId));
+  revalidatePath(`/admin/digests/${digestId}`);
+}
+
+async function deliverAndRecord(digestId: string): Promise<DeliveryReport> {
+  const report = await deliverDigest(digestId);
+  const complete = report.email.status === "sent";
+  await db
+    .update(digests)
+    .set({
+      delivery: report,
+      ...(complete ? { status: "sent", sentAt: new Date() } : {}),
+    })
+    .where(eq(digests.id, digestId));
+  revalidatePath("/admin/digests");
+  revalidatePath(`/admin/digests/${digestId}`);
+  revalidatePath("/digest");
+  return report;
+}
+
+function deliveryMessage(report: DeliveryReport): string {
+  const email =
+    report.email.status === "skipped"
+      ? `email skipped (${report.email.reason ?? "unknown"})`
+      : `email ${report.email.status}: ${report.email.sent} sent${
+          report.email.failed.length > 0 ? `, ${report.email.failed.length} failed` : ""
+        }${report.email.reason !== undefined ? ` (${report.email.reason})` : ""}`;
+  return `Telegram: ${report.telegram} · ${email}`;
+}
+
+export async function approveAndSendDigestAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  if (formData.get("confirm") !== "on") {
+    return { errors: { form: "Confirmation required." }, values: {} };
+  }
+  const digestId = text(formData, "digestId");
+  const rows = await db.select().from(digests).where(eq(digests.id, digestId));
+  if (rows[0]?.status !== "draft") {
+    return { errors: { form: "Only drafts can be approved." }, values: {} };
+  }
+  await db.update(digests).set({ status: "approved" }).where(eq(digests.id, digestId));
+  const report = await deliverAndRecord(digestId);
+  return { errors: {}, values: { message: `Approved. ${deliveryMessage(report)}` } };
+}
+
+/** Retry path for approved-but-unsent digests (e.g. Resend key was missing). */
+export async function sendDigestAgainAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const digestId = text(formData, "digestId");
+  const rows = await db.select().from(digests).where(eq(digests.id, digestId));
+  if (rows[0]?.status !== "approved") {
+    return { errors: { form: "Only approved, unsent digests can be re-sent." }, values: {} };
+  }
+  const report = await deliverAndRecord(digestId);
+  return { errors: {}, values: { message: deliveryMessage(report) } };
+}
+
+export async function addContactAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const email = text(formData, "email").toLowerCase();
+  const name = text(formData, "name");
+  const channels = formData
+    .getAll("channels")
+    .map(String)
+    .filter((channel) => (CHANNELS as readonly string[]).includes(channel));
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { errors: { email: "Valid email required." }, values: echo(formData) };
+  }
+  if (channels.length === 0) {
+    return { errors: { channels: "Pick at least one channel." }, values: echo(formData) };
+  }
+  const existing = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(eq(contacts.email, email));
+  if (existing.length > 0) {
+    return { errors: { email: "Contact already exists." }, values: echo(formData) };
+  }
+  await db.insert(contacts).values({
+    email,
+    name: name === "" ? null : name,
+    channels,
+    consentSource: "operator",
+    consentedAt: new Date(),
+  });
+  revalidatePath("/admin/contacts");
+  return { errors: {}, values: { message: `Added ${email}.` } };
+}
+
+export async function toggleContactUnsubscribedAction(formData: FormData): Promise<void> {
+  const contactId = text(formData, "contactId");
+  const rows = await db.select().from(contacts).where(eq(contacts.id, contactId));
+  const contact = rows[0];
+  if (!contact) {
+    return;
+  }
+  await db
+    .update(contacts)
+    .set({ unsubscribedAt: contact.unsubscribedAt === null ? new Date() : null })
+    .where(eq(contacts.id, contactId));
+  revalidatePath("/admin/contacts");
 }
 
 export async function dismissAnomalyAction(formData: FormData): Promise<void> {

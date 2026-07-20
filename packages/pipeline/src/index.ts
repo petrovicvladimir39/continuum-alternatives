@@ -22,6 +22,21 @@ export {
 } from "./anomalies";
 export { anomaliesWeekly } from "./functions/anomalies-weekly";
 export { mapFilingById, mapFilingToFact, type MappedFiling } from "./filings-map";
+export {
+  composeDigest,
+  deliverDigest,
+  digestSubject,
+  loadDigestSections,
+  persistDraft,
+  rankFacts,
+  selectRecipients,
+  FACT_PRIORITY,
+  type DeliveryReport,
+  type DigestComposition,
+  type DigestFact,
+  type DigestSection,
+} from "./digest";
+export { buildDigestEmail } from "./digest-email";
 export { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 export { parseSourceConfig, type SourceConfig } from "./config";
 export { parseFeed, fetchRssSource, type FeedItem } from "./rss";
