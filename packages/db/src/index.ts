@@ -4,6 +4,7 @@ export * from "./repo/edges";
 export * from "./repo/timeline";
 export * from "./repo/graph";
 export * from "./repo/public";
+export * from "./repo/feed";
 export * from "./repo/map";
 export * from "./resolve";
 export { db } from "./client";
