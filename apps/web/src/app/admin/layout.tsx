@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { db, edges, eq, sql, timelineFacts } from "@continuum/db";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,19 @@ export const metadata: Metadata = {
 
 const navLinkClass = "block px-2 py-1.5 text-[13px] text-ink-secondary hover:text-accent";
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const [factCount, edgeCount] = await Promise.all([
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(timelineFacts)
+      .where(eq(timelineFacts.status, "proposed")),
+    db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(edges)
+      .where(eq(edges.status, "proposed")),
+  ]);
+  const pending = (factCount[0]?.n ?? 0) + (edgeCount[0]?.n ?? 0);
+
   return (
     <div className="flex w-full flex-1">
       <aside className="w-[200px] shrink-0 border-r border-line px-4 py-6">
@@ -26,8 +39,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <Link href="/admin/timeline" className={navLinkClass}>
             Timeline
           </Link>
-          <Link href="/admin/review" className={navLinkClass}>
-            Review
+          <Link
+            href="/admin/review"
+            className={`${navLinkClass} flex items-baseline justify-between`}
+          >
+            <span>Review</span>
+            {pending > 0 ? <span className="type-data text-ink-muted">{pending}</span> : null}
           </Link>
           <Link href="/admin/sources" className={navLinkClass}>
             Sources

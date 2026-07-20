@@ -650,12 +650,7 @@ export async function rejectEdgeAction(formData: FormData): Promise<void> {
 // Editing proposed rows (e.g. channels) is legitimate — immutability begins at
 // approval; these status flips are the sanctioned exception to the timeline
 // append-only rule.
-export async function approveFactAction(formData: FormData): Promise<void> {
-  const factId = text(formData, "factId");
-  const channels = formData
-    .getAll("channels")
-    .map(String)
-    .filter((channel) => (CHANNELS as readonly string[]).includes(channel));
+async function approveFact(factId: string, channels?: string[]) {
   const rows = await db.select().from(timelineFacts).where(eq(timelineFacts.id, factId));
   const fact = rows[0];
   if (!fact || fact.status !== "proposed") {
@@ -663,11 +658,45 @@ export async function approveFactAction(formData: FormData): Promise<void> {
   }
   await db
     .update(timelineFacts)
-    .set({ audienceChannels: channels, status: "approved" })
+    .set({
+      ...(channels !== undefined ? { audienceChannels: channels } : {}),
+      status: "approved",
+    })
     .where(and(eq(timelineFacts.id, factId), eq(timelineFacts.status, "proposed")));
   const data = (fact.data ?? {}) as Record<string, unknown>;
   const referenced = Array.isArray(data.entities) ? data.entities.map(String) : [];
   await promoteEntities([fact.entityId, ...referenced]);
+}
+
+export async function approveFactAction(formData: FormData): Promise<void> {
+  const channels = formData
+    .getAll("channels")
+    .map(String)
+    .filter((channel) => (CHANNELS as readonly string[]).includes(channel));
+  await approveFact(text(formData, "factId"), channels);
+  revalidatePath("/admin/review");
+}
+
+/**
+ * Batch approval of everything visible under the current filter, capped at 20
+ * items; applies each row's stored channels as-is. Gated behind an explicit
+ * confirm checkbox in the form. Never auto-invoked.
+ */
+export async function approveAllVisibleAction(formData: FormData): Promise<void> {
+  if (formData.get("confirm") !== "on") {
+    return;
+  }
+  const factIds = text(formData, "factIds").split(",").filter(Boolean);
+  const edgeIds = text(formData, "edgeIds").split(",").filter(Boolean);
+  const budget = 20;
+  const facts = factIds.slice(0, budget);
+  const edgesToApprove = edgeIds.slice(0, Math.max(0, budget - facts.length));
+  for (const factId of facts) {
+    await approveFact(factId);
+  }
+  for (const edgeId of edgesToApprove) {
+    await setEdgeStatus(edgeId, "approved");
+  }
   revalidatePath("/admin/review");
 }
 

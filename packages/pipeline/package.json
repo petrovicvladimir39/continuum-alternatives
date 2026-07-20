@@ -6,8 +6,9 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts",
-    "extract:benchmark": "tsx src/extract-benchmark.ts"
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts",
+    "extract:benchmark": "tsx src/extract-benchmark.ts",
+    "filings:backfill": "tsx src/filings-backfill.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

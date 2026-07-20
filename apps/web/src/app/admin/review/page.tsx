@@ -1,7 +1,18 @@
 import Link from "next/link";
 import { CHANNELS } from "@continuum/shared";
-import { alias, db, edges, entities, eq, ne, timelineFacts } from "@continuum/db";
 import {
+  alias,
+  db,
+  documents,
+  edges,
+  entities,
+  eq,
+  ne,
+  sources,
+  timelineFacts,
+} from "@continuum/db";
+import {
+  approveAllVisibleAction,
   approveEdgeAction,
   approveFactAction,
   deleteProvisionalAction,
@@ -30,11 +41,27 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-export default async function ReviewPage() {
+const FILTERS = ["all", "facts", "edges", ...CHANNELS] as const;
+
+export default async function ReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter: rawFilter } = await searchParams;
+  const filter = (FILTERS as readonly string[]).includes(rawFilter ?? "") ? rawFilter! : "all";
+  const channelFilter = (CHANNELS as readonly string[]).includes(filter) ? filter : null;
+  const showFacts = filter === "all" || filter === "facts" || channelFilter !== null;
+  const showEdges = filter === "all" || filter === "edges";
+
   const sourceEntity = alias(entities, "source_entity");
   const targetEntity = alias(entities, "target_entity");
+  const factSource = alias(sources, "fact_source");
+  const edgeSource = alias(sources, "edge_source");
+  const factDoc = alias(documents, "fact_doc");
+  const edgeDoc = alias(documents, "edge_doc");
 
-  const [proposedEdges, proposedFacts, provisionals, factRefs, edgeRefs] = await Promise.all([
+  const [allEdges, allFacts, provisionals, factRefs, edgeRefs] = await Promise.all([
     db
       .select({
         id: edges.id,
@@ -47,10 +74,13 @@ export default async function ReviewPage() {
         sourceSlug: sourceEntity.slug,
         targetName: targetEntity.name,
         targetSlug: targetEntity.slug,
+        docSourceName: edgeSource.name,
       })
       .from(edges)
       .innerJoin(sourceEntity, eq(edges.sourceEntityId, sourceEntity.id))
       .innerJoin(targetEntity, eq(edges.targetEntityId, targetEntity.id))
+      .leftJoin(edgeDoc, eq(edges.sourceDocumentId, edgeDoc.id))
+      .leftJoin(edgeSource, eq(edgeDoc.sourceId, edgeSource.id))
       .where(eq(edges.status, "proposed")),
     db
       .select({
@@ -65,9 +95,12 @@ export default async function ReviewPage() {
         sourceDocumentId: timelineFacts.sourceDocumentId,
         entityName: entities.name,
         entitySlug: entities.slug,
+        docSourceName: factSource.name,
       })
       .from(timelineFacts)
       .innerJoin(entities, eq(timelineFacts.entityId, entities.id))
+      .leftJoin(factDoc, eq(timelineFacts.sourceDocumentId, factDoc.id))
+      .leftJoin(factSource, eq(factDoc.sourceId, factSource.id))
       .where(eq(timelineFacts.status, "proposed")),
     db.select().from(entities).where(eq(entities.status, "provisional")),
     db
@@ -83,6 +116,13 @@ export default async function ReviewPage() {
       .from(edges)
       .where(ne(edges.status, "rejected")),
   ]);
+
+  const proposedFacts = showFacts
+    ? allFacts.filter(
+        (fact) => channelFilter === null || fact.audienceChannels.includes(channelFilter),
+      )
+    : [];
+  const proposedEdges = showEdges ? allEdges : [];
 
   const referenced = new Set<string>();
   for (const ref of factRefs) {
@@ -101,7 +141,7 @@ export default async function ReviewPage() {
   }
   const orphanedProvisionals = provisionals.filter((entity) => !referenced.has(entity.id));
 
-  const empty = proposedEdges.length === 0 && proposedFacts.length === 0;
+  const visibleCount = proposedFacts.length + proposedEdges.length;
 
   return (
     <div>
@@ -110,9 +150,44 @@ export default async function ReviewPage() {
         Proposed items awaiting a decision. Nothing publishes without approval; approving promotes
         any provisional entities the item references.
       </p>
-      {empty ? (
+
+      <div className="mt-4 flex flex-wrap gap-1 border-b border-line pb-2">
+        {FILTERS.map((value) => (
+          <Link
+            key={value}
+            href={value === "all" ? "/admin/review" : `/admin/review?filter=${value}`}
+            className={`px-2 py-1 text-[13px] ${
+              filter === value ? "font-medium text-accent" : "text-ink-secondary hover:text-accent"
+            }`}
+          >
+            {value}
+          </Link>
+        ))}
+      </div>
+
+      {visibleCount === 0 ? (
         <p className="mt-6 text-[13px] text-ink-secondary">Nothing awaiting review.</p>
-      ) : null}
+      ) : (
+        <form action={approveAllVisibleAction} className="mt-4 flex flex-wrap items-center gap-3">
+          <input
+            type="hidden"
+            name="factIds"
+            value={proposedFacts.map((fact) => fact.id).join(",")}
+          />
+          <input
+            type="hidden"
+            name="edgeIds"
+            value={proposedEdges.map((edge) => edge.id).join(",")}
+          />
+          <label className="flex items-center gap-1.5 text-[13px]">
+            <input type="checkbox" name="confirm" required />
+            Confirm batch approval (stored channels apply as-is)
+          </label>
+          <Button type="submit" variant="ghost">
+            Approve all visible ({Math.min(visibleCount, 20)})
+          </Button>
+        </form>
+      )}
 
       <div className="mt-6">
         {proposedFacts.length > 0 ? (
@@ -128,6 +203,7 @@ export default async function ReviewPage() {
                       <span className="type-data text-ink-muted">
                         {fact.occurredOn} · conf {fact.confidence}
                         {data.language ? ` · ${data.language}` : ""}
+                        {fact.docSourceName ? ` · ${fact.docSourceName}` : ""}
                       </span>
                     </div>
                     <p className="mt-1 text-[13px] text-ink-secondary">
@@ -227,6 +303,7 @@ export default async function ReviewPage() {
                   <th>Type</th>
                   <th>Target</th>
                   <th>Role</th>
+                  <th>From</th>
                   <th className={numericCell}>Conf.</th>
                   <th>Date</th>
                   <th></th>
@@ -253,6 +330,7 @@ export default async function ReviewPage() {
                       </Link>
                     </td>
                     <td>{edge.role ?? ""}</td>
+                    <td>{edge.docSourceName ?? ""}</td>
                     <td className={numericCell}>{edge.confidence}</td>
                     <td className="type-data">{edge.startedOn ?? ""}</td>
                     <td>

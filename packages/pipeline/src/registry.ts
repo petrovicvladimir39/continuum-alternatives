@@ -1,4 +1,6 @@
 import { db, documents, inArray, sql, sources } from "@continuum/db";
+import { notifyQueue, pendingCounts } from "./alert";
+import { mapFilingById } from "./filings-map";
 import { parseSourceConfig } from "./config";
 import {
   ARTICLE_DELAY_MS,
@@ -61,6 +63,7 @@ export async function fetchRegistrySource(
     skippedExisting: 0,
     errors: [],
   };
+  let mappedCount = 0;
 
   // Same windowing as RSS/firecrawl: the cap bounds items considered from the
   // head of the (newest-first) listing, so re-runs report zero new.
@@ -120,7 +123,19 @@ export async function fetchRegistrySource(
           })
           .returning({ id: documents.id });
         if (inserted[0] !== undefined) {
-          await emitDocumentStored(inserted[0].id);
+          // ALSU filings map deterministically into proposed facts — no
+          // event, no LLM. Other registry docs go the extraction route.
+          const mapped = await mapFilingById(inserted[0].id).catch((err) => {
+            console.warn(
+              `filing map failed for ${inserted[0]?.id}: ${err instanceof Error ? err.message : String(err)}`,
+            );
+            return null;
+          });
+          if (mapped !== null) {
+            mappedCount += 1;
+          } else {
+            await emitDocumentStored(inserted[0].id);
+          }
         }
         stats.newArticles += 1;
       } catch (err) {
@@ -132,6 +147,9 @@ export async function fetchRegistrySource(
     }
   } finally {
     await terminateOcrWorkers();
+  }
+  if (mappedCount > 0) {
+    await notifyQueue(await pendingCounts());
   }
   return stats;
 }

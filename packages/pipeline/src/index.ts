@@ -11,7 +11,8 @@ export {
 } from "./extraction/schema";
 export { extractDocumentFn } from "./functions/extract-document";
 export { fetchSource, type FetchSourceResult } from "./fetch";
-export { sendAlert } from "./alert";
+export { notifyQueue, pendingCounts, sendAlert } from "./alert";
+export { mapFilingById, mapFilingToFact, type MappedFiling } from "./filings-map";
 export { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 export { parseSourceConfig, type SourceConfig } from "./config";
 export { parseFeed, fetchRssSource, type FeedItem } from "./rss";

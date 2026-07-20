@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "cli": "pnpm --filter @continuum/db cli",
     "format": "prettier --write .",
-    "extract:benchmark": "pnpm --filter @continuum/pipeline extract:benchmark"
+    "extract:benchmark": "pnpm --filter @continuum/pipeline extract:benchmark",
+    "filings:backfill": "pnpm --filter @continuum/pipeline filings:backfill"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

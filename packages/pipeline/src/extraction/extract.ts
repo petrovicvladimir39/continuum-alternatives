@@ -97,6 +97,21 @@ export async function extractDocument(
     throw new Error(`Unknown document id: ${documentId}`);
   }
   const meta = (doc.meta ?? {}) as Record<string, unknown>;
+  // ALSU registry filings are handled by the deterministic mapper — they never
+  // reach the paid extraction path.
+  const listing = typeof meta.listing === "string" ? meta.listing : "";
+  if (listing.startsWith("alsu-")) {
+    return {
+      status: "skipped",
+      items: 0,
+      factsStored: 0,
+      edgesStored: 0,
+      entitiesMatched: 0,
+      entitiesProvisional: 0,
+      entitiesAmbiguous: 0,
+      message: "ALSU registry filing — handled by the deterministic mapper",
+    };
+  }
   const previous = meta.extraction as Record<string, unknown> | undefined;
   if (previous?.status === "done" && options.force !== true) {
     return {
@@ -261,6 +276,10 @@ export async function extractDocument(
       dropped: stats,
       usage,
     });
+    if (factsStored + edgesStored > 0) {
+      const { notifyQueue, pendingCounts } = await import("../alert");
+      await notifyQueue(await pendingCounts());
+    }
     return {
       status: "done",
       items: items.length,
