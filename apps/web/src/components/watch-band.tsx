@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { getMemberByClerkId, isWatching, watcherCount } from "@continuum/db";
+import { canAddWatch, ENTITLEMENTS } from "@continuum/shared";
+import {
+  countWatchedEntities,
+  getMemberByClerkId,
+  isWatching,
+  resolveMemberTier,
+  watcherCount,
+} from "@continuum/db";
 import { toggleWatchAction } from "@/app/(site)/account/watch-actions";
 
 /**
@@ -34,7 +41,25 @@ export async function WatchBand({
     } else {
       const member = await getMemberByClerkId(userId);
       const watching = member !== null && (await isWatching(member.id, entityId));
-      control = (
+      // Phase 29B: the free watch limit gates ADDING only. At the limit the
+      // button gives way to a QUIET inline note (the action refuses server-
+      // side regardless). Not shown to anonymous readers — no public teasing.
+      if (member !== null && !watching) {
+        const tier = await resolveMemberTier(member.id);
+        const current = await countWatchedEntities(member.id);
+        if (!canAddWatch(tier, current)) {
+          const limit = ENTITLEMENTS[tier].watchLimit;
+          control = (
+            <span className="text-[12px] text-ink-muted">
+              Watching {current} of {limit} — Founding members watch unlimited ·{" "}
+              <Link href="/pricing" className="text-accent hover:underline">
+                Learn more
+              </Link>
+            </span>
+          );
+        }
+      }
+      control ??= (
         <form action={toggleWatchAction}>
           <input type="hidden" name="entityId" value={entityId} />
           <input type="hidden" name="backPath" value={backPath} />

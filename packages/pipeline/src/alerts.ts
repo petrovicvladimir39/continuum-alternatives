@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { CLASS_ACCENTS, classifiedLabel } from "@continuum/shared";
+import { CLASS_ACCENTS, classifiedLabel, FOUNDING_ACTIVE_STATUSES } from "@continuum/shared";
 import {
   db,
   listOutbox,
@@ -159,12 +159,18 @@ export async function deliverPendingAlerts(): Promise<AlertDeliveryReport> {
  * Instant tier (Phase 28B): a single-item email for an important fact, only
  * to 'instant_important' members already holding the pending row. Without
  * Resend the row simply stays pending for the daily batch.
+ *
+ * Phase 29B: instant delivery is a FOUNDING entitlement, enforced at
+ * delivery time too — a member who set instant_important while founding and
+ * later downgraded degrades to the daily batch (their pref row is kept, the
+ * rows stay pending; nothing is deleted).
  */
 export async function sendInstantAlertsForFact(factId: string): Promise<number> {
   if (!process.env.RESEND_API_KEY) {
     return 0;
   }
   resendClient ??= new Resend(process.env.RESEND_API_KEY);
+  const foundingStatuses = FOUNDING_ACTIVE_STATUSES as readonly string[];
   const result = await db.execute(sql`
     SELECT ob.id, ob.member_id, m.email
     FROM alert_outbox ob
@@ -172,6 +178,12 @@ export async function sendInstantAlertsForFact(factId: string): Promise<number> 
     JOIN member_alert_prefs p ON p.member_id = ob.member_id AND p.frequency = 'instant_important'
     WHERE ob.kind = 'fact' AND ob.ref_id = ${factId}::uuid AND ob.sent_at IS NULL
       AND m.email IS NOT NULL
+      AND EXISTS (SELECT 1 FROM member_subscriptions s
+                    WHERE s.member_id = ob.member_id AND s.founding
+                      AND s.status IN (${sql.join(
+                        foundingStatuses.map((s) => sql`${s}`),
+                        sql`, `,
+                      )}))
   `);
   let sent = 0;
   for (const row of result.rows) {

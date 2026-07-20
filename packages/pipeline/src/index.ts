@@ -81,6 +81,13 @@ export {
 
 export { buildConfirmationEmail, sendConfirmationEmail } from "./subscription-email";
 export { buildAlertEmail, deliverPendingAlerts, sendInstantAlertsForFact } from "./alerts";
+export {
+  BRIEF_MODEL,
+  gatherBriefMaterial,
+  generateEntityBrief,
+  type BriefResult,
+} from "./brief-compose";
+export { guardBrief, INTERNAL_SOURCE_NAME, type BriefDraft } from "./brief-guards";
 
 import { alertsDaily } from "./functions/alerts-daily";
 import { anomaliesWeekly } from "./functions/anomalies-weekly";

@@ -62,6 +62,25 @@ Suggested first batches:
          secret in `CLERK_WEBHOOK_SECRET`. (Until then the on-demand upsert
          on first /account visit keeps member profiles fresh.)
 
+- [ ] **Stripe (Phase 29 — memberships are in PRE-CONFIG MODE until done).**
+      Every payment surface currently renders an honest "Memberships open
+      soon"; nothing sells until these land. Steps, in order:
+      1. Create the Stripe account/product: one recurring price for the
+         founding membership. Put `STRIPE_SECRET_KEY` and
+         `STRIPE_PRICE_FOUNDING` (the price id) in .env / Vercel env.
+         `FOUNDING_CAP` optional (default 100).
+      2. Add a webhook endpoint for `checkout.session.completed`,
+         `customer.subscription.updated`, `customer.subscription.deleted`
+         → `https://…/api/webhooks/stripe`; put its signing secret in
+         `STRIPE_WEBHOOK_SECRET`.
+      3. **Pending live check (Phase 29E):** with TEST-mode keys, run one
+         full checkout with card 4242 4242 4242 4242 and confirm: founding
+         status lands in member_subscriptions, the gates open (unlimited
+         watch, exports, briefs), /pricing shows the real seat counter, and
+         the billing portal link works. The build could not run this — no
+         Stripe keys existed in the environment.
+      Requires Clerk first (checkout binds to the signed-in member).
+
 - [ ] **CH_API_KEY** — free key from
       developer.company-information.service.gov.uk, then
       `pnpm ch:enrich -- --limit 200` to stamp official Companies House

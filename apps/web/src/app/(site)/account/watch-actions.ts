@@ -2,9 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { canAddWatch, canEnableViewAlert, canUseFrequency } from "@continuum/shared";
 import {
+  countAlertEnabledViews,
+  countWatchedEntities,
   getMemberByClerkId,
   isWatching,
+  resolveMemberTier,
   setAlertFrequency,
   setSavedViewAlert,
   unwatchEntity,
@@ -14,10 +18,15 @@ import {
 } from "@continuum/db";
 
 /**
- * Watchlist actions (Phase 28D). Member identity always re-derived from the
- * Clerk session; server action + refresh, no optimistic UI (house style).
- * Everything here is member-FREE — the paid line (next phase) sits at bulk
- * data access, not at watching.
+ * Watchlist actions (Phase 28D; entitlements Phase 29B). Member identity
+ * always re-derived from the Clerk session; server action + refresh, no
+ * optimistic UI (house style).
+ *
+ * The free/paid line is enforced HERE (server), read from the ONE
+ * entitlement module in @continuum/shared. Limits gate ADDING only:
+ * a member who downgrades with more watches/alert views than the free tier
+ * allows keeps every row — over-limit lists go READ-ONLY (cannot add more),
+ * they are never trimmed or deleted. Unwatch/disable always work.
  */
 
 async function requireMemberId(): Promise<string | null> {
@@ -47,6 +56,12 @@ export async function toggleWatchAction(formData: FormData): Promise<void> {
   if (await isWatching(memberId, entityId)) {
     await unwatchEntity(memberId, entityId);
   } else {
+    // Free tier: 5 watched entities. The gate is on ADDING only.
+    const tier = await resolveMemberTier(memberId);
+    const current = await countWatchedEntities(memberId);
+    if (!canAddWatch(tier, current)) {
+      return;
+    }
     await watchEntity(memberId, entityId);
   }
   if (backPath.startsWith("/")) {
@@ -74,6 +89,10 @@ export async function setFrequencyAction(formData: FormData): Promise<void> {
   ) {
     return;
   }
+  // instant_important is a founding entitlement; free selects daily/off.
+  if (!canUseFrequency(await resolveMemberTier(memberId), frequency)) {
+    return;
+  }
   await setAlertFrequency(memberId, frequency as AlertFrequency);
   revalidatePath("/account/watchlist");
 }
@@ -84,6 +103,14 @@ export async function toggleViewAlertAction(formData: FormData): Promise<void> {
   const enabled = String(formData.get("enabled") ?? "") === "1";
   if (memberId === null || viewId === "") {
     return;
+  }
+  // Free tier: 1 alert-ENABLED view. Disabling is always allowed.
+  if (enabled) {
+    const tier = await resolveMemberTier(memberId);
+    const current = await countAlertEnabledViews(memberId);
+    if (!canEnableViewAlert(tier, current)) {
+      return;
+    }
   }
   await setSavedViewAlert(memberId, viewId, enabled);
   revalidatePath("/account/watchlist");

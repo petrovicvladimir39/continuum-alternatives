@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import {
+  getMemberByClerkId,
   listPublicEntities,
   listPublicFilterOptions,
   PUBLIC_PAGE_SIZE,
+  resolveMemberTier,
   type PublicKind,
 } from "@continuum/db";
-import { ALT_TAXONOMY, hasCyrillic, transliterateDisplay } from "@continuum/shared";
+import { ALT_TAXONOMY, canExport, hasCyrillic, transliterateDisplay } from "@continuum/shared";
 import { DataTable } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
 import { countryName } from "@/lib/public-labels";
@@ -58,6 +61,21 @@ export async function EntityIndex({
     listPublicEntities(kind, { page, country, tag, strategy }),
     listPublicFilterOptions(kind),
   ]);
+
+  // Phase 29B: "Export view" — founding members ONLY see the control (no
+  // feature teasing on public pages); the API route re-checks server-side.
+  let exportHref: string | null = null;
+  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY) {
+    const { userId } = await auth();
+    const member = userId === null ? null : await getMemberByClerkId(userId);
+    if (member !== null && canExport(await resolveMemberTier(member.id))) {
+      const query = new URLSearchParams({ kind });
+      if (country !== "") query.set("country", country);
+      if (tag !== "") query.set("tag", tag);
+      if (strategy !== "") query.set("strategy", strategy);
+      exportHref = `/api/export/entities?${query.toString()}`;
+    }
+  }
 
   const from = listing.total === 0 ? 0 : (listing.page - 1) * PUBLIC_PAGE_SIZE + 1;
   const to = Math.min(listing.total, listing.page * PUBLIC_PAGE_SIZE);
@@ -132,10 +150,17 @@ export async function EntityIndex({
         ) : null}
       </form>
 
-      <p className="type-data mt-6 text-ink-muted">
-        {listing.total === 0
-          ? "No entries match."
-          : `Showing ${from}–${to} of ${listing.total}`}
+      <p className="type-data mt-6 flex items-baseline gap-4 text-ink-muted">
+        <span>
+          {listing.total === 0
+            ? "No entries match."
+            : `Showing ${from}–${to} of ${listing.total}`}
+        </span>
+        {exportHref !== null && listing.total > 0 ? (
+          <a href={exportHref} className="text-accent hover:underline">
+            Export view (CSV)
+          </a>
+        ) : null}
       </p>
 
       {listing.rows.length > 0 ? (

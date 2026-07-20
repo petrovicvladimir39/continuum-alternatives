@@ -1,3 +1,5 @@
+import { EUROPE_COUNTRIES } from "@continuum/shared";
+
 /**
  * News Desk mechanical guards (reset build Part 6) — pure functions, fixture
  * tested in verify-articles. A composed draft is DROPPED unless every check
@@ -55,6 +57,9 @@ const GEO_WORDS = new Set(
     "norway", "norwegian", "iceland", "icelandic", "albania", "albanian", "bosnia",
     "herzegovina", "bosnian", "moldova", "moldovan", "montenegro", "montenegrin",
     "macedonia", "macedonian", "serbia", "serbian", "ukraine", "ukrainian", "kosovo",
+    // ISO country codes (Phase 29D): "Serbia (RS)" is geography, not a
+    // fabricated entity — a run made ONLY of geo words + codes never flags.
+    ...EUROPE_COUNTRIES.map((code) => code.toLowerCase()),
   ],
 );
 

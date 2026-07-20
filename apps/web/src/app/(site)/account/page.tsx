@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
-import { CHANNELS } from "@continuum/shared";
+import { canExport, CHANNELS } from "@continuum/shared";
 import {
   findContactByEmail,
   getMemberByClerkId,
+  getSubscription,
   listSavedViews,
+  resolveMemberTier,
   upsertMemberProfile,
 } from "@continuum/db";
 import { deleteSavedViewAction } from "@/app/(site)/news/actions";
+import { openPortalAction } from "@/app/(site)/pricing/actions";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass } from "@/components/admin/form-styles";
+import { stripeConfigured } from "@/lib/billing";
 import { updateDisplayNameAction, updateNewsletterChannelsAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +54,14 @@ export default async function AccountPage() {
 
   const contact = email !== null ? await findContactByEmail(email) : null;
   const savedViews = await listSavedViews(profile.id);
+  const [tier, subscription] = await Promise.all([
+    resolveMemberTier(profile.id),
+    getSubscription(profile.id),
+  ]);
+  const renewalDate =
+    tier === "founding" && subscription?.currentPeriodEnd != null
+      ? subscription.currentPeriodEnd.toISOString().slice(0, 10)
+      : null;
 
   return (
     <div className="max-w-xl py-12">
@@ -90,6 +102,44 @@ export default async function AccountPage() {
         </div>
       </div>
 
+      {/* ── Membership (Phase 29C) — member-facing only; no public badges. */}
+      <h2 className="type-h2 mt-8">Membership</h2>
+      <div className="mt-3 border border-line p-4">
+        {tier === "founding" ? (
+          <>
+            <p className="text-[13px] font-medium text-ink">Founding member</p>
+            <p className="mt-1 text-[13px] text-ink-secondary">
+              Founding tier
+              {renewalDate !== null ? (
+                <>
+                  {" · renews "}
+                  <span className="type-data">{renewalDate}</span>
+                </>
+              ) : null}
+              {subscription?.status === "past_due"
+                ? " · payment issue — update your card in the billing portal"
+                : ""}
+            </p>
+            <form action={openPortalAction} className="mt-2">
+              <button type="submit" className="text-[13px] text-accent hover:underline">
+                Manage billing →
+              </button>
+            </form>
+          </>
+        ) : (
+          <p className="text-[13px] text-ink-secondary">
+            Free tier.{" "}
+            {stripeConfigured() ? (
+              <a href="/pricing" className="text-accent hover:underline">
+                Founding membership →
+              </a>
+            ) : (
+              "Memberships open soon."
+            )}
+          </p>
+        )}
+      </div>
+
       <h2 className="type-h2 mt-8">Saved views</h2>
       {savedViews.length === 0 ? (
         <p className="mt-2 text-[13px] text-ink-muted">
@@ -107,6 +157,14 @@ export default async function AccountPage() {
                 >
                   {view.name}
                 </a>
+                {canExport(tier) ? (
+                  <a
+                    href={`/api/export/view?viewId=${view.id}`}
+                    className="text-[11px] text-ink-muted hover:text-accent"
+                  >
+                    export CSV
+                  </a>
+                ) : null}
                 <form action={deleteSavedViewAction}>
                   <input type="hidden" name="viewId" value={view.id} />
                   <button type="submit" className="text-[11px] text-ink-muted hover:text-distressed">

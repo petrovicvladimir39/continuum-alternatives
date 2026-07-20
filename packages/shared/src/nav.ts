@@ -40,6 +40,11 @@ export const NAV_TREE: NavNode[] = [
       { label: "For Advisors", href: "/solutions/advisors" },
       { label: "For Founders", href: "/solutions/founders" },
       { label: "For Institutions", href: "/solutions/institutions" },
+      // Phase 29C: /pricing lives HERE, not as a top-level item — the quieter
+      // of the two allowed placements. Membership is a commercial affordance
+      // for people already evaluating the product (the Solutions audience);
+      // a top-level "Pricing" would put a sell in every reader's eyeline.
+      { label: "Membership", href: "/pricing" },
     ],
   },
   { label: "Reports", href: "/reports" },

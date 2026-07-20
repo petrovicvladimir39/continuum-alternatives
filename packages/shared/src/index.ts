@@ -60,6 +60,26 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export {
+  BRIEF_GLOBAL_DAILY_BUDGET_USD,
+  BRIEF_MEMBER_MONTHLY_CAP,
+  ENTITLEMENTS,
+  EXPORTS_PER_DAY,
+  FOUNDING_ACTIVE_STATUSES,
+  FOUNDING_CAP_DEFAULT,
+  canAddWatch,
+  canEnableViewAlert,
+  canExport,
+  canGenerateBrief,
+  canUseFrequency,
+  checkoutOpen,
+  foundingSeatsLeft,
+  subscriptionSyncFromEvent,
+  tierFromSubscription,
+  type Entitlements,
+  type MemberTier,
+  type SubscriptionSync,
+} from "./entitlements";
+export {
   FOOTER_PLATFORM_LINKS,
   composeTodayStrip,
   diversifyRail,

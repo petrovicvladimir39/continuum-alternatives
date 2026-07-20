@@ -13,6 +13,8 @@ export * from "./repo/classifications";
 export * from "./repo/saved-views";
 export * from "./repo/watchlist";
 export * from "./repo/map";
+export * from "./repo/billing";
+export * from "./repo/briefs";
 export * from "./resolve";
 export * from "./register-import";
 export * from "./export";

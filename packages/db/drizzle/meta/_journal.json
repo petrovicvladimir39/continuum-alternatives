@@ -141,6 +141,13 @@
       "when": 1784578248590,
       "tag": "0019_special_kinsey_walden",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1784579893885,
+      "tag": "0020_nostalgic_speedball",
+      "breakpoints": true
     }
   ]
 }

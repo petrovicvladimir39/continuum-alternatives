@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "./client";
+import { listAskFeed } from "./repo/ask";
 
 /**
  * CSV export layer (reset build Part 5) — "everything structured before AI".
@@ -32,6 +33,8 @@ export type EntitiesExportFilter = {
   tag?: string;
   kind?: string;
   status?: string;
+  /** Taxonomy strategy or asset-class slug (approved classifications) — Phase 29B. */
+  strategy?: string;
 };
 
 export async function exportEntitiesCsv(filter: EntitiesExportFilter = {}): Promise<string> {
@@ -49,6 +52,10 @@ export async function exportEntitiesCsv(filter: EntitiesExportFilter = {}): Prom
       AND (${filter.status ?? null}::text IS NULL OR e.status = ${filter.status ?? null})
       AND (${filter.tag ?? null}::text IS NULL OR EXISTS
              (SELECT 1 FROM entity_tags t WHERE t.entity_id = e.id AND t.tag = ${filter.tag ?? null}))
+      AND (${filter.strategy ?? null}::text IS NULL OR EXISTS
+             (SELECT 1 FROM entity_classifications c
+               WHERE c.entity_id = e.id AND c.status = 'approved'
+                 AND (c.strategy = ${filter.strategy ?? null} OR c.asset_class = ${filter.strategy ?? null})))
     ORDER BY e.country NULLS LAST, e.name
   `);
   return toCsv(
@@ -102,6 +109,33 @@ export async function exportFactsCsv(filter: FactsExportFilter = {}): Promise<st
       r.entity_slug, r.entity_name, r.fact_type, r.occurred_on, r.recorded_on, r.title, r.channels, r.confidence, r.status, r.source_document_id,
     ]),
   );
+}
+
+/** Saved-view export cap — stated in the download, never silent. */
+export const VIEW_EXPORT_MAX_ROWS = 5000;
+
+/**
+ * Member CSV export of a saved ask view (Phase 29B): the view's stored
+ * filters replayed through the SAME feed query the News front uses, rows
+ * capped at VIEW_EXPORT_MAX_ROWS (most recent first).
+ */
+export async function exportViewFactsCsv(filters: {
+  channels?: string[];
+  countries?: string[];
+  factTypes?: string[];
+  strategies?: string[];
+  assetClasses?: string[];
+  entityQuery?: string;
+}): Promise<{ csv: string; rows: number; total: number }> {
+  const feed = await listAskFeed({ ...filters, limit: VIEW_EXPORT_MAX_ROWS });
+  const csv = toCsv(
+    ["occurred_on", "title", "fact_type", "entity_name", "entity_slug", "country", "channels", "source_name", "source_url"],
+    feed.items.map((item) => [
+      item.occurredOn, item.title, item.factType, item.entityName, item.entitySlug,
+      item.entityCountry, (item.channels ?? []).join(";"), item.sourceName, item.sourceUrl,
+    ]),
+  );
+  return { csv, rows: feed.items.length, total: feed.total };
 }
 
 export type DocumentsExportFilter = { source?: string; since?: string };

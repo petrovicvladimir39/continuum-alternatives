@@ -1,7 +1,19 @@
 import Link from "next/link";
-import { listClassificationsForEntity, orgEnrichmentOf } from "@continuum/db";
+import { auth } from "@clerk/nextjs/server";
+import {
+  getMemberByClerkId,
+  listClassificationsForEntity,
+  orgEnrichmentOf,
+  resolveMemberTier,
+} from "@continuum/db";
 import type { PublicConnection, PublicProfile, SimilarEntity } from "@continuum/db";
-import { classifiedLabel, hasCyrillic, strategyBySlug, transliterateDisplay } from "@continuum/shared";
+import {
+  canGenerateBrief,
+  classifiedLabel,
+  hasCyrillic,
+  strategyBySlug,
+  transliterateDisplay,
+} from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
@@ -208,6 +220,20 @@ export async function EntityProfile({
     (c) => c.status === "approved",
   );
   const connectionGroups = groupConnections(connections);
+  // Phase 29D: the brief affordance is FOUNDING-ONLY and org-only — free
+  // and anonymous readers see nothing (no feature teasing on public pages).
+  let briefHref: string | null = null;
+  if (
+    entity.kind === "organization" &&
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    process.env.CLERK_SECRET_KEY
+  ) {
+    const { userId } = await auth();
+    const member = userId === null ? null : await getMemberByClerkId(userId);
+    if (member !== null && canGenerateBrief(await resolveMemberTier(member.id))) {
+      briefHref = `/companies/${entity.slug}/brief`;
+    }
+  }
   const website = organization?.website ?? null;
   const websiteHost = website !== null ? website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "") : null;
 
@@ -260,6 +286,11 @@ export async function EntityProfile({
               entityId={entity.id}
               backPath={`/${entity.kind === "organization" ? "companies" : entity.kind === "fund_vehicle" ? "funds" : "deals"}/${entity.slug}`}
             />
+            {briefHref !== null ? (
+              <Link href={briefHref} className="text-[13px] text-accent hover:underline">
+                Brief →
+              </Link>
+            ) : null}
           </div>
           {entity.summary !== null && entity.summary !== "" ? (
             <p className="mt-3 max-w-2xl text-ink-secondary">{entity.summary}</p>

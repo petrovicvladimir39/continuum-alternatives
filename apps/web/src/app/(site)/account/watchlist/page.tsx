@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
+import { canUseFrequency, ENTITLEMENTS } from "@continuum/shared";
 import {
   getAlertPrefs,
   getMemberByClerkId,
   listSavedViews,
   listWatchlist,
+  resolveMemberTier,
   upsertMemberProfile,
 } from "@continuum/db";
 import { EntityLogo } from "@/components/ui/entity-logo";
@@ -43,11 +45,19 @@ export default async function WatchlistPage() {
       displayName: user.firstName ?? null,
     });
   }
-  const [watchlist, views, prefs] = await Promise.all([
+  const [watchlist, views, prefs, tier] = await Promise.all([
     listWatchlist(member.id),
     listSavedViews(member.id),
     getAlertPrefs(member.id),
+    resolveMemberTier(member.id),
   ]);
+  // Phase 29B: quiet inline notes at the limits — enforcement is server-side
+  // in watch-actions.ts; over-limit rows (post-downgrade) stay READ-ONLY,
+  // never deleted.
+  const limits = ENTITLEMENTS[tier];
+  const atWatchLimit = limits.watchLimit !== null && watchlist.length >= limits.watchLimit;
+  const enabledViews = views.filter((view) => view.alertEnabled).length;
+  const atViewLimit = limits.alertViewLimit !== null && enabledViews >= limits.alertViewLimit;
 
   return (
     <div className="max-w-2xl py-12">
@@ -59,6 +69,14 @@ export default async function WatchlistPage() {
       </div>
 
       <h2 className="type-h2 mt-7">Watched entities</h2>
+      {atWatchLimit ? (
+        <p className="mt-1.5 text-[12px] text-ink-muted">
+          Watching {watchlist.length} of {limits.watchLimit} — Founding members watch unlimited ·{" "}
+          <Link href="/pricing" className="text-accent hover:underline">
+            Learn more
+          </Link>
+        </p>
+      ) : null}
       {watchlist.length === 0 ? (
         <p className="mt-2 text-[13px] text-ink-muted">
           Nothing yet — use the Watch button on any company, fund, or deal page.
@@ -108,6 +126,15 @@ export default async function WatchlistPage() {
       )}
 
       <h2 className="type-h2 mt-8">Saved-view alerts</h2>
+      {atViewLimit ? (
+        <p className="mt-1.5 text-[12px] text-ink-muted">
+          {enabledViews} of {limits.alertViewLimit} alert-enabled — Founding members alert on
+          unlimited views ·{" "}
+          <Link href="/pricing" className="text-accent hover:underline">
+            Learn more
+          </Link>
+        </p>
+      ) : null}
       {views.length === 0 ? (
         <p className="mt-2 text-[13px] text-ink-muted">
           Save a view from the News ask bar, then enable its daily alert here.
@@ -152,17 +179,29 @@ export default async function WatchlistPage() {
             ["instant_important", "Instant for important events, rest daily"],
             ["off", "Off — updates page only, no email"],
           ] as const
-        ).map(([value, label]) => (
-          <label key={value} className="flex items-baseline gap-1.5">
-            <input
-              type="radio"
-              name="frequency"
-              value={value}
-              defaultChecked={prefs.frequency === value}
-            />
-            {label}
-          </label>
-        ))}
+        ).map(([value, label]) => {
+          const allowed = canUseFrequency(tier, value);
+          return (
+            <label
+              key={value}
+              className={`flex items-baseline gap-1.5 ${allowed ? "" : "text-ink-muted"}`}
+            >
+              <input
+                type="radio"
+                name="frequency"
+                value={value}
+                disabled={!allowed}
+                defaultChecked={prefs.frequency === value}
+              />
+              {label}
+              {!allowed ? (
+                <Link href="/pricing" className="text-[11px] text-accent hover:underline">
+                  Founding
+                </Link>
+              ) : null}
+            </label>
+          );
+        })}
         <Button type="submit" variant="ghost">
           Save
         </Button>

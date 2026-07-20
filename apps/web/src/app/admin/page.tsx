@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { briefTelemetry } from "@continuum/db";
 
-export default function AdminIndexPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminIndexPage() {
+  // Phase 29D cost telemetry — deterministic sums from the generation log.
+  const briefs = await briefTelemetry();
   return (
     <div>
       <h1 className="type-h2">Admin</h1>
@@ -22,6 +27,22 @@ export default function AdminIndexPage() {
           — approve or reject proposed edges and facts
         </li>
       </ul>
+
+      <h2 className="type-h2 mt-8">Entity briefs — model spend</h2>
+      <div className="mt-2 flex flex-wrap gap-x-8 gap-y-2 border border-line p-4 text-[13px]">
+        <p>
+          <span className="type-data font-medium">${briefs.today.usd.toFixed(4)}</span>
+          <span className="text-ink-muted"> today · {briefs.today.generations} generation(s), $2.00 daily guard</span>
+        </p>
+        <p>
+          <span className="type-data font-medium">${briefs.month.usd.toFixed(4)}</span>
+          <span className="text-ink-muted"> this month · {briefs.month.generations} generation(s)</span>
+        </p>
+        <p>
+          <span className="type-data font-medium">${briefs.total.usd.toFixed(4)}</span>
+          <span className="text-ink-muted"> all-time · {briefs.cachedBriefs} cached brief(s)</span>
+        </p>
+      </div>
     </div>
   );
 }

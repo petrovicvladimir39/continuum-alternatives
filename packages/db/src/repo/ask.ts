@@ -91,8 +91,10 @@ export async function listAskFeed(opts: {
     .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
     .leftJoin(sources, eq(sources.id, documents.sourceId))
     .where(where)
+    // Feed pages stay small; the 5000 ceiling exists for the member CSV
+    // export path (Phase 29B), which states its cap honestly.
     .orderBy(desc(timelineFacts.occurredOn), desc(timelineFacts.recordedAt))
-    .limit(Math.min(opts.limit ?? 30, 100));
+    .limit(Math.min(opts.limit ?? 30, 5000));
 
   return {
     items: rows.map((row) => ({
