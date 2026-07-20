@@ -11,6 +11,16 @@ export {
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";
 export { stripBaseLabels, isCountryLabelLayer, type MapStyleLike } from "./map-style";
+export {
+  NAV_ITEMS,
+  FOOTER_PLATFORM_LINKS,
+  timeAgo,
+  visibleHomeSections,
+  validateReportGate,
+  reportCoverSvg,
+  type HomeSectionInput,
+  type ReportGateInput,
+} from "./site";
 
 /**
  * Audience channel vocabulary. Used by timeline_facts.audience_channels and

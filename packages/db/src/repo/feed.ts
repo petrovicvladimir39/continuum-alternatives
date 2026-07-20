@@ -369,6 +369,203 @@ export async function degreeRanking(limit = 20): Promise<RankingRow[]> {
   }));
 }
 
+// ── Homepage front-page queries ─────────────────────────────────────────────
+
+export type LeadCandidate = FeedItem & {
+  confidence: string;
+  excerpt: string | null;
+  recordedAt: Date | null;
+};
+
+/** Approved facts of the trailing 7 days — the lead-story pool (web ranks by priority). */
+export async function leadCandidates(): Promise<LeadCandidate[]> {
+  const rows = await db
+    .select({
+      id: timelineFacts.id,
+      occurredOn: timelineFacts.occurredOn,
+      recordedAt: timelineFacts.recordedAt,
+      title: timelineFacts.title,
+      factType: timelineFacts.factType,
+      channels: timelineFacts.audienceChannels,
+      confidence: timelineFacts.confidence,
+      excerpt: sql<string | null>`${timelineFacts.data}->>'excerpt_original'`,
+      entityName: entities.name,
+      entitySlug: entities.slug,
+      entityKind: entities.kind,
+      entityCountry: entities.country,
+      entityStatus: entities.status,
+      sourceName: sources.name,
+      sourceUrl: documents.url,
+    })
+    .from(timelineFacts)
+    .innerJoin(entities, eq(entities.id, timelineFacts.entityId))
+    .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
+    .leftJoin(sources, eq(sources.id, documents.sourceId))
+    .where(
+      and(
+        eq(timelineFacts.status, "approved"),
+        sql`${timelineFacts.occurredOn} >= current_date - interval '7 days'`,
+        sql`${timelineFacts.occurredOn} <= current_date`,
+      ),
+    );
+  return rows.map((row) => ({
+    id: row.id,
+    occurredOn: row.occurredOn,
+    recordedAt: row.recordedAt,
+    title: row.title,
+    factType: row.factType,
+    channels: row.channels,
+    confidence: row.confidence,
+    excerpt: row.excerpt,
+    entityName: row.entityName,
+    entitySlug: row.entitySlug,
+    entityKind: row.entityKind,
+    entityCountry: row.entityCountry,
+    entityHref:
+      row.entityStatus === "active" ? publicPathFor(row.entityKind, row.entitySlug) : null,
+    sourceName: row.sourceName,
+    sourceUrl: row.sourceUrl,
+  }));
+}
+
+export type RecordedFeedItem = FeedItem & { recordedAt: Date | null };
+
+/** Latest N by ingestion time — the Bloomberg right rail ("2h ago"). */
+export async function latestRecorded(limit = 8): Promise<RecordedFeedItem[]> {
+  const rows = await db
+    .select({
+      id: timelineFacts.id,
+      occurredOn: timelineFacts.occurredOn,
+      recordedAt: timelineFacts.recordedAt,
+      title: timelineFacts.title,
+      factType: timelineFacts.factType,
+      channels: timelineFacts.audienceChannels,
+      entityName: entities.name,
+      entitySlug: entities.slug,
+      entityKind: entities.kind,
+      entityCountry: entities.country,
+      entityStatus: entities.status,
+      sourceName: sources.name,
+      sourceUrl: documents.url,
+    })
+    .from(timelineFacts)
+    .innerJoin(entities, eq(entities.id, timelineFacts.entityId))
+    .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
+    .leftJoin(sources, eq(sources.id, documents.sourceId))
+    .where(eq(timelineFacts.status, "approved"))
+    .orderBy(desc(timelineFacts.recordedAt))
+    .limit(limit);
+  return rows.map((row) => ({
+    id: row.id,
+    occurredOn: row.occurredOn,
+    recordedAt: row.recordedAt,
+    title: row.title,
+    factType: row.factType,
+    channels: row.channels,
+    entityName: row.entityName,
+    entitySlug: row.entitySlug,
+    entityKind: row.entityKind,
+    entityCountry: row.entityCountry,
+    entityHref:
+      row.entityStatus === "active" ? publicPathFor(row.entityKind, row.entitySlug) : null,
+    sourceName: row.sourceName,
+    sourceUrl: row.sourceUrl,
+  }));
+}
+
+/** Five latest items for one channel group (array-overlap match). */
+export async function channelColumn(channels: string[], limit = 5): Promise<FeedItem[]> {
+  const page = await listFeedForChannels(channels, limit);
+  return page;
+}
+
+async function listFeedForChannels(channels: string[], limit: number): Promise<FeedItem[]> {
+  const rows = await db
+    .select({
+      id: timelineFacts.id,
+      occurredOn: timelineFacts.occurredOn,
+      title: timelineFacts.title,
+      factType: timelineFacts.factType,
+      channels: timelineFacts.audienceChannels,
+      entityName: entities.name,
+      entitySlug: entities.slug,
+      entityKind: entities.kind,
+      entityCountry: entities.country,
+      entityStatus: entities.status,
+      sourceName: sources.name,
+      sourceUrl: documents.url,
+    })
+    .from(timelineFacts)
+    .innerJoin(entities, eq(entities.id, timelineFacts.entityId))
+    .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
+    .leftJoin(sources, eq(sources.id, documents.sourceId))
+    .where(
+      and(
+        eq(timelineFacts.status, "approved"),
+        sql`${timelineFacts.audienceChannels} && ${sql.raw(`ARRAY[${channels.map((c) => `'${c.replace(/'/g, "''")}'`).join(",")}]::text[]`)}`,
+      ),
+    )
+    .orderBy(desc(timelineFacts.occurredOn), desc(timelineFacts.recordedAt))
+    .limit(limit);
+  return rows.map((row) => ({
+    id: row.id,
+    occurredOn: row.occurredOn,
+    title: row.title,
+    factType: row.factType,
+    channels: row.channels,
+    entityName: row.entityName,
+    entitySlug: row.entitySlug,
+    entityKind: row.entityKind,
+    entityCountry: row.entityCountry,
+    entityHref:
+      row.entityStatus === "active" ? publicPathFor(row.entityKind, row.entitySlug) : null,
+    sourceName: row.sourceName,
+    sourceUrl: row.sourceUrl,
+  }));
+}
+
+// ── Report data (Serbian Insolvency Monitor) ────────────────────────────────
+
+export type MonthlyCount = { month: string; n: number };
+
+/** Monthly insolvency_opened counts, trailing 12 months (chart input). */
+export async function monthlyFilings(): Promise<MonthlyCount[]> {
+  const result = await db.execute(sql`
+    select to_char(occurred_on, 'YYYY-MM') as month, count(*)::int as n
+    from timeline_facts
+    where status = 'approved' and fact_type = 'insolvency_opened'
+      and occurred_on >= date_trunc('month', current_date) - interval '11 months'
+    group by 1 order by 1
+  `);
+  return result.rows.map((row) => ({ month: String(row.month), n: Number(row.n) }));
+}
+
+export type AnomalyNote = {
+  dimension: string;
+  dimensionKey: string;
+  periodWeek: string;
+  observed: number;
+  z: number;
+};
+
+/** Recent non-dismissed anomalies — the report's "notable deviations" notes. */
+export async function anomalyNotes(limit = 5): Promise<AnomalyNote[]> {
+  const result = await db.execute(sql`
+    select dimension, dimension_key, period_week, observed, z
+    from anomalies
+    where status <> 'dismissed'
+    order by period_week desc, z desc
+    limit ${limit}
+  `);
+  return result.rows.map((row) => ({
+    dimension: String(row.dimension),
+    dimensionKey: String(row.dimension_key),
+    periodWeek: String(row.period_week),
+    observed: Number(row.observed),
+    z: Number(row.z),
+  }));
+}
+
 // ── Homepage ────────────────────────────────────────────────────────────────
 
 export type HomeStats = {

@@ -8,6 +8,19 @@ import { RunStatus, formatTimestamp } from "./run-status";
 export default async function AdminSourcesPage() {
   const rows = await db.select().from(sources).orderBy(asc(sources.name));
 
+  // Extraction cost visibility at the moment of activation decisions:
+  // ceiling = items/day cap × 30 days × ~$0.03 per extracted article.
+  // Registry sources bypass paid extraction (deterministic mapper) — excluded.
+  const estimate = (list: typeof rows) =>
+    list
+      .filter((source) => source.sourceType !== "registry")
+      .reduce((sum, source) => {
+        const config = (source.config ?? {}) as { maxItemsPerRun?: number };
+        return sum + (config.maxItemsPerRun ?? 10) * 30 * 0.03;
+      }, 0);
+  const activeEstimate = estimate(rows.filter((source) => source.active === true));
+  const allEstimate = estimate(rows);
+
   return (
     <div>
       <div className="flex items-baseline justify-between">
@@ -16,6 +29,11 @@ export default async function AdminSourcesPage() {
           New source
         </Link>
       </div>
+      <p className="mt-2 text-[13px] tabular-nums text-ink-muted">
+        Extraction est./month: ~${activeEstimate.toFixed(0)} with current active sources; ~$
+        {allEstimate.toFixed(0)} if every listed source were active (items-cap × 30 days × $0.03
+        per article, ceiling — registry sources use the free deterministic mapper).
+      </p>
       <div className="mt-6">
         {rows.length === 0 ? (
           <p className="text-[13px] text-ink-muted">No sources registered.</p>
