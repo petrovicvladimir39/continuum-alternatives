@@ -127,6 +127,13 @@
       "when": 1784575965970,
       "tag": "0017_big_runaways",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1784577312244,
+      "tag": "0018_aspiring_franklin_storm",
+      "breakpoints": true
     }
   ]
 }

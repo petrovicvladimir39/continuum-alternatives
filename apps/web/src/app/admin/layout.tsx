@@ -56,6 +56,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/universe" className={navLinkClass}>
             Universe
           </Link>
+          <Link href="/admin/write" className={navLinkClass}>
+            Write
+          </Link>
           <Link href="/admin/entities" className={navLinkClass}>
             Entities
           </Link>

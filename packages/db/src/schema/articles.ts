@@ -15,7 +15,8 @@ import { entities } from "./entities";
  *   source_document_ids — never written by the model.
  */
 
-export const articleStatus = pgEnum("article_status", ["proposed", "published", "rejected"]);
+// Phase 27B: 'draft' is the operator-only state before publish.
+export const articleStatus = pgEnum("article_status", ["proposed", "published", "rejected", "draft"]);
 
 export const articles = pgTable("articles", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -31,4 +32,13 @@ export const articles = pgTable("articles", {
   byline: text("byline").notNull().default("Continuum Desk"),
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  // Phase 27B — editorial identity. asset_class/strategy drive the class
+  // accent slots (null = neutral render, never a default color).
+  // authored_by: 'desk_compose' (machine, guards apply) | 'operator' (the
+  // operator IS the editor — guards do not apply to their own words).
+  assetClass: text("asset_class"),
+  strategy: text("strategy"),
+  authoredBy: text("authored_by").notNull().default("desk_compose"),
+  // Operator-piece citations (rendered into the footer; optional).
+  sourceUrls: text("source_urls").array().notNull().default([]),
 });

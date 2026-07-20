@@ -62,6 +62,13 @@ export default async function DocumentDetailPage({ params }: { params: Promise<{
           {doc.language ? ` · ${doc.language}` : ""}
           {source[0] ? ` · ${source[0].name}` : ""}
         </span>
+        {/* Phase 27C: prefilled desk starting point — no LLM, the operator writes. */}
+        <Link
+          href={`/admin/write?fromDoc=${doc.id}`}
+          className="text-[13px] text-accent hover:underline"
+        >
+          Draft article from this →
+        </Link>
       </div>
       {doc.url ? (
         <p className="type-data mt-1 text-ink-muted">

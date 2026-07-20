@@ -19,6 +19,7 @@ import { FACT_PRIORITY } from "@continuum/pipeline";
 import { diversifyRail, pickRotatedLead, timeAgo, visibleHomeSections } from "@continuum/shared";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { SubscribeBlock } from "@/components/subscribe-block";
+import { ClassKicker, ClassTopRule } from "@/components/editorial/class-accent";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
 
@@ -174,9 +175,16 @@ export default async function Home() {
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <div>
           {show("lead") && leadArticle !== null ? (
-            <article className="flex flex-wrap items-start gap-6">
+            <article>
+              {/* Phase 27D: class accent slots on the editorial lead only —
+                  wire facts below stay uncolored (facts are not editorial). */}
+              <ClassTopRule assetClass={leadArticle.assetClass} />
+              <div className="mt-3 flex flex-wrap items-start gap-6">
               <div className="min-w-0 flex-1">
-                <p className="type-label">Lead</p>
+                <div className="flex items-baseline gap-3">
+                  <p className="type-label">Lead</p>
+                  <ClassKicker assetClass={leadArticle.assetClass} strategy={leadArticle.strategy} />
+                </div>
                 <Link href={`/news/${leadArticle.slug}`} className="hover:text-accent">
                   <h1 className="mt-2 max-w-2xl font-serif text-[38px] font-medium leading-[1.12]">
                     {leadArticle.headline}
@@ -218,6 +226,7 @@ export default async function Home() {
                   ) : null}
                 </div>
               ) : null}
+              </div>
             </article>
           ) : show("lead") && factLead !== null ? (
             <article>
@@ -283,6 +292,10 @@ export default async function Home() {
                   <div className="mt-1">
                     {column.articles.map((article) => (
                       <div key={article.id} className="border-t border-line py-2.5">
+                        <ClassTopRule assetClass={article.assetClass} />
+                        <div className="mt-1.5">
+                          <ClassKicker assetClass={article.assetClass} strategy={article.strategy} />
+                        </div>
                         <Link
                           href={`/news/${article.slug}`}
                           className="font-serif text-[17px] font-medium leading-[1.25] text-ink hover:text-accent"

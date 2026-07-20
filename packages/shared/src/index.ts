@@ -34,6 +34,14 @@ export {
 } from "./ask";
 export { VERTICALS, verticalBySlug, type Vertical, type VerticalModule } from "./verticals";
 export {
+  CLASS_ACCENTS,
+  canTransitionArticle,
+  contrastRatio,
+  inferArticleClassification,
+  sanitizeArticleMarkdown,
+  shouldGuardArticle,
+} from "./editorial";
+export {
   ALT_TAXONOMY,
   CLASS_LEVEL,
   KEYWORD_RULES,

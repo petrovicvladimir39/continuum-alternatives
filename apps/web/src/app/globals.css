@@ -20,6 +20,24 @@
   --color-positive: #1d7a5f;
   --color-negative: #a4442a;
 
+  /* Phase 27A — CLASS ACCENTS (sanctioned palette amendment). One per
+     taxonomy asset class; all AA as text on ground; interaction accent
+     #17456b stays exclusively interactive. USAGE LAW: kicker text, 2px top
+     rule, class chip border+text — ONLY (enforced by verify-editorial).
+     The map capital-type colors above are a SEPARATE system (capital
+     flavor on the ecosystem map) — the two never mix. NOTE: the taxonomy
+     enumerates nine classes, so nine accents (documented deviation from
+     the "six new hues" prose). */
+  --color-class-private-equity: #1d7a5f;
+  --color-class-private-credit: #96690f;
+  --color-class-real-assets: #5f6b1d;
+  --color-class-hedge-funds: #5b3684;
+  --color-class-structured: #106a6e;
+  --color-class-esoteric: #772f6b;
+  --color-class-collectibles: #7d3450;
+  --color-class-climate: #23704a;
+  --color-class-digital: #3f4178;
+
   --radius-sm: 2px;
   --radius-md: 4px;
 }

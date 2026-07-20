@@ -16,6 +16,16 @@ const GROUND = "#FAFAF8";
 const SERIF = "Georgia, 'Times New Roman', serif";
 const SANS = "-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 
+// Phase 27D: digest section kickers render in the class accent where a
+// channel maps cleanly onto a taxonomy class (email-safe hex; nothing else
+// in the email changes). Audience-only channels stay ink.
+const CHANNEL_CLASS_ACCENT: Record<string, string> = {
+  pe: "#1d7a5f",
+  vc_founders: "#1d7a5f",
+  private_credit: "#96690f",
+  distressed: "#96690f",
+};
+
 const CHANNEL_LABELS: Record<string, string> = {
   distressed: "Distressed",
   private_credit: "Private Credit",
@@ -46,7 +56,12 @@ export function buildDigestEmail(
   const sectionHtml = sections
     .map(
       (section) => `
-      <h2 style="font-family:${SERIF};font-weight:500;font-size:20px;color:${INK};margin:28px 0 4px;border-bottom:1px solid ${LINE};padding-bottom:6px;">${escapeHtml(CHANNEL_LABELS[section.channel] ?? section.channel)}</h2>
+      ${
+        CHANNEL_CLASS_ACCENT[section.channel]
+          ? `<p style="font-family:${SANS};font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:${CHANNEL_CLASS_ACCENT[section.channel]};margin:26px 0 0;">${escapeHtml(CHANNEL_LABELS[section.channel] ?? section.channel)}</p>`
+          : ""
+      }
+      <h2 style="font-family:${SERIF};font-weight:500;font-size:20px;color:${INK};margin:${CHANNEL_CLASS_ACCENT[section.channel] ? "2px" : "28px"} 0 4px;border-bottom:1px solid ${LINE};padding-bottom:6px;">${escapeHtml(CHANNEL_LABELS[section.channel] ?? section.channel)}</h2>
       ${section.items
         .map(
           (item) => `

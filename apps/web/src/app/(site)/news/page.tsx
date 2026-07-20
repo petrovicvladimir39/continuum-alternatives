@@ -13,6 +13,7 @@ import {
   type FeedItem,
 } from "@continuum/db";
 import { AskBar, type EntityChip } from "@/components/ask-bar";
+import { ClassKicker, ClassTopRule } from "@/components/editorial/class-accent";
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
@@ -81,9 +82,9 @@ function WireRow({ item }: { item: FeedItem }) {
 export default async function NewsIndexPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; class?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, class: classFilter } = await searchParams;
   const query = (q ?? "").trim();
   const filters = query === "" ? null : parseAsk(query);
 
@@ -209,35 +210,72 @@ export default async function NewsIndexPage({
           ) : null}
         </div>
       ) : (
-        <div className="mt-8 space-y-7">
-          {articles.length === 0 ? (
-            <p className="text-[13px] text-ink-muted">No articles published yet.</p>
-          ) : (
-            articles.map((article) => (
-              <article key={article.id} className="border-t border-line pt-5 first:border-t-0 first:pt-0">
+        <div className="mt-8">
+          {/* Phase 27D: index groupable by class — filter chips over published set. */}
+          {(() => {
+            const classesPresent = [
+              ...new Set(articles.map((a) => a.assetClass).filter((c): c is string => c !== null)),
+            ];
+            if (classesPresent.length === 0) {
+              return null;
+            }
+            return (
+              <div className="mb-5 flex flex-wrap items-center gap-1.5 border-b border-line pb-2 text-[13px]">
                 <Link
-                  href={`/news/${article.slug}`}
-                  className="font-serif text-[24px] font-medium leading-[1.2] text-ink hover:text-accent"
+                  href="/news"
+                  className={classFilter === undefined ? "font-medium text-accent" : "text-ink-secondary hover:text-accent"}
                 >
-                  {article.headline}
+                  All
                 </Link>
-                {article.deck !== null ? (
-                  <p className="mt-1.5 text-[14px] leading-[1.5] text-ink-secondary">{article.deck}</p>
-                ) : null}
-                <p className="type-data mt-2 flex flex-wrap items-center gap-2 text-ink-muted">
-                  <span>{article.byline}</span>
-                  {article.publishedAt !== null ? (
-                    <span>· {article.publishedAt.toISOString().slice(0, 10)}</span>
-                  ) : null}
-                  {article.channels.map((channel) => (
-                    <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
-                      {channel}
-                    </Tag>
-                  ))}
-                </p>
-              </article>
-            ))
-          )}
+                {classesPresent.map((slug) => (
+                  <Link
+                    key={slug}
+                    href={`/news?class=${slug}`}
+                    className={classFilter === slug ? "font-medium text-accent" : "text-ink-secondary hover:text-accent"}
+                  >
+                    {slug.replace("_", " ")}
+                  </Link>
+                ))}
+              </div>
+            );
+          })()}
+          <div className="space-y-7">
+            {articles.filter((a) => classFilter === undefined || a.assetClass === classFilter)
+              .length === 0 ? (
+              <p className="text-[13px] text-ink-muted">No articles published yet.</p>
+            ) : (
+              articles
+                .filter((a) => classFilter === undefined || a.assetClass === classFilter)
+                .map((article) => (
+                  <article key={article.id} className="border-t border-line pt-5 first:border-t-0 first:pt-0">
+                    <ClassTopRule assetClass={article.assetClass} />
+                    <div className="mt-2">
+                      <ClassKicker assetClass={article.assetClass} strategy={article.strategy} />
+                    </div>
+                    <Link
+                      href={`/news/${article.slug}`}
+                      className="font-serif text-[24px] font-medium leading-[1.2] text-ink hover:text-accent"
+                    >
+                      {article.headline}
+                    </Link>
+                    {article.deck !== null ? (
+                      <p className="mt-1.5 text-[14px] leading-[1.5] text-ink-secondary">{article.deck}</p>
+                    ) : null}
+                    <p className="type-data mt-2 flex flex-wrap items-center gap-2 text-ink-muted">
+                      <span>{article.byline}</span>
+                      {article.publishedAt !== null ? (
+                        <span>· {article.publishedAt.toISOString().slice(0, 10)}</span>
+                      ) : null}
+                      {article.channels.map((channel) => (
+                        <Tag key={channel} variant={CHANNEL_TAG_VARIANTS[channel] ?? "neutral"}>
+                          {channel}
+                        </Tag>
+                      ))}
+                    </p>
+                  </article>
+                ))
+            )}
+          </div>
         </div>
       )}
     </div>

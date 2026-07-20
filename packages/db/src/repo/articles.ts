@@ -23,6 +23,8 @@ export type ArticleListItem = {
   entityKind: string | null;
   logoUrl: string | null;
   entityCountry: string | null;
+  assetClass: string | null;
+  strategy: string | null;
 };
 
 const listSelection = {
@@ -38,6 +40,8 @@ const listSelection = {
   entityKind: sql<string | null>`${entities.kind}::text`,
   logoUrl: organizations.logoUrl,
   entityCountry: entities.country,
+  assetClass: articles.assetClass,
+  strategy: articles.strategy,
 };
 
 export async function listPublishedArticles(limit = 50): Promise<ArticleListItem[]> {
@@ -163,6 +167,87 @@ export async function coveredFactIds(): Promise<Set<string>> {
     }
   }
   return covered;
+}
+
+/**
+ * Operator writing desk (Phase 27C). The desk saves drafts and publishes —
+ * the SAME functions back the /admin/write actions and the demonstration
+ * script; sanitization happens in the caller (shared sanitizer). Byline
+ * stays 'Continuum Desk': one voice, human and machine alike — the reader
+ * follows the desk, not a masthead of one.
+ */
+export async function saveOperatorArticle(input: {
+  id?: string;
+  headline: string;
+  deck: string | null;
+  bodyMd: string;
+  assetClass: string | null;
+  strategy: string | null;
+  channels: string[];
+  primaryEntityId: string | null;
+  sourceUrls: string[];
+}): Promise<ArticleRow> {
+  if (input.id !== undefined) {
+    const rows = await db
+      .update(articles)
+      .set({
+        headline: input.headline,
+        deck: input.deck,
+        bodyMd: input.bodyMd,
+        assetClass: input.assetClass,
+        strategy: input.strategy,
+        channels: input.channels,
+        primaryEntityId: input.primaryEntityId,
+        sourceUrls: input.sourceUrls,
+      })
+      .where(sql`${articles.id} = ${input.id} AND ${articles.status} = 'draft'`)
+      .returning();
+    if (rows[0] !== undefined) {
+      return rows[0];
+    }
+  }
+  const base = input.headline
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70);
+  let slug = base === "" ? "untitled" : base;
+  for (let suffix = 2; ; suffix++) {
+    const clash = await db.select({ id: articles.id }).from(articles).where(eq(articles.slug, slug));
+    if (clash.length === 0) {
+      break;
+    }
+    slug = `${base}-${suffix}`;
+  }
+  const rows = await db
+    .insert(articles)
+    .values({
+      slug,
+      headline: input.headline,
+      deck: input.deck,
+      bodyMd: input.bodyMd,
+      status: "draft",
+      channels: input.channels,
+      primaryEntityId: input.primaryEntityId,
+      factIds: [],
+      sourceDocumentIds: [],
+      byline: "Continuum Desk",
+      authoredBy: "operator",
+      assetClass: input.assetClass,
+      strategy: input.strategy,
+      sourceUrls: input.sourceUrls,
+    })
+    .returning();
+  return rows[0]!;
+}
+
+export async function publishOperatorArticle(id: string): Promise<boolean> {
+  const rows = await db
+    .update(articles)
+    .set({ status: "published", publishedAt: new Date() })
+    .where(sql`${articles.id} = ${id} AND ${articles.status} = 'draft' AND ${articles.authoredBy} = 'operator'`)
+    .returning({ id: articles.id });
+  return rows.length > 0;
 }
 
 /** Published article slugs + dates for the sitemap. */

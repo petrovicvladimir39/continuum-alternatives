@@ -23,6 +23,7 @@ import {
   type RankingRow,
 } from "@continuum/db";
 import { EntityLogo } from "@/components/ui/entity-logo";
+import { ClassKicker, ClassTopRule } from "@/components/editorial/class-accent";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
@@ -223,7 +224,11 @@ export default async function MarketFrontPage({
         <div>
           {lead !== null ? (
             <article>
-              <p className="type-label">Lead</p>
+              <ClassTopRule assetClass={lead.assetClass} />
+              <div className="mt-2 flex items-baseline gap-3">
+                <p className="type-label">Lead</p>
+                <ClassKicker assetClass={lead.assetClass} strategy={lead.strategy} />
+              </div>
               <Link href={`/news/${lead.slug}`} className="hover:text-accent">
                 <h2 className="mt-2 max-w-xl font-serif text-[26px] font-medium leading-[1.2]">
                   {lead.headline}

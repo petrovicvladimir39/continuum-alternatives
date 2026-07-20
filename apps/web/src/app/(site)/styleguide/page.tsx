@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ALT_TAXONOMY, CLASS_ACCENTS } from "@continuum/shared";
 import { Button } from "@/components/ui/button";
+import { ClassChip, ClassKicker, ClassTopRule } from "@/components/editorial/class-accent";
 import { DataTable, numericCell } from "@/components/ui/data-table";
 import { Panel } from "@/components/ui/panel";
 import { StatBlock } from "@/components/ui/stat-block";
@@ -228,6 +230,49 @@ export default function StyleguidePage() {
           <StatBlock value="€41.2B" label="Tracked AUM" delta={4.2} />
           <StatBlock value="312" label="Active funds" />
           <StatBlock value="9.4%" label="Median net IRR" delta={-0.8} />
+        </div>
+      </Section>
+
+      <Section title="Class accents (Phase 27)">
+        <p className="type-small mb-4 max-w-xl text-ink-secondary">
+          One accent per taxonomy asset class. Usage law: kicker text, 2px top rule, and the class
+          chip (border+text) — never backgrounds, fills, headlines, buttons, or links. The map
+          capital-type colors are a separate system.
+        </p>
+        <div className="mb-6 flex flex-wrap gap-4">
+          {ALT_TAXONOMY.map((assetClass) => (
+            <div key={assetClass.slug} className="flex items-center gap-2">
+              <span
+                className="inline-block h-4 w-4 border border-line"
+                style={{ backgroundColor: CLASS_ACCENTS[assetClass.slug] }}
+              />
+              <span className="type-small">{assetClass.label}</span>
+              <span className="type-data text-ink-muted">{CLASS_ACCENTS[assetClass.slug]}</span>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ALT_TAXONOMY.map((assetClass) => (
+            <div key={assetClass.slug} className="border border-line bg-surface">
+              <ClassTopRule assetClass={assetClass.slug} />
+              <div className="p-3">
+                <ClassKicker
+                  assetClass={assetClass.slug}
+                  strategy={assetClass.strategies[0]?.slug ?? null}
+                />
+                <p className="mt-1 font-serif text-[17px] font-medium leading-[1.25]">
+                  Specimen article headline in the {assetClass.label.toLowerCase()} register
+                </p>
+                <p className="type-data mt-2 flex items-center gap-2 text-ink-muted">
+                  Continuum Desk
+                  <ClassChip
+                    assetClass={assetClass.slug}
+                    strategy={assetClass.strategies[0]?.slug ?? null}
+                  />
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </Section>
     </div>

@@ -1,8 +1,8 @@
 import "./env";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { slugify } from "@continuum/shared";
-import { articles, coveredFactIds, db, eq, sql } from "@continuum/db";
+import { inferArticleClassification, slugify } from "@continuum/shared";
+import { articles, coveredFactIds, db, eq, listClassificationsForEntity, sql } from "@continuum/db";
 import { guardArticle, type ComposeInputs } from "./articles-guards";
 
 /**
@@ -216,6 +216,19 @@ async function main(): Promise<void> {
     const sourceDocumentIds = [
       ...new Set(group.map((f) => f.sourceDocumentId).filter((d): d is string => d !== null)),
     ];
+    // Phase 27B: infer class/strategy from the facts' classified entities
+    // (majority vote, class-level fallback, null = neutral — never faked).
+    const entityIds = [...new Set(group.map((f) => f.entityId))];
+    const votes: { assetClass: string; strategy: string }[] = [];
+    for (const entityId of entityIds) {
+      const rows = await listClassificationsForEntity(entityId);
+      votes.push(
+        ...rows
+          .filter((r) => r.status === "approved")
+          .map((r) => ({ assetClass: r.assetClass, strategy: r.strategy })),
+      );
+    }
+    const inferred = inferArticleClassification(votes);
     await db.insert(articles).values({
       slug,
       headline: draft.headline.trim(),
@@ -227,6 +240,9 @@ async function main(): Promise<void> {
       factIds: group.map((f) => f.id),
       sourceDocumentIds,
       byline: "Continuum Desk",
+      authoredBy: "desk_compose",
+      assetClass: inferred?.assetClass ?? null,
+      strategy: inferred?.strategy ?? null,
     });
     composed += 1;
     report.push(`PROPOSED: ${draft.headline} (${group.length} fact(s), ${group[0]!.entityName})`);
