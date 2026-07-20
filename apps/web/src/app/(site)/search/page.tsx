@@ -7,10 +7,20 @@ import { countryName, KIND_LABELS_ANY } from "@/lib/public-labels";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Search",
-  description: "Search companies, funds, and deals across Europe's alternative-asset record.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  return {
+    title: "Search",
+    description: "Search companies, funds, and deals across Europe's alternative-asset record.",
+    alternates: { canonical: "https://continuumalternatives.com/search" },
+    // Search RESULT pages never index; the bare search page may.
+    ...(q !== undefined && q !== "" ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 async function runSearch(query: string): Promise<{ hits: PublicSearchHit[]; semantic: boolean }> {
   // Semantic leg only when a Voyage key is configured AND embeddings exist;

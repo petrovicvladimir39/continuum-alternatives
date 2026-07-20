@@ -107,6 +107,33 @@ export function pickRotatedLead<T>(
   return 0;
 }
 
+/**
+ * Sitemap chunk planning (Phase 23B). Chunk 0 = core (static pages, news,
+ * digests, reports); entity kinds follow in stable order, ≤ chunkSize URLs
+ * per chunk. Pure — verified with 10k+ fixtures.
+ */
+export type SitemapChunk = {
+  id: number;
+  kind: "core" | "organization" | "fund_vehicle" | "deal";
+  offset: number;
+};
+
+export function sitemapChunkPlan(
+  counts: { organization: number; fund_vehicle: number; deal: number },
+  chunkSize = 1000,
+): SitemapChunk[] {
+  const plan: SitemapChunk[] = [{ id: 0, kind: "core", offset: 0 }];
+  let id = 1;
+  for (const kind of ["organization", "fund_vehicle", "deal"] as const) {
+    const total = Math.max(0, counts[kind]);
+    for (let offset = 0; offset < total; offset += chunkSize) {
+      plan.push({ id, kind, offset });
+      id += 1;
+    }
+  }
+  return plan;
+}
+
 /** Bloomberg-rail "2h ago" prefixes, deterministic from an injected now. */
 export function timeAgo(recordedAt: string | Date, now: string | Date): string {
   const then = typeof recordedAt === "string" ? Date.parse(recordedAt) : recordedAt.getTime();

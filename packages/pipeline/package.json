@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts && tsx src/verify-enrich.ts && tsx src/verify-site.ts && tsx src/verify-gleif.ts && tsx src/verify-discover.ts && tsx src/verify-export.ts && tsx src/verify-articles.ts && tsx src/verify-balance.ts",
+    "verify": "tsx src/verify-pipeline.ts && tsx src/verify-crawl.ts && tsx src/verify-registry.ts && tsx src/verify-extract.ts && tsx src/verify-filings.ts && tsx src/verify-anomalies.ts && tsx src/verify-digest.ts && tsx src/verify-map2.ts && tsx src/verify-enrich.ts && tsx src/verify-site.ts && tsx src/verify-gleif.ts && tsx src/verify-discover.ts && tsx src/verify-export.ts && tsx src/verify-articles.ts && tsx src/verify-balance.ts && tsx src/verify-audience.ts",
     "extract:benchmark": "tsx src/extract-benchmark.ts",
     "filings:backfill": "tsx src/filings-backfill.ts",
     "alsu:history": "tsx src/alsu-history.ts",
@@ -27,7 +27,8 @@
     "export:facts": "tsx src/export-cli.ts facts",
     "export:documents": "tsx src/export-cli.ts documents",
     "extract:batch": "tsx src/extract-batch.ts",
-    "articles:compose": "tsx src/articles-compose.ts"
+    "articles:compose": "tsx src/articles-compose.ts",
+    "contacts:send-confirmations": "tsx src/contacts-confirmations.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

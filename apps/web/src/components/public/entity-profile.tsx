@@ -5,6 +5,7 @@ import { hasCyrillic, transliterateDisplay } from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
+import { TrackView } from "@/components/track-view";
 import { Tag } from "@/components/ui/tag";
 import {
   CHANNEL_TAG_VARIANTS,
@@ -197,6 +198,7 @@ export function EntityProfile({
 
   return (
     <article className="py-10">
+      <TrackView event="entity_viewed" props={{ kind: entity.kind }} />
       <header className="flex items-start gap-4">
         <EntityLogo
           name={entity.name}

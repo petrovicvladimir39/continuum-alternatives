@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ReportCover } from "@/components/reports/report-cover";
+import { SubscribeBlock } from "@/components/subscribe-block";
 
 export const metadata: Metadata = {
   title: "Reports",
@@ -16,6 +17,9 @@ export default function ReportsPage() {
         Research compiled directly from the platform&apos;s approved record — every figure
         traceable to a filing or a cited source.
       </p>
+      <div className="mt-6 max-w-xl">
+        <SubscribeBlock compact />
+      </div>
 
       <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
         <Link

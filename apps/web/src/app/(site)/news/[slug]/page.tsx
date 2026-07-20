@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { publishedArticleBySlug } from "@continuum/db";
 import { EntityLogo } from "@/components/ui/entity-logo";
+import { SubscribeBlock } from "@/components/subscribe-block";
+import { TrackView } from "@/components/track-view";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, SITE_ORIGIN, countryName } from "@/lib/public-labels";
 
@@ -56,6 +58,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="max-w-3xl py-10">
+      <TrackView event="article_read" props={{ slug: article.slug }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -104,6 +107,10 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
             </Link>
           </aside>
         ) : null}
+      </div>
+
+      <div className="mt-8 max-w-xl">
+        <SubscribeBlock compact />
       </div>
 
       {citations.length > 0 ? (

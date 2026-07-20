@@ -9,6 +9,7 @@ import {
   monthlyFilings,
 } from "@continuum/db";
 import { FilingsChart } from "@/components/reports/filings-chart";
+import { TrackView } from "@/components/track-view";
 import { DataTable, numericCell } from "@/components/ui/data-table";
 import { StatBlock } from "@/components/ui/stat-block";
 import { requestReportAccessAction } from "../actions";
@@ -100,14 +101,15 @@ function Gate({ error }: { error?: string }) {
 export default async function ReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; unlocked?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, unlocked: justUnlocked } = await searchParams;
   const cookieStore = await cookies();
   const unlocked = cookieStore.get(REPORT_ACCESS_COOKIE)?.value === "1";
 
   return (
     <div className="py-10">
+      {unlocked && justUnlocked === "1" ? <TrackView event="report_unlocked" /> : null}
       <p className="type-label">Continuum report · Q3 2026</p>
       <h1 className="type-h1 mt-2 max-w-2xl">Serbian Insolvency Monitor</h1>
       <p className="mt-3 max-w-2xl text-ink-secondary">

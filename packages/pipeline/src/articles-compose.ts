@@ -2,7 +2,7 @@ import "./env";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { slugify } from "@continuum/shared";
-import { articles, coveredFactIds, db, entities, eq, sql, timelineFacts } from "@continuum/db";
+import { articles, coveredFactIds, db, eq, sql } from "@continuum/db";
 import { guardArticle, type ComposeInputs } from "./articles-guards";
 
 /**

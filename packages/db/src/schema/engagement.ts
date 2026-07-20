@@ -31,5 +31,14 @@ export const contacts = pgTable("contacts", {
   consentSource: text("consent_source"),
   consentedAt: timestamp("consented_at", { withTimezone: true }),
   unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+  // Subscription state machine (Phase 23): pending_confirmation → active
+  // (double opt-in via confirmation_token) → unsubscribed (one-click, same
+  // token). Re-subscribing rotates the token, invalidating old links.
+  // Digest delivery sends to status='active' ONLY.
+  status: text("status").notNull().default("pending_confirmation"),
+  confirmationToken: uuid("confirmation_token")
+    .notNull()
+    .unique()
+    .default(sql`gen_random_uuid()`),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

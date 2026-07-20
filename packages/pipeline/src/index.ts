@@ -79,11 +79,23 @@ export {
   type EmbeddableEntity,
 } from "./embeddings";
 
+export { buildConfirmationEmail, sendConfirmationEmail } from "./subscription-email";
+
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { articlesWeekly } from "./functions/articles-weekly";
+import { digestWeeklyDraft } from "./functions/digest-weekly";
 import { extractDocumentFn } from "./functions/extract-document";
 import { ingestHourly, ingestSource } from "./functions/ingest-hourly";
 
-/** Every pipeline function, for the Next.js serve route. articlesWeekly
- * ships DISABLED (no-op until ARTICLES_WEEKLY_ENABLED=1). */
-export const functions = [ingestHourly, ingestSource, extractDocumentFn, anomaliesWeekly, articlesWeekly];
+export { digestAutodraftEnabled } from "./functions/digest-weekly";
+
+/** Every pipeline function, for the Next.js serve route. articlesWeekly and
+ * digestWeeklyDraft ship DISABLED (env-flag gated no-ops). */
+export const functions = [
+  ingestHourly,
+  ingestSource,
+  extractDocumentFn,
+  anomaliesWeekly,
+  articlesWeekly,
+  digestWeeklyDraft,
+];

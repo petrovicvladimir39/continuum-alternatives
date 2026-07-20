@@ -36,6 +36,7 @@ function escapeHtml(value: string): string {
 export function buildDigestEmail(
   digest: { digestDate: string; subject: string; sections: DigestSection[] },
   subscriberChannels: string[],
+  unsubscribeToken?: string,
 ): { subject: string; html: string } {
   const archiveUrl = `https://continuumalternatives.com/digest/${digest.digestDate}`;
   const sections = digest.sections.filter((section) =>
@@ -69,8 +70,11 @@ export function buildDigestEmail(
     ${sectionHtml}
     <p style="font-family:${SANS};font-size:12px;color:${INK_MUTED};margin:32px 0 0;border-top:1px solid ${LINE};padding-top:14px;">
       Read online: <a href="${archiveUrl}" style="color:${ACCENT};">${archiveUrl}</a><br/>
-      To unsubscribe, reply to this email or write to <a href="mailto:hello@continuumalternatives.com" style="color:${ACCENT};">hello@continuumalternatives.com</a>.
-      <!-- One-click list management arrives with public signup (Phase 19). -->
+      ${
+        unsubscribeToken
+          ? `<a href="https://continuumalternatives.com/unsubscribe/${unsubscribeToken}" style="color:${ACCENT};">Unsubscribe</a> — one click, immediate.`
+          : `To unsubscribe, reply to this email or write to <a href="mailto:hello@continuumalternatives.com" style="color:${ACCENT};">hello@continuumalternatives.com</a>.`
+      }
     </p>
   </div>
 </body>

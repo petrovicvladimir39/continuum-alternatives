@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { db, desc, digests, eq, sql } from "@continuum/db";
+import { SubscribeBlock } from "@/components/subscribe-block";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,9 @@ export default async function DigestIndexPage() {
         The digest of European alternative-asset events — insolvencies, asset sales, deals and
         mandates, from primary sources.
       </p>
+      <div className="mt-6 max-w-xl">
+        <SubscribeBlock />
+      </div>
       <div className="mt-8 space-y-6">
         {rows.length === 0 ? (
           <p className="text-[13px] text-ink-muted">No issues published yet.</p>

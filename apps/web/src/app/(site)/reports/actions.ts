@@ -45,5 +45,6 @@ export async function requestReportAccessAction(formData: FormData): Promise<voi
     path: "/",
     sameSite: "lax",
   });
-  redirect(back);
+  // ?unlocked=1 lets the report page fire the report_unlocked event once.
+  redirect(`${back}${back.includes("?") ? "&" : "?"}unlocked=1`);
 }

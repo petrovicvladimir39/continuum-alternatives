@@ -18,6 +18,7 @@ import {
 import { FACT_PRIORITY } from "@continuum/pipeline";
 import { diversifyRail, pickRotatedLead, timeAgo, visibleHomeSections } from "@continuum/shared";
 import { EntityLogo } from "@/components/ui/entity-logo";
+import { SubscribeBlock } from "@/components/subscribe-block";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
 
@@ -368,6 +369,11 @@ export default async function Home() {
             Browse reports →
           </Link>
         </div>
+      </section>
+
+      {/* Subscribe — inline and quiet, part of the bottom band. */}
+      <section className="mt-8 max-w-xl">
+        <SubscribeBlock compact />
       </section>
 
       {/* 5 · Auctions — demoted to the bottom quiet band. */}

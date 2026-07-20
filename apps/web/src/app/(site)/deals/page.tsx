@@ -3,11 +3,21 @@ import { EntityIndex, type IndexSearchParams } from "@/components/public/entity-
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Deals",
-  description:
-    "Transactions in Europe's alternative-asset record — NPL sales, buyouts, rounds, credit facilities, and restructurings.",
-};
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<IndexSearchParams>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const page = Math.max(1, Number.parseInt(params.page ?? "1", 10) || 1);
+  return {
+    title: "Deals",
+    description:
+      "Transactions in Europe's alternative-asset record — NPL sales, buyouts, rounds, credit facilities, and restructurings.",
+    alternates: { canonical: "https://continuumalternatives.com/deals" },
+    ...(page > 1 ? { robots: { index: false, follow: true } } : {}),
+  };
+}
 
 export default async function DealsIndexPage({
   searchParams,

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { countActiveWithoutGeo, listMapData } from "@continuum/db";
 import { EntityMap } from "@/components/map/entity-map";
+import { TrackView } from "@/components/track-view";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function MapPage() {
 
   return (
     <div className="h-[calc(100vh-52px)] w-full">
+      <TrackView event="map_opened" />
       <EntityMap data={data} missingCount={missingCount} />
     </div>
   );

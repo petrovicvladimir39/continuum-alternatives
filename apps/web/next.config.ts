@@ -13,4 +13,20 @@ const nextConfig: NextConfig = {
   transpilePackages: ["@continuum/db", "@continuum/pipeline", "@continuum/shared"],
 };
 
-export default nextConfig;
+// Sentry (Phase 23C): the runtime SDK initializes only when SENTRY_DSN is
+// set (instrumentation files); the build-time wrapper — source-map upload —
+// engages only when SENTRY_AUTH_TOKEN is present, so local/dev builds stay
+// untouched and fail nothing when Sentry is unconfigured.
+async function withOptionalSentry(config: NextConfig): Promise<NextConfig> {
+  if (!process.env.SENTRY_AUTH_TOKEN) {
+    return config;
+  }
+  const { withSentryConfig } = await import("@sentry/nextjs");
+  return withSentryConfig(config, {
+    ...(process.env.SENTRY_ORG ? { org: process.env.SENTRY_ORG } : {}),
+    ...(process.env.SENTRY_PROJECT ? { project: process.env.SENTRY_PROJECT } : {}),
+    silent: true,
+  });
+}
+
+export default withOptionalSentry(nextConfig);

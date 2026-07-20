@@ -12,6 +12,7 @@
     "@continuum/db": "workspace:*",
     "@continuum/pipeline": "workspace:*",
     "@continuum/shared": "workspace:*",
+    "@sentry/nextjs": "^10.66.0",
     "inngest": "^3.0.0",
     "maplibre-gl": "^5.24.0",
     "next": "^15.5.0",

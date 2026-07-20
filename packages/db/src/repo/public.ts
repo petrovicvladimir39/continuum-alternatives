@@ -769,3 +769,36 @@ export async function listPublicUrls(): Promise<
     updatedAt: row.updatedAt,
   }));
 }
+
+/** Active public-entity count per kind — sitemap chunk planning (Phase 23B). */
+export async function countPublicByKind(): Promise<Record<PublicKind, number>> {
+  const rows = await db
+    .select({ kind: entities.kind, n: sql<number>`count(*)::int` })
+    .from(entities)
+    .where(and(eq(entities.status, "active"), inArray(entities.kind, PUBLIC_KINDS)))
+    .groupBy(entities.kind);
+  const counts = { organization: 0, fund_vehicle: 0, deal: 0 } as Record<PublicKind, number>;
+  for (const row of rows) {
+    counts[row.kind as PublicKind] = Number(row.n);
+  }
+  return counts;
+}
+
+/** One stable-ordered page of public URLs for a kind (sitemap chunks). */
+export async function listPublicUrlsPage(
+  kind: PublicKind,
+  offset: number,
+  limit: number,
+): Promise<{ path: string; updatedAt: Date | null }[]> {
+  const rows = await db
+    .select({ slug: entities.slug, updatedAt: entities.updatedAt })
+    .from(entities)
+    .where(and(eq(entities.status, "active"), eq(entities.kind, kind)))
+    .orderBy(asc(entities.slug))
+    .offset(offset)
+    .limit(limit);
+  return rows.map((row) => ({
+    path: publicPathFor(kind, row.slug) ?? `/${row.slug}`,
+    updatedAt: row.updatedAt,
+  }));
+}

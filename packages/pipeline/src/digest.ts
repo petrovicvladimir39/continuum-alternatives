@@ -175,13 +175,14 @@ export async function persistDraft(composition: DigestComposition): Promise<stri
 
 export type ContactRow = typeof contacts.$inferSelect;
 
-/** Non-unsubscribed contacts whose channels intersect the digest's channels. */
+/** ACTIVE (double-opt-in confirmed) contacts whose channels intersect the digest's channels. */
 export function selectRecipients(
   allContacts: ContactRow[],
   digestChannels: string[],
 ): ContactRow[] {
   return allContacts.filter(
     (contact) =>
+      contact.status === "active" &&
       contact.unsubscribedAt === null &&
       (contact.channels ?? []).some((channel) => digestChannels.includes(channel)),
   );
@@ -282,6 +283,7 @@ export async function deliverDigest(digestId: string): Promise<DeliveryReport> {
     const { html } = buildDigestEmail(
       { digestDate: String(digest.digestDate), subject: digest.subject ?? "", sections },
       recipient.channels ?? [],
+      recipient.confirmationToken,
     );
     try {
       const { error } = await resendClient.emails.send({

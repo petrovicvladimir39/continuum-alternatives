@@ -31,12 +31,18 @@
     "export:facts": "pnpm --filter @continuum/pipeline export:facts",
     "export:documents": "pnpm --filter @continuum/pipeline export:documents",
     "extract:batch": "pnpm --filter @continuum/pipeline extract:batch",
-    "articles:compose": "pnpm --filter @continuum/pipeline articles:compose"
+    "articles:compose": "pnpm --filter @continuum/pipeline articles:compose",
+    "contacts:send-confirmations": "pnpm --filter @continuum/pipeline contacts:send-confirmations"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
     "prettier": "^3.0.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@sentry/cli"
+    ]
   }
 }

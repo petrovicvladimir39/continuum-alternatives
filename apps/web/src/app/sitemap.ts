@@ -1,41 +1,71 @@
 import type { MetadataRoute } from "next";
-import { db, desc, digests, eq, listArticleUrls, listPublicUrls } from "@continuum/db";
+import { sitemapChunkPlan } from "@continuum/shared";
+import {
+  countPublicByKind,
+  db,
+  desc,
+  digests,
+  eq,
+  listArticleUrls,
+  listPublicUrlsPage,
+} from "@continuum/db";
 
 const ORIGIN = "https://continuumalternatives.com";
+const CHUNK_SIZE = 1000;
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const sent = await db
-    .select({ digestDate: digests.digestDate, sentAt: digests.sentAt })
-    .from(digests)
-    .where(eq(digests.status, "sent"))
-    .orderBy(desc(digests.digestDate));
+/**
+ * Chunked sitemap (Phase 23B) — the corpus is 10k+ entities, so Next's
+ * generateSitemaps splits it: chunk 0 carries the core surfaces (static
+ * pages, news articles, digest issues, reports), chunks 1..n carry ≤1,000
+ * entity URLs each in stable slug order. robots.ts lists every chunk URL.
+ */
+export async function generateSitemaps(): Promise<{ id: number }[]> {
+  const counts = await countPublicByKind();
+  return sitemapChunkPlan(counts, CHUNK_SIZE).map((chunk) => ({ id: chunk.id }));
+}
 
-  // Every active public entity, grouped per kind by listPublicUrls ordering
-  // (companies, then deals, then funds). Next.js emits a single sitemap file,
-  // which is fine up to the protocol's 50k-URL cap; revisit with
-  // generateSitemaps() chunking if the entity count approaches that.
-  const entityUrls = await listPublicUrls();
-  const articleUrls = await listArticleUrls();
+export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+  const counts = await countPublicByKind();
+  const plan = sitemapChunkPlan(counts, CHUNK_SIZE);
+  const chunk = plan.find((c) => c.id === Number(id));
+  if (chunk === undefined) {
+    return [];
+  }
 
-  return [
-    { url: ORIGIN },
-    { url: `${ORIGIN}/news` },
-    ...articleUrls.map((article) => ({
-      url: `${ORIGIN}/news/${article.slug}`,
-      ...(article.publishedAt !== null ? { lastModified: article.publishedAt } : {}),
-    })),
-    { url: `${ORIGIN}/digest` },
-    { url: `${ORIGIN}/search` },
-    { url: `${ORIGIN}/companies` },
-    { url: `${ORIGIN}/funds` },
-    { url: `${ORIGIN}/deals` },
-    ...sent.map((digest) => ({
-      url: `${ORIGIN}/digest/${String(digest.digestDate)}`,
-      ...(digest.sentAt !== null ? { lastModified: digest.sentAt } : {}),
-    })),
-    ...entityUrls.map((entry) => ({
-      url: `${ORIGIN}${entry.path}`,
-      ...(entry.updatedAt !== null ? { lastModified: entry.updatedAt } : {}),
-    })),
-  ];
+  if (chunk.kind === "core") {
+    const [sent, articleUrls] = await Promise.all([
+      db
+        .select({ digestDate: digests.digestDate, sentAt: digests.sentAt })
+        .from(digests)
+        .where(eq(digests.status, "sent"))
+        .orderBy(desc(digests.digestDate)),
+      listArticleUrls(),
+    ]);
+    return [
+      { url: ORIGIN },
+      { url: `${ORIGIN}/news` },
+      { url: `${ORIGIN}/subscribe` },
+      { url: `${ORIGIN}/digest` },
+      { url: `${ORIGIN}/search` },
+      { url: `${ORIGIN}/companies` },
+      { url: `${ORIGIN}/funds` },
+      { url: `${ORIGIN}/deals` },
+      { url: `${ORIGIN}/reports` },
+      { url: `${ORIGIN}/reports/serbian-insolvency-monitor-q3-2026` },
+      ...articleUrls.map((article) => ({
+        url: `${ORIGIN}/news/${article.slug}`,
+        ...(article.publishedAt !== null ? { lastModified: article.publishedAt } : {}),
+      })),
+      ...sent.map((digest) => ({
+        url: `${ORIGIN}/digest/${String(digest.digestDate)}`,
+        ...(digest.sentAt !== null ? { lastModified: digest.sentAt } : {}),
+      })),
+    ];
+  }
+
+  const entries = await listPublicUrlsPage(chunk.kind, chunk.offset, CHUNK_SIZE);
+  return entries.map((entry) => ({
+    url: `${ORIGIN}${entry.path}`,
+    ...(entry.updatedAt !== null ? { lastModified: entry.updatedAt } : {}),
+  }));
 }

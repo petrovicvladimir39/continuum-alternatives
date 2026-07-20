@@ -22,6 +22,8 @@ export {
   FOOTER_PLATFORM_LINKS,
   diversifyRail,
   pickRotatedLead,
+  sitemapChunkPlan,
+  type SitemapChunk,
   timeAgo,
   visibleHomeSections,
   validateReportGate,

@@ -167,6 +167,9 @@ async function main() {
       consentSource: "operator",
       consentedAt: new Date(),
       unsubscribedAt: null,
+      // Phase 23: delivery requires the double-opt-in confirmed state.
+      status: "active",
+      confirmationToken: "00000000-0000-0000-0000-000000000000",
       createdAt: new Date(),
       ...overrides,
     }) as ContactRow;
@@ -174,14 +177,15 @@ async function main() {
     [
       contact({ id: "a", channels: ["distressed"] }),
       contact({ id: "b", channels: ["vc_founders"] }),
-      contact({ id: "c", channels: ["distressed"], unsubscribedAt: new Date() }),
+      contact({ id: "c", channels: ["distressed"], unsubscribedAt: new Date(), status: "unsubscribed" }),
       contact({ id: "d", channels: ["private_credit", "pe"] }),
+      contact({ id: "e", channels: ["distressed"], status: "pending_confirmation" }),
     ],
     ["distressed", "private_credit"],
   );
   check(
     recipients.map((r) => r.id).join(",") === "a,d",
-    `channel intersection + unsubscribed filter (${recipients.map((r) => r.id).join(",")})`,
+    `channel intersection + status filter (${recipients.map((r) => r.id).join(",")})`,
   );
 
   const email = buildDigestEmail(
