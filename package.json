@@ -19,7 +19,19 @@
     "universe:verify": "pnpm --filter @continuum/pipeline universe:verify",
     "geocode:backfill": "pnpm --filter @continuum/pipeline geocode:backfill",
     "logos:backfill": "pnpm --filter @continuum/pipeline logos:backfill",
-    "enrich:batch": "pnpm --filter @continuum/pipeline enrich:batch"
+    "enrich:batch": "pnpm --filter @continuum/pipeline enrich:batch",
+    "gleif:harvest": "pnpm --filter @continuum/pipeline gleif:harvest",
+    "registers:harvest": "pnpm --filter @continuum/pipeline registers:harvest",
+    "ch:enrich": "pnpm --filter @continuum/pipeline ch:enrich",
+    "wikidata:harvest": "pnpm --filter @continuum/pipeline wikidata:harvest",
+    "sources:discover": "pnpm --filter @continuum/pipeline sources:discover",
+    "portals:seed": "pnpm --filter @continuum/pipeline portals:seed",
+    "export:entities": "pnpm --filter @continuum/pipeline export:entities",
+    "export:edges": "pnpm --filter @continuum/pipeline export:edges",
+    "export:facts": "pnpm --filter @continuum/pipeline export:facts",
+    "export:documents": "pnpm --filter @continuum/pipeline export:documents",
+    "extract:batch": "pnpm --filter @continuum/pipeline extract:batch",
+    "articles:compose": "pnpm --filter @continuum/pipeline articles:compose"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
