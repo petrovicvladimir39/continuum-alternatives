@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { orgEnrichmentOf } from "@continuum/db";
+import { listClassificationsForEntity, orgEnrichmentOf } from "@continuum/db";
 import type { PublicConnection, PublicProfile, SimilarEntity } from "@continuum/db";
-import { hasCyrillic, transliterateDisplay } from "@continuum/shared";
+import { classifiedLabel, hasCyrillic, strategyBySlug, transliterateDisplay } from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
@@ -86,7 +86,16 @@ function ProfileStats({ profile }: { profile: PublicProfile }) {
       blocks.push({ value: formatAmount(fund.targetSize, fund.currency), label: "Target size" });
     }
     if (fund.strategy !== null) {
-      blocks.push({ value: fund.strategy.replaceAll("_", " "), label: "Strategy" });
+      // Phase 26: strategy holds taxonomy slugs — render the taxonomy label
+      // (class · strategy) prominently; unmapped legacy raw shows verbatim.
+      const resolved = strategyBySlug(fund.strategy);
+      blocks.push({
+        value:
+          resolved !== null
+            ? `${resolved.assetClass.label} · ${resolved.strategy.label}`
+            : fund.strategy.replaceAll("_", " "),
+        label: "Strategy",
+      });
     }
   }
 
@@ -182,7 +191,7 @@ function ActivityTimeline({ facts }: { facts: PublicProfile["facts"] }) {
   );
 }
 
-export function EntityProfile({
+export async function EntityProfile({
   profile,
   similar,
 }: {
@@ -192,6 +201,11 @@ export function EntityProfile({
   const { entity, tags, facts, connections, organization, mentions } = profile;
   const kindLabel = KIND_LABELS[entity.kind as keyof typeof KIND_LABELS] ?? entity.kind;
   const country = countryName(entity.country);
+  // Phase 26D: approved taxonomy classifications render as NEUTRAL Tags
+  // with the class prefix — no new colors per class.
+  const classifications = (await listClassificationsForEntity(entity.id)).filter(
+    (c) => c.status === "approved",
+  );
   const connectionGroups = groupConnections(connections);
   const website = organization?.website ?? null;
   const websiteHost = website !== null ? website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/.*$/, "") : null;
@@ -224,6 +238,11 @@ export function EntityProfile({
                 <span className="type-label">{organization.hqCity}</span>
               </>
             ) : null}
+            {classifications.map((c) => (
+              <Tag key={`${c.assetClass}:${c.strategy}`} variant="neutral">
+                {classifiedLabel(c.assetClass, c.strategy)}
+              </Tag>
+            ))}
             {tags.map((tag) => (
               <Tag key={tag}>{tag}</Tag>
             ))}

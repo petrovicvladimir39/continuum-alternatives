@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { diversifyRail, verticalBySlug, VERTICALS } from "@continuum/shared";
+import {
+  assetClassBySlug,
+  CLASS_LEVEL,
+  diversifyRail,
+  meetsCoverageThreshold,
+  strategyBySlug,
+  verticalBySlug,
+  VERTICALS,
+} from "@continuum/shared";
 import {
   administratorRanking,
   courtRanking,
   listAskFeed,
   listAuctions,
   listPublishedArticles,
+  strategyCoverage,
+  topEntitiesForClassification,
   topEntitiesForVertical,
   type FeedItem,
   type RankingRow,
@@ -29,6 +39,50 @@ export function generateStaticParams(): { vertical: string }[] {
   return VERTICALS.map((v) => ({ vertical: v.slug }));
 }
 
+/**
+ * Taxonomy-front resolution (Phase 26C): slugs that are not curated
+ * verticals resolve against the taxonomy (strategy slug, or class slug for
+ * class-level fronts) and render the generic front ONLY when coverage
+ * clears the threshold — never below it.
+ */
+async function resolveTaxonomyFront(slug: string): Promise<{
+  label: string;
+  scope: string;
+  assetClass: string;
+  strategies: string[] | null;
+} | null> {
+  const strategyHit = strategyBySlug(slug);
+  const classHit = strategyHit === null ? assetClassBySlug(slug) : null;
+  if (strategyHit === null && classHit === null) {
+    return null;
+  }
+  const coverage = await strategyCoverage();
+  if (strategyHit !== null) {
+    const row = coverage.find(
+      (c) => c.assetClass === strategyHit.assetClass.slug && c.strategy === strategyHit.strategy.slug,
+    );
+    if (row === undefined || !meetsCoverageThreshold(row)) {
+      return null;
+    }
+    return {
+      label: `${strategyHit.assetClass.label} · ${strategyHit.strategy.label}`,
+      scope: `${strategyHit.strategy.label} coverage within ${strategyHit.assetClass.label} — classified entities and their sourced record.`,
+      assetClass: strategyHit.assetClass.slug,
+      strategies: [strategyHit.strategy.slug],
+    };
+  }
+  const row = coverage.find((c) => c.assetClass === classHit!.slug && c.strategy === CLASS_LEVEL);
+  if (row === undefined || !meetsCoverageThreshold(row)) {
+    return null;
+  }
+  return {
+    label: classHit!.label,
+    scope: `${classHit!.label} across Europe — classified entities and their sourced record.`,
+    assetClass: classHit!.slug,
+    strategies: null,
+  };
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -36,13 +90,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { vertical: slug } = await params;
   const vertical = verticalBySlug(slug);
-  if (vertical === null) {
-    return { title: "Markets" };
+  if (vertical !== null) {
+    return {
+      title: vertical.label,
+      description: `${vertical.scope} Live coverage from Continuum Alternatives — the map of European alternative assets.`,
+    };
   }
-  return {
-    title: vertical.label,
-    description: `${vertical.scope} Live coverage from Continuum Alternatives — the map of European alternative assets.`,
-  };
+  const taxonomyFront = await resolveTaxonomyFront(slug);
+  if (taxonomyFront !== null) {
+    return { title: taxonomyFront.label, description: taxonomyFront.scope };
+  }
+  return { title: "Markets" };
 }
 
 function WireRow({ item }: { item: FeedItem }) {
@@ -92,16 +150,43 @@ export default async function MarketFrontPage({
   params: Promise<{ vertical: string }>;
 }) {
   const { vertical: slug } = await params;
-  const vertical = verticalBySlug(slug);
+  let vertical = verticalBySlug(slug);
   if (vertical === null) {
-    notFound();
+    // Coverage-gated taxonomy front (26C): renders only above threshold.
+    const taxonomyFront = await resolveTaxonomyFront(slug);
+    if (taxonomyFront === null) {
+      notFound();
+    }
+    vertical = {
+      slug,
+      label: taxonomyFront.label,
+      scope: taxonomyFront.scope,
+      channels: [],
+      tags: [],
+      factTypes: [],
+      modules: [],
+      taxonomy: { assetClass: taxonomyFront.assetClass, strategies: taxonomyFront.strategies },
+    };
   }
 
-  const [articles, feed, topEntities] = await Promise.all([
+  // Classification drives entity rows where a taxonomy mapping exists
+  // (falling back to tags while classified coverage is thin); the LP &
+  // Vendors fronts stay channel/tag-driven by design.
+  const [articles, feed, classifiedEntities, taggedEntities] = await Promise.all([
     listPublishedArticles(20),
-    listAskFeed({ channels: vertical.channels, limit: 24 }),
-    topEntitiesForVertical(vertical.tags, 8),
+    vertical.channels.length > 0
+      ? listAskFeed({ channels: vertical.channels, limit: 24 })
+      : listAskFeed({
+          assetClasses: vertical.taxonomy?.strategies == null ? [vertical.taxonomy!.assetClass] : [],
+          strategies: vertical.taxonomy?.strategies ?? [],
+          limit: 24,
+        }),
+    vertical.taxonomy !== undefined
+      ? topEntitiesForClassification(vertical.taxonomy.assetClass, vertical.taxonomy.strategies, 8)
+      : Promise.resolve([]),
+    vertical.tags.length > 0 ? topEntitiesForVertical(vertical.tags, 8) : Promise.resolve([]),
   ]);
+  const topEntities = classifiedEntities.length > 0 ? classifiedEntities : taggedEntities;
   const verticalArticles = articles.filter((article) =>
     article.channels.some((channel) => vertical.channels.includes(channel)),
   );

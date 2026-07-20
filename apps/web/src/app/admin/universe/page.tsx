@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { db, sql } from "@continuum/db";
+import { db, sql, strategyCoverage } from "@continuum/db";
+import { classifiedLabel } from "@continuum/shared";
 import { bulkTagAction } from "@/app/admin/actions";
 import { inputClass, labelClass } from "@/components/admin/form-styles";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,14 @@ export const dynamic = "force-dynamic";
  * and CSV downloads wired to the shared export layer.
  */
 
-type Search = { country?: string; tag?: string; status?: string; kind?: string };
+type Search = {
+  country?: string;
+  tag?: string;
+  status?: string;
+  kind?: string;
+  /** Taxonomy strategy or asset-class slug (Phase 26D). */
+  strategy?: string;
+};
 
 export default async function AdminUniversePage({
   searchParams,
@@ -26,8 +34,11 @@ export default async function AdminUniversePage({
   const tag = params.tag ?? "";
   const status = params.status ?? "";
   const kind = params.kind ?? "";
-  const hasFilter = country !== "" || tag !== "" || status !== "" || kind !== "";
+  const strategy = params.strategy ?? "";
+  const hasFilter =
+    country !== "" || tag !== "" || status !== "" || kind !== "" || strategy !== "";
 
+  const coverage = await strategyCoverage();
   const [byCountry, byClass, byTag, recent] = await Promise.all([
     db.execute(sql`
       SELECT coalesce(e.country, '—') AS country, count(*)::int AS n,
@@ -66,6 +77,11 @@ export default async function AdminUniversePage({
       AND (${status === "" ? null : status}::text IS NULL OR e.status = ${status === "" ? null : status})
       AND (${tag === "" ? null : tag}::text IS NULL OR EXISTS
              (SELECT 1 FROM entity_tags t WHERE t.entity_id = e.id AND t.tag = ${tag === "" ? null : tag}))
+      AND (${strategy === "" ? null : strategy}::text IS NULL OR EXISTS
+             (SELECT 1 FROM entity_classifications c WHERE c.entity_id = e.id
+                AND c.status = 'approved'
+                AND (c.strategy = ${strategy === "" ? null : strategy}
+                     OR c.asset_class = ${strategy === "" ? null : strategy})))
     ORDER BY e.country NULLS LAST, e.name
     LIMIT 200
   `);
@@ -140,6 +156,30 @@ export default async function AdminUniversePage({
       </div>
 
       <div className="mt-6 border border-line p-3">
+        <h2 className="type-label mb-2">Classification coverage (mirrors /coverage)</h2>
+        <div className="grid grid-cols-2 gap-x-8 sm:grid-cols-3">
+          {coverage
+            .sort((a, b) => b.entities - a.entities)
+            .map((row) => (
+              <div
+                key={`${row.assetClass}:${row.strategy}`}
+                className="flex items-baseline justify-between border-t border-line py-1 text-[12px]"
+              >
+                <Link
+                  href={`/admin/universe?strategy=${row.strategy === "" ? row.assetClass : row.strategy}`}
+                  className="truncate text-accent hover:underline"
+                >
+                  {classifiedLabel(row.assetClass, row.strategy)}
+                </Link>
+                <span className="type-data ml-2 shrink-0">
+                  {row.entities} · {row.signals}s
+                </span>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      <div className="mt-6 border border-line p-3">
         <h2 className="type-label mb-2">Recent imports</h2>
         <table className="w-full text-[13px]">
           <tbody>
@@ -176,6 +216,18 @@ export default async function AdminUniversePage({
               Tag
             </label>
             <input id="u-tag" name="tag" className={inputClass} defaultValue={tag} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="u-strategy">
+              Strategy / class
+            </label>
+            <input
+              id="u-strategy"
+              name="strategy"
+              className={inputClass}
+              placeholder="e.g. clo, real_assets"
+              defaultValue={strategy}
+            />
           </div>
           <div>
             <label className={labelClass} htmlFor="u-status">

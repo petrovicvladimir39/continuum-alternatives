@@ -17,10 +17,28 @@ export async function listAskFeed(opts: {
   channels?: string[];
   countries?: string[];
   factTypes?: string[];
+  /** Taxonomy strategy slugs — facts whose entity holds an APPROVED classification (Phase 26C). */
+  strategies?: string[];
+  /** Taxonomy asset-class slugs — class-level filter via approved classifications. */
+  assetClasses?: string[];
   entityQuery?: string;
   limit?: number;
 }): Promise<AskFeed> {
   const conditions = [eq(timelineFacts.status, "approved")];
+  if (opts.strategies !== undefined && opts.strategies.length > 0) {
+    conditions.push(
+      sql`EXISTS (SELECT 1 FROM entity_classifications c
+            WHERE c.entity_id = ${entities.id} AND c.status = 'approved'
+              AND c.strategy IN (${sql.join(opts.strategies.map((s) => sql`${s}`), sql`, `)}))`,
+    );
+  }
+  if (opts.assetClasses !== undefined && opts.assetClasses.length > 0) {
+    conditions.push(
+      sql`EXISTS (SELECT 1 FROM entity_classifications c
+            WHERE c.entity_id = ${entities.id} AND c.status = 'approved'
+              AND c.asset_class IN (${sql.join(opts.assetClasses.map((s) => sql`${s}`), sql`, `)}))`,
+    );
+  }
   if (opts.channels !== undefined && opts.channels.length > 0) {
     conditions.push(
       sql`${timelineFacts.audienceChannels} && ARRAY[${sql.join(

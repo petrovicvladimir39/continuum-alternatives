@@ -61,7 +61,11 @@ export const fundVehicles = pgTable("fund_vehicles", {
   vintageYear: integer("vintage_year"),
   targetSize: numeric("target_size"),
   currency: char("currency", { length: 3 }),
+  // Phase 26A: strategy holds TAXONOMY slugs (alt-taxonomy.ts); the
+  // pre-taxonomy free text was preserved verbatim in strategy_raw by the
+  // migration (unmappable values keep strategy NULL + raw).
   strategy: text("strategy"),
+  strategyRaw: text("strategy_raw"),
   status: text("status"),
 });
 

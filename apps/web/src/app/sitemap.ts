@@ -57,6 +57,7 @@ export default async function sitemap({ id }: { id: number }): Promise<MetadataR
       { url: `${ORIGIN}/solutions/founders` },
       { url: `${ORIGIN}/solutions/institutions` },
       { url: `${ORIGIN}/ecosystem` },
+      { url: `${ORIGIN}/coverage` },
       { url: `${ORIGIN}/methodology` },
       { url: `${ORIGIN}/subscribe` },
       { url: `${ORIGIN}/digest` },

@@ -1,3 +1,4 @@
+import { ALT_TAXONOMY, CLASS_LEVEL } from "./alt-taxonomy";
 import { EUROPE_COUNTRY_NAMES } from "./countries";
 
 /**
@@ -15,7 +16,7 @@ import { EUROPE_COUNTRY_NAMES } from "./countries";
  */
 
 export type AskMatch = {
-  kind: "channel" | "country" | "factType";
+  kind: "channel" | "country" | "factType" | "strategy";
   value: string;
   label: string;
   /** The query tokens that produced this filter — chip removal deletes them. */
@@ -26,6 +27,10 @@ export type AskFilters = {
   channels: string[];
   countries: string[];
   factTypes: string[];
+  /** Taxonomy strategy slugs (Phase 26C). */
+  strategies: string[];
+  /** Taxonomy asset-class slugs when a class-level synonym matched. */
+  assetClasses: string[];
   freeText: string;
   matches: AskMatch[];
 };
@@ -119,7 +124,7 @@ const FACT_TYPE_SYNONYMS: Record<string, { types: string[]; label: string }> = {
 };
 
 type SynonymEntry = {
-  kind: "channel" | "country" | "factType";
+  kind: "channel" | "country" | "factType" | "strategy";
   value: string;
   label: string;
 };
@@ -157,6 +162,36 @@ function buildPhraseTable(): Map<string, SynonymEntry> {
       label: entry.label,
     });
   }
+  // Taxonomy synonyms (Phase 26C). Channels/countries/fact-types keep
+  // precedence on collisions ("venture capital" stays the channel — the
+  // channel front already carries that content); taxonomy fills the rest
+  // ("cat bonds", "CLOs", "music royalties", "farmland" …). Strategy match
+  // values are "<class>:<strategy>" ('' strategy = class-level); chip labels
+  // carry the class prefix ("Climate & Insurance · Cat Bonds & ILS").
+  for (const assetClass of ALT_TAXONOMY) {
+    for (const synonym of assetClass.synonyms) {
+      const key = synonym.split(/\s+/).map(normalizeAskToken).join(" ");
+      if (!table.has(key)) {
+        table.set(key, {
+          kind: "strategy",
+          value: `${assetClass.slug}:${CLASS_LEVEL}`,
+          label: assetClass.label,
+        });
+      }
+    }
+    for (const strategy of assetClass.strategies) {
+      for (const synonym of strategy.synonyms) {
+        const key = synonym.split(/\s+/).map(normalizeAskToken).join(" ");
+        if (!table.has(key)) {
+          table.set(key, {
+            kind: "strategy",
+            value: `${assetClass.slug}:${strategy.slug}`,
+            label: `${assetClass.label} · ${strategy.label}`,
+          });
+        }
+      }
+    }
+  }
   return table;
 }
 
@@ -175,21 +210,40 @@ export function parseAsk(query: string): AskFilters | null {
   }
   const normalized = rawTokens.map(normalizeAskToken);
 
-  const filters: AskFilters = { channels: [], countries: [], factTypes: [], freeText: "", matches: [] };
+  const filters: AskFilters = {
+    channels: [],
+    countries: [],
+    factTypes: [],
+    strategies: [],
+    assetClasses: [],
+    freeText: "",
+    matches: [],
+  };
   const freeTokens: string[] = [];
   let i = 0;
 
   const addMatch = (entry: SynonymEntry, tokens: string[]) => {
-    const values = entry.kind === "factType" ? entry.value.split(",") : [entry.value];
-    const target =
-      entry.kind === "channel"
-        ? filters.channels
-        : entry.kind === "country"
-          ? filters.countries
-          : filters.factTypes;
-    for (const value of values) {
-      if (!target.includes(value)) {
-        target.push(value);
+    if (entry.kind === "strategy") {
+      const [classSlug, strategySlug] = entry.value.split(":");
+      if (strategySlug !== undefined && strategySlug !== "") {
+        if (!filters.strategies.includes(strategySlug)) {
+          filters.strategies.push(strategySlug);
+        }
+      } else if (classSlug !== undefined && !filters.assetClasses.includes(classSlug)) {
+        filters.assetClasses.push(classSlug);
+      }
+    } else {
+      const values = entry.kind === "factType" ? entry.value.split(",") : [entry.value];
+      const target =
+        entry.kind === "channel"
+          ? filters.channels
+          : entry.kind === "country"
+            ? filters.countries
+            : filters.factTypes;
+      for (const value of values) {
+        if (!target.includes(value)) {
+          target.push(value);
+        }
       }
     }
     // One chip per distinct filter value; repeated mentions merge tokens.
@@ -231,6 +285,8 @@ export function parseAsk(query: string): AskFilters | null {
     filters.channels.length === 0 &&
     filters.countries.length === 0 &&
     filters.factTypes.length === 0 &&
+    filters.strategies.length === 0 &&
+    filters.assetClasses.length === 0 &&
     filters.freeText === ""
   ) {
     return null;

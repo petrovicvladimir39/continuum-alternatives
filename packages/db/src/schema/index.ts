@@ -11,3 +11,4 @@ export * from "./geocodes";
 export * from "./articles";
 export * from "./members";
 export * from "./saved-views";
+export * from "./classifications";

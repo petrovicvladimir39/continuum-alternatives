@@ -23,6 +23,12 @@ export type Vertical = {
   tags: string[];
   factTypes: string[];
   modules: VerticalModule[];
+  /**
+   * Phase 26C: the four asset-class fronts are DRIVEN BY CLASSIFICATION
+   * (taxonomy) where set; LP & Vendors carry no mapping — they are
+   * audience/channel fronts, not asset classes (documented distinction).
+   */
+  taxonomy?: { assetClass: string; strategies: string[] | null };
 };
 
 export const VERTICALS: Vertical[] = [
@@ -34,6 +40,7 @@ export const VERTICALS: Vertical[] = [
     tags: ["gp_pe", "gp_secondaries", "gp_search_fund", "gp_infra", "gp_re"],
     factTypes: ["acquisition", "fund_close"],
     modules: ["latest_deals"],
+    taxonomy: { assetClass: "private_equity", strategies: null },
   },
   {
     slug: "venture-capital",
@@ -43,6 +50,7 @@ export const VERTICALS: Vertical[] = [
     tags: ["gp_vc", "cvc", "accelerator", "incubator", "angel_network"],
     factTypes: ["funding_round", "fund_close"],
     modules: ["latest_deals"],
+    taxonomy: { assetClass: "private_equity", strategies: ["venture_capital"] },
   },
   {
     slug: "private-credit",
@@ -52,6 +60,7 @@ export const VERTICALS: Vertical[] = [
     tags: ["gp_credit", "non_bank_lender", "leasing", "factoring", "bank"],
     factTypes: ["credit_event", "fund_close"],
     modules: ["latest_deals"],
+    taxonomy: { assetClass: "private_credit", strategies: null },
   },
   {
     slug: "distressed",
@@ -61,6 +70,7 @@ export const VERTICALS: Vertical[] = [
     tags: ["gp_distressed", "servicer", "state_amc", "bank_workout_unit", "collection_agency"],
     factTypes: ["insolvency_opened", "asset_sale_announced"],
     modules: ["auctions", "court_rankings"],
+    taxonomy: { assetClass: "private_credit", strategies: ["distressed_debt", "npl"] },
   },
   {
     slug: "lps-institutions",

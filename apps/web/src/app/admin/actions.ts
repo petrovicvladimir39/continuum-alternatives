@@ -44,6 +44,11 @@ import {
   type DeliveryReport,
 } from "@continuum/pipeline";
 import { contacts, digestItems, digests } from "@continuum/db";
+import {
+  decideClassificationGroup,
+  removeClassification,
+  upsertClassification,
+} from "@continuum/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "./form-state";
@@ -608,6 +613,57 @@ export async function toggleSourceActiveAction(formData: FormData): Promise<void
     .where(eq(sources.id, sourceId));
   revalidatePath("/admin/sources");
   revalidatePath(`/admin/sources/${sourceId}`);
+}
+
+/**
+ * Classification review + operator editing (Phase 26). Keyword proposals
+ * never auto-approve — these actions are the human gate; operator-added
+ * rows are approved at source.
+ */
+export async function classificationGroupAction(formData: FormData): Promise<void> {
+  const assetClass = text(formData, "assetClass");
+  const strategy = formData.get("strategy");
+  const decision = text(formData, "decision") === "approved" ? "approved" : "rejected";
+  if (assetClass === "" || typeof strategy !== "string") {
+    return;
+  }
+  await decideClassificationGroup(assetClass, strategy, decision);
+  revalidatePath("/admin/review");
+  revalidatePath("/admin/universe");
+  revalidatePath("/coverage");
+}
+
+export async function addEntityClassificationAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  const slug = text(formData, "slug");
+  // The editor posts one "<class>:<strategy>" pair ('' strategy = class-level).
+  const pair = text(formData, "pair");
+  const [assetClass, strategy] = pair.includes(":") ? pair.split(":") : ["", undefined];
+  if (entityId === "" || !assetClass || strategy === undefined) {
+    return;
+  }
+  await upsertClassification({
+    entityId,
+    assetClass,
+    strategy,
+    source: "operator",
+    status: "approved",
+  });
+  revalidatePath(`/admin/entities/${slug}`);
+  revalidatePath("/coverage");
+}
+
+export async function removeEntityClassificationAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  const slug = text(formData, "slug");
+  const assetClass = text(formData, "assetClass");
+  const strategy = formData.get("strategy");
+  if (entityId === "" || assetClass === "" || typeof strategy !== "string") {
+    return;
+  }
+  await removeClassification(entityId, assetClass, strategy);
+  revalidatePath(`/admin/entities/${slug}`);
+  revalidatePath("/coverage");
 }
 
 /**

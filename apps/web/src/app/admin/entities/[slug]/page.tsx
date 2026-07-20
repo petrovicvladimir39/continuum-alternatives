@@ -22,6 +22,7 @@ import { EdgeForm } from "./edge-form";
 import { EntityEditForm } from "./edit-form";
 import { FactForm } from "./fact-form";
 import { TagEditor } from "./tag-editor";
+import { ClassificationEditor } from "./classification-editor";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -80,6 +81,8 @@ export default async function EntityDetailPage({ params }: { params: Promise<{ s
         <Section title="Tags">
           <TagEditor slug={slug} tags={tags} />
         </Section>
+
+        <ClassificationEditor entityId={entity.id} slug={slug} />
 
         <Section title="Aliases">
           {aliasRows.length === 0 ? (

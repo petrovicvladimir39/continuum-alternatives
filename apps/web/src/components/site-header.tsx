@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_TREE } from "@continuum/shared";
+import { NAV_TREE, type NavLeaf } from "@continuum/shared";
 import { QuickSearch } from "@/components/quick-search";
 
 /**
@@ -19,7 +19,14 @@ export type HeaderIdentity =
   | { status: "anon" }
   | { status: "signed_in"; name: string };
 
-export function SiteHeader({ identity = { status: "off" } }: { identity?: HeaderIdentity }) {
+export function SiteHeader({
+  identity = { status: "off" },
+  marketExtras = [],
+}: {
+  identity?: HeaderIdentity;
+  /** Coverage-gated taxonomy fronts appended to Markets ▾ (Phase 26C). */
+  marketExtras?: NavLeaf[];
+}) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const leafClass = (href: string) =>
@@ -51,7 +58,7 @@ export function SiteHeader({ identity = { status: "off" } }: { identity?: Header
                   {node.label} <span className="text-[10px] text-ink-muted">▾</span>
                 </summary>
                 <div className="left-0 top-full z-50 mt-1 w-full border border-line bg-surface py-1 sm:absolute sm:w-auto sm:min-w-[230px]">
-                  {node.items.map((item) => (
+                  {(node.label === "Markets" ? [...node.items, ...marketExtras] : node.items).map((item) => (
                     <Link
                       key={`${node.label}:${item.href}`}
                       href={item.href}

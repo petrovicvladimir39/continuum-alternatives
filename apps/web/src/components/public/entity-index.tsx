@@ -5,12 +5,18 @@ import {
   PUBLIC_PAGE_SIZE,
   type PublicKind,
 } from "@continuum/db";
-import { hasCyrillic, transliterateDisplay } from "@continuum/shared";
+import { ALT_TAXONOMY, hasCyrillic, transliterateDisplay } from "@continuum/shared";
 import { DataTable } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
 import { countryName } from "@/lib/public-labels";
 
-export type IndexSearchParams = { page?: string; country?: string; tag?: string };
+export type IndexSearchParams = {
+  page?: string;
+  country?: string;
+  tag?: string;
+  /** Taxonomy strategy (or asset-class) slug — Phase 26D. */
+  strategy?: string;
+};
 
 function pageHref(
   basePath: string,
@@ -46,9 +52,10 @@ export async function EntityIndex({
   const page = Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1);
   const country = searchParams.country ?? "";
   const tag = searchParams.tag ?? "";
+  const strategy = searchParams.strategy ?? "";
 
   const [listing, options] = await Promise.all([
-    listPublicEntities(kind, { page, country, tag }),
+    listPublicEntities(kind, { page, country, tag, strategy }),
     listPublicFilterOptions(kind),
   ]);
 
@@ -78,6 +85,26 @@ export async function EntityIndex({
           </select>
         </label>
         <label className="block">
+          <span className="type-label">Strategy</span>
+          <select
+            name="strategy"
+            defaultValue={strategy}
+            className="mt-1 block rounded-sm border border-line bg-surface px-2 py-1.5 text-[13px]"
+          >
+            <option value="">All strategies</option>
+            {ALT_TAXONOMY.map((assetClass) => (
+              <optgroup key={assetClass.slug} label={assetClass.label}>
+                <option value={assetClass.slug}>{assetClass.label} (all)</option>
+                {assetClass.strategies.map((s) => (
+                  <option key={s.slug} value={s.slug}>
+                    {s.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </label>
+        <label className="block">
           <span className="type-label">Tag</span>
           <select
             name="tag"
@@ -98,7 +125,7 @@ export async function EntityIndex({
         >
           Filter
         </button>
-        {country !== "" || tag !== "" ? (
+        {country !== "" || tag !== "" || strategy !== "" ? (
           <Link href={basePath} className="type-small text-ink-muted hover:text-accent">
             Clear
           </Link>

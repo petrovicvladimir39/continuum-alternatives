@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CHANNELS } from "@continuum/shared";
+import { CHANNELS, classifiedLabel } from "@continuum/shared";
 import {
   alias,
   db,
@@ -8,6 +8,7 @@ import {
   entities,
   eq,
   listArticlesByStatus,
+  listProposedClassifications,
   ne,
   organizations,
   sources,
@@ -17,6 +18,7 @@ import {
 import {
   approveAllVisibleAction,
   approveEdgeAction,
+  classificationGroupAction,
   approveEnrichmentAction,
   approveFactAction,
   deleteProvisionalAction,
@@ -46,7 +48,7 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-const FILTERS = ["all", "facts", "edges", "articles", ...CHANNELS] as const;
+const FILTERS = ["all", "facts", "edges", "articles", "classifications", ...CHANNELS] as const;
 
 export default async function ReviewPage({
   searchParams,
@@ -60,6 +62,14 @@ export default async function ReviewPage({
   const showEdges = filter === "all" || filter === "edges";
   const showArticles = filter === "all" || filter === "articles";
   const proposedArticles = showArticles ? await listArticlesByStatus("proposed") : [];
+  const showClassifications = filter === "all" || filter === "classifications";
+  const proposedClassifications = showClassifications ? await listProposedClassifications() : [];
+  // Grouped by (class, strategy) for batch decisions (Phase 26B).
+  const classificationGroups = new Map<string, typeof proposedClassifications>();
+  for (const row of proposedClassifications) {
+    const key = `${row.assetClass}|${row.strategy}`;
+    classificationGroups.set(key, [...(classificationGroups.get(key) ?? []), row]);
+  }
 
   const sourceEntity = alias(entities, "source_entity");
   const targetEntity = alias(entities, "target_entity");
@@ -210,6 +220,60 @@ export default async function ReviewPage({
       )}
 
       <div className="mt-6">
+        {classificationGroups.size > 0 ? (
+          <Section title="Proposed classifications (keyword pass)">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Keyword inferences never auto-approve. Approve or reject per strategy group;
+              individual outliers can be corrected later on the entity page.
+            </p>
+            <div className="space-y-4">
+              {[...classificationGroups.entries()].map(([key, group]) => {
+                const [assetClass, strategy] = key.split("|");
+                return (
+                  <div key={key} className="border border-line bg-surface p-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-3">
+                      <span className="type-h3">
+                        {classifiedLabel(assetClass ?? "", strategy ?? "")}
+                        <span className="type-data ml-2 text-ink-muted">{group.length} proposed</span>
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <form action={classificationGroupAction}>
+                          <input type="hidden" name="assetClass" value={assetClass} />
+                          <input type="hidden" name="strategy" value={strategy} />
+                          <input type="hidden" name="decision" value="approved" />
+                          <Button type="submit">Approve all</Button>
+                        </form>
+                        <form action={classificationGroupAction}>
+                          <input type="hidden" name="assetClass" value={assetClass} />
+                          <input type="hidden" name="strategy" value={strategy} />
+                          <input type="hidden" name="decision" value="rejected" />
+                          <Button type="submit" variant="ghost">
+                            Reject all
+                          </Button>
+                        </form>
+                      </span>
+                    </div>
+                    <p className="mt-2 text-[12px] leading-[1.6] text-ink-secondary">
+                      {group.slice(0, 12).map((row, index) => (
+                        <span key={row.entityId + row.strategy}>
+                          {index > 0 ? ", " : ""}
+                          <Link
+                            href={`/admin/entities/${row.entitySlug}`}
+                            className="text-accent hover:underline"
+                          >
+                            {row.entityName}
+                          </Link>
+                        </span>
+                      ))}
+                      {group.length > 12 ? ` … +${group.length - 12} more` : ""}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </Section>
+        ) : null}
+
         {proposedArticles.length > 0 ? (
           <Section title="Proposed articles (News Desk)">
             <p className="mb-3 text-[13px] text-ink-muted">

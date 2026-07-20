@@ -38,8 +38,8 @@ function main() {
     resources !== undefined &&
       "items" in resources &&
       JSON.stringify(resources.items.map((item) => item.label)) ===
-        JSON.stringify(["Digest", "Reports", "Methodology", "About"]),
-    "Resources dropdown is Digest·Reports·Methodology·About",
+        JSON.stringify(["Digest", "Reports", "Coverage", "Methodology", "About"]),
+    "Resources dropdown is Digest·Reports·Coverage·Methodology·About",
   );
   const leaves = navLeaves(NAV_TREE);
   check(

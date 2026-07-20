@@ -48,6 +48,7 @@ export const NAV_TREE: NavNode[] = [
     items: [
       { label: "Digest", href: "/digest" },
       { label: "Reports", href: "/reports" },
+      { label: "Coverage", href: "/coverage" },
       { label: "Methodology", href: "/methodology" },
       { label: "About", href: "/about" },
     ],

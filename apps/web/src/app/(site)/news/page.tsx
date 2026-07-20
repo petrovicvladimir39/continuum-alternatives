@@ -117,6 +117,8 @@ export default async function NewsIndexPage({
       channels: filters.channels,
       countries: filters.countries,
       factTypes: filters.factTypes,
+      strategies: filters.strategies,
+      assetClasses: filters.assetClasses,
       ...(filters.freeText !== "" ? { entityQuery: filters.freeText } : {}),
       limit: 30,
     });

@@ -663,7 +663,7 @@ export type PublicListing = {
 /** Paginated active-entity index for one public kind, with country/tag filters. */
 export async function listPublicEntities(
   kind: PublicKind,
-  opts: { page?: number; country?: string; tag?: string } = {},
+  opts: { page?: number; country?: string; tag?: string; strategy?: string } = {},
 ): Promise<PublicListing> {
   const page = Math.max(1, opts.page ?? 1);
   const conditions = [eq(entities.status, "active"), eq(entities.kind, kind)];
@@ -673,6 +673,15 @@ export async function listPublicEntities(
   if (opts.tag !== undefined && opts.tag !== "") {
     conditions.push(
       sql`exists (select 1 from ${entityTags} where ${entityTags.entityId} = ${entities.id} and ${entityTags.tag} = ${opts.tag})`,
+    );
+  }
+  // Phase 26D: taxonomy strategy filter (approved classifications; the
+  // strategy value may also be an asset-class slug for class-wide listings).
+  if (opts.strategy !== undefined && opts.strategy !== "") {
+    conditions.push(
+      sql`exists (select 1 from entity_classifications c
+            where c.entity_id = ${entities.id} and c.status = 'approved'
+              and (c.strategy = ${opts.strategy} or c.asset_class = ${opts.strategy}))`,
     );
   }
   const where = and(...conditions);

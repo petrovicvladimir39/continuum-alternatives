@@ -34,6 +34,21 @@ export {
 } from "./ask";
 export { VERTICALS, verticalBySlug, type Vertical, type VerticalModule } from "./verticals";
 export {
+  ALT_TAXONOMY,
+  CLASS_LEVEL,
+  KEYWORD_RULES,
+  TAG_TAXONOMY_MAP,
+  assetClassBySlug,
+  classifiedLabel,
+  frontHrefFor,
+  mapLegacyFundStrategy,
+  meetsCoverageThreshold,
+  strategyBySlug,
+  type AssetClassDef,
+  type KeywordRule,
+  type StrategyDef,
+} from "./alt-taxonomy";
+export {
   FOOTER_PLATFORM_LINKS,
   composeTodayStrip,
   diversifyRail,

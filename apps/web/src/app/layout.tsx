@@ -3,10 +3,44 @@ import type { ReactNode } from "react";
 import { Instrument_Sans, Newsreader } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import {
+  classifiedLabel,
+  frontHrefFor,
+  meetsCoverageThreshold,
+  VERTICALS,
+  type NavLeaf,
+} from "@continuum/shared";
+import { strategyCoverage } from "@continuum/db";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader, type HeaderIdentity } from "@/components/site-header";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
+
+/**
+ * Coverage-gated Markets ▾ extras (Phase 26C): taxonomy strategies above
+ * the render threshold whose front is NOT one of the curated six join the
+ * dropdown dynamically. Below threshold they exist only on /coverage.
+ */
+async function marketExtras(): Promise<NavLeaf[]> {
+  try {
+    const coverage = await strategyCoverage();
+    const curatedHrefs = new Set(VERTICALS.map((v) => `/markets/${v.slug}`));
+    const extras: NavLeaf[] = [];
+    for (const row of coverage) {
+      if (!meetsCoverageThreshold(row)) {
+        continue;
+      }
+      const href = frontHrefFor(row.assetClass, row.strategy);
+      if (curatedHrefs.has(href) || extras.some((e) => e.href === href)) {
+        continue;
+      }
+      extras.push({ label: classifiedLabel(row.assetClass, row.strategy), href });
+    }
+    return extras.sort((a, b) => a.label.localeCompare(b.label));
+  } catch {
+    return [];
+  }
+}
 
 // Clerk is active only when both keys exist (Phase 24A). Without them the
 // public site runs untouched and /admin + /account 404 in the middleware.
@@ -66,12 +100,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
-  const identity = await headerIdentity();
+  const [identity, extras] = await Promise.all([headerIdentity(), marketExtras()]);
 
   const page = (
     <html lang="en" className={`${serif.variable} ${sans.variable}`}>
       <body className="flex min-h-screen flex-col">
-        <SiteHeader identity={identity} />
+        <SiteHeader identity={identity} marketExtras={extras} />
         <main className="flex w-full flex-1 flex-col">{children}</main>
         <SiteFooter />
         {plausibleDomain ? (
