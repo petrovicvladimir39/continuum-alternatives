@@ -22,6 +22,9 @@ export const organizations = pgTable("organizations", {
   foundedYear: integer("founded_year"),
   website: text("website"),
   employeeRange: text("employee_range"),
+  // Universe-seeding audit trail (Phase 15): how/when this org passed or failed
+  // the live homepage verification gate. Never rendered publicly.
+  verificationNote: text("verification_note"),
 });
 
 // Deliberately minimal — GDPR.

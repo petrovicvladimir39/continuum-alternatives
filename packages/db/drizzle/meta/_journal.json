@@ -57,6 +57,13 @@
       "when": 1784541053756,
       "tag": "0007_fresh_pandemic",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784543602377,
+      "tag": "0008_yellow_kid_colt",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,9 @@
     "filings:backfill": "pnpm --filter @continuum/pipeline filings:backfill",
     "alsu:history": "pnpm --filter @continuum/pipeline alsu:history",
     "anomalies:scan": "pnpm --filter @continuum/pipeline anomalies:scan",
-    "embeddings:backfill": "pnpm --filter @continuum/pipeline embeddings:backfill"
+    "embeddings:backfill": "pnpm --filter @continuum/pipeline embeddings:backfill",
+    "universe:import": "pnpm --filter @continuum/db universe:import",
+    "universe:verify": "pnpm --filter @continuum/pipeline universe:verify"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

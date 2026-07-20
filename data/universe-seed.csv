@@ -1,0 +1,223 @@
+name,kind,country,city,website,tags,capital_note
+Abris Capital Partners,organization,PL,Warsaw,https://abriscapital.com,gp_pe,Mid-market buyout manager for Central Europe
+Enterprise Investors,organization,PL,Warsaw,https://www.ei.com.pl,gp_pe,One of the oldest private equity firms in CEE
+Innova Capital,organization,PL,Warsaw,https://innovacap.com,gp_pe,Mid-market buyouts in Central Europe
+MCI Capital,organization,PL,Warsaw,https://mci.pl,gp_pe;gp_vc,Digital-focused growth investor
+Resource Partners,organization,PL,Warsaw,https://resourcepartners.eu,gp_pe,Consumer-focused mid-market PE
+Avallon MBO,organization,PL,Łódź,https://avallon.pl,gp_pe,Management buyout specialist
+Tar Heel Capital,organization,PL,Warsaw,https://tarheelcap.com,gp_pe,Lower mid-market buyouts in Poland
+Value4Capital,organization,PL,Warsaw,https://value4capital.com,gp_pe,Polish mid-market buyout fund
+Griffin Capital Partners,organization,PL,Warsaw,https://griffin-cp.com,gp_re;gp_pe,Real estate and PE investor in CEE
+Kulczyk Investments,organization,PL,Warsaw,https://kulczykinvestments.com,lp_family_office,Polish family investment house
+Genesis Capital,organization,CZ,Prague,https://genesiscapital.cz,gp_pe,Czech and Slovak lower mid-market PE
+ARX Equity Partners,organization,CZ,Prague,https://arxequity.com,gp_pe,Lower mid-market CEE buyouts
+Jet Investment,organization,CZ,Brno,https://jetinvestment.cz,gp_pe,Industrial buyout investor
+Penta Investments,organization,CZ,Prague,https://pentainvestments.com,gp_pe;corporate,Central European investment group
+PPF Group,organization,CZ,Prague,https://ppf.eu,corporate;lp_family_office,Largest Czech investment group
+Hartenberg Holding,organization,CZ,Prague,https://hartenberg.cz,gp_pe,Growth investor backed by Andrej Babis trust structures
+Emma Capital,organization,CZ,Prague,https://emmacapital.cz,corporate;lp_family_office,Investment group of Jiri Smejc
+KKCG,organization,CZ,Prague,https://kkcg.com,corporate,Investment group of Karel Komarek
+RSJ Investments,organization,CZ,Prague,https://rsj.com,gp_pe;lp_family_office,Czech investment group
+R2G,organization,CZ,Prague,https://r2g.cz,lp_family_office,Czech family investment office
+Espira Investments,organization,CZ,Prague,https://espira.cz,gp_pe,Czech growth capital
+Sandberg Capital,organization,SK,Bratislava,https://sandbergcapital.com,gp_pe,Slovak growth and buyout investor
+BaltCap,organization,EE,Tallinn,https://baltcap.com,gp_pe;gp_infra,Largest Baltic private equity firm
+Livonia Partners,organization,LV,Riga,https://livoniapartners.com,gp_pe,Baltic mid-market PE
+INVL Asset Management,organization,LT,Vilnius,https://invl.com,gp_pe,Baltic asset manager and PE investor
+Morphosis Capital,organization,RO,Bucharest,https://morphosiscapital.com,gp_pe,Romanian lower mid-market PE
+Sarmis Capital,organization,RO,Bucharest,https://sarmiscapital.com,gp_pe,Romanian mid-market PE
+BlackPeak Capital,organization,BG,Sofia,https://blackpeakcapital.com,gp_pe,SEE growth equity fund
+Empower Capital,organization,BG,Sofia,https://empowercapital.com,gp_pe,Bulgarian growth capital
+Integral Venture Partners,organization,RS,Belgrade,https://integralvp.com,gp_pe,SEE growth equity manager
+SMERemediumCap,organization,GR,Athens,https://smeremediumcap.com,gp_pe,Greek SME turnaround fund
+3TS Capital Partners,organization,AT,Vienna,https://3tscapital.com,gp_pe;gp_vc,Technology growth investor for CEE
+Adventum Group,organization,HU,Budapest,https://adventum.hu,gp_re,CEE real estate fund manager
+CVI,organization,PL,Warsaw,https://cvi.pl,gp_credit,Leading private debt manager in CEE
+Accession Capital Partners,organization,AT,Vienna,https://accessioncp.com,gp_credit,Mezzanine and private credit for CEE
+Orbit Capital,organization,CZ,Prague,https://orbitcapital.vc,gp_credit;gp_vc,Growth debt for CEE scaleups
+Inovo VC,organization,PL,Warsaw,https://inovo.vc,gp_vc,Leading Polish venture fund
+Market One Capital,organization,PL,Warsaw,https://moc.vc,gp_vc,Marketplace-focused seed VC
+OTB Ventures,organization,PL,Warsaw,https://otb.vc,gp_vc,Deep tech VC for CEE founders
+Cogito Capital Partners,organization,PL,Warsaw,https://cogitocap.com,gp_vc,B2B growth-stage VC
+SMOK Ventures,organization,PL,Warsaw,https://smok.vc,gp_vc,US-Polish seed fund
+Movens Capital,organization,PL,Warsaw,https://movenscapital.com,gp_vc,Polish seed and Series A investor
+bValue VC,organization,PL,Warsaw,https://bvalue.vc,gp_vc,Polish early-stage fund
+Innovation Nest,organization,PL,Kraków,https://innovationnest.co,gp_vc,B2B SaaS seed fund
+Warsaw Equity Group,organization,PL,Warsaw,https://warsawequity.com,gp_vc;gp_pe,Private investment house
+Simpact Ventures,organization,PL,Warsaw,https://simpact.vc,gp_vc,Impact-focused Polish VC
+Sunfish Partners,organization,PL,Warsaw,https://sunfishpartners.com,gp_vc,German-Polish deep tech seed fund
+Credo Ventures,organization,CZ,Prague,https://credoventures.com,gp_vc,Leading CEE early-stage VC
+Kaya VC,organization,CZ,Prague,https://kaya.vc,gp_vc,Prague-based early-stage VC
+Presto Ventures,organization,CZ,Prague,https://prestoventures.com,gp_vc,Czech seed VC
+Tensor Ventures,organization,CZ,Prague,https://tensor.ventures,gp_vc,Deep tech VC
+Reflex Capital,organization,CZ,Prague,https://reflexcapital.com,gp_vc,Founder-backed seed fund
+Pale Fire Capital,organization,CZ,Prague,https://palefire.capital,gp_vc;gp_pe,Entrepreneurial investment group
+Rockaway Capital,organization,CZ,Prague,https://rockawaycapital.com,gp_vc;corporate,Digital-economy investment group
+Miton,organization,CZ,Jablonec nad Nisou,https://miton.cz,gp_vc,Czech internet investment group
+J&T Ventures,organization,CZ,Prague,https://jtventures.cz,gp_vc,Early-stage VC of J&T group
+Soulmates Ventures,organization,CZ,Prague,https://soulmates.ventures,gp_vc,Sustainability-focused VC
+Crowdberry,organization,SK,Bratislava,https://crowdberry.eu,gp_vc,Slovak-Czech investment platform
+Day One Capital,organization,HU,Budapest,https://dayonecapital.com,gp_vc,Hungarian early-stage VC
+Euroventures,organization,HU,Budapest,https://euroventures.hu,gp_vc,Veteran Hungarian VC
+PortfoLion Capital Partners,organization,HU,Budapest,https://portfolion.hu,gp_vc;gp_pe,OTP Group venture and PE arm
+Hiventures,organization,HU,Budapest,https://hiventures.hu,gp_vc;lp_dfi,State-backed Hungarian VC
+Lead Ventures,organization,HU,Budapest,https://leadventures.eu,gp_vc;cvc,MOL-backed growth VC
+Early Game Ventures,organization,RO,Bucharest,https://earlygame.vc,gp_vc,Romanian seed VC
+GapMinder VC,organization,RO,Bucharest,https://gapminder.vc,gp_vc,Romanian early-stage VC
+Underline Ventures,organization,RO,Bucharest,https://underline.vc,gp_vc,Solo-GP seed fund for Eastern European founders
+SeedBlink,organization,RO,Bucharest,https://seedblink.com,gp_vc,European tech investment platform
+Eleven Ventures,organization,BG,Sofia,https://elevenvc.com,gp_vc,Leading Bulgarian seed fund
+LAUNCHub Ventures,organization,BG,Sofia,https://launchub.com,gp_vc,SEE seed and Series A fund
+Vitosha Venture Partners,organization,BG,Sofia,https://vitosha.vc,gp_vc,Bulgarian early-stage fund
+BrightCap Ventures,organization,BG,Sofia,https://brightcap.vc,gp_vc,Bulgarian deep tech VC
+Morningside Hill Capital,organization,BG,Sofia,https://morningsidehill.com,gp_vc,Bulgarian venture fund
+Fil Rouge Capital,organization,HR,Zagreb,https://filrougecapital.com,gp_vc,Croatian VC and accelerator investor
+South Central Ventures,organization,RS,Belgrade,https://sc-ventures.com,gp_vc,Balkan-focused early-stage VC
+Karma Ventures,organization,EE,Tallinn,https://karma.vc,gp_vc,Baltic deep tech Series A fund
+Tera Ventures,organization,EE,Tallinn,https://tera.vc,gp_vc,Estonian seed VC
+Trind VC,organization,EE,Tallinn,https://trind.vc,gp_vc,Baltic early-stage VC
+Superangel,organization,EE,Tallinn,https://superangel.io,gp_vc,Estonian founder-backed seed fund
+Startup Wise Guys,organization,EE,Tallinn,https://startupwiseguys.com,accelerator;gp_vc,B2B accelerator and fund
+Change Ventures,organization,LV,Riga,https://changeventures.com,gp_vc,Baltic pre-seed fund
+Practica Capital,organization,LT,Vilnius,https://practica.vc,gp_vc,Lithuanian seed VC
+Iron Wolf Capital,organization,LT,Vilnius,https://ironwolfcapital.com,gp_vc,Lithuanian early-stage VC
+Contrarian Ventures,organization,LT,Vilnius,https://cventures.vc,gp_vc,Climate tech seed fund
+LitCapital,organization,LT,Vilnius,https://litcapital.lt,gp_vc;gp_pe,Lithuanian growth capital manager
+Firstpick,organization,LT,Vilnius,https://firstpick.vc,gp_vc;accelerator,Baltic accelerator fund
+Marathon Venture Capital,organization,GR,Athens,https://marathon.vc,gp_vc,Leading Greek seed VC
+VentureFriends,organization,GR,Athens,https://venturefriends.vc,gp_vc,Greek early-stage VC
+Big Pi Ventures,organization,GR,Athens,https://bigpi.vc,gp_vc,Greek deep tech fund
+Metavallon VC,organization,GR,Athens,https://metavallon.vc,gp_vc,Greek pre-seed and seed VC
+Uni.Fund,organization,GR,Athens,https://uni.fund,gp_vc,Greek university-spinout seed fund
+Speedinvest,organization,AT,Vienna,https://speedinvest.com,gp_vc,Pan-European seed VC active across CEE
+APEX Ventures,organization,AT,Vienna,https://apex.ventures,gp_vc,Vienna deep tech VC
+COBIN Angels,organization,PL,Warsaw,https://cobinangels.com,angel_network,Polish business angel network
+EstBAN,organization,EE,Tallinn,https://estban.ee,angel_network,Estonian Business Angels Network
+LitBAN,organization,LT,Vilnius,https://litban.lt,angel_network,Lithuanian Business Angel Network
+APS Holding,organization,CZ,Prague,https://aps-holding.com,servicer;gp_distressed,CEE distressed debt investor and servicer
+KRUK,organization,PL,Wrocław,https://kruk.eu,collection_agency;servicer,Largest Polish debt purchaser
+BEST S.A.,organization,PL,Gdynia,https://best.com.pl,collection_agency;servicer,Polish debt purchaser and servicer
+Kredyt Inkaso,organization,PL,Warsaw,https://kredytinkaso.pl,collection_agency;servicer,Polish debt purchaser
+Ultimo,organization,PL,Wrocław,https://ultimo.pl,collection_agency,Polish debt collection company
+B2Kapital,organization,HR,Zagreb,https://b2kapital.hr,servicer;collection_agency,Croatian arm of B2 Impact NPL group
+EOS Matrix,organization,HR,Zagreb,https://hr.eos-solutions.com,servicer;collection_agency,Croatian arm of EOS receivables group
+doValue Greece,organization,GR,Athens,https://dovaluegreece.gr,servicer,Largest Greek NPL servicer
+Intrum Hellas,organization,GR,Athens,https://intrum.gr,servicer,Greek NPL servicing JV of Intrum and Piraeus
+Cepal Hellas,organization,GR,Athens,https://cepal.gr,servicer,Greek loan servicer
+QQuant Master Servicer,organization,GR,Athens,https://qquant.gr,servicer,Greek loan servicer
+AxFina,organization,AT,Vienna,https://axfina.com,servicer;restructuring_advisor,CEE asset resolution and servicing
+CITR,organization,RO,Bucharest,https://citr.ro,insolvency_practitioner;restructuring_advisor,Leading Romanian insolvency practice
+Zimmerman Filipiak Restrukturyzacja,organization,PL,Warsaw,https://zimmermanfilipiak.pl,restructuring_advisor;insolvency_practitioner,Polish restructuring boutique
+Agencija za osiguranje depozita,organization,RS,Belgrade,https://aod.rs,deposit_insurance;state_amc,Serbian deposit insurance and NPL seller
+European Bank for Reconstruction and Development,organization,GB,London,https://ebrd.com,lp_dfi,Largest institutional investor across CEE and SEE
+European Investment Fund,organization,LU,Luxembourg,https://eif.org,lp_dfi;lp_fof,Cornerstone LP of European VC and PE funds
+European Investment Bank,organization,LU,Luxembourg,https://eib.org,lp_dfi,EU long-term lending institution
+International Finance Corporation,organization,US,Washington,https://ifc.org,lp_dfi,World Bank Group private sector arm
+Polski Fundusz Rozwoju,organization,PL,Warsaw,https://pfr.pl,lp_dfi,Polish Development Fund group
+PFR Ventures,organization,PL,Warsaw,https://pfrventures.pl,lp_fof,Largest LP in Polish VC and PE
+Bank Gospodarstwa Krajowego,organization,PL,Warsaw,https://bgk.pl,lp_dfi;bank,Polish state development bank
+Národní rozvojová banka,organization,CZ,Prague,https://nrb.cz,lp_dfi;bank,Czech national development bank
+Slovak Investment Holding,organization,SK,Bratislava,https://sih.sk,lp_dfi,Slovak state fund-of-funds investor
+MFB Magyar Fejlesztési Bank,organization,HU,Budapest,https://mfb.hu,lp_dfi;bank,Hungarian development bank
+Hrvatska banka za obnovu i razvitak,organization,HR,Zagreb,https://hbor.hr,lp_dfi;bank,Croatian development bank HBOR
+SID banka,organization,SI,Ljubljana,https://sid.si,lp_dfi;bank,Slovenian development and export bank
+Bulgarian Development Bank,organization,BG,Sofia,https://bdbank.bg,lp_dfi;bank,Bulgarian state development bank
+Black Sea Trade and Development Bank,organization,GR,Thessaloniki,https://bstdb.org,lp_dfi,Regional multilateral bank for the Black Sea
+Hellenic Development Bank,organization,GR,Athens,https://hdb.gr,lp_dfi,Greek national development bank
+INVEGA,organization,LT,Vilnius,https://invega.lt,lp_dfi,Lithuanian national promotional institution
+Altum,organization,LV,Riga,https://altum.lv,lp_dfi,Latvian development finance institution
+Exim Banca Românească,organization,RO,Bucharest,https://eximbank.ro,bank;lp_dfi,Romanian export-import and development bank
+Fond za inovacionu delatnost,organization,RS,Belgrade,https://inovacionifond.rs,lp_dfi,Innovation Fund of Serbia
+PZU,organization,PL,Warsaw,https://pzu.pl,lp_insurance,Largest Polish insurer and institutional investor
+Zavarovalnica Triglav,organization,SI,Ljubljana,https://triglav.si,lp_insurance,Leading Slovenian insurer
+Dunav osiguranje,organization,RS,Belgrade,https://dunav.com,lp_insurance,Largest Serbian insurer
+Erste Group Bank,organization,AT,Vienna,https://erstegroup.com,bank,Major CEE banking group
+Raiffeisen Bank International,organization,AT,Vienna,https://rbinternational.com,bank,CEE-focused Austrian banking group
+Addiko Bank,organization,AT,Vienna,https://addiko.com,bank,SEE-focused specialist bank
+PKO Bank Polski,organization,PL,Warsaw,https://pkobp.pl,bank,Largest Polish bank
+Bank Pekao,organization,PL,Warsaw,https://pekao.com.pl,bank,Second-largest Polish bank
+mBank,organization,PL,Warsaw,https://mbank.pl,bank,Polish bank of Commerzbank group
+Santander Bank Polska,organization,PL,Warsaw,https://santander.pl,bank,Polish arm of Santander
+Česká spořitelna,organization,CZ,Prague,https://csas.cz,bank,Largest Czech bank by clients
+ČSOB,organization,CZ,Prague,https://csob.cz,bank,Czech bank of KBC group
+Komerční banka,organization,CZ,Prague,https://kb.cz,bank,Czech bank of Societe Generale group
+Tatra banka,organization,SK,Bratislava,https://tatrabanka.sk,bank,Slovak bank of Raiffeisen group
+Všeobecná úverová banka,organization,SK,Bratislava,https://vub.sk,bank,Slovak bank of Intesa Sanpaolo group
+Slovenská sporiteľňa,organization,SK,Bratislava,https://slsp.sk,bank,Largest Slovak bank
+OTP Bank,organization,HU,Budapest,https://otpbank.hu,bank,Largest Hungarian banking group across CEE
+MBH Bank,organization,HU,Budapest,https://mbhbank.hu,bank,Merged Hungarian banking group
+K&H Bank,organization,HU,Budapest,https://kh.hu,bank,Hungarian bank of KBC group
+Banca Transilvania,organization,RO,Cluj-Napoca,https://bancatransilvania.ro,bank,Largest Romanian bank
+Banca Comercială Română,organization,RO,Bucharest,https://bcr.ro,bank,Romanian bank of Erste group
+BRD Groupe Société Générale,organization,RO,Bucharest,https://brd.ro,bank,Romanian bank of Societe Generale
+CEC Bank,organization,RO,Bucharest,https://cec.ro,bank,Romanian state-owned bank
+DSK Bank,organization,BG,Sofia,https://dskbank.bg,bank,Bulgarian bank of OTP group
+United Bulgarian Bank,organization,BG,Sofia,https://ubb.bg,bank,Bulgarian bank of KBC group
+UniCredit Bulbank,organization,BG,Sofia,https://unicreditbulbank.bg,bank,Largest Bulgarian bank by assets
+Zagrebačka banka,organization,HR,Zagreb,https://zaba.hr,bank,Largest Croatian bank
+Privredna banka Zagreb,organization,HR,Zagreb,https://pbz.hr,bank,Croatian bank of Intesa Sanpaolo group
+Erste & Steiermärkische Bank,organization,HR,Rijeka,https://erstebank.hr,bank,Croatian arm of Erste group
+Hrvatska poštanska banka,organization,HR,Zagreb,https://hpb.hr,bank,Croatian postal bank
+NLB Group,organization,SI,Ljubljana,https://nlb.si,bank,Largest Slovenian banking group in SEE
+SKB banka,organization,SI,Ljubljana,https://skb.si,bank,Slovenian bank of OTP group
+Banca Intesa Beograd,organization,RS,Belgrade,https://bancaintesa.rs,bank,Largest Serbian bank
+NLB Komercijalna banka,organization,RS,Belgrade,https://nlbkb.rs,bank,Serbian bank of NLB group
+AIK Banka,organization,RS,Belgrade,https://aikbanka.rs,bank,Serbian privately held bank
+OTP banka Srbija,organization,RS,Novi Sad,https://otpsrbija.rs,bank,Serbian bank of OTP group
+Piraeus Bank,organization,GR,Athens,https://piraeusbank.gr,bank,Greek systemic bank
+Alpha Bank,organization,GR,Athens,https://alpha.gr,bank,Greek systemic bank
+Eurobank,organization,GR,Athens,https://eurobank.gr,bank,Greek systemic bank
+National Bank of Greece,organization,GR,Athens,https://nbg.gr,bank,Greek systemic bank
+LHV Pank,organization,EE,Tallinn,https://lhv.ee,bank,Estonian bank and fintech group
+Luminor Bank,organization,EE,Tallinn,https://luminor.ee,bank,Baltic bank backed by Blackstone
+Swedbank,organization,EE,Tallinn,https://swedbank.ee,bank,Estonian arm of Swedbank group
+SEB Pank,organization,EE,Tallinn,https://seb.ee,bank,Estonian arm of SEB group
+Citadele banka,organization,LV,Riga,https://citadele.lv,bank,Latvian banking group
+ASA Banka,organization,BA,Sarajevo,https://asabanka.ba,bank,Bosnian commercial bank
+Crnogorska komercijalna banka,organization,ME,Podgorica,https://ckb.me,bank,Largest Montenegrin bank
+Hipotekarna banka,organization,ME,Podgorica,https://hipotekarnabanka.com,bank,Montenegrin commercial bank
+Stopanska banka AD Skopje,organization,MK,Skopje,https://stb.com.mk,bank,North Macedonian bank of NBG group
+Banka Kombëtare Tregtare,organization,AL,Tirana,https://bkt.com.al,bank,Largest Albanian bank
+Credins Bank,organization,AL,Tirana,https://bankacredins.com,bank,Albanian commercial bank
+Schoenherr,organization,AT,Vienna,https://schoenherr.eu,law_firm,Leading CEE corporate law firm
+Wolf Theiss,organization,AT,Vienna,https://wolftheiss.com,law_firm,CEE-focused law firm
+CERHA HEMPEL,organization,AT,Vienna,https://cerhahempel.com,law_firm,Austrian firm with CEE practice
+Kinstellar,organization,CZ,Prague,https://kinstellar.com,law_firm,Emerging Europe law firm
+Havel & Partners,organization,CZ,Prague,https://havelpartners.cz,law_firm,Largest Czech-Slovak law firm
+PRK Partners,organization,CZ,Prague,https://prkpartners.com,law_firm,Czech corporate law firm
+Skils,organization,CZ,Prague,https://skils.cz,law_firm,Czech M&A law firm
+Wardyński i Wspólnicy,organization,PL,Warsaw,https://wardynski.com.pl,law_firm,Leading independent Polish law firm
+WKB Lawyers,organization,PL,Warsaw,https://wkb.pl,law_firm,Polish corporate law firm
+Sołtysiński Kawecki & Szlęzak,organization,PL,Warsaw,https://skslegal.pl,law_firm,Polish corporate law firm
+Domański Zakrzewski Palinka,organization,PL,Warsaw,https://dzp.pl,law_firm,Largest independent Polish law firm
+Rymarz Zdort Maruta,organization,PL,Warsaw,https://rymarz-zdort.com,law_firm,Polish M&A powerhouse
+Lakatos Köves & Partners,organization,HU,Budapest,https://lakatoskoves.hu,law_firm,Hungarian corporate law firm
+Oppenheim,organization,HU,Budapest,https://oppenheimlegal.com,law_firm,Hungarian independent law firm
+Szecskay,organization,HU,Budapest,https://szecskay.com,law_firm,Hungarian independent law firm
+Nestor Nestor Diculescu Kingston Petersen,organization,RO,Bucharest,https://nndkp.ro,law_firm,Leading Romanian law firm
+Țuca Zbârcea & Asociații,organization,RO,Bucharest,https://tuca.ro,law_firm,Leading Romanian law firm
+Filip & Company,organization,RO,Bucharest,https://filipandcompany.com,law_firm,Romanian M&A and finance firm
+RTPR,organization,RO,Bucharest,https://rtpr.ro,law_firm,Romanian corporate law firm
+Boyanov & Co,organization,BG,Sofia,https://boyanov.com,law_firm,Leading Bulgarian law firm
+Djingov Gouginski Kyutchukov & Velichkov,organization,BG,Sofia,https://dgkv.com,law_firm,Leading Bulgarian law firm
+Divjak Topić Bahtijarević & Krka,organization,HR,Zagreb,https://dtb.hr,law_firm,Croatian corporate law firm
+Žurić i Partneri,organization,HR,Zagreb,https://zuric-i-partneri.hr,law_firm,Croatian corporate law firm
+Karanović & Partners,organization,RS,Belgrade,https://karanovicpartners.com,law_firm,Regional SEE law firm
+BDK Advokati,organization,RS,Belgrade,https://bdkadvokati.com,law_firm,Serbian corporate law firm
+Gecić Law,organization,RS,Belgrade,https://geciclaw.com,law_firm,Serbian corporate and competition firm
+Šelih & partnerji,organization,SI,Ljubljana,https://selih.si,law_firm,Slovenian corporate law firm
+ODI Law,organization,SI,Ljubljana,https://odilaw.com,law_firm,Slovenian regional law firm
+Zepos & Yannopoulos,organization,GR,Athens,https://zeya.com,law_firm,Leading Greek law firm
+Koutalidis,organization,GR,Athens,https://koutalidis.gr,law_firm,Greek corporate law firm
+Kalo & Associates,organization,AL,Tirana,https://kalo-attorneys.com,law_firm,Albanian corporate law firm
+Sorainen,organization,EE,Tallinn,https://sorainen.com,law_firm,Pan-Baltic law firm
+COBALT,organization,EE,Tallinn,https://cobalt.legal,law_firm,Pan-Baltic law firm
+Ellex,organization,EE,Tallinn,https://ellex.legal,law_firm,Pan-Baltic law firm alliance
+TGS Baltic,organization,LT,Vilnius,https://tgsbaltic.com,law_firm,Pan-Baltic law firm
+Walless,organization,LT,Vilnius,https://walless.com,law_firm,Baltic law firm
+WOOD & Company,organization,CZ,Prague,https://wood.cz,advisor_ma,CEE investment bank and broker
+Patria Finance,organization,CZ,Prague,https://patria.cz,advisor_ma,Czech investment bank of CSOB group
+IPOPEMA Securities,organization,PL,Warsaw,https://ipopema.pl,advisor_ma,Polish investment bank
+Trigon Dom Maklerski,organization,PL,Warsaw,https://trigon.pl,advisor_ma,Polish investment banking boutique
+InterCapital,organization,HR,Zagreb,https://intercapital.hr,advisor_ma,Croatian investment bank and broker
+BT Capital Partners,organization,RO,Cluj-Napoca,https://btcapitalpartners.ro,advisor_ma,Investment banking arm of Banca Transilvania

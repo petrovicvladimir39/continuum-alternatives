@@ -11,7 +11,8 @@
     "filings:backfill": "tsx src/filings-backfill.ts",
     "alsu:history": "tsx src/alsu-history.ts",
     "anomalies:scan": "tsx src/anomalies-scan.ts",
-    "embeddings:backfill": "tsx src/embeddings-backfill.ts"
+    "embeddings:backfill": "tsx src/embeddings-backfill.ts",
+    "universe:verify": "tsx src/universe-verify.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",
