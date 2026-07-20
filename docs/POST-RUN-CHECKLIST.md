@@ -35,10 +35,13 @@ Suggested first batches:
       The Recursive (CEE), Private Equity Wire, AltAssets (~$4.50/mo each at
       5 items/day ceiling). Il Sole + Handelsblatt are headline-level
       (article bodies paywalled) — activate once non-EN extraction is wanted.
-- [ ] **Firm newsrooms** (discovered by `pnpm sources:discover`, type
-      company_site, entity-linked) — activate by country batch; RSS ones are
-      cheapest and most reliable. See the discovery report in the final
-      session report for counts.
+- [ ] **Firm newsrooms — 243 discovered** (130 RSS, 113 crawl-index; 421
+      orgs probed, 178 had no discoverable newsroom). Entity-linked, type
+      company_site, all INACTIVE. Country spread: FR 126, PL 21, CZ 17,
+      RO 12, HU 9, EE 9, AT 8, GR 7, RS 6, BG 6, HR 6, LT 5, others ≤2.
+      Activate by country batch in /admin/sources; RSS ones are cheapest
+      and most reliable. Suggested first batch: the RSS newsrooms of firms
+      you already track (~$4.50/mo ceiling each at 5 items/day).
 - [ ] The **voices layer**: add newsletter/blog RSS URLs of people you
       follow as sources with fetch method `newsletter_rss` (X/Twitter is
       excluded by design — paid API, ToS).

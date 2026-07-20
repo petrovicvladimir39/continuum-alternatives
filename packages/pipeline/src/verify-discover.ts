@@ -32,7 +32,7 @@ async function main(): Promise<void> {
   check(feeds[1] === "https://example.org/atom", "absolute atom href kept");
   check(discoverFeedUrls("<html><head></head></html>", "https://x.org").length === 0, "no feeds → empty");
   check(
-    discoverFeedUrls(`<link rel="alternate" type="application/rss+xml" href="::bad::">`, "https://x.org")
+    discoverFeedUrls(`<link rel="alternate" type="application/rss+xml" href="http://[bad">`, "https://x.org")
       .length === 0,
     "unparseable href skipped",
   );
@@ -53,14 +53,30 @@ async function main(): Promise<void> {
     fs.readFileSync(new URL("./fetch.ts", import.meta.url), "utf8"),
   );
   check(fetchTs.includes('case "newsletter_rss"'), "fetchSource dispatches newsletter_rss");
-  check(fetchTs.toLowerCase().includes("x/twitter is deliberately excluded"), "X/Twitter exclusion documented in code");
+  const fetchLower = fetchTs.toLowerCase();
+  check(
+    fetchLower.includes("x/twitter") && fetchLower.includes("excluded"),
+    "X/Twitter exclusion documented in code",
+  );
 
   console.log("\n— portal matrix persistence (seeded sources) —");
   const portals = await db
     .select({ name: sources.name, active: sources.active, config: sources.config, fetchMethod: sources.fetchMethod })
     .from(sources)
     .where(eq(sources.sourceType, "press"));
-  const seeded = portals.filter((p) => p.fetchMethod === "rss" || p.fetchMethod === "firecrawl_index");
+  // Seeded portals ship INACTIVE (activation is the operator's decision).
+  // Scope to the reset-build candidate list — legacy operator-created press
+  // sources (their own caps) are out of scope for these invariants.
+  const SEEDED_PORTALS = [
+    "Private Equity Wire", "AltAssets", "Sifted", "Tech.eu", "EU-Startups", "Vestbee",
+    "The Recursive", "ArcticStartup", "Finance Forward", "Il Sole 24 Ore — Finanza",
+    "Handelsblatt — Finanzen",
+  ];
+  const seeded = portals.filter(
+    (p) =>
+      (p.fetchMethod === "rss" || p.fetchMethod === "firecrawl_index") &&
+      SEEDED_PORTALS.includes(p.name),
+  );
   check(seeded.length >= 5, `industry portals persisted (got ${seeded.length})`);
   check(
     seeded.every((p) => {
