@@ -65,7 +65,7 @@ export function buildDigestEmail(
 <body style="margin:0;padding:0;background:${GROUND};">
   <div style="max-width:560px;margin:0 auto;padding:32px 20px;background:${GROUND};">
     <h1 style="font-family:${SERIF};font-weight:500;font-size:26px;color:${INK};margin:0 0 4px;">Continuum Brief</h1>
-    <p style="font-family:${SANS};font-size:13px;color:${INK_SECONDARY};margin:0 0 8px;border-bottom:1px solid ${LINE};padding-bottom:14px;">${escapeHtml(digest.subject)} · The record of private capital in emerging Europe</p>
+    <p style="font-family:${SANS};font-size:13px;color:${INK_SECONDARY};margin:0 0 8px;border-bottom:1px solid ${LINE};padding-bottom:14px;">${escapeHtml(digest.subject)} · The map of European alternative assets</p>
     ${sectionHtml}
     <p style="font-family:${SANS};font-size:12px;color:${INK_MUTED};margin:32px 0 0;border-top:1px solid ${LINE};padding-top:14px;">
       Read online: <a href="${archiveUrl}" style="color:${ACCENT};">${archiveUrl}</a><br/>

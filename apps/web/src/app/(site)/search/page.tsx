@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Search",
-  description: "Search companies, funds, and deals across emerging Europe's private capital record.",
+  description: "Search companies, funds, and deals across Europe's alternative-asset record.",
 };
 
 async function runSearch(query: string): Promise<{ hits: PublicSearchHit[]; semantic: boolean }> {

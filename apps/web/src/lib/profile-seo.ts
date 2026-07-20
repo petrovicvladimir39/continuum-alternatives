@@ -21,7 +21,7 @@ export function profileDescription(profile: PublicProfile): string {
   if (firstFact !== undefined) {
     return firstFact.title;
   }
-  return `${entity.name} on Continuum Alternatives — the record of private capital in emerging Europe.`;
+  return `${entity.name} on Continuum Alternatives — the map of European alternative assets.`;
 }
 
 export function profileMetadata(profile: PublicProfile): Metadata {

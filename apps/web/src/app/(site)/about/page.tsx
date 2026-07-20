@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "What Continuum Alternatives is: the verified, source-cited record of private capital in emerging Europe — built from registries, gazettes, and regional press.",
+    "What Continuum Alternatives is: the map of European alternative assets — private equity, venture capital, private credit, distressed, and the institutions around them.",
 };
 
 export default async function AboutPage() {
@@ -18,9 +18,10 @@ export default async function AboutPage() {
       <h1 className="type-h1">About Continuum</h1>
 
       <p className="mt-5 text-[15px] leading-[1.6] text-ink">
-        Continuum Alternatives is the record of private capital in emerging Europe — private
-        equity, venture capital, private credit, and distressed situations across Central,
-        Eastern, and South-Eastern Europe.
+        Continuum Alternatives is the map of European alternative assets — private equity, venture
+        capital, private credit, distressed, and the institutions around them. Coverage spans the
+        EU, the United Kingdom, Switzerland, Norway, Iceland, and the Balkans, with particular
+        depth in distressed situations and the markets of Central and South-Eastern Europe.
       </p>
 
       <h2 className="type-h2 mt-9">Method</h2>

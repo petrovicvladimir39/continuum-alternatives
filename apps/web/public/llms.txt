@@ -1,7 +1,7 @@
 # Continuum Alternatives
 
-Data platform for alternative investments in emerging Europe: private equity,
-venture capital, private credit, and distressed/NPL situations. Profiles are
+The map of European alternative assets: private equity, venture capital,
+private credit, distressed, and the institutions around them. Profiles are
 assembled from cited primary sources — registries, gazettes, courts, and press —
 and every timeline fact carries its source.
 

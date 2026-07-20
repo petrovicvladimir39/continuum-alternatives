@@ -52,8 +52,8 @@ export async function generateMetadata({
     title: label !== null ? `Feed — ${label}` : "Feed",
     description:
       label !== null
-        ? `${label} events in emerging Europe's private capital record — approved, source-cited facts.`
-        : "The live record of private capital events in emerging Europe — insolvencies, asset sales, deals, and mandates, each with its source.",
+        ? `${label} events in Europe's alternative-asset record — approved, source-cited facts.`
+        : "The live record of European alternative-asset events — insolvencies, asset sales, deals, and mandates, each with its source.",
     // Pagination pages beyond the first are noindex — the canonical surface is page 1.
     ...(page > 1 ? { robots: { index: false, follow: true } } : {}),
   };

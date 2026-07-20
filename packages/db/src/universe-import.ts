@@ -1,7 +1,7 @@
 import "./env";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { ENTITY_TAGS } from "@continuum/shared";
+import { ENTITY_TAGS, isEuropeCountry } from "@continuum/shared";
 import { eq, and, inArray } from "drizzle-orm";
 import { db } from "./client";
 import { entities, entityTags, organizations } from "./schema";
@@ -112,6 +112,8 @@ function loadRows(file: string): { rows: CsvRow[]; errors: string[] } {
     }
     if (!/^[A-Z]{2}$/.test(country ?? "")) {
       bad.push(`country must be 2-letter code (got "${country}")`);
+    } else if (!isEuropeCountry(country ?? "")) {
+      bad.push(`country "${country}" is outside EUROPE_COUNTRIES scope`);
     }
     if (!website || !/^https?:\/\//.test(website)) {
       bad.push("website is REQUIRED (http/https url)");

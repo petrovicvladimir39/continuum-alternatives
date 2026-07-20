@@ -5,7 +5,7 @@ import { ReportCover } from "@/components/reports/report-cover";
 export const metadata: Metadata = {
   title: "Reports",
   description:
-    "Data-compiled research from the Continuum record: insolvency monitors, market maps, and league tables for emerging Europe's private capital markets.",
+    "Data-compiled research from the Continuum record: insolvency monitors, market maps, and league tables for Europe's alternative-asset markets.",
 };
 
 export default function ReportsPage() {
@@ -32,8 +32,8 @@ export default function ReportsPage() {
         </Link>
 
         <div className="block opacity-80">
-          <ReportCover title="CEE Private Capital Map" date="In preparation" />
-          <h2 className="type-h3 mt-2.5">CEE Private Capital Map</h2>
+          <ReportCover title="European Private Capital Map" date="In preparation" />
+          <h2 className="type-h3 mt-2.5">European Private Capital Map</h2>
           <p className="type-small mt-1 text-ink-muted">
             In preparation — publishing when the regional deal record supports it honestly.
           </p>

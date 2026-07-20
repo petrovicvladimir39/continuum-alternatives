@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Map",
   description:
-    "The alternative-investment landscape of emerging Europe on one map — funds, lenders, servicers, and companies, colored by capital type.",
+    "The European alternative-asset landscape on one map — funds, lenders, servicers, and companies, colored by capital type.",
 };
 
 export default async function MapPage() {

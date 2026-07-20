@@ -1,4 +1,5 @@
 import type { PublicKind } from "@continuum/db";
+import { EUROPE_COUNTRY_NAMES } from "@continuum/shared";
 
 export const KIND_LABELS: Record<PublicKind, string> = {
   organization: "Company",
@@ -14,30 +15,9 @@ export const KIND_LABELS_ANY: Record<string, string> = {
 };
 
 export const COUNTRY_NAMES: Record<string, string> = {
-  AL: "Albania",
-  AT: "Austria",
-  GB: "United Kingdom",
-  LU: "Luxembourg",
+  ...EUROPE_COUNTRY_NAMES,
+  // Non-European display fallbacks for entities headquartered outside scope.
   US: "United States",
-  BA: "Bosnia and Herzegovina",
-  BG: "Bulgaria",
-  CZ: "Czechia",
-  EE: "Estonia",
-  GR: "Greece",
-  HR: "Croatia",
-  HU: "Hungary",
-  LT: "Lithuania",
-  LV: "Latvia",
-  MD: "Moldova",
-  ME: "Montenegro",
-  MK: "North Macedonia",
-  PL: "Poland",
-  RO: "Romania",
-  RS: "Serbia",
-  SI: "Slovenia",
-  SK: "Slovakia",
-  UA: "Ukraine",
-  XK: "Kosovo",
 };
 
 export function countryName(code: string | null): string | null {

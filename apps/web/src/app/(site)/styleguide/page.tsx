@@ -134,11 +134,11 @@ export default function StyleguidePage() {
         <div className="space-y-6">
           <div>
             <div className="type-label mb-1">h1 · serif 500 · 30/1.2</div>
-            <div className="type-h1">The record of private capital</div>
+            <div className="type-h1">The map of European alternative assets</div>
           </div>
           <div>
             <div className="type-label mb-1">h2 · serif 500 · 22/1.25</div>
-            <div className="type-h2">Fund performance in emerging Europe</div>
+            <div className="type-h2">Fund performance across European private markets</div>
           </div>
           <div>
             <div className="type-label mb-1">h3 · sans 500 · 16/1.3</div>
@@ -147,7 +147,7 @@ export default function StyleguidePage() {
           <div>
             <div className="type-label mb-1">body · sans 400 · 14/1.5</div>
             <div className="type-body">
-              Private capital across emerging Europe remains concentrated in mid-market buyouts,
+              Private capital across Europe remains concentrated in mid-market buyouts,
               with credit strategies gaining share as bank lending retreats.
             </div>
           </div>

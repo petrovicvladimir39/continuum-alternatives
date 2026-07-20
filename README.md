@@ -1,6 +1,6 @@
 # Continuum Alternatives
 
-Monorepo for Continuum Alternatives, a data platform for private capital in emerging Europe. It is a pnpm workspace containing the Next.js web app (`apps/web`) and the `@continuum/db`, `@continuum/pipeline`, and `@continuum/shared` TypeScript packages.
+Monorepo for Continuum Alternatives — the map of European alternative assets: private equity, venture capital, private credit, distressed, and the institutions around them. It is a pnpm workspace containing the Next.js web app (`apps/web`) and the `@continuum/db`, `@continuum/pipeline`, and `@continuum/shared` TypeScript packages.
 
 ## Prerequisites
 

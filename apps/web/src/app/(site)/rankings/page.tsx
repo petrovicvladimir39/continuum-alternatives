@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Rankings",
   description:
-    "League tables from emerging Europe's insolvency and private capital record: most active courts, cities, insolvency administrators, and most connected organizations.",
+    "League tables from Europe's insolvency and alternative-asset record: most active courts, cities, insolvency administrators, and most connected organizations.",
 };
 
 /**

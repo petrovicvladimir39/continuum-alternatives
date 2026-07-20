@@ -1,6 +1,6 @@
 # Continuum Alternatives — project constitution
 
-Data platform for alternative investments (PE, VC, private credit, distressed/NPL) in emerging Europe. Monorepo: apps/web (Next.js 15, App Router, Tailwind v4), packages/db, packages/pipeline, packages/shared. pnpm workspaces, strict TypeScript everywhere.
+The map of European alternative assets (PE, VC, private credit, distressed/NPL) and the institutions around them; deepest coverage in Central and South-Eastern Europe. Monorepo: apps/web (Next.js 15, App Router, Tailwind v4), packages/db, packages/pipeline, packages/shared. pnpm workspaces, strict TypeScript everywhere.
 
 ## Stack (decided; never substitute)
 

@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Deals",
   description:
-    "Transactions in emerging Europe's alternative investment record — NPL sales, buyouts, rounds, credit facilities, and restructurings.",
+    "Transactions in Europe's alternative-asset record — NPL sales, buyouts, rounds, credit facilities, and restructurings.",
 };
 
 export default async function DealsIndexPage({

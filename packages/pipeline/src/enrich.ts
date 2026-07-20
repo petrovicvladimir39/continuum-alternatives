@@ -186,7 +186,7 @@ export async function fetchCompanyText(website: string): Promise<FetchedSite> {
   return { text: combined.slice(0, TEXT_CAP), urls, firecrawlUsed };
 }
 
-const SYSTEM_PROMPT = `You write structured company enrichment records for an institutional data platform covering alternative investments in emerging Europe.
+const SYSTEM_PROMPT = `You write structured company enrichment records for an institutional data platform covering European alternative assets.
 
 You are given text fetched from a company's own website. Return ONLY a JSON object with this exact shape:
 

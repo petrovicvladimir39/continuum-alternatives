@@ -25,7 +25,8 @@ export const metadata: Metadata = {
     default: "Continuum Alternatives",
     template: "%s — Continuum Alternatives",
   },
-  description: "The record of private capital in emerging Europe.",
+  description:
+    "The map of European alternative assets — private equity, venture capital, private credit, distressed, and the institutions around them.",
   icons: { icon: "/icon.svg" },
   openGraph: {
     siteName: "Continuum Alternatives",

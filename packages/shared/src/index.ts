@@ -9,6 +9,12 @@ export {
   monogramFor,
 } from "./normalize";
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
+export {
+  EUROPE_COUNTRIES,
+  EUROPE_COUNTRY_NAMES,
+  EUROPE_MAP_BOUNDS,
+  isEuropeCountry,
+} from "./countries";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";
 export { stripBaseLabels, isCountryLabelLayer, type MapStyleLike } from "./map-style";
 export {

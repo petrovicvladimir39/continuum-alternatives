@@ -44,7 +44,7 @@ export async function generateMetadata({
     .join(" · ");
   return {
     title: digest.subject ?? `Continuum Brief — ${date}`,
-    description: topTitles === "" ? "Private capital events in emerging Europe." : topTitles,
+    description: topTitles === "" ? "European alternative-asset events." : topTitles,
   };
 }
 
@@ -61,7 +61,7 @@ export default async function DigestIssuePage({ params }: { params: Promise<{ da
     <div className="py-12">
       <h1 className="type-h1">{digest.subject ?? `Continuum Brief — ${date}`}</h1>
       <p className="mt-2 text-ink-secondary">
-        Private capital events in emerging Europe, from primary sources.
+        European alternative-asset events, from primary sources.
       </p>
       <div className="mt-8 max-w-2xl">
         {sections.map((section) => (

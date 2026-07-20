@@ -1,6 +1,6 @@
 /**
  * Entity tag taxonomy — the only valid values for entity_tags.tag,
- * grouped by the nine player categories of the register:
+ * grouped by the nine player categories of the platform universe:
  *
  * 1. Capital managers (GPs & investors):
  *    gp_vc, gp_pe, gp_credit, gp_distressed, gp_re, gp_infra, gp_secondaries,

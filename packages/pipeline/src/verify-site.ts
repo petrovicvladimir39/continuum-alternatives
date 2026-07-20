@@ -97,7 +97,7 @@ function main() {
   console.log("\n— report cover SVG determinism —");
   const coverA1 = reportCoverSvg({ title: "Serbian Insolvency Monitor", date: "Q3 2026" });
   const coverA2 = reportCoverSvg({ title: "Serbian Insolvency Monitor", date: "Q3 2026" });
-  const coverB = reportCoverSvg({ title: "CEE Private Capital Map", date: "In preparation" });
+  const coverB = reportCoverSvg({ title: "European Private Capital Map", date: "In preparation" });
   check(coverA1 === coverA2, "same input → byte-identical SVG");
   check(coverA1 !== coverB, "different titles → different covers");
   check(

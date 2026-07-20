@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Digest",
-  description: "The Continuum Brief archive — private capital events in emerging Europe.",
+  description: "The Continuum Brief archive — European alternative-asset events.",
 };
 
 export default async function DigestIndexPage() {
@@ -31,8 +31,8 @@ export default async function DigestIndexPage() {
     <div className="py-12">
       <h1 className="type-h1">Continuum Brief</h1>
       <p className="mt-2 max-w-xl text-ink-secondary">
-        The digest of private capital events in emerging Europe — insolvencies, asset sales, deals
-        and mandates, from primary sources.
+        The digest of European alternative-asset events — insolvencies, asset sales, deals and
+        mandates, from primary sources.
       </p>
       <div className="mt-8 space-y-6">
         {rows.length === 0 ? (

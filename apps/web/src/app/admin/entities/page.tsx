@@ -34,7 +34,7 @@ export default async function AdminEntitiesPage({
       </form>
       <div className="mt-6">
         {hits === null ? (
-          <p className="text-[13px] text-ink-muted">Search the register to see results.</p>
+          <p className="text-[13px] text-ink-muted">Search the universe to see results.</p>
         ) : hits.length === 0 ? (
           <p className="text-[13px] text-ink-muted">No entities match “{q}”.</p>
         ) : (

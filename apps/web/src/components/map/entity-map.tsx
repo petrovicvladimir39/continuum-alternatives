@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { MapCity, MapData, MapEntityCard } from "@continuum/db";
-import { stripBaseLabels, type MapStyleLike } from "@continuum/shared";
+import { EUROPE_MAP_BOUNDS, stripBaseLabels, type MapStyleLike } from "@continuum/shared";
 import { MapPanel, type PanelState } from "@/components/map/map-panel";
 import { countryName } from "@/lib/public-labels";
 
@@ -123,10 +123,7 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
       const map = new maplibregl.Map({
       container: container as HTMLDivElement,
       style: style as never,
-      bounds: [
-        [11.5, 36.5],
-        [31.0, 60.0],
-      ],
+      bounds: EUROPE_MAP_BOUNDS,
       fitBoundsOptions: { padding: 40 },
       // OpenFreeMap's required credit line; the style's TileJSON does not
       // reliably surface it, so we set it explicitly (bottom-right default).
