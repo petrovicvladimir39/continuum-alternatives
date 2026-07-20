@@ -35,6 +35,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <aside className="w-[200px] shrink-0 border-r border-line px-4 py-6">
         <div className="type-label mb-3 px-2">Admin</div>
         <nav>
+          <Link href="/admin/universe" className={navLinkClass}>
+            Universe
+          </Link>
           <Link href="/admin/entities" className={navLinkClass}>
             Entities
           </Link>

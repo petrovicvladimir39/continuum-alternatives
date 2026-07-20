@@ -29,6 +29,44 @@ links). Per-source JSON config keys: `maxItemsPerRun` (default 10),
 `articleFetch` (`simple` | `firecrawl`, default `simple`), `language` (2-letter
 code stamped onto stored documents).
 
+## Register harvest (reset build)
+
+$0 deterministic ingestion from official registers — no LLM anywhere:
+
+- `pnpm gleif:harvest -- --countries LU,IE,GB --cap 12000` — GLEIF LEI records
+  (public JSON API) filtered to `EUROPE_COUNTRIES` + category FUND; LEI is the
+  deterministic resolution key; fund→manager relationships from the RR
+  golden-copy file become PROPOSED `manages` edges. Resumable cursor in
+  `data/.gleif/state.json`; idempotent re-runs.
+- `pnpm registers:harvest -- --register cssf|nbs|amf|lb --cap 1500` — national
+  regulator registers (accessibility matrix: `docs/register-catalog.md`).
+- `pnpm ch:enrich [-- --limit 100]` — Companies House anchors on existing GB
+  orgs (needs `CH_API_KEY`; degrades gracefully without it).
+- `pnpm wikidata:harvest [-- --cap 500]` — crowd-sourced PE/VC/asset-manager
+  anchors; always provisional, activation only via `pnpm universe:verify`.
+
+## Activity discovery (reset build)
+
+- `pnpm sources:discover -- --limit 500` — probes the most-connected orgs'
+  websites for newsrooms (RSS autodiscovery + common paths) and creates
+  INACTIVE entity-linked sources; activation is an operator decision in
+  /admin/sources (bulk-activate with monthly cost estimate).
+- `pnpm portals:seed` — probe-first seeding of industry portals (RSS where
+  available); paywalled/blocked portals stay documented, skipped.
+
+## Export suite (reset build)
+
+Clean UTF-8-BOM CSVs into `/exports` (gitignored) — the operator's
+raw-material files; also downloadable from /admin/universe:
+
+- `pnpm export:entities [-- --country LU --tag register_verified --kind organization --status active]`
+- `pnpm export:edges`
+- `pnpm export:facts [-- --channel distressed --since 2026-01-01]`
+- `pnpm export:documents [-- --source newsroom --since 2026-01-01]`
+
+Targeted extraction (LLM spend, operator-aimed, never blanket):
+`pnpm extract:batch -- --source-type newsroom --limit 10 [--dry-run]`.
+
 ## Universe seeding (Phase 15)
 
 Curated CSV import + live verification for the regional player universe.
