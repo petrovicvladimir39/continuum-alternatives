@@ -169,6 +169,13 @@
       "when": 1784585694032,
       "tag": "0023_sleepy_speed",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1784588702916,
+      "tag": "0024_tricky_wallop",
+      "breakpoints": true
     }
   ]
 }

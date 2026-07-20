@@ -88,8 +88,16 @@ export {
   type BriefResult,
 } from "./brief-compose";
 export { guardBrief, INTERNAL_SOURCE_NAME, type BriefDraft } from "./brief-guards";
+export { createContinuumMcpServer } from "./mcp-server";
+export {
+  buildWebhookPayload,
+  deliverMemberWebhooks,
+  signWebhookPayload,
+  verifyWebhookSignature,
+} from "./webhooks";
 
 import { alertsDaily } from "./functions/alerts-daily";
+import { webhooksDeliver } from "./functions/webhooks-deliver";
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { articlesWeekly } from "./functions/articles-weekly";
 import { digestWeeklyDraft } from "./functions/digest-weekly";
@@ -108,4 +116,5 @@ export const functions = [
   articlesWeekly,
   digestWeeklyDraft,
   alertsDaily,
+  webhooksDeliver,
 ];

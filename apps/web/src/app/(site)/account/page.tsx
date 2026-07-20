@@ -96,6 +96,9 @@ export default async function AccountPage({
         <a href="/account/updates" className="text-accent hover:underline">
           What changed →
         </a>
+        <a href="/account/api" className="text-accent hover:underline">
+          API &amp; webhooks →
+        </a>
       </p>
 
       <div className="mt-6 border border-line p-4">

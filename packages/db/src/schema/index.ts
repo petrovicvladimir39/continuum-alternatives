@@ -18,3 +18,4 @@ export * from "./briefs";
 export * from "./community";
 export * from "./attendance";
 export * from "./private-graph";
+export * from "./platform";

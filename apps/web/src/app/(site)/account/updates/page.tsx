@@ -7,10 +7,12 @@ import {
   listContactRequestsFor,
   listOutbox,
   markOutboxSeen,
+  storyById,
   upsertMemberProfile,
 } from "@continuum/db";
 import { ClassKicker } from "@/components/editorial/class-accent";
 import { respondContactAction } from "@/lib/attendance-actions";
+import { decideStoryConsentAction } from "@/lib/platform-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,8 @@ const KIND_LABELS: Record<string, string> = {
   view_hit: "Saved view",
   post: "Discussion",
   contact_request: "Contact request",
+  story_consent: "Consent request",
+  webhook_disabled: "Webhook disabled",
 };
 
 /** "What changed" (Phase 28D) — outbox newest-first; viewing marks seen. */
@@ -53,7 +57,15 @@ export default async function UpdatesPage() {
   await markOutboxSeen(member.id);
   // Contact-request outbox rows drive the counter/email; the actionable
   // cards render here from their own table (accept/decline lives on them).
-  const outboxItems = items.filter((item) => item.kind !== "contact_request");
+  const outboxItems = items.filter(
+    (item) => item.kind !== "contact_request" && item.kind !== "story_consent",
+  );
+  // Phase 33B: story-consent requests — the CLIENT steward's naming decision.
+  const consentItems = await Promise.all(
+    items
+      .filter((item) => item.kind === "story_consent")
+      .map(async (item) => ({ item, story: await storyById(item.refId) })),
+  );
 
   return (
     <div className="max-w-2xl py-12">
@@ -63,6 +75,53 @@ export default async function UpdatesPage() {
           Watchlist settings →
         </Link>
       </div>
+
+      {consentItems.length > 0 ? (
+        <section className="mt-6">
+          <h2 className="type-h2">Naming consent requests</h2>
+          <div className="mt-2 space-y-2">
+            {consentItems.map(({ item, story }) =>
+              story === null ? null : (
+                <div key={item.id} className="border border-line p-3 text-[13px]">
+                  <p>
+                    <span className="font-medium">{story.vendorName}</span>
+                    <span className="text-ink-muted">
+                      {" "}
+                      wants to name your organization in a track-record story:
+                    </span>
+                  </p>
+                  <p className="mt-1 border-l-2 border-line pl-2 text-ink-secondary">
+                    &ldquo;{story.title}&rdquo; — {story.bodyMd.slice(0, 200)}
+                    {story.bodyMd.length > 200 ? "…" : ""}
+                  </p>
+                  {story.clientConsent === "pending" ? (
+                    <div className="mt-2 flex gap-3">
+                      <form action={decideStoryConsentAction}>
+                        <input type="hidden" name="storyId" value={story.id} />
+                        <input type="hidden" name="decision" value="grant" />
+                        <button type="submit" className="text-[12px] font-medium text-accent hover:underline">
+                          Allow our name
+                        </button>
+                      </form>
+                      <form action={decideStoryConsentAction}>
+                        <input type="hidden" name="storyId" value={story.id} />
+                        <input type="hidden" name="decision" value="decline" />
+                        <button type="submit" className="text-[12px] text-ink-muted hover:text-distressed">
+                          Decline — publish anonymized
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    <p className="type-small mt-1 text-ink-muted">
+                      Decided: {story.clientConsent === "granted" ? "named" : "anonymized"}.
+                    </p>
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {contactRequests.length > 0 ? (
         <section className="mt-6">
@@ -152,7 +211,7 @@ export default async function UpdatesPage() {
         </section>
       ) : null}
 
-      {outboxItems.length === 0 && contactRequests.length === 0 ? (
+      {outboxItems.length === 0 && contactRequests.length === 0 && consentItems.length === 0 ? (
         <p className="mt-4 text-[13px] text-ink-muted">
           Nothing yet. Watch entities or enable saved-view alerts; changes land here and in your
           daily email.

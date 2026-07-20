@@ -16,6 +16,7 @@ import {
 } from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { DiscussionSection } from "@/components/discussion-section";
+import { OrgStewardSection } from "@/components/org-steward";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
 import { TrackView } from "@/components/track-view";
@@ -338,6 +339,20 @@ export async function EntityProfile({
         );
       })()}
 
+      {/* ── Steward statement (Phase 33A) — the org's OWN words, always
+          labeled as such; never merged into the record. */}
+      {organization?.stewardStatement ? (
+        <section className="mt-6 max-w-2xl border-l-2 border-line-strong pl-4">
+          <h2 className="type-label">From {entity.name}</h2>
+          <p className="mt-1.5 text-[14px] leading-[1.55] text-ink">
+            {organization.stewardStatement}
+          </p>
+          <p className="type-small mt-1 text-ink-muted">
+            The organization&apos;s own statement, provided by its verified steward.
+          </p>
+        </section>
+      ) : null}
+
       <ProfileStats profile={profile} />
 
       {connections.length > 0 ? (
@@ -354,6 +369,16 @@ export async function EntityProfile({
           <h2 className="type-h2">Activity</h2>
           <ActivityTimeline facts={facts} />
         </section>
+      ) : null}
+
+      {/* Phase 33A/B: claiming + steward tools + vendor track record. */}
+      {entity.kind === "organization" ? (
+        <OrgStewardSection
+          entityId={entity.id}
+          entityName={entity.name}
+          backPath={`/companies/${entity.slug}`}
+          stewardStatement={organization?.stewardStatement ?? null}
+        />
       ) : null}
 
       {/* Phase 30C: the anchored signal thread — below the timeline. */}

@@ -8,7 +8,7 @@ export {
   hasCyrillic,
   monogramFor,
 } from "./normalize";
-export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
+export { ENTITY_TAGS, VENDOR_TAGS, type EntityTag } from "./taxonomy";
 export {
   EUROPE_COUNTRIES,
   EUROPE_COUNTRY_NAMES,
@@ -59,6 +59,7 @@ export {
   type KeywordRule,
   type StrategyDef,
 } from "./alt-taxonomy";
+export { emailDomain, emailMatchesWebsite, websiteHost } from "./claims";
 export {
   findWarmPaths,
   MEMBER_NODE,

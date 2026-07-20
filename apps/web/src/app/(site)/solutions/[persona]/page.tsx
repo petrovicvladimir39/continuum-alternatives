@@ -226,6 +226,36 @@ export default async function SolutionsPage({
         </section>
       ) : null}
 
+      {/* Phase 33B: vendor tier — the honest pitch, advisors persona only. */}
+      {persona.slug === "advisors" ? (
+        <section className="mt-8 border border-line p-4">
+          <h2 className="type-label">Vendor profiles</h2>
+          {process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_VENDOR ? (
+            <p className="mt-2 max-w-2xl text-[13px] leading-[1.55] text-ink-secondary">
+              Claim your firm&apos;s profile, then activate a vendor subscription to publish
+              track-record stories on it — each one operator-reviewed, and a referenced client is
+              named only with that client&apos;s explicit consent (otherwise it publishes
+              anonymized). Pricing is shown at checkout from your claimed profile;{" "}
+              <Link href="/pricing" className="text-accent hover:underline">
+                membership pricing
+              </Link>{" "}
+              is separate.
+            </p>
+          ) : (
+            <p className="mt-2 text-[13px] text-ink-secondary">Vendor profiles open soon.</p>
+          )}
+        </section>
+      ) : null}
+
+      {/* Phase 33D: claimable because it is true — see /docs/mcp. */}
+      <p className="mt-8 border-t border-line pt-3 text-[13px] text-ink-secondary">
+        Your AI can query Continuum — the record is available to agents over MCP and a documented
+        REST API.{" "}
+        <Link href="/docs/mcp" className="text-accent hover:underline">
+          Connect your assistant →
+        </Link>
+      </p>
+
       <div className="mt-10">
         <SubscribeBlock defaultChannels={persona.channels} />
       </div>

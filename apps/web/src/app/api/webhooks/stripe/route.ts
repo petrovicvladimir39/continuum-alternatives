@@ -1,6 +1,11 @@
 import type Stripe from "stripe";
 import { subscriptionSyncFromEvent } from "@continuum/shared";
-import { syncSubscriptionByStripeId, upsertSubscription } from "@continuum/db";
+import {
+  syncSubscriptionByStripeId,
+  syncVendorSubscriptionByStripeId,
+  upsertSubscription,
+  upsertVendorSubscription,
+} from "@continuum/db";
 import { getStripe } from "@/lib/billing";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +48,22 @@ export async function POST(request: Request): Promise<Response> {
       // Fetch the live subscription — the session payload has no status/period.
       const subscription = await getStripe().subscriptions.retrieve(subscriptionId);
       const item = subscription.items.data[0];
+      // Phase 33B: vendor checkouts carry vendor_entity_id and bind to the ORG.
+      const vendorEntityId = session.metadata?.vendor_entity_id;
+      if (vendorEntityId !== undefined && vendorEntityId !== "") {
+        await upsertVendorSubscription({
+          entityId: vendorEntityId,
+          memberId,
+          stripeCustomerId:
+            typeof session.customer === "string" ? session.customer : (session.customer?.id ?? null),
+          stripeSubscriptionId: subscription.id,
+          status: subscription.status,
+          priceId: item?.price.id ?? null,
+          currentPeriodEnd:
+            item?.current_period_end !== undefined ? new Date(item.current_period_end * 1000) : null,
+        });
+        return new Response("ok", { status: 200 });
+      }
       await upsertSubscription({
         memberId,
         stripeCustomerId:
@@ -63,14 +84,22 @@ export async function POST(request: Request): Promise<Response> {
       if (sync === null) {
         return new Response("ignored", { status: 200 });
       }
+      const periodEnd = sync.currentPeriodEnd === null ? null : new Date(sync.currentPeriodEnd * 1000);
       const matched = await syncSubscriptionByStripeId({
         stripeSubscriptionId: sync.stripeSubscriptionId,
         status: sync.status,
         priceId: sync.priceId,
-        currentPeriodEnd:
-          sync.currentPeriodEnd === null ? null : new Date(sync.currentPeriodEnd * 1000),
+        currentPeriodEnd: periodEnd,
       });
-      return new Response(matched ? "ok" : "unknown subscription", { status: 200 });
+      // Not a member subscription → try the vendor table (33B).
+      const vendorMatched = matched
+        ? false
+        : await syncVendorSubscriptionByStripeId({
+            stripeSubscriptionId: sync.stripeSubscriptionId,
+            status: sync.status,
+            currentPeriodEnd: periodEnd,
+          });
+      return new Response(matched || vendorMatched ? "ok" : "unknown subscription", { status: 200 });
     }
     default:
       return new Response("ignored", { status: 200 });

@@ -1,11 +1,14 @@
 import Link from "next/link";
-import { briefTelemetry } from "@continuum/db";
+import { apiUsageSummary, briefTelemetry } from "@continuum/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminIndexPage() {
   // Phase 29D cost telemetry — deterministic sums from the generation log.
   const briefs = await briefTelemetry();
+  // Phase 33E: API usage rollups (last 7 days). Stripe metered reporting is
+  // an operator decision later — log-only until STRIPE_METER_* envs land.
+  const usage = await apiUsageSummary(7);
   return (
     <div>
       <h1 className="type-h2">Admin</h1>
@@ -43,6 +46,24 @@ export default async function AdminIndexPage() {
           <span className="text-ink-muted"> all-time · {briefs.cachedBriefs} cached brief(s)</span>
         </p>
       </div>
+
+      <h2 className="type-h2 mt-8">API usage — last 7 days</h2>
+      {usage.length === 0 ? (
+        <p className="mt-2 text-[13px] text-ink-muted">No API calls yet.</p>
+      ) : (
+        <table className="mt-2 w-full max-w-xl text-[13px]">
+          <tbody>
+            {usage.map((row) => (
+              <tr key={`${row.keyName}-${row.day}`} className="border-t border-line">
+                <td className="type-data py-1">{row.day}</td>
+                <td>{row.keyName}</td>
+                <td className="text-ink-muted">{row.memberEmail ?? "—"}</td>
+                <td className="type-data text-right">{row.count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

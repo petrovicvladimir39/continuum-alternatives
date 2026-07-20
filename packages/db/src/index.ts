@@ -20,6 +20,7 @@ export * from "./repo/events";
 export * from "./repo/attendance";
 export * from "./repo/private-graph";
 export * from "./repo/universe";
+export * from "./repo/platform";
 export * from "./resolve";
 export * from "./register-import";
 export * from "./export";

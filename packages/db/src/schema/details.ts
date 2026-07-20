@@ -42,6 +42,10 @@ export const organizations = pgTable("organizations", {
   //                    without a human decision
   enrichment: jsonb("enrichment"),
   enrichedAt: timestamp("enriched_at", { withTimezone: true }),
+  // Phase 33A — the steward's own-voice statement ("From {Org}"), sanitized
+  // ≤600 chars, always rendered LABELED as the org's own words. The one
+  // thing a steward may write directly; record data stays review-gated.
+  stewardStatement: text("steward_statement"),
 });
 
 // Deliberately minimal — GDPR.

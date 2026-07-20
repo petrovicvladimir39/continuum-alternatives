@@ -9,6 +9,7 @@ import {
   eq,
   listArticlesByStatus,
   listProposedClassifications,
+  listProposedStories,
   listProvisionalEvents,
   ne,
   organizations,
@@ -29,6 +30,7 @@ import {
   rejectEventAction,
   rejectFactAction,
 } from "@/app/admin/actions";
+import { decideStoryAction } from "@/app/admin/claims/actions";
 import { Button } from "@/components/ui/button";
 import { DataTable, numericCell } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
@@ -51,7 +53,7 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-const FILTERS = ["all", "facts", "edges", "articles", "classifications", "events", ...CHANNELS] as const;
+const FILTERS = ["all", "facts", "edges", "articles", "classifications", "events", "stories", ...CHANNELS] as const;
 
 export default async function ReviewPage({
   searchParams,
@@ -70,6 +72,8 @@ export default async function ReviewPage({
   // Phase 31A: imported events (CSV/harvest) awaiting the operator's thumb.
   const showEvents = filter === "all" || filter === "events";
   const proposedEvents = showEvents ? await listProvisionalEvents() : [];
+  // Phase 33B: vendor stories — the operator gate atop the client-consent gate.
+  const proposedStories = filter === "all" || filter === "stories" ? await listProposedStories() : [];
   // Grouped by (class, strategy) for batch decisions (Phase 26B).
   const classificationGroups = new Map<string, typeof proposedClassifications>();
   for (const row of proposedClassifications) {
@@ -324,6 +328,49 @@ export default async function ReviewPage({
                       </button>
                     </form>
                   </span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
+        {proposedStories.length > 0 ? (
+          <Section title="Proposed vendor stories">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Steward-written track-record stories. The client-consent gate already ran: a named
+              client here means their steward GRANTED it; &ldquo;anonymized&rdquo; renders a
+              generic descriptor. Publishing is the second gate.
+            </p>
+            <div className="space-y-3">
+              {proposedStories.map((story) => (
+                <div key={story.id} className="border border-line p-3">
+                  <p className="text-[13px]">
+                    <span className="font-medium">{story.title}</span>
+                    <span className="type-small text-ink-muted">
+                      {" "}
+                      · {story.vendorName} · client:{" "}
+                      {story.clientDisplay ?? "(none)"} · consent: {story.clientConsent}
+                    </span>
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap border-l-2 border-line pl-2 text-[13px] text-ink-secondary">
+                    {story.bodyMd.slice(0, 400)}
+                  </p>
+                  <div className="mt-2 flex gap-3">
+                    <form action={decideStoryAction}>
+                      <input type="hidden" name="storyId" value={story.id} />
+                      <input type="hidden" name="decision" value="publish" />
+                      <Button type="submit" variant="ghost">
+                        Publish
+                      </Button>
+                    </form>
+                    <form action={decideStoryAction}>
+                      <input type="hidden" name="storyId" value={story.id} />
+                      <input type="hidden" name="decision" value="reject" />
+                      <button type="submit" className="text-[12px] text-ink-muted hover:text-distressed">
+                        Reject
+                      </button>
+                    </form>
+                  </div>
                 </div>
               ))}
             </div>

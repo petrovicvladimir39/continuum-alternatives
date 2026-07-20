@@ -80,6 +80,10 @@ Suggested first batches:
          the billing portal link works. The build could not run this — no
          Stripe keys existed in the environment.
       Requires Clerk first (checkout binds to the signed-in member).
+      Phase 33 additions: create the VENDOR price too (`STRIPE_PRICE_VENDOR`)
+      — steward-initiated vendor-profile subscriptions; and optionally
+      `STRIPE_METER_EVENT_NAME` when enterprise metered API pricing becomes
+      a decision (until then API usage stays log-only on /admin).
 
 - [ ] **22 proposed events (Phase 31A)** — /admin/review?filter=events.
       18 seeded from data/events-seed.csv (probe-confirmed dates for the

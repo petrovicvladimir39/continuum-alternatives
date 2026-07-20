@@ -106,3 +106,34 @@ export const ENTITY_TAGS = [
 ] as const;
 
 export type EntityTag = (typeof ENTITY_TAGS)[number];
+
+/**
+ * Vendor-tier eligibility (Phase 33B) — the service-provider slice of
+ * ENTITY_TAGS: firms whose business is advising/servicing the market
+ * rather than investing in it. Derivation rule: every tag whose bearer
+ * sells professional services to transaction parties. Investors (gp_*,
+ * lp_*), authorities, media, and operating companies stay out.
+ */
+export const VENDOR_TAGS = [
+  "advisor_ma",
+  "placement_agent",
+  "law_firm",
+  "insolvency_practitioner",
+  "accounting",
+  "valuer",
+  "fund_admin",
+  "dd_provider",
+  "restructuring_advisor",
+  "exec_search",
+  "pr_ir",
+  "notary",
+  "re_broker",
+  "w_i_insurance",
+  "it_vendor",
+  "depositary",
+  "trust_services",
+  "servicer",
+  "collection_agency",
+  "data_provider",
+  "research_house",
+] as const satisfies readonly EntityTag[];
