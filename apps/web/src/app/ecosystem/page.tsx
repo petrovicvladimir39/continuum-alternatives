@@ -6,12 +6,13 @@ import { TrackView } from "@/components/track-view";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Map",
+  title: "Ecosystem",
   description:
-    "The European alternative-asset landscape on one map — funds, lenders, servicers, and companies, colored by capital type.",
+    "The European alternative-asset ecosystem on one map — funds, lenders, servicers, and companies, colored by capital type.",
 };
 
-export default async function MapPage() {
+// Phase 25A: /map 301-redirects here (next.config redirects()).
+export default async function EcosystemPage() {
   // ~160 city features + ~700 compact entity rows is a small inline payload;
   // no API route for the base data. If the universe grows past ~5k entities,
   // move this to an endpoint + on-demand loading instead of inlining props.

@@ -8,6 +8,8 @@ export * from "./repo/feed";
 export * from "./repo/articles";
 export * from "./repo/subscriptions";
 export * from "./repo/members";
+export * from "./repo/ask";
+export * from "./repo/saved-views";
 export * from "./repo/map";
 export * from "./resolve";
 export * from "./register-import";

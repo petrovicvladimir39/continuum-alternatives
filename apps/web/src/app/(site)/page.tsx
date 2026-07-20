@@ -345,7 +345,7 @@ export default async function Home() {
             {stats.activeEntities} entities · {stats.countries} countries, plotted by headquarters
             and colored by capital type.
           </p>
-          <Link href="/map" className="type-small mt-2 inline-block text-accent hover:underline">
+          <Link href="/ecosystem" className="type-small mt-2 inline-block text-accent hover:underline">
             Open the map →
           </Link>
         </div>

@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import { CHANNELS } from "@continuum/shared";
-import { findContactByEmail, getMemberByClerkId, upsertMemberProfile } from "@continuum/db";
+import {
+  findContactByEmail,
+  getMemberByClerkId,
+  listSavedViews,
+  upsertMemberProfile,
+} from "@continuum/db";
+import { deleteSavedViewAction } from "@/app/(site)/news/actions";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass } from "@/components/admin/form-styles";
@@ -43,6 +49,7 @@ export default async function AccountPage() {
   }
 
   const contact = email !== null ? await findContactByEmail(email) : null;
+  const savedViews = await listSavedViews(profile.id);
 
   return (
     <div className="max-w-xl py-12">
@@ -74,6 +81,35 @@ export default async function AccountPage() {
           </p>
         </div>
       </div>
+
+      <h2 className="type-h2 mt-8">Saved views</h2>
+      {savedViews.length === 0 ? (
+        <p className="mt-2 text-[13px] text-ink-muted">
+          None yet — filter the News front with the ask bar and press “Save this view”.
+        </p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {savedViews.map((view) => {
+            const stored = view.filters as { q?: string };
+            return (
+              <li key={view.id} className="flex items-center gap-3 text-[13px]">
+                <a
+                  href={`/news?q=${encodeURIComponent(stored.q ?? "")}`}
+                  className="text-accent hover:underline"
+                >
+                  {view.name}
+                </a>
+                <form action={deleteSavedViewAction}>
+                  <input type="hidden" name="viewId" value={view.id} />
+                  <button type="submit" className="text-[11px] text-ink-muted hover:text-distressed">
+                    remove
+                  </button>
+                </form>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       <h2 className="type-h2 mt-8">Newsletter</h2>
       {contact !== null ? (

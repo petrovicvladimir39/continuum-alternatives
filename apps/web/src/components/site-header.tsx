@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS } from "@continuum/shared";
+import { NAV_TREE } from "@continuum/shared";
+import { QuickSearch } from "@/components/quick-search";
 
 /**
- * Site IA (Phase 19): wordmark left · primary nav with active-state underline
- * (1px, per styleguide — elevation and emphasis by hairline only) · Search as
- * an icon-free right-aligned input-shaped link.
+ * Site IA (Phase 25A): wordmark left · primary nav tree with CSS-only
+ * dropdowns (native details/summary — no JS libraries, hairline-bordered
+ * panels) · quiet identity right. Mobile: the bar wraps and open panels
+ * render as plain full-width lists — no hamburger theatrics.
  *
- * Identity (Phase 24D): deliberately quiet on a public news site — signed-out
- * shows only a right-aligned "Sign in" text link (nothing when Clerk is not
- * configured); signed-in shows the display name linking to /account.
+ * Identity (Phase 24D): signed-out shows only a quiet "Sign in" text link
+ * (nothing when Clerk is unconfigured); signed-in shows the display name.
  */
 export type HeaderIdentity =
   | { status: "off" }
@@ -20,38 +21,59 @@ export type HeaderIdentity =
 
 export function SiteHeader({ identity = { status: "off" } }: { identity?: HeaderIdentity }) {
   const pathname = usePathname();
-  const isActive = (href: string) =>
-    pathname === href || (href !== "/" && pathname.startsWith(`${href}/`)) ||
-    (href === "/feed" && pathname === "/feed");
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const leafClass = (href: string) =>
+    `whitespace-nowrap border-b pb-0.5 text-[13px] ${
+      isActive(href)
+        ? "border-ink font-medium text-ink"
+        : "border-transparent text-ink-secondary hover:text-accent"
+    }`;
 
   return (
     <header className="border-b border-line bg-ground">
-      <div className="mx-auto flex h-[52px] max-w-[1200px] items-center gap-8 px-6">
+      <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-1 px-6 py-2.5 sm:h-[52px] sm:flex-nowrap sm:py-0">
         <Link href="/" className="flex shrink-0 items-baseline gap-1.5">
           <span className="font-serif text-[18px] font-medium text-ink">Continuum</span>
           <span className="text-[15px] text-ink-secondary">Alternatives</span>
         </Link>
-        <nav className="flex min-w-0 flex-1 items-center gap-5 overflow-x-auto">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`whitespace-nowrap border-b pb-0.5 text-[13px] ${
-                isActive(item.href)
-                  ? "border-ink font-medium text-ink"
-                  : "border-transparent text-ink-secondary hover:text-accent"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="flex min-w-0 flex-1 flex-wrap items-center gap-x-5 gap-y-1 sm:flex-nowrap">
+          {NAV_TREE.map((node) =>
+            "items" in node ? (
+              // key includes pathname so navigation re-renders (and closes) panels.
+              <details key={`${node.label}-${pathname}`} className="relative">
+                <summary
+                  className={`cursor-pointer list-none whitespace-nowrap border-b border-transparent pb-0.5 text-[13px] marker:hidden ${
+                    node.items.some((item) => isActive(item.href))
+                      ? "font-medium text-ink"
+                      : "text-ink-secondary hover:text-accent"
+                  } [&::-webkit-details-marker]:hidden`}
+                >
+                  {node.label} <span className="text-[10px] text-ink-muted">▾</span>
+                </summary>
+                <div className="left-0 top-full z-50 mt-1 w-full border border-line bg-surface py-1 sm:absolute sm:w-auto sm:min-w-[230px]">
+                  {node.items.map((item) => (
+                    <Link
+                      key={`${node.label}:${item.href}`}
+                      href={item.href}
+                      className={`block whitespace-nowrap px-3 py-1.5 text-[13px] ${
+                        isActive(item.href)
+                          ? "font-medium text-ink"
+                          : "text-ink-secondary hover:bg-ground hover:text-accent"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            ) : (
+              <Link key={node.href} href={node.href} className={leafClass(node.href)}>
+                {node.label}
+              </Link>
+            ),
+          )}
         </nav>
-        <Link
-          href="/search"
-          className="hidden shrink-0 rounded-sm border border-line bg-surface px-3 py-1 text-[13px] text-ink-muted hover:border-accent hover:text-accent sm:block"
-        >
-          Search…
-        </Link>
+        <QuickSearch />
         {identity.status === "signed_in" ? (
           <Link
             href="/account"

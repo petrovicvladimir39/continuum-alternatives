@@ -4,20 +4,43 @@
  * definition. All functions are deterministic (injected `now` where needed).
  */
 
-export const NAV_ITEMS = [
-  { href: "/news", label: "News" },
-  { href: "/map", label: "Map" },
-  { href: "/auctions", label: "Auctions" },
-  { href: "/rankings", label: "Rankings" },
-  { href: "/reports", label: "Reports" },
-  { href: "/digest", label: "Digest" },
-] as const;
+import { NAV_TREE, navLeaves } from "./nav";
 
-export const FOOTER_PLATFORM_LINKS = [
-  ...NAV_ITEMS,
-  { href: "/about", label: "About" },
-  { href: "/search", label: "Search" },
-] as const;
+// Phase 25A: the primary nav became a tree (see nav.ts). The footer keeps a
+// flat platform column derived from the same tree.
+export const FOOTER_PLATFORM_LINKS = navLeaves(NAV_TREE);
+
+/**
+ * "Today in Alternatives" strip (Phase 25D) — one deterministic sentence
+ * from live counts. Null (hidden) when the day is empty. Never an LLM.
+ */
+export function composeTodayStrip(input: {
+  weekday: string;
+  newSignals: number;
+  countries: number;
+  auctionsClosingThisWeek: number;
+  fundUpdates: number;
+}): string | null {
+  const parts: string[] = [];
+  if (input.newSignals > 0) {
+    parts.push(
+      `${input.newSignals} new signal${input.newSignals === 1 ? "" : "s"}` +
+        (input.countries > 1 ? ` across ${input.countries} countries` : ""),
+    );
+  }
+  if (input.auctionsClosingThisWeek > 0) {
+    parts.push(
+      `${input.auctionsClosingThisWeek} auction${input.auctionsClosingThisWeek === 1 ? "" : "s"} closing this week`,
+    );
+  }
+  if (input.fundUpdates > 0) {
+    parts.push(`${input.fundUpdates} fund update${input.fundUpdates === 1 ? "" : "s"}`);
+  }
+  if (parts.length === 0) {
+    return null;
+  }
+  return `${input.weekday}: ${parts.join(" · ")}`;
+}
 
 /**
  * Anti-skew rail diversity (reset build Part 7): order-preserving cap of

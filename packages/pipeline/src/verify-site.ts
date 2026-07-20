@@ -1,7 +1,8 @@
 import "./env";
 import {
   FOOTER_PLATFORM_LINKS,
-  NAV_ITEMS,
+  NAV_TREE,
+  navLeaves,
   reportCoverSvg,
   timeAgo,
   validateReportGate,
@@ -20,21 +21,43 @@ function check(condition: boolean, message: string) {
 }
 
 function main() {
-  console.log("— nav / footer IA —");
-  const navLabels = NAV_ITEMS.map((item) => item.label);
+  console.log("— nav / footer IA (Phase 25 tree) —");
+  const topLabels = NAV_TREE.map((node) => node.label);
   check(
-    JSON.stringify(navLabels) ===
-      JSON.stringify(["News", "Map", "Auctions", "Rankings", "Reports", "Digest"]),
-    `primary nav order is News·Map·Auctions·Rankings·Reports·Digest (got ${navLabels.join("·")})`,
+    JSON.stringify(topLabels) ===
+      JSON.stringify(["News", "Markets", "Ecosystem", "Data", "Solutions", "Reports", "Resources"]),
+    `primary nav order is News·Markets·Ecosystem·Data·Solutions·Reports·Resources (got ${topLabels.join("·")})`,
+  );
+  const markets = NAV_TREE.find((node) => node.label === "Markets");
+  check(
+    markets !== undefined && "items" in markets && markets.items.length === 6,
+    "Markets dropdown holds the six verticals",
+  );
+  const resources = NAV_TREE.find((node) => node.label === "Resources");
+  check(
+    resources !== undefined &&
+      "items" in resources &&
+      JSON.stringify(resources.items.map((item) => item.label)) ===
+        JSON.stringify(["Digest", "Reports", "Methodology", "About"]),
+    "Resources dropdown is Digest·Reports·Methodology·About",
+  );
+  const leaves = navLeaves(NAV_TREE);
+  check(
+    leaves.every((item) => item.href.startsWith("/")),
+    "all nav hrefs are internal paths",
+  );
+  check(
+    !leaves.some((item) => item.href === "/map"),
+    "/map is gone from the tree (moved to /ecosystem)",
   );
   const footerLabels = FOOTER_PLATFORM_LINKS.map((item) => item.label);
   check(
     footerLabels.includes("About") && footerLabels.includes("Search"),
-    "footer platform column adds About + Search",
+    "footer platform column keeps About + Search",
   );
   check(
-    NAV_ITEMS.every((item) => item.href.startsWith("/")),
-    "all nav hrefs are internal paths",
+    new Set(FOOTER_PLATFORM_LINKS.map((item) => item.href)).size === FOOTER_PLATFORM_LINKS.length,
+    "footer links deduplicated",
   );
 
   console.log("\n— timeAgo (pure) —");

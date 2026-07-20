@@ -11,6 +11,10 @@ if (existsSync(rootEnv)) {
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@continuum/db", "@continuum/pipeline", "@continuum/shared"],
+  async redirects() {
+    // Phase 25A: the map moved into the IA as /ecosystem.
+    return [{ source: "/map", destination: "/ecosystem", permanent: true }];
+  },
 };
 
 // Sentry (Phase 23C): the runtime SDK initializes only when SENTRY_DSN is

@@ -27,9 +27,12 @@ const initialState: SubscribeState = { status: "idle" };
 export function SubscribeBlock({
   compact = false,
   defaultEmail = "",
+  defaultChannels = [],
 }: {
   compact?: boolean;
   defaultEmail?: string;
+  /** Pre-checked channels — market fronts preset their own channel. */
+  defaultChannels?: string[];
 }) {
   const [state, formAction] = useActionState(subscribeAction, initialState);
   const tracked = useRef(false);
@@ -76,7 +79,13 @@ export function SubscribeBlock({
         <div className={compact ? "flex flex-wrap gap-x-5 gap-y-1" : "grid grid-cols-1 gap-1 sm:grid-cols-2"}>
           {CHANNELS.map((channel) => (
             <label key={channel} className="flex items-baseline gap-1.5 text-[13px] text-ink">
-              <input type="checkbox" name="channels" value={channel} className="translate-y-[1px]" />
+              <input
+                type="checkbox"
+                name="channels"
+                value={channel}
+                defaultChecked={defaultChannels.includes(channel)}
+                className="translate-y-[1px]"
+              />
               <span>
                 {channel.replace("_", " ")}
                 {!compact ? (
