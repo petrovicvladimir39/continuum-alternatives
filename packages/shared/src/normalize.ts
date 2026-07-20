@@ -53,6 +53,41 @@ function transliterate(value: string): string {
   return value.replace(/[đćčšžőűăâîșțëäöüа-џ]/g, (ch) => TRANSLITERATIONS[ch] ?? ch);
 }
 
+/**
+ * Case-preserving transliteration for DISPLAY (the muted line under Cyrillic
+ * names on public profiles). Unlike normalizeAlias, keeps capitalization:
+ * "ПИК ЗЕМУН" → "PIK ZEMUN", "Ђорђевић" → "Djordjević"-style Latin.
+ * An uppercase letter maps to a fully-uppercase replacement when the next
+ * character is also uppercase (all-caps words), else to a capitalized one.
+ */
+export function transliterateDisplay(value: string): string {
+  let out = "";
+  for (let i = 0; i < value.length; i++) {
+    const ch = value[i] as string;
+    const lower = ch.toLowerCase();
+    const mapped = TRANSLITERATIONS[lower];
+    if (mapped === undefined) {
+      out += ch;
+      continue;
+    }
+    if (ch === lower) {
+      out += mapped;
+    } else {
+      const next = value[i + 1];
+      const allCaps = next === undefined || next !== next.toLowerCase() || next === " ";
+      out += allCaps
+        ? mapped.toUpperCase()
+        : (mapped[0]?.toUpperCase() ?? "") + mapped.slice(1);
+    }
+  }
+  return out;
+}
+
+/** True when a name contains Cyrillic characters (drives the transliterated subtitle). */
+export function hasCyrillic(value: string): boolean {
+  return /[Ѐ-ӿ]/.test(value);
+}
+
 export function slugify(name: string): string {
   const base = transliterate(name.toLowerCase())
     .replace(/[^a-z0-9\s-]/g, "")

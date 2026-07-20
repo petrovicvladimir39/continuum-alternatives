@@ -57,6 +57,15 @@ export {
   type RegistryItem,
 } from "./registries";
 export { processDocumentFile, terminateOcrWorkers } from "./extract-text";
+export {
+  backfillEmbeddings,
+  embedEntityText,
+  embedQuery,
+  voyageClient,
+  EMBEDDING_DIMENSION,
+  EMBEDDING_MODEL,
+  type EmbeddableEntity,
+} from "./embeddings";
 
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { extractDocumentFn } from "./functions/extract-document";

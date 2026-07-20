@@ -13,7 +13,8 @@
     "extract:benchmark": "pnpm --filter @continuum/pipeline extract:benchmark",
     "filings:backfill": "pnpm --filter @continuum/pipeline filings:backfill",
     "alsu:history": "pnpm --filter @continuum/pipeline alsu:history",
-    "anomalies:scan": "pnpm --filter @continuum/pipeline anomalies:scan"
+    "anomalies:scan": "pnpm --filter @continuum/pipeline anomalies:scan",
+    "embeddings:backfill": "pnpm --filter @continuum/pipeline embeddings:backfill"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

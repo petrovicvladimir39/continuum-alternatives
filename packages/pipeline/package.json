@@ -10,7 +10,8 @@
     "extract:benchmark": "tsx src/extract-benchmark.ts",
     "filings:backfill": "tsx src/filings-backfill.ts",
     "alsu:history": "tsx src/alsu-history.ts",
-    "anomalies:scan": "tsx src/anomalies-scan.ts"
+    "anomalies:scan": "tsx src/anomalies-scan.ts",
+    "embeddings:backfill": "tsx src/embeddings-backfill.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",
@@ -23,6 +24,7 @@
     "resend": "^6.17.2",
     "tesseract.js": "^7.0.0",
     "unpdf": "^1.6.2",
+    "voyageai": "^0.4.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

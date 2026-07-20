@@ -8,9 +8,12 @@ export function SiteHeader() {
           <span className="font-serif text-[18px] font-medium text-ink">Continuum</span>
           <span className="text-[15px] text-ink-secondary">Alternatives</span>
         </Link>
-        <nav>
+        <nav className="flex items-center gap-5">
           <Link href="/digest" className="text-[13px] text-ink-secondary hover:text-accent">
             Digest
+          </Link>
+          <Link href="/search" className="text-[13px] text-ink-secondary hover:text-accent">
+            Search
           </Link>
         </nav>
       </div>

@@ -1,6 +1,12 @@
 export const SHARED_PACKAGE = "placeholder";
 
-export { slugify, normalizeAlias, companyNameCore } from "./normalize";
+export {
+  slugify,
+  normalizeAlias,
+  companyNameCore,
+  transliterateDisplay,
+  hasCyrillic,
+} from "./normalize";
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
 export { parseRegionalAmount, parseRegionalDate } from "./parse";
 

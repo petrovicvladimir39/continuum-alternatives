@@ -1,1 +1,23 @@
-Continuum Alternatives — data platform for alternative investments in emerging Europe. Site under construction.
+# Continuum Alternatives
+
+Data platform for alternative investments in emerging Europe: private equity,
+venture capital, private credit, and distressed/NPL situations. Profiles are
+assembled from cited primary sources — registries, gazettes, courts, and press —
+and every timeline fact carries its source.
+
+## Entity profiles
+
+- Companies (organizations): https://continuumalternatives.com/companies/{slug}
+- Funds (fund vehicles): https://continuumalternatives.com/funds/{slug}
+- Deals (transactions): https://continuumalternatives.com/deals/{slug}
+
+Indexes at /companies, /funds, and /deals list every active entity with country
+and tag filters. /search covers all public entities by name and alias.
+
+## Other surfaces
+
+- Digest archive: https://continuumalternatives.com/digest
+- Sitemap: https://continuumalternatives.com/sitemap.xml
+
+There are no public pages for people (GDPR). Amounts are shown as recorded in
+sources; the platform never computes or estimates monetary figures.
