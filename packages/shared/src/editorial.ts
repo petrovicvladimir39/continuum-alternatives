@@ -103,6 +103,41 @@ export function inferArticleClassification(
   return { assetClass: topClass, strategy: null };
 }
 
+/**
+ * Alert routing (Phase 28B) — pure. 'instant_important' members get an
+ * immediate single-item email ONLY for these fact types; everything else
+ * waits for the daily batch. 'off' members accumulate nothing sendable
+ * (rows still land in /account/updates).
+ */
+export const IMPORTANT_FACT_TYPES = [
+  "insolvency_opened",
+  "asset_sale_announced",
+  "fund_close",
+  "acquisition",
+] as const;
+
+export function routeAlert(
+  factType: string | null,
+  frequency: string,
+): "instant" | "daily" | "silent" {
+  if (frequency === "off") {
+    return "silent";
+  }
+  if (
+    frequency === "instant_important" &&
+    factType !== null &&
+    (IMPORTANT_FACT_TYPES as readonly string[]).includes(factType)
+  ) {
+    return "instant";
+  }
+  return "daily";
+}
+
+/** Saved-view hit cap (Phase 28B): at most 20 view_hit rows per view per day. */
+export function capViewHits<T>(items: T[], cap = 20): T[] {
+  return items.slice(0, Math.max(0, cap));
+}
+
 /** Draft → publish state machine (operator pieces may hold 'draft'). */
 export function canTransitionArticle(
   from: string,

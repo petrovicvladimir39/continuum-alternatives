@@ -10,7 +10,7 @@ import {
   VERTICALS,
   type NavLeaf,
 } from "@continuum/shared";
-import { strategyCoverage } from "@continuum/db";
+import { getMemberByClerkId, strategyCoverage, unseenOutboxCount } from "@continuum/db";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader, type HeaderIdentity } from "@/components/site-header";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -62,7 +62,18 @@ async function headerIdentity(): Promise<HeaderIdentity> {
     user?.username ??
     user?.primaryEmailAddress?.emailAddress ??
     "Account";
-  return { status: "signed_in", name };
+  // Phase 28D: unseen-updates count — a quiet number beside the name, never
+  // a badge bubble.
+  let unseen = 0;
+  try {
+    const member = await getMemberByClerkId(userId);
+    if (member !== null) {
+      unseen = await unseenOutboxCount(member.id);
+    }
+  } catch {
+    unseen = 0;
+  }
+  return { status: "signed_in", name, unseen };
 }
 
 const serif = Newsreader({

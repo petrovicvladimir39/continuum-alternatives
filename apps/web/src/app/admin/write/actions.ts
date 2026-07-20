@@ -3,7 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { CHANNELS, sanitizeArticleMarkdown, strategyBySlug, CLASS_LEVEL, assetClassBySlug } from "@continuum/shared";
-import { publishOperatorArticle, requireEntityBySlug, saveOperatorArticle } from "@continuum/db";
+import {
+  articles,
+  db,
+  enqueueAlertsForEntities,
+  eq,
+  publishOperatorArticle,
+  requireEntityBySlug,
+  saveOperatorArticle,
+} from "@continuum/db";
 
 /**
  * Writing-desk actions (Phase 27C). NO LLM anywhere in this path — the
@@ -76,7 +84,17 @@ export async function publishDraftAction(formData: FormData): Promise<void> {
   if (id === "") {
     return;
   }
-  await publishOperatorArticle(id);
+  const published = await publishOperatorArticle(id);
+  // Phase 28B: operator publishes alert watchers of the primary entity too.
+  if (published) {
+    const rows = await db
+      .select({ primaryEntityId: articles.primaryEntityId })
+      .from(articles)
+      .where(eq(articles.id, id));
+    if (rows[0]?.primaryEntityId != null) {
+      await enqueueAlertsForEntities("article", id, [rows[0].primaryEntityId]);
+    }
+  }
   revalidatePath("/admin/write");
   revalidatePath("/news");
   revalidatePath("/");

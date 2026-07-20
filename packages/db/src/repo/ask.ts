@@ -22,9 +22,16 @@ export async function listAskFeed(opts: {
   /** Taxonomy asset-class slugs — class-level filter via approved classifications. */
   assetClasses?: string[];
   entityQuery?: string;
+  /** Only items recorded in the last N hours (saved-view alert evaluation). */
+  recordedWithinHours?: number;
   limit?: number;
 }): Promise<AskFeed> {
   const conditions = [eq(timelineFacts.status, "approved")];
+  if (opts.recordedWithinHours !== undefined && opts.recordedWithinHours > 0) {
+    conditions.push(
+      sql`${timelineFacts.recordedAt} >= now() - make_interval(hours => ${opts.recordedWithinHours})`,
+    );
+  }
   if (opts.strategies !== undefined && opts.strategies.length > 0) {
     conditions.push(
       sql`EXISTS (SELECT 1 FROM entity_classifications c

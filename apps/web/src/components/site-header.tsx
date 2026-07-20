@@ -17,7 +17,7 @@ import { QuickSearch } from "@/components/quick-search";
 export type HeaderIdentity =
   | { status: "off" }
   | { status: "anon" }
-  | { status: "signed_in"; name: string };
+  | { status: "signed_in"; name: string; unseen?: number };
 
 export function SiteHeader({
   identity = { status: "off" },
@@ -87,6 +87,10 @@ export function SiteHeader({
             className="shrink-0 whitespace-nowrap text-[13px] text-ink-secondary hover:text-accent"
           >
             {identity.name}
+            {/* quiet unseen count — a number, never a badge bubble */}
+            {identity.unseen !== undefined && identity.unseen > 0 ? (
+              <span className="type-data ml-1.5 text-ink-muted">{identity.unseen}</span>
+            ) : null}
           </Link>
         ) : identity.status === "anon" ? (
           <Link

@@ -30,6 +30,20 @@ export async function createSavedView(
   return rows[0]!;
 }
 
+/** Phase 28: flip daily alert evaluation for one view (member-scoped). */
+export async function setSavedViewAlert(
+  memberId: string,
+  viewId: string,
+  enabled: boolean,
+): Promise<boolean> {
+  const rows = await db
+    .update(memberSavedViews)
+    .set({ alertEnabled: enabled })
+    .where(and(eq(memberSavedViews.memberId, memberId), eq(memberSavedViews.id, viewId)))
+    .returning({ id: memberSavedViews.id });
+  return rows.length > 0;
+}
+
 export async function deleteSavedView(memberId: string, viewId: string): Promise<boolean> {
   const rows = await db
     .delete(memberSavedViews)

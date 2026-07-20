@@ -46,9 +46,12 @@ import {
 import { contacts, digestItems, digests } from "@continuum/db";
 import {
   decideClassificationGroup,
+  enqueueAlertsForEntities,
   removeClassification,
   upsertClassification,
 } from "@continuum/db";
+import { sendInstantAlertsForFact } from "@continuum/pipeline";
+import { IMPORTANT_FACT_TYPES } from "@continuum/shared";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "./form-state";
@@ -490,6 +493,7 @@ async function setEdgeStatus(edgeId: string, status: "approved" | "rejected") {
     .set({ status, verifiedBy: "admin-review" })
     .where(and(eq(edges.id, edgeId), eq(edges.status, "proposed")));
   if (status === "approved") {
+    await enqueueAlertsForEntities("edge", edgeId, [edge.sourceEntityId, edge.targetEntityId]);
     await promoteEntities(
       [edge.sourceEntityId, edge.targetEntityId, edge.dealEntityId].filter(
         (id): id is string => id !== null,
@@ -700,10 +704,15 @@ export async function updateArticleAction(_prev: FormState, formData: FormData):
 
 export async function approveArticleAction(formData: FormData): Promise<void> {
   const articleId = text(formData, "articleId");
-  await db
+  const rows = await db
     .update(articles)
     .set({ status: "published", publishedAt: new Date() })
-    .where(and(eq(articles.id, articleId), eq(articles.status, "proposed")));
+    .where(and(eq(articles.id, articleId), eq(articles.status, "proposed")))
+    .returning({ primaryEntityId: articles.primaryEntityId });
+  // Phase 28B: publish is the alert event for watchers of the primary entity.
+  if (rows[0]?.primaryEntityId != null) {
+    await enqueueAlertsForEntities("article", articleId, [rows[0].primaryEntityId]);
+  }
   revalidatePath("/admin/review");
   revalidatePath("/news");
   revalidatePath("/");
@@ -846,6 +855,16 @@ async function approveFact(factId: string, channels?: string[]) {
   const data = (fact.data ?? {}) as Record<string, unknown>;
   const referenced = Array.isArray(data.entities) ? data.entities.map(String) : [];
   await promoteEntities([fact.entityId, ...referenced]);
+  // Phase 28B: approval is the alert event — enqueue for watching members
+  // (idempotent), then attempt the instant tier for important fact types
+  // (graceful no-op without Resend; rows stay pending for the daily batch).
+  const enqueued = await enqueueAlertsForEntities("fact", factId, [fact.entityId, ...referenced]);
+  if (
+    enqueued > 0 &&
+    (IMPORTANT_FACT_TYPES as readonly string[]).includes(fact.factType)
+  ) {
+    await sendInstantAlertsForFact(factId);
+  }
 }
 
 export async function approveFactAction(formData: FormData): Promise<void> {

@@ -6,6 +6,7 @@ import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
 import { TrackView } from "@/components/track-view";
+import { WatchBand } from "@/components/watch-band";
 import { Tag } from "@/components/ui/tag";
 import {
   CHANNEL_TAG_VARIANTS,
@@ -255,6 +256,10 @@ export async function EntityProfile({
                 {websiteHost} ↗
               </a>
             ) : null}
+            <WatchBand
+              entityId={entity.id}
+              backPath={`/${entity.kind === "organization" ? "companies" : entity.kind === "fund_vehicle" ? "funds" : "deals"}/${entity.slug}`}
+            />
           </div>
           {entity.summary !== null && entity.summary !== "" ? (
             <p className="mt-3 max-w-2xl text-ink-secondary">{entity.summary}</p>

@@ -80,7 +80,9 @@ export {
 } from "./embeddings";
 
 export { buildConfirmationEmail, sendConfirmationEmail } from "./subscription-email";
+export { buildAlertEmail, deliverPendingAlerts, sendInstantAlertsForFact } from "./alerts";
 
+import { alertsDaily } from "./functions/alerts-daily";
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { articlesWeekly } from "./functions/articles-weekly";
 import { digestWeeklyDraft } from "./functions/digest-weekly";
@@ -98,4 +100,5 @@ export const functions = [
   anomaliesWeekly,
   articlesWeekly,
   digestWeeklyDraft,
+  alertsDaily,
 ];

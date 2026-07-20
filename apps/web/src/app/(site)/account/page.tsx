@@ -54,6 +54,14 @@ export default async function AccountPage() {
   return (
     <div className="max-w-xl py-12">
       <h1 className="type-h1">Account</h1>
+      <p className="mt-2 flex gap-4 text-[13px]">
+        <a href="/account/watchlist" className="text-accent hover:underline">
+          Watchlist →
+        </a>
+        <a href="/account/updates" className="text-accent hover:underline">
+          What changed →
+        </a>
+      </p>
 
       <div className="mt-6 border border-line p-4">
         <form action={updateDisplayNameAction} className="flex flex-wrap items-end gap-3">

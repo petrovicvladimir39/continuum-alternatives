@@ -1,4 +1,4 @@
-import { jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { memberProfiles } from "./members";
 
 /**
@@ -16,5 +16,8 @@ export const memberSavedViews = pgTable("member_saved_views", {
     .references(() => memberProfiles.id),
   name: text("name").notNull(),
   filters: jsonb("filters").notNull(),
+  // Phase 28: alert-enabled views are evaluated daily against new items
+  // (view_hit outbox rows, capped 20/view/day).
+  alertEnabled: boolean("alert_enabled").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

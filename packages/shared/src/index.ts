@@ -35,6 +35,9 @@ export {
 export { VERTICALS, verticalBySlug, type Vertical, type VerticalModule } from "./verticals";
 export {
   CLASS_ACCENTS,
+  IMPORTANT_FACT_TYPES,
+  capViewHits,
+  routeAlert,
   canTransitionArticle,
   contrastRatio,
   inferArticleClassification,

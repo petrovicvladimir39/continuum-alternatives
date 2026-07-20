@@ -33,7 +33,8 @@
     "extract:batch": "pnpm --filter @continuum/pipeline extract:batch",
     "articles:compose": "pnpm --filter @continuum/pipeline articles:compose",
     "contacts:send-confirmations": "pnpm --filter @continuum/pipeline contacts:send-confirmations",
-    "classify:corpus": "pnpm --filter @continuum/pipeline classify:corpus"
+    "classify:corpus": "pnpm --filter @continuum/pipeline classify:corpus",
+    "alerts:backfill": "pnpm --filter @continuum/pipeline alerts:backfill"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

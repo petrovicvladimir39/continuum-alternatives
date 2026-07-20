@@ -134,6 +134,13 @@
       "when": 1784577312244,
       "tag": "0018_aspiring_franklin_storm",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1784578248590,
+      "tag": "0019_special_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

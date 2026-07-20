@@ -176,8 +176,51 @@ function EntityCardView({
             Open full profile →
           </Link>
         ) : null}
+        <CardWatchButton entityId={card.id} />
       </div>
     </div>
+  );
+}
+
+/**
+ * In-map watch control (Phase 28D). POSTs /api/watchlist; a 401 swaps to
+ * the quiet "Sign in to watch" link (no modal); 503 (identity off) hides it.
+ */
+function CardWatchButton({ entityId }: { entityId: string }) {
+  const [state, setState] = useState<"idle" | "watching" | "unwatched" | "signin" | "hidden">("idle");
+  if (state === "hidden") {
+    return null;
+  }
+  if (state === "signin") {
+    return (
+      <Link href="/sign-in" className="text-center text-[12px] text-ink-muted hover:text-accent">
+        Sign in to watch
+      </Link>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void fetch("/api/watchlist", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ entityId }),
+        }).then(async (response) => {
+          if (response.status === 401) {
+            setState("signin");
+          } else if (response.status === 503) {
+            setState("hidden");
+          } else if (response.ok) {
+            const payload = (await response.json()) as { watching: boolean };
+            setState(payload.watching ? "watching" : "unwatched");
+          }
+        });
+      }}
+      className="w-full rounded-sm border border-line-strong px-3 py-1.5 text-center text-[12px] font-medium text-ink hover:border-accent hover:text-accent"
+    >
+      {state === "watching" ? "Watching ✓" : state === "unwatched" ? "Watch" : "Watch"}
+    </button>
   );
 }
 
