@@ -15,6 +15,35 @@ const TRANSLITERATIONS: Record<string, string> = {
   ä: "a",
   ö: "o",
   ü: "u",
+  // Czech/Slovak (Phase 15, FORWARD-ONLY: existing slugs are never renamed —
+  // URL stability wins over slug beauty; only newly created slugs benefit).
+  á: "a",
+  é: "e",
+  í: "i",
+  ó: "o",
+  ú: "u",
+  ý: "y",
+  ů: "u",
+  ř: "r",
+  ě: "e",
+  ň: "n",
+  ť: "t",
+  ď: "d",
+  ĺ: "l",
+  ľ: "l",
+  ŕ: "r",
+  ô: "o",
+  // Polish
+  ł: "l",
+  ą: "a",
+  ę: "e",
+  ń: "n",
+  ś: "s",
+  ź: "z",
+  ż: "z",
+  // Turkish
+  ı: "i",
+  ğ: "g",
   // Serbian Cyrillic → Latin (mapped to the same post-diacritic forms as above,
   // so "ЂОРЂЕВИЋ" and "Đorđević" normalize identically).
   а: "a",
@@ -50,7 +79,7 @@ const TRANSLITERATIONS: Record<string, string> = {
 };
 
 function transliterate(value: string): string {
-  return value.replace(/[đćčšžőűăâîșțëäöüа-џ]/g, (ch) => TRANSLITERATIONS[ch] ?? ch);
+  return value.replace(/[đćčšžőűăâîșțëäöüáéíóúýůřěňťďĺľŕôłąęńśźżığа-џ]/g, (ch) => TRANSLITERATIONS[ch] ?? ch);
 }
 
 /**

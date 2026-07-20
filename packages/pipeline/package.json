@@ -12,7 +12,8 @@
     "alsu:history": "tsx src/alsu-history.ts",
     "anomalies:scan": "tsx src/anomalies-scan.ts",
     "embeddings:backfill": "tsx src/embeddings-backfill.ts",
-    "universe:verify": "tsx src/universe-verify.ts"
+    "universe:verify": "tsx src/universe-verify.ts",
+    "geocode:backfill": "tsx src/geocode-backfill.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

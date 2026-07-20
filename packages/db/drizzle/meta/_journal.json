@@ -64,6 +64,13 @@
       "when": 1784543602377,
       "tag": "0008_yellow_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784546147817,
+      "tag": "0009_confused_sentinels",
+      "breakpoints": true
     }
   ]
 }

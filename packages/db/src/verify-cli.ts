@@ -81,6 +81,25 @@ async function main() {
     "normalizeAlias single-spaces and strips punctuation",
   );
   checkEqual(normalizeAlias("  ČEZ   Group  "), "cez group", "normalizeAlias collapses whitespace");
+  // Phase 15 transliteration extension (forward-only — existing slugs keep
+  // their pre-extension forms; these fixtures cover newly created slugs only).
+  checkEqual(
+    slugify("Národní rozvojová banka"),
+    "narodni-rozvojova-banka",
+    "slugify handles Czech á/í/ý",
+  );
+  checkEqual(slugify("Komerční banka"), "komercni-banka", "slugify handles Czech č/í");
+  checkEqual(slugify("Přerov měšťan Plzeň"), "prerov-mestan-plzen", "slugify handles Czech ř/ě/ť/ň");
+  checkEqual(
+    slugify("Slovenská sporiteľňa"),
+    "slovenska-sporitelna",
+    "slugify handles Slovak ľ/ň",
+  );
+  checkEqual(slugify("Ďumbier ťažba s.r.o."), "dumbier-tazba-sro", "slugify handles Slovak ď/ť/ž");
+  checkEqual(slugify("Vôľa ĺ ŕ"), "vola-l-r", "slugify handles Slovak ô/ĺ/ŕ");
+  checkEqual(slugify("Łódź Śląsk Żagań"), "lodz-slask-zagan", "slugify handles Polish ł/ś/ź/ż/ń");
+  checkEqual(slugify("Wałęsa Ząbki"), "walesa-zabki", "slugify handles Polish ą/ę");
+  checkEqual(slugify("Doğan Kağıt"), "dogan-kagit", "slugify handles Turkish ı/ğ");
 
   console.log("\n— repository end-to-end (cli-test-*) —");
   const removed = await cleanup();

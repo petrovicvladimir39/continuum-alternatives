@@ -16,7 +16,8 @@
     "anomalies:scan": "pnpm --filter @continuum/pipeline anomalies:scan",
     "embeddings:backfill": "pnpm --filter @continuum/pipeline embeddings:backfill",
     "universe:import": "pnpm --filter @continuum/db universe:import",
-    "universe:verify": "pnpm --filter @continuum/pipeline universe:verify"
+    "universe:verify": "pnpm --filter @continuum/pipeline universe:verify",
+    "geocode:backfill": "pnpm --filter @continuum/pipeline geocode:backfill"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

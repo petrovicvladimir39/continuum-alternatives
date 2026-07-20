@@ -9,6 +9,9 @@ export function SiteHeader() {
           <span className="text-[15px] text-ink-secondary">Alternatives</span>
         </Link>
         <nav className="flex items-center gap-5">
+          <Link href="/map" className="text-[13px] text-ink-secondary hover:text-accent">
+            Map
+          </Link>
           <Link href="/digest" className="text-[13px] text-ink-secondary hover:text-accent">
             Digest
           </Link>
