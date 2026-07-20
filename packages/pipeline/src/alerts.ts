@@ -44,7 +44,7 @@ function itemHtml(item: OutboxItem): string {
       ? `<p style="font-family:${SANS};font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:${CLASS_ACCENTS[item.assetClass] ?? INK_MUTED};margin:10px 0 0;">${escapeHtml(classifiedLabel(item.assetClass, item.strategy))}</p>`
       : "";
   const kindLabel =
-    item.kind === "article" ? "Article" : item.kind === "edge" ? "Relationship" : item.kind === "view_hit" ? "Saved view" : "Signal";
+    item.kind === "article" ? "Article" : item.kind === "edge" ? "Relationship" : item.kind === "view_hit" ? "Saved view" : item.kind === "post" ? "Discussion" : "Signal";
   return `${kicker}
     <p style="font-family:${SANS};font-size:14px;line-height:1.5;color:${INK};margin:2px 0 0;">
       ${item.href !== null ? `<a href="${ORIGIN}${item.href}" style="color:${ACCENT};text-decoration:none;">${escapeHtml(item.title ?? item.entityName ?? "Update")}</a>` : escapeHtml(item.title ?? item.entityName ?? "Update")}

@@ -12,6 +12,7 @@ import {
 } from "@continuum/db";
 import { deleteSavedViewAction } from "@/app/(site)/news/actions";
 import { openPortalAction } from "@/app/(site)/pricing/actions";
+import { updateProfessionalLineAction } from "@/lib/community-actions";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { Button } from "@/components/ui/button";
 import { inputClass, labelClass } from "@/components/admin/form-styles";
@@ -92,6 +93,45 @@ export default async function AccountPage() {
           <Button type="submit" variant="ghost">
             Save
           </Button>
+        </form>
+        {/* Phase 30B — the professional line shown next to your name on
+            discussion posts. Optional; you state it, we never infer it. */}
+        <form
+          action={updateProfessionalLineAction}
+          className="mt-4 flex flex-wrap items-end gap-3 border-t border-line pt-4"
+        >
+          <div className="min-w-[160px] flex-1">
+            <label className={labelClass} htmlFor="account-role">
+              Role
+            </label>
+            <input
+              id="account-role"
+              name="roleTitle"
+              maxLength={80}
+              placeholder="e.g. Partner"
+              className={inputClass}
+              defaultValue={profile.roleTitle ?? ""}
+            />
+          </div>
+          <div className="min-w-[200px] flex-1">
+            <label className={labelClass} htmlFor="account-org">
+              Organization
+            </label>
+            <input
+              id="account-org"
+              name="organization"
+              maxLength={120}
+              placeholder="e.g. Adria Capital"
+              className={inputClass}
+              defaultValue={profile.organization ?? ""}
+            />
+          </div>
+          <Button type="submit" variant="ghost">
+            Save
+          </Button>
+          <p className="type-small w-full text-ink-muted">
+            Shown beside your name on discussion posts (optional).
+          </p>
         </form>
         <div className="mt-4">
           <span className={labelClass}>Email</span>

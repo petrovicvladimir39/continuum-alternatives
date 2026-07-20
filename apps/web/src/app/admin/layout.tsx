@@ -75,6 +75,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <span>Review</span>
             {pending > 0 ? <span className="type-data text-ink-muted">{pending}</span> : null}
           </Link>
+          <Link href="/admin/moderation" className={navLinkClass}>
+            Moderation
+          </Link>
           <Link href="/admin/sources" className={navLinkClass}>
             Sources
           </Link>

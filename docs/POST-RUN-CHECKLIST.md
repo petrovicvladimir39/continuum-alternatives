@@ -81,6 +81,13 @@ Suggested first batches:
          Stripe keys existed in the environment.
       Requires Clerk first (checkout binds to the signed-in member).
 
+- [ ] **Terms of Service + privacy policy (Phase 30 legal hygiene).**
+      Member discussion (posts under real names) is live behind sign-in;
+      /community-guidelines states conduct rules in plain language, but a
+      formal ToS and privacy policy need counsel. Deliberately NO placeholder
+      "Terms" link is rendered anywhere — add the pages and footer links
+      when the documents exist.
+
 - [ ] **CH_API_KEY** — free key from
       developer.company-information.service.gov.uk, then
       `pnpm ch:enrich -- --limit 200` to stamp official Companies House

@@ -15,6 +15,7 @@ import {
   transliterateDisplay,
 } from "@continuum/shared";
 import { ConnectionsGraph } from "@/components/public/connections-graph";
+import { DiscussionSection } from "@/components/discussion-section";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
 import { TrackView } from "@/components/track-view";
@@ -354,6 +355,13 @@ export async function EntityProfile({
           <ActivityTimeline facts={facts} />
         </section>
       ) : null}
+
+      {/* Phase 30C: the anchored signal thread — below the timeline. */}
+      <DiscussionSection
+        anchorKind="entity"
+        anchorId={entity.id}
+        backPath={`/${entity.kind === "organization" ? "companies" : entity.kind === "fund_vehicle" ? "funds" : "deals"}/${entity.slug}`}
+      />
 
       {connectionGroups.length > 0 ? (
         <section className="mt-10">

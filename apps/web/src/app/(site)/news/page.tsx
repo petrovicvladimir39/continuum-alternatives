@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { composeTodayStrip, parseAsk, type AskFilters } from "@continuum/shared";
 import {
+  discussedEntities,
   findEntities,
   getMemberByClerkId,
   listAskFeed,
@@ -105,7 +106,11 @@ export default async function NewsIndexPage({
     }
   }
 
-  const [todayCounts, allArticles] = await Promise.all([todayStripCounts(), listPublishedArticles(60)]);
+  const [todayCounts, allArticles, discussed] = await Promise.all([
+    todayStripCounts(),
+    listPublishedArticles(60),
+    discussedEntities(),
+  ]);
   const weekday = new Date().toLocaleDateString("en-GB", { weekday: "long" });
   const today = composeTodayStrip({ weekday, ...todayCounts });
 
@@ -278,6 +283,32 @@ export default async function NewsIndexPage({
           </div>
         </div>
       )}
+
+      {/* Phase 30C — Discussed (bottom band): entities with the most posts
+          in 7 days, minimum 2 posts. Below the minimum the band simply is
+          not there — no filler, no "start the conversation" bait. */}
+      {discussed.length > 0 ? (
+        <div className="mt-10 border-t border-line pt-4">
+          <h2 className="type-label">Discussed</h2>
+          <ul className="mt-2 flex flex-wrap gap-x-6 gap-y-1.5">
+            {discussed.map((row) => (
+              <li key={row.entityId} className="text-[13px]">
+                {row.href !== null ? (
+                  <Link href={row.href} className="font-medium hover:text-accent">
+                    {row.name}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{row.name}</span>
+                )}
+                <span className="type-data text-ink-muted">
+                  {" "}
+                  · {row.postCount} post{row.postCount === 1 ? "" : "s"} this week
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }

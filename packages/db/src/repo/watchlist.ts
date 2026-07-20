@@ -96,7 +96,7 @@ export async function setAlertFrequency(memberId: string, frequency: AlertFreque
  * double-fired hooks insert nothing new.
  */
 export async function enqueueAlertsForEntities(
-  kind: "fact" | "article" | "edge",
+  kind: "fact" | "article" | "edge" | "post",
   refId: string,
   entityIds: string[],
 ): Promise<number> {
@@ -154,6 +154,7 @@ export async function listOutbox(
       f.title AS fact_title, f.fact_type,
       a.headline AS article_headline, a.slug AS article_slug,
       a.asset_class AS article_class, a.strategy AS article_strategy,
+      left(p.body, 90) AS post_snippet,
       e.name AS entity_name, e.slug AS entity_slug, e.kind AS entity_kind,
       (SELECT c.asset_class FROM entity_classifications c
         WHERE c.entity_id = ob.entity_id AND c.status = 'approved'
@@ -161,6 +162,7 @@ export async function listOutbox(
     FROM alert_outbox ob
     LEFT JOIN timeline_facts f ON ob.kind IN ('fact', 'view_hit') AND f.id = ob.ref_id
     LEFT JOIN articles a ON ob.kind = 'article' AND a.id = ob.ref_id
+    LEFT JOIN thread_posts p ON ob.kind = 'post' AND p.id = ob.ref_id AND p.status = 'published'
     LEFT JOIN entities e ON e.id = ob.entity_id
     WHERE ob.member_id = ${memberId}
       AND (${opts.unsentOnly === true} = false OR ob.sent_at IS NULL)
@@ -180,7 +182,9 @@ export async function listOutbox(
         ? String(row.fact_title)
         : row.article_headline !== null
           ? String(row.article_headline)
-          : null,
+          : row.post_snippet !== null
+            ? `Discussion: “${String(row.post_snippet)}${String(row.post_snippet).length >= 90 ? "…" : ""}”`
+            : null,
     href:
       row.article_slug !== null
         ? `/news/${String(row.article_slug)}`

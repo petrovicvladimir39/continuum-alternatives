@@ -14,6 +14,15 @@ export const memberProfiles = pgTable("member_profiles", {
   clerkUserId: text("clerk_user_id").unique().notNull(),
   displayName: text("display_name"),
   email: text("email"),
+  // Phase 30B — real-name policy: posts display the member's display name
+  // plus this OPTIONAL, member-set professional line ("Partner" · "Adria
+  // Capital"). Set on /account; never inferred, never required.
+  roleTitle: text("role_title"),
+  organization: text("organization"),
+  // Phase 30D — posting ban (moderation). NULL = not banned; a timestamp
+  // blocks posting/reacting until it passes. Enforced server-side in the
+  // community actions, surfaced only in /admin/moderation.
+  bannedUntil: timestamp("banned_until", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });

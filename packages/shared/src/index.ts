@@ -60,6 +60,15 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export {
+  isPostingBanned,
+  POST_MAX_CHARS,
+  POST_MAX_LINKS,
+  POST_MIN_CHARS,
+  POSTS_PER_MEMBER_PER_DAY,
+  validatePostBody,
+  type PostValidation,
+} from "./community";
+export {
   BRIEF_GLOBAL_DAILY_BUDGET_USD,
   BRIEF_MEMBER_MONTHLY_CAP,
   ENTITLEMENTS,

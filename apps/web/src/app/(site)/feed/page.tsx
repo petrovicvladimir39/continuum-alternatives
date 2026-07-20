@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 import { CHANNELS } from "@continuum/shared";
-import { feedFilterOptions, listFeed } from "@continuum/db";
+import {
+  feedFilterOptions,
+  getMemberByClerkId,
+  listFeed,
+  memberReactionsFor,
+  reactionCountsFor,
+  type Reaction,
+  type ReactionCounts,
+} from "@continuum/db";
+import { ReactionBand } from "@/components/reaction-band";
 import { Tag } from "@/components/ui/tag";
 import { CHANNEL_TAG_VARIANTS, countryName } from "@/lib/public-labels";
 
@@ -82,6 +92,29 @@ export default async function FeedPage({
     }),
     feedFilterOptions(),
   ]);
+
+  // Phase 30A: reactions — batched (one query per surface, no N+1).
+  const factIds = feed.items.map((item) => item.id);
+  const counts = await reactionCountsFor("fact", factIds);
+  let ownReactions = new Map<string, Reaction>();
+  let signedIn = false;
+  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY) {
+    const { userId } = await auth();
+    if (userId !== null) {
+      const member = await getMemberByClerkId(userId);
+      if (member !== null) {
+        signedIn = true;
+        ownReactions = await memberReactionsFor(member.id, "fact", factIds);
+      }
+    }
+  }
+  const emptyCounts: ReactionCounts = { credible: 0, doubtful: 0, watching: 0 };
+  const backPath = feedHref({
+    ...(channel !== undefined ? { channel } : {}),
+    country,
+    type: factType,
+    page,
+  });
 
   return (
     <div className="py-10">
@@ -197,6 +230,16 @@ export default async function FeedPage({
                       </>
                     ) : null}
                   </p>
+                  <div className="mt-1">
+                    <ReactionBand
+                      targetKind="fact"
+                      targetId={item.id}
+                      backPath={backPath}
+                      counts={counts.get(item.id) ?? emptyCounts}
+                      own={ownReactions.get(item.id) ?? null}
+                      signedIn={signedIn}
+                    />
+                  </div>
                 </div>
                 <span className="flex shrink-0 gap-1.5">
                   {item.channels.map((value) => (
