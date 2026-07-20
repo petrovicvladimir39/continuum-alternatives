@@ -32,6 +32,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <Link href="/admin/sources" className={navLinkClass}>
             Sources
           </Link>
+          <Link href="/admin/documents" className={navLinkClass}>
+            Documents
+          </Link>
         </nav>
       </aside>
       <div className="min-w-0 flex-1 px-6 py-6">{children}</div>

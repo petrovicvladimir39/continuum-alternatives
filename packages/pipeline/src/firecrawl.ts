@@ -1,6 +1,7 @@
 import Firecrawl from "@mendable/firecrawl-js";
 import { db, documents, sources } from "@continuum/db";
 import { parseSourceConfig } from "./config";
+import { emitDocumentStored } from "./extraction/extract";
 import {
   ARTICLE_DELAY_MS,
   CONTENT_TEXT_CAP,
@@ -110,16 +111,22 @@ export async function fetchFirecrawlIndexSource(
       } else {
         contentText = (await fetchSimpleArticle(link)).contentText;
       }
-      await db.insert(documents).values({
-        sourceId: source.id,
-        url: link,
-        title,
-        docType: "article",
-        language: config.language ?? null,
-        contentText,
-        contentHash: sha256(contentText),
-        fetchedAt: new Date(),
-      });
+      const inserted = await db
+        .insert(documents)
+        .values({
+          sourceId: source.id,
+          url: link,
+          title,
+          docType: "article",
+          language: config.language ?? null,
+          contentText,
+          contentHash: sha256(contentText),
+          fetchedAt: new Date(),
+        })
+        .returning({ id: documents.id });
+      if (inserted[0] !== undefined) {
+        await emitDocumentStored(inserted[0].id);
+      }
       stats.newArticles += 1;
     } catch (err) {
       stats.errors.push({ url: link, message: err instanceof Error ? err.message : String(err) });

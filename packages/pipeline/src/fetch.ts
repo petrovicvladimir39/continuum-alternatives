@@ -6,6 +6,7 @@ import {
   sha256,
   type CrawlStats,
 } from "./crawl-shared";
+import { emitDocumentStored } from "./extraction/extract";
 import { fetchFirecrawlIndexSource } from "./firecrawl";
 import { fetchRegistrySource } from "./registry";
 import { fetchRssSource } from "./rss";
@@ -62,6 +63,9 @@ async function fetchHttpSimple(
     })
     .returning({ id: documents.id });
   const documentId = inserted[0]?.id;
+  if (documentId !== undefined) {
+    await emitDocumentStored(documentId);
+  }
   return {
     result:
       documentId === undefined

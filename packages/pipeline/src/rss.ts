@@ -11,6 +11,7 @@ import {
   sha256,
   type CrawlStats,
 } from "./crawl-shared";
+import { emitDocumentStored } from "./extraction/extract";
 import { scrapePage } from "./firecrawl";
 
 export type FeedItem = { title: string; url: string; publishedAt?: string };
@@ -138,16 +139,22 @@ export async function fetchRssSource(source: typeof sources.$inferSelect): Promi
         config.articleFetch === "firecrawl"
           ? (await scrapePage(item.url)).markdown
           : (await fetchSimpleArticle(item.url)).contentText;
-      await db.insert(documents).values({
-        sourceId: source.id,
-        url: item.url,
-        title: item.title,
-        docType: "article",
-        language: config.language ?? null,
-        contentText,
-        contentHash: sha256(contentText),
-        fetchedAt: new Date(),
-      });
+      const inserted = await db
+        .insert(documents)
+        .values({
+          sourceId: source.id,
+          url: item.url,
+          title: item.title,
+          docType: "article",
+          language: config.language ?? null,
+          contentText,
+          contentHash: sha256(contentText),
+          fetchedAt: new Date(),
+        })
+        .returning({ id: documents.id });
+      if (inserted[0] !== undefined) {
+        await emitDocumentStored(inserted[0].id);
+      }
       stats.newArticles += 1;
     } catch (err) {
       stats.errors.push({

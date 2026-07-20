@@ -27,11 +27,12 @@ import {
   timelineFacts,
   and,
   eq,
+  inArray,
   sql,
   type EdgeTypeName,
   type EntityKind,
 } from "@continuum/db";
-import { fetchSource, inngest } from "@continuum/pipeline";
+import { extractDocument, fetchSource, inngest } from "@continuum/pipeline";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { FormState } from "./form-state";
@@ -450,20 +451,35 @@ export async function addFactAction(_prev: FormState, formData: FormData): Promi
   redirect(`/admin/entities/${slug}`);
 }
 
+/** Approving an item promotes any provisional entities it references. */
+async function promoteEntities(ids: string[]) {
+  const unique = [...new Set(ids)].filter(Boolean);
+  if (unique.length === 0) {
+    return;
+  }
+  await db
+    .update(entities)
+    .set({ status: "active" })
+    .where(and(inArray(entities.id, unique), eq(entities.status, "provisional")));
+}
+
 async function setEdgeStatus(edgeId: string, status: "approved" | "rejected") {
+  const rows = await db.select().from(edges).where(eq(edges.id, edgeId));
+  const edge = rows[0];
+  if (!edge || edge.status !== "proposed") {
+    return;
+  }
   await db
     .update(edges)
     .set({ status, verifiedBy: "admin-review" })
     .where(and(eq(edges.id, edgeId), eq(edges.status, "proposed")));
-  revalidatePath("/admin/review");
-}
-
-async function setFactStatus(factId: string, status: "approved" | "rejected") {
-  // Review-status flips are the sanctioned exception to the append-only rule.
-  await db
-    .update(timelineFacts)
-    .set({ status })
-    .where(and(eq(timelineFacts.id, factId), eq(timelineFacts.status, "proposed")));
+  if (status === "approved") {
+    await promoteEntities(
+      [edge.sourceEntityId, edge.targetEntityId, edge.dealEntityId].filter(
+        (id): id is string => id !== null,
+      ),
+    );
+  }
   revalidatePath("/admin/review");
 }
 
@@ -631,10 +647,91 @@ export async function rejectEdgeAction(formData: FormData): Promise<void> {
   await setEdgeStatus(text(formData, "edgeId"), "rejected");
 }
 
+// Editing proposed rows (e.g. channels) is legitimate — immutability begins at
+// approval; these status flips are the sanctioned exception to the timeline
+// append-only rule.
 export async function approveFactAction(formData: FormData): Promise<void> {
-  await setFactStatus(text(formData, "factId"), "approved");
+  const factId = text(formData, "factId");
+  const channels = formData
+    .getAll("channels")
+    .map(String)
+    .filter((channel) => (CHANNELS as readonly string[]).includes(channel));
+  const rows = await db.select().from(timelineFacts).where(eq(timelineFacts.id, factId));
+  const fact = rows[0];
+  if (!fact || fact.status !== "proposed") {
+    return;
+  }
+  await db
+    .update(timelineFacts)
+    .set({ audienceChannels: channels, status: "approved" })
+    .where(and(eq(timelineFacts.id, factId), eq(timelineFacts.status, "proposed")));
+  const data = (fact.data ?? {}) as Record<string, unknown>;
+  const referenced = Array.isArray(data.entities) ? data.entities.map(String) : [];
+  await promoteEntities([fact.entityId, ...referenced]);
+  revalidatePath("/admin/review");
 }
 
 export async function rejectFactAction(formData: FormData): Promise<void> {
-  await setFactStatus(text(formData, "factId"), "rejected");
+  // Reject leaves provisional entities untouched.
+  await db
+    .update(timelineFacts)
+    .set({ status: "rejected" })
+    .where(
+      and(eq(timelineFacts.id, text(formData, "factId")), eq(timelineFacts.status, "proposed")),
+    );
+  revalidatePath("/admin/review");
+}
+
+export async function deleteProvisionalAction(formData: FormData): Promise<void> {
+  const entityId = text(formData, "entityId");
+  const rows = await db.select().from(entities).where(eq(entities.id, entityId));
+  const entity = rows[0];
+  if (!entity || entity.status !== "provisional") {
+    return;
+  }
+  await db.delete(entityTags).where(eq(entityTags.entityId, entityId));
+  await db.delete(aliases).where(eq(aliases.entityId, entityId));
+  await db.delete(organizations).where(eq(organizations.entityId, entityId));
+  await db.delete(people).where(eq(people.entityId, entityId));
+  await db.delete(fundVehicles).where(eq(fundVehicles.entityId, entityId));
+  await db.delete(deals).where(eq(deals.entityId, entityId));
+  await db.delete(assets).where(eq(assets.entityId, entityId));
+  await db.delete(events).where(eq(events.entityId, entityId));
+  await db.delete(entities).where(eq(entities.id, entityId));
+  revalidatePath("/admin/review");
+}
+
+export async function extractNowAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const documentId = text(formData, "documentId");
+  const done = () => {
+    revalidatePath(`/admin/documents/${documentId}`);
+    revalidatePath("/admin/documents");
+    revalidatePath("/admin/review");
+  };
+  if (process.env.INNGEST_EVENT_KEY) {
+    await inngest.send({ name: "document/stored", data: { documentId } });
+    done();
+    return {
+      errors: {},
+      values: { message: "Queued via Inngest (event document/stored)." },
+    };
+  }
+  try {
+    const result = await extractDocument(documentId, { force: true });
+    done();
+    return {
+      errors: {},
+      values: {
+        message: `Ran directly (no INNGEST_EVENT_KEY set): ${result.status}, items ${result.items}, facts ${result.factsStored}, edges ${result.edgesStored}, entities matched ${result.entitiesMatched} / provisional ${result.entitiesProvisional} / ambiguous ${result.entitiesAmbiguous}`,
+      },
+    };
+  } catch (err) {
+    done();
+    return {
+      errors: {
+        form: `Extraction failed: ${err instanceof Error ? err.message : String(err)}`,
+      },
+      values: {},
+    };
+  }
 }

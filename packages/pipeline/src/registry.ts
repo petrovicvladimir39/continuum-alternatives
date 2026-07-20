@@ -11,6 +11,7 @@ import {
   type CrawlStats,
 } from "./crawl-shared";
 import { processDocumentFile, terminateOcrWorkers } from "./extract-text";
+import { emitDocumentStored } from "./extraction/extract";
 import { REGISTRY_HANDLERS } from "./registries";
 import type { RegistryItem } from "./registries";
 
@@ -104,17 +105,23 @@ export async function fetchRegistrySource(
         } else {
           contentText = (await fetchSimpleArticle(item.url)).contentText;
         }
-        await db.insert(documents).values({
-          sourceId: source.id,
-          url: item.url,
-          title: item.title,
-          docType: "filing",
-          language: config.language ?? null,
-          contentText,
-          contentHash: sha256(contentText),
-          fetchedAt: new Date(),
-          meta,
-        });
+        const inserted = await db
+          .insert(documents)
+          .values({
+            sourceId: source.id,
+            url: item.url,
+            title: item.title,
+            docType: "filing",
+            language: config.language ?? null,
+            contentText,
+            contentHash: sha256(contentText),
+            fetchedAt: new Date(),
+            meta,
+          })
+          .returning({ id: documents.id });
+        if (inserted[0] !== undefined) {
+          await emitDocumentStored(inserted[0].id);
+        }
         stats.newArticles += 1;
       } catch (err) {
         stats.errors.push({

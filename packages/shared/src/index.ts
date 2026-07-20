@@ -2,6 +2,7 @@ export const SHARED_PACKAGE = "placeholder";
 
 export { slugify, normalizeAlias, companyNameCore } from "./normalize";
 export { ENTITY_TAGS, type EntityTag } from "./taxonomy";
+export { parseRegionalAmount, parseRegionalDate } from "./parse";
 
 /**
  * Audience channel vocabulary. Used by timeline_facts.audience_channels and

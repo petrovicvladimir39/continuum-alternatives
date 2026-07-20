@@ -15,10 +15,42 @@ const TRANSLITERATIONS: Record<string, string> = {
   ä: "a",
   ö: "o",
   ü: "u",
+  // Serbian Cyrillic → Latin (mapped to the same post-diacritic forms as above,
+  // so "ЂОРЂЕВИЋ" and "Đorđević" normalize identically).
+  а: "a",
+  б: "b",
+  в: "v",
+  г: "g",
+  д: "d",
+  ђ: "dj",
+  е: "e",
+  ж: "z",
+  з: "z",
+  и: "i",
+  ј: "j",
+  к: "k",
+  л: "l",
+  љ: "lj",
+  м: "m",
+  н: "n",
+  њ: "nj",
+  о: "o",
+  п: "p",
+  р: "r",
+  с: "s",
+  т: "t",
+  ћ: "c",
+  у: "u",
+  ф: "f",
+  х: "h",
+  ц: "c",
+  ч: "c",
+  џ: "dz",
+  ш: "s",
 };
 
 function transliterate(value: string): string {
-  return value.replace(/[đćčšžőűăâîșțëäöü]/g, (ch) => TRANSLITERATIONS[ch] ?? ch);
+  return value.replace(/[đćčšžőűăâîșțëäöüа-џ]/g, (ch) => TRANSLITERATIONS[ch] ?? ch);
 }
 
 export function slugify(name: string): string {
