@@ -44,6 +44,12 @@ const CANDIDATES: PortalCandidate[] = [
   { name: "Il Sole 24 Ore — Finanza", country: "IT", language: "it", feedUrl: "https://www.ilsole24ore.com/rss/finanza.xml", note: "rss-ready; article-level paywall (headlines usable)" },
   { name: "Handelsblatt — Finanzen", country: "DE", language: "de", feedUrl: "https://feeds.cms.handelsblatt.com/finanzen", note: "rss-ready; article-level paywall (headlines usable)" },
   // Les Echos: documented dead end — no seedable route (see header comment).
+  // clean-100 Part 5 probes (2026-07-21): Real Deals, Unquote, PE News,
+  // Science|Business, Invest Europe and Mergermarket expose no free feeds
+  // (404/401 on all standard feed paths) — documented, not seeded. Preqin
+  // is permanently prohibited (proprietary/ToS) regardless of blog access.
+  { name: "Private Debt Investor", country: "GB", language: "en", feedUrl: "https://www.privatedebtinvestor.com/feed/", note: "rss-ready; article-level paywall (headlines usable)" },
+  { name: "Global Legal Chronicle", country: null, language: "en", feedUrl: "https://globallegalchronicle.com/feed/", note: "rss-ready; deal/mandate coverage with law-firm detail" },
 ];
 
 async function probeFeed(url: string): Promise<boolean> {
