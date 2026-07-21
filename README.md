@@ -97,3 +97,21 @@ Commands:
   a core token (>=3 chars) - then `status='active'`, tag dropped, and an audit
   note stored in `organizations.verification_note`. Failures stay provisional
   and never reach the public site.
+
+## Design/Build with mock data
+
+`packages/shared/src/mock/` is a deterministic fixture set (~40 European
+alt-assets entities, ~200 timeline facts, ~120 graph edges, 15 members,
+sample articles/auctions/events) used to design surfaces as they will look
+WITH data. It is design scaffolding: never seeded into the database, never
+rendered when the flag is off.
+
+Two ways to turn it on:
+
+1. `NEXT_PUBLIC_MOCK_MODE=true` in `.env` — the whole app switches; or
+2. `?mock=1` on pages that forward it (per-page preview, e.g. `/feed?mock=1`).
+
+The switch lives at the REPO/QUERY layer (`@continuum/db` functions check
+`mockModeEnabled()` and return fixture data in the same shapes) — pages call
+the same functions either way, so swapping back to real data is one env
+change with zero page edits.

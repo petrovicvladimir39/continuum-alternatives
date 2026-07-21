@@ -151,3 +151,4 @@ export const CHANNELS = [
 ] as const;
 
 export type Channel = (typeof CHANNELS)[number];
+export * from "./mock";
