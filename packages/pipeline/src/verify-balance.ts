@@ -95,7 +95,7 @@ async function main(): Promise<void> {
   );
 
   console.log("\n— scope constant —");
-  check(EUROPE_COUNTRIES.length === 39, `EUROPE_COUNTRIES = EU27 + GB/CH/NO/IS + Balkans (got ${EUROPE_COUNTRIES.length})`);
+  check(EUROPE_COUNTRIES.length === 40, `EUROPE_COUNTRIES = EU27 + GB/CH/NO/IS/LI + Balkans (got ${EUROPE_COUNTRIES.length})`);
   check(
     ["FR", "DE", "GB", "CH", "NO", "IS", "RS", "XK", "UA"].every((c) => EUROPE_COUNTRIES.includes(c)),
     "key members present",

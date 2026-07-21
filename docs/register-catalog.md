@@ -34,23 +34,12 @@ Access classes: `downloadable-file` > `json-api` > `parseable-HTML` >
 
 | Regulator | Country | Register URL | Access class | Best machine route / blocker |
 |---|---|---|---|---|
-| FINMA | CH | finma.ch authorised-institutions | downloadable-file | Direct XLSX/CSV: `~/media/finma/dokumente/bewilligungstraeger/xlsx/beh.xlsx` (banks/securities firms), `flvervt.xlsx` (fund mgmt + asset managers), `afch.xlsx` (Swiss CIS), `csv/uid.csv`. Zero friction; needs an XLSX parse (zip + XML — both already in-repo). Top candidate for the next harvester. |
-| AFM | NL | afm.nl/en/sector/registers/vergunningenregisters | downloadable-file | Per-register "Export as CSV / XML" links at page bottom (e.g. beleggingsondernemingen, 1,456 investment firms across 12 licence registers). |
-| Finanstilsynet | NO | finanstilsynet.no/virksomhetsregisteret | json-api | Open keyless REST API with OpenAPI spec at `api.finanstilsynet.no/registry/` — name, org number, licence types, hourly refresh. |
 | FCA | GB | register.fca.org.uk | json-api (registration-required, free) | Documented API (`/services/V0.1/Firm/{FRN}`, search) behind a free signup → `x-auth-email` + `x-auth-key` headers, 100 req/min. Operator step: create the key. |
-| HANFA | HR | hanfa.hr/registri | downloadable-file | Append `?export=xml` to any leaf register (UCITS, AIF managers…) — includes LEI + management company (edge material). |
 | CySEC | CY | cysec.gov.cy/en-GB/entities/ | downloadable-file | Per-category Excel download links (CIFs, AIFMs, UCITS…); file IDs change per update, so scrape the link from the category page first. |
-| KNF | PL | knf.gov.pl (TFI/FI pages) + wybieramfundusze-api.knf.gov.pl | parseable-HTML + partial json-api | TFI list embedded server-side; funds via the wybieramfundusze JSON API. Fragmented across pages. |
 | ČNB | CZ | cnb.cz JERRS | downloadable-file (partial) | Open-data CSV `jerrs.cnb.cz/apljerrsdad/JERRS.OPENDATA.STAHUJ?p_seznam=1..7` covers banks/credit lists only; fund managers need JERRS web queries (use `jerrs.cnb.cz` host — `apl.cnb.cz` refuses). Full web service is registration-gated (signed email to jerrsws@cnb.cz). |
-| ASF | RO | data.asfromania.ro/registru/lista.php | parseable-HTML | Legacy server-rendered PHP; enumerate `sect` params (SSIF, SAI, FDI, AFIA, FIA…). Quarterly staleness. |
-| Latvijas Banka | LV | bank.lv market-participants | parseable-HTML | Paginated server-rendered list (3,906 participants) with `?segments=` filter; no export. |
 | FSC | BG | fsc.bg category list pages | parseable-HTML | Static HTML tables (e.g. 28 management companies); shallow fields, no licence numbers at list level. |
-| Finantsinspektsioon | EE | fi.ee/en/supervised-entities | parseable-HTML | List pages carry only names; fields need per-entity detail crawl (small N, fine). |
-| Finansinspektionen | SE | fi.se company register | parseable-HTML | Server-rendered search results, enumerable by "main business" category; no export/API; data lags ≤2 days. |
-| CNMV | ES | cnmv.es BusquedaPorEntidad.aspx | parseable-HTML | ASP.NET; category list pages GET-parseable, stateful pages need `__VIEWSTATE` round-trips. No export. |
 | BaFin | DE | portal.mvp.bafin.de/database/InstInfo | search-form-only | Server emits malformed HTTP headers — Node/undici fetch dies ("Invalid header value char"); needs a curl-class client + Java form POSTs. In-app Excel export exists once inside. Highest-value "fixable" blocker. |
 | Finanstilsynet | DK | virksomhedsregister.finanstilsynet.dk | JS-blocked (export exists in-app) | SPA; "export customized list" implies a findable JSON XHR — one browser-inspection away. (`vut.finanstilsynet.dk` refuses connections; use the virksomhedsregister host.) |
-| FIN-FSA | FI | finanssivalvonta.fi registers | search-form-only | Embedded JS search widget; no export or endpoint visible server-side. |
 | MNB | HU | intezmenykereso.mnb.hu | search-form-only | Server-rendered but session-token-bound; no CSV/XLSX anywhere; fragile to scrape. |
 | HCMC | GR | hcmc.gr (Liferay portal) | parseable-HTML (geo-issue) | Legacy host refused TCP from US egress — retry from EU IP; if reachable, plain HTML tables. |
 | CMVM | PT | cmvm.pt new portal | JS-blocked | Opaque hashed URLs, renders empty without JS; old ColdFusion register decommissioned. |
@@ -84,3 +73,94 @@ Access classes: `downloadable-file` > `json-api` > `parseable-HTML` >
 ESMA's central register core `esma_registers_upreg` is now a first-class
 harvester (see above) — it is the standing rescue path for every blocked NCA,
 at the cost of address/city granularity.
+
+---
+
+# CLEAN-100 SOURCE LEDGER — 2026-07-21
+
+The standing map of the mega-ingest: every source attempted this run, its
+category, verdict, and yield. Honest count, not padded. "created" = new
+entities; register rows activate, disclosure/directory rows land provisional.
+
+## Registers (17 harvested · 15 blocked/skipped)
+
+| # | Source | Verdict | Yield this run |
+|---|---|---|---|
+| 1 | GLEIF LEI (27 new domiciles + RR pass) | harvested | ~9,600 created (funds fully swept: MT 924 · CY 371 · LI 1,372 · CH 2,669 · BE 1,716 · PT 1,038 · HU 1,528 · FI 667 · GR 356 · NO 494 · UA/SK/BG/HR/RS/LT/SI/LV/EE/IS/BA/AL/MD/MK/XK/ME) + 474 RR managers + 5,175 proposed manages edges |
+| 2 | CSSF (LU, retry) | harvested | 17 created, 2,166 already known, 9 new edges |
+| 3 | NBS (SK) | prior harvest stands | — |
+| 4 | AMF (FR) | prior harvest stands | — |
+| 5 | Bank of Lithuania | prior harvest stands | — |
+| 6 | FINMA (CH) | harvested (new adapter) | 487 created |
+| 7 | Finanstilsynet (NO) | harvested (new adapter, open API) | 468 created |
+| 8 | HANFA (HR) | harvested (new adapter, ?export=xml) | 4 created (rest GLEIF-known) |
+| 9 | AFM (NL) | harvested (new adapter, CSV + 2 AIFM XLSX) | 2,116 created + 1,115 manages edges |
+| 10 | KNF (PL) | harvested (new adapter, TFI page) | 324 created + 271 manages edges |
+| 11 | CNMV (ES) | harvested (new adapter; Accept-Language quirk) | 157 created |
+| 12 | Finansinspektionen (SE) | harvested (new adapter) | 187 created |
+| 13 | Latvijas Banka | harvested (new adapter, com_market JSON) | 194 created |
+| 14 | Finantsinspektsioon (EE) | harvested (new adapter) | 148 created |
+| 15 | ASF (RO) | harvested (new adapter, lng=1) | 36 created |
+| 16 | FIN-FSA (FI) | harvested (new adapter, full JSON dump) | 140 created |
+| 17 | ESMA central registers | harvested (new adapter — the rescue) | 1,491 created, 1,568 LEI-known |
+| — | BaFin (DE) | blocked: form POSTs + malformed headers | ESMA covers |
+| — | Finanstilsynet (DK) | blocked: SPA | ESMA covers |
+| — | MNB (HU) | blocked: POST + reCAPTCHA | ESMA covers |
+| — | CySEC (CY) | blocked: no bulk export found | ESMA covers |
+| — | FSC (BG) | blocked: unstable URLs | ESMA covers |
+| — | MFSA (MT) · FMA (AT) · CONSOB (IT) · ATVP (SI) | WAF-blocked | ESMA covers |
+| — | CMVM (PT) · HCMC (GR) | dead/JS routes | ESMA covers |
+| — | FCA (GB) | needs free operator key | pending key |
+| — | CBI (IE) | robots.txt prohibits — deliberately not harvested | policy skip |
+| — | ČNB (CZ) | opendata lists carry no fund managers (probed 1–7) | GLEIF covers CZ |
+
+## DFIs & EU open data (6 harvested · 5 blocked/absent)
+
+| # | Source | Verdict | Yield |
+|---|---|---|---|
+| 18 | EBRD projectsData.csv | harvested | 149 provisional funds + 150 lp_in |
+| 19 | IFC disclosure API | harvested (Europe-scoped) | 6 provisional + 7 lp_in (455 fund projects are mostly non-Europe) |
+| 20 | KfW Capital portfolio | harvested | 28 provisional + 43 lp_in |
+| 21 | CDP Venture Capital | harvested (FondiSupportati only) | 32 provisional + 35 lp_in |
+| 22 | Fondo Italiano d'Investimento | harvested | 41 provisional + 43 lp_in |
+| 23 | Axis Fond-ICO Global | harvested (second-probe fix) | 62 provisional + 76 lp_in |
+| — | EIF | no machine-readable portfolio exists | documented |
+| — | BGK / PFR (PL) | WAF-blocked (Cloudflare / custom) | documented |
+| — | EU FTS | grant recipients, not fund lists; yearly XLSX documented | deferred |
+| — | Kohesio / data.europa.eu | no fund/intermediary datasets found | documented |
+| — | Coparion | portfolio = startups (out of institutional scope) | deliberate skip |
+
+## Associations (14 harvested · 9 blocked/lossy)
+
+| # | Source | Verdict | Yield (names → created provisional) |
+|---|---|---|---|
+| 24–37 | PSIK · CVCA-CZ · SLOVCA · HVCA-HU · EstVCA · NVP · AIFI · SECA · BVK · Pääomasijoittajat · NVCA-NO · Aktive Ejere · SVCA · invest.austria | harvested | 2,000 names → ~1,170 created (PSIK 50→19 · CVCA 80→50 · SLOVCA 50→32 · HVCA-HU 68→50 · EstVCA 68→42 · NVP 146→70 · AIFI 189→91 · SECA 400→296 · BVK 293→184 · FVCA 159→83 · NVCA-NO 100→60 · AktiveEjere 95→56 · SVCA 132→70 · inv.austria 70→48) |
+| — | HVCA-GR | drifted (TYPO3 label markup) | skipped |
+| — | Invest Europe · AIMA · France Invest | member-gated | documented |
+| — | SpainCap · LVCA | JS shells | documented |
+| — | ROPEA · BVCA-BG · CVCA-HR · LT-VCA | logo grids, names too lossy | deliberate skip |
+
+## Press & newsrooms (Part 5)
+
+| Layer | Verdict | Yield |
+|---|---|---|
+| 25 press sources (13 portals + 10 national business press + PDI + GLC) | activated, maxItemsPerRun 5 | part of 330-doc cycle |
+| 54 firm newsrooms (RSS, ≤8/country: FR 8 · PL 8 · RO 7 · CZ 6 · GR 6 · EE 4 · +10 countries) | activated | part of 330-doc cycle |
+| Fetch cycle | 81/82 ok (LHV Pank feed 404) | 330 new documents |
+| Extraction ($6 cap) | 147 docs · 60 relevant · **52 facts PROPOSED** · $6.05 | 16-country fact spread |
+| Real Deals · Unquote · PE News · Science-Business · Invest Europe news · Mergermarket | no free feeds | documented |
+| Preqin blog | **permanently prohibited** (rails override the run prompt) | not seeded |
+
+## Enrichment layers (Part 6)
+
+| Layer | Verdict | Yield |
+|---|---|---|
+| Wikidata (5 classes; +hedge fund, +accelerator; no angel-network class exists) | harvested | 6 provisional + 40 gap-fills |
+| enrich:batch (website + activity signal, $4 cap) | ran | 46 candidates · $1.16 · 11 review items |
+| logos:backfill | ran | 295 stamped |
+| geocode:backfill | ran | 20,546 located · 10,013 honestly unlocated |
+| ch:enrich · embeddings:backfill · OpenCorporates | skipped: no CH_API_KEY / VOYAGE_API_KEY / OPENCORPORATES_API_KEY | keys documented |
+
+**Honest source count: 37 harvested/activated-productive + 79 press/newsroom
+activations = expedition across ~116 attempted routes, of which 29 are
+documented blocked/skipped with reasons above.**

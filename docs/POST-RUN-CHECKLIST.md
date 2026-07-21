@@ -133,3 +133,41 @@ Suggested first batches:
       MFSA are documented blockers — plan as manual-download targets.
 - [ ] Re-run `pnpm gleif:harvest` with more countries/higher cap whenever
       breadth is wanted — resumable, idempotent, $0.
+
+---
+
+# CLEAN-100 addendum (2026-07-21) — refreshed queue depths + new keys
+
+The mega-ingest changed the numbers above; current depths:
+
+## Review queues (one long session, /admin/review — needs Clerk first)
+
+- [ ] **15,311 proposed edges** (was ~8,300): 14,864 register-grade `manages`
+      (GLEIF RR · CSSF · AFM · KNF) + 356 DFI `lp_in` (EBRD, KfW Capital,
+      CDP VC, Fondo Italiano, Axis, IFC) + 91 other. Batch-approve after a
+      spot-check page. Approving these also lights up the redesigned
+      network graph on ~thousands of profiles (branch redesign-flagship).
+- [ ] **61 proposed timeline facts** across 16 countries (press extraction) —
+      the anti-skew layer; each carries its citation.
+- [ ] **1,738 provisional entities** (DFI portfolios, association members,
+      Wikidata) — `pnpm universe:verify` runs the website-verification gate;
+      the remainder are a review-queue pass.
+- [ ] **11 enrichment field proposals** (Part 6 batch).
+
+## Sources now ACTIVE (billing-relevant)
+
+- 84 sources active (25 press + 54 firm newsrooms + registries),
+  maxItemsPerRun 5. NOTE: nothing fetches on a schedule until Inngest is
+  connected — the clean-100 cycle was a one-shot CLI run
+  (`tsx src/fetch-cycle.ts`). Extraction backlog: 202 unextracted documents
+  (`MEGA_LLM_CAP=… tsx src/mega-extract.ts`).
+
+## New optional keys (each unlocks a documented skip)
+
+- [ ] `FCA_API_EMAIL`/`FCA_API_KEY` — free signup at register.fca.org.uk →
+      GB register harvest (adapter still to build once key exists).
+- [ ] `OPENCORPORATES_API_KEY` — signup documented in .env.example;
+      attribution line required on /about per their terms.
+- [ ] `CH_API_KEY` — unlocks `pnpm ch:enrich` for GB entities (cap 500).
+- [ ] `VOYAGE_API_KEY` — unlocks `pnpm embeddings:backfill` (semantic search
+      is dormant until then).
