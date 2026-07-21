@@ -42,7 +42,32 @@
 
   --radius-sm: 2px;
   --radius-md: 4px;
+
+  /* ── FRONTEND-V2 CLASS ACCENTS ─────────────────────────────────────────
+     All NINE taxonomy asset classes, first-class, harmonized at matched
+     (muted, institutional) saturation. Light values live on :root; the v2
+     dark theme overrides the underlying custom properties (see .v2-root
+     below), so every utility flips with the mode. USAGE LAW (v2): accents
+     appear ONLY in 4px left-border indicator slots, chips, 2px top rules,
+     and map/graph encodings. --color-ac-distressed is the crimson
+     NPL/Distressed STRATEGY variant within Private Credit, not a tenth
+     class. */
+  --color-ac-private-equity: var(--v2-ac-private-equity);
+  --color-ac-private-credit: var(--v2-ac-private-credit);
+  --color-ac-real-assets: var(--v2-ac-real-assets);
+  --color-ac-hedge-funds: var(--v2-ac-hedge-funds);
+  --color-ac-structured: var(--v2-ac-structured);
+  --color-ac-esoteric: var(--v2-ac-esoteric);
+  --color-ac-collectibles: var(--v2-ac-collectibles);
+  --color-ac-climate: var(--v2-ac-climate);
+  --color-ac-digital: var(--v2-ac-digital);
+  --color-ac-distressed: var(--v2-ac-distressed);
 }
+
+/* v2 dark: attribute-scoped, set on <html> by the (v2) layout only. The
+   default Tailwind dark: media-query variant is replaced — the production
+   site never uses dark: utilities, so this is v2-only in effect. */
+@custom-variant dark (&:where([data-v2-theme="dark"], [data-v2-theme="dark"] *));
 
 @theme inline {
   --font-sans: var(--font-sans);
@@ -174,5 +199,143 @@
   --chart-4: #17456b;
   --chart-5: #8a867c;
   --radius: 0.25rem;
+
+  /* v2 class-accent light values (referenced by --color-ac-* in @theme). */
+  --v2-ac-private-equity: #157a63;
+  --v2-ac-private-credit: #96690f;
+  --v2-ac-real-assets: #6d6414;
+  --v2-ac-hedge-funds: #5b3684;
+  --v2-ac-structured: #106a6e;
+  --v2-ac-esoteric: #772f6b;
+  --v2-ac-collectibles: #7d3450;
+  --v2-ac-climate: #3c7d33;
+  --v2-ac-digital: #3f4178;
+  --v2-ac-distressed: #a03d2d;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FRONTEND-V2 — the sharpened institutional register. Scoped to .v2-root,
+   which the (v2) layout sets on <html> (so Radix portals inherit). Radius
+   0 absolutely everywhere; hairlines are neutral (not warm); dark mode is
+   first-class (data-v2-theme="dark").
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.v2-root {
+  /* Ground + ink (light) */
+  --color-ground: #fcfbf9;
+  --color-surface: #ffffff;
+  --color-ink: #171614;
+  --color-ink-secondary: #57544e;
+  --color-ink-muted: #8b877e;
+  --color-line: #e5e5e5; /* neutral-200 */
+  --color-line-strong: #cfcfcf;
+
+  /* shadcn semantics re-grounded for v2 */
+  --background: #fcfbf9;
+  --foreground: #171614;
+  --card: #ffffff;
+  --card-foreground: #171614;
+  --popover: #ffffff;
+  --popover-foreground: #171614;
+  --secondary: #f2f1ed;
+  --secondary-foreground: #171614;
+  --muted: #f2f1ed;
+  --muted-foreground: #8b877e;
+  --accent: #f2f1ed;
+  --accent-foreground: #171614;
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+
+  /* v2 radius law: 0px absolutely everywhere. */
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+}
+
+.v2-root[data-v2-theme="dark"] {
+  --color-ground: #121212;
+  --color-surface: #181817;
+  --color-ink: #edecea;
+  --color-ink-secondary: #a5a29b;
+  --color-ink-muted: #716e67;
+  --color-line: #262626; /* neutral-800 */
+  --color-line-strong: #383838;
+  --color-accent: #7aa7cd; /* interaction navy, lifted for dark ground */
+  --color-accent-ink: #121212;
+  --color-positive: #4da98a;
+  --color-negative: #c9705a;
+
+  --background: #121212;
+  --foreground: #edecea;
+  --card: #181817;
+  --card-foreground: #edecea;
+  --popover: #181817;
+  --popover-foreground: #edecea;
+  --primary: #7aa7cd;
+  --primary-foreground: #121212;
+  --secondary: #1f1f1e;
+  --secondary-foreground: #edecea;
+  --muted: #1f1f1e;
+  --muted-foreground: #a5a29b;
+  --accent: #1f1f1e;
+  --accent-foreground: #edecea;
+  --destructive: #c9705a;
+  --border: #262626;
+  --input: #262626;
+  --ring: #7aa7cd;
+  --chart-1: #47b598;
+  --chart-2: #c69a3d;
+  --chart-3: #c9705a;
+  --chart-4: #7aa7cd;
+  --chart-5: #8b877e;
+
+  /* Nine class accents + distressed variant, lifted for dark ground at
+     matched chroma. */
+  --v2-ac-private-equity: #47b598;
+  --v2-ac-private-credit: #c69a3d;
+  --v2-ac-real-assets: #b0a63e;
+  --v2-ac-hedge-funds: #a583cf;
+  --v2-ac-structured: #4aa6ab;
+  --v2-ac-esoteric: #b56aa8;
+  --v2-ac-collectibles: #bd6e88;
+  --v2-ac-climate: #6fae5c;
+  --v2-ac-digital: #8b8ed6;
+  --v2-ac-distressed: #cd7b64;
+
+  color-scheme: dark;
+}
+
+/* v2 micro-formatting utilities */
+@utility type-display {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  line-height: 1.12;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+@utility type-mono {
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Terminal empty state — RESERVED for genuinely-empty filter results,
+   never a default page state. Render text like: [ 0 MATCHING ENTITIES ] */
+@utility terminal-empty {
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line);
+  padding: 24px 16px;
+  text-align: center;
 }
 

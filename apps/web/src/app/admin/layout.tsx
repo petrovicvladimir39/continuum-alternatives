@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
 import { canAccessAdmin, resolveAccessRole } from "@continuum/shared";
 import { anomalies, db, edges, eq, sql, timelineFacts } from "@continuum/db";
+import { SiteChrome } from "@/components/site-chrome";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const newAnomalies = anomalyCount[0]?.n ?? 0;
 
   return (
+    <SiteChrome>
     <div className="flex w-full flex-1">
       <aside className="w-[200px] shrink-0 border-r border-line px-4 py-6">
         <div className="type-label mb-3 px-2">Admin</div>
@@ -109,5 +111,6 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       </aside>
       <div className="min-w-0 flex-1 px-6 py-6">{children}</div>
     </div>
+    </SiteChrome>
   );
 }
