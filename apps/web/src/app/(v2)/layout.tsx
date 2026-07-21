@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { GlobalFooter } from "@/components/v2/global-footer";
+import { GlobalHeader } from "@/components/v2/global-header";
 import { PrototypeRibbon } from "@/components/v2/prototype-ribbon";
 import { V2_THEME_BOOT_SCRIPT, V2ThemeProvider } from "@/components/v2/theme";
 
@@ -23,7 +25,9 @@ export default function V2Layout({ children }: { children: ReactNode }) {
       <script dangerouslySetInnerHTML={{ __html: V2_THEME_BOOT_SCRIPT }} />
       <div className="flex min-h-screen w-full flex-col bg-ground text-ink antialiased">
         <PrototypeRibbon />
-        {children}
+        <GlobalHeader />
+        <main className="flex w-full flex-1 flex-col">{children}</main>
+        <GlobalFooter />
       </div>
     </V2ThemeProvider>
   );

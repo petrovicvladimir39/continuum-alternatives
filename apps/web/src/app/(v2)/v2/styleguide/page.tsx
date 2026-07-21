@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ALT_TAXONOMY } from "@continuum/shared";
 import { DISTRESSED_ACCENT, V2_CLASSES, V2_STRATEGY_COUNT } from "@/lib/v2/taxonomy";
-import { ThemeToggle } from "@/components/v2/theme";
 
 export const metadata: Metadata = {
   title: "Styleguide (v2)",
@@ -64,12 +63,6 @@ const TABLE_ROWS: [string, string, string, string, string, string][] = [
 export default function StyleguidePage() {
   return (
     <div className="mx-auto w-full max-w-[1200px] flex-1 px-6 pb-24">
-      {/* Local masthead — the real GlobalHeader ships in the shell step. */}
-      <header className="flex items-baseline justify-between border-b border-line py-4">
-        <div className="type-label">Continuum Alternatives — Frontend V2</div>
-        <ThemeToggle />
-      </header>
-
       <h1 className="type-display mt-10">Styleguide</h1>
       <p className="type-body mt-3 max-w-[640px] text-ink-secondary">
         The contract for the v2 presentation layer. Serif is Newsreader (headlines, editorial);
