@@ -91,6 +91,25 @@ export function buildMockEdges(): MockEdge[] {
   for (let i = 0; i < 18; i++) {
     add(lenders[Math.floor(rand() * lenders.length)]!.id, creditGps[Math.floor(rand() * creditGps.length)]!.id, "sold_portfolio_to");
   }
+  // Degree floor: every GP carries at least three edges so egocentric
+  // graphs are never empty.
+  for (const gp of gps) {
+    let degree = edges.filter((e) => e.sourceId === gp.id || e.targetId === gp.id).length;
+    let guard = 0;
+    while (degree < 3 && guard < 20) {
+      const target =
+        rand() < 0.4
+          ? companies[Math.floor(rand() * companies.length)]!
+          : [...funds, ...advisors][Math.floor(rand() * (funds.length + advisors.length))]!;
+      const before = edges.length;
+      add(gp.id, target.id, target.role === "advisor" ? "advised_on" : "invested_in");
+      if (edges.length > before) {
+        degree++;
+      }
+      guard++;
+    }
+  }
+
   // Regulators supervise same-country organizations.
   for (const reg of regulators) {
     const domestic = MOCK_ENTITIES.filter(
