@@ -10,7 +10,7 @@ import { enrichOrganization, type EnrichmentGuardStats } from "./enrich";
 
 const INPUT_PER_M = 3.0;
 const OUTPUT_PER_M = 15.0;
-const HARD_CAP_USD = 3.0;
+const HARD_CAP_USD = Number.parseFloat(process.env.MEGA_ENRICH_CAP ?? "3.0");
 
 function parseLimit(): number {
   const index = process.argv.indexOf("--limit");
@@ -39,8 +39,11 @@ async function main() {
     from entities e
     join organizations o on o.entity_id = e.id
     where e.status = 'active' and e.kind = 'organization'
-      and o.website is not null and o.logo_url is not null
+      and o.website is not null
       and o.enrichment is null
+      -- any activity signal: an edge in either review state, or an approved fact
+      and (exists(select 1 from edges ed where ed.source_entity_id = e.id or ed.target_entity_id = e.id)
+        or exists(select 1 from timeline_facts tf where tf.entity_id = e.id))
     order by (
       (select count(*) from edges ed
         where ed.status = 'approved'

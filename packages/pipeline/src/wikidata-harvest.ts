@@ -28,7 +28,10 @@ const SPARQL_ENDPOINT = "https://query.wikidata.org/sparql";
 const UA = "ContinuumBot/1.0 (data platform; hello@continuumalternatives.com)";
 
 // private equity firm / venture capital firm / asset management company
-const CLASSES = ["Q5418962", "Q3487908", "Q4230006"];
+// + (clean-100 Part 6) hedge fund / startup accelerator. Angel networks have
+// no usable Wikidata class (probed 2026-07-21: only individual companies and
+// papers carry the phrase) — documented skip.
+const CLASSES = ["Q5418962", "Q3487908", "Q4230006", "Q105611", "Q4086495"];
 
 type SparqlBinding = {
   org: { value: string };
