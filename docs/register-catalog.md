@@ -8,7 +8,7 @@ documented here for future runs.
 Access classes: `downloadable-file` > `json-api` > `parseable-HTML` >
 `search-form-only` > `registration-required` > `JS/WAF-blocked`.
 
-## Harvested today (built harvesters)
+## Harvested (built harvesters)
 
 | Register | Country | Route | Access | Harvester |
 |---|---|---|---|---|
@@ -17,6 +17,18 @@ Access classes: `downloadable-file` > `json-api` > `parseable-HTML` >
 | NBS | SK | `subjekty.nbs.sk/api/json` — whole market in one zip'd JSON (33k+ institutions, addresses, license scopes), nightly refresh | json-api | `pnpm registers:harvest -- --register nbs` |
 | AMF | FR | Official SGP (asset manager) list on data.gouv.fr, stable resource `datasets/r/2220f808-8908-4afc-98e3-cf74a25678e2` — CSV with agrément number, LEI, website | downloadable-file | `pnpm registers:harvest -- --register amf` |
 | Bank of Lithuania | LT | `lb.lt/en/sfi-financial-market-participants?export=csv&market=N` — CSV export per market | downloadable-file | `pnpm registers:harvest -- --register lb` |
+| FINMA | CH | `finma.ch/~/media/finma/dokumente/bewilligungstraeger/xlsx/{flvervt,beh}.xlsx` — inline-string XLSX, header row carries "Name"/"Ort" + role columns | downloadable-file | `pnpm registers:harvest -- --register finma` (clean-100 P2: 487 created) |
+| Finanstilsynet | NO | `api.finanstilsynet.no/registry/v1/legal-entities/filter?licenceTypes=FOAVALIN\|FVLTSLSKVP\|FFOR` — open keyless REST, paged; foreign passporting rows (no NO org nr) skipped | json-api | `pnpm registers:harvest -- --register no` (468 created) |
+| HANFA | HR | `hanfa.hr/registri/<leaf>/?export=xml` on the fund-manager + investment-firm leaves — includes LEI + OIB | downloadable-file | `pnpm registers:harvest -- --register hanfa` (mostly GLEIF-known already) |
+| AFM | NL | `afm.nl/export.aspx?type=<GUID>&format=csv` (root-relative!, investment firms `8f59acf7…`, collective schemes `883bcff1…`) + AIFM spreadsheets `~/profmedia/files/registers/register-aifm{,d-light}.xlsx` (manager×fund rows → manages links; the two files use different header labels) | downloadable-file | `pnpm registers:harvest -- --register afm` (2,116 created + 1,115 manages) |
+| KNF | PL | `knf.gov.pl/podmioty/Podmioty_rynku_kapitalowego/Fundusze_Inwestycyjne/TFI_i_FI` — one 4 MB server-rendered page: 64 TFIs (PLTFI ids) + fund tables (PLFIZ/PLFIO ids); subfund rows deliberately skipped | parseable-HTML | `pnpm registers:harvest -- --register knf` (324 created + 271 manages) |
+| CNMV | ES | `cnmv.es/Portal/Consultas/ListadoEntidad?id=2\|4&tipoent=0` (SGIIC + SGEIC; no `.aspx`, and the IIS 500s without an Accept-Language header) | parseable-HTML | `pnpm registers:harvest -- --register cnmv` (157 created) |
+| Finansinspektionen | SE | `fi.se/en/our-registers/company-register/index?huvudkategori=Fondbolag%2FAIF-förvaltare` — GET, server-rendered, org numbers in-row | parseable-HTML | `pnpm registers:harvest -- --register fise` (187 created) |
+| Latvijas Banka | LV | `bank.lv/index.php?option=com_market&view=filter&format=json&segments=<slug>` — Joomla JSON with an HTML fragment payload (UCITS ManCos + AIFM segments) | json-api | `pnpm registers:harvest -- --register lv` (194 created) |
+| Finantsinspektsioon | EE | fi.ee Drupal views pages (fund-management-companies, investment-firms); cross-border rows filtered by path | parseable-HTML | `pnpm registers:harvest -- --register fiee` (148 created) |
+| ASF | RO | `data.asfromania.ro/registru/lista.php?sect=3501\|3801\|3802\|3101&lng=1` — `lng=1` is mandatory, 4-digit section codes (SAI/AFIA/SSIF) | parseable-HTML | `pnpm registers:harvest -- --register asf` (36 created) |
+| FIN-FSA | FI | `finanssivalvonta.fi/api/supervised-entity-api/v1/all-supervised-entities` — one 1.16 MB JSON dump, filtered by groupName (AIFMs, fund mgmt cos, investment firms, EuVECA; deregistered excluded) | json-api | `pnpm registers:harvest -- --register finfsa` (140 created) |
+| ESMA central registers | EU-wide | `registers.esma.europa.eu/solr/esma_registers_upreg/select` — solr JSON, parent docs `entity_type:ae`, sub-registers aif (3,781) / uci (1,705) / evc (475) / esf (17); LEI-keyed. THE RESCUE for WAF/JS-blocked NCAs (IT, AT, SI, PT, MT, HU, GR, BG, CY, DK, BE, DE) | json-api | `pnpm registers:harvest -- --register esma` (1,491 created, 1,568 LEI-known) |
 
 ## Probed, documented, not yet harvested
 
@@ -48,9 +60,27 @@ Access classes: `downloadable-file` > `json-api` > `parseable-HTML` >
 | ATVP | SI | a-tvp.si/registri | WAF-blocked | 403 to plain fetch on all register URLs. |
 | Central Bank of Ireland | IE | registers.centralbank.ie | search-form-only + robots-restricted | Downloads page is PDF-only behind WebForms postbacks; no API ("API Available: No" per gov.ie catalogue). Search results ARE plain-GET HTML, **but robots.txt expressly disallows bots (incl. ClaudeBot/GPTBot) from all Search/Results/Data pages** — the operator's intent is anti-harvesting, so CBI is documented and deliberately NOT harvested. Targeted manual lookups only. |
 
+## Re-probed 2026-07-21 (clean-100 Part 2) — still blocked / not harvested
+
+| Regulator | Country | Fresh verdict |
+|---|---|---|
+| BaFin | DE | curl now reaches `portal.mvp.bafin.de/database/InstInfo/` (200), but bulk listing still needs Java form POSTs + in-app Excel export; Node fetch still dies on malformed headers. ESMA covers DE AIFMs/ManCos. |
+| Finanstilsynet | DK | SPA unchanged; `/api/companies` guess 404s. ESMA covers DK. |
+| MNB | HU | jQuery app, POST-only MVC endpoints + reCAPTCHA; `/en/Home/SearchForExcel` export exists but its POST contract needs a browser session. ESMA covers HU. |
+| CySEC | CY | Category pages are ASP.NET menus; no bulk export located in probes. ESMA covers CY. |
+| FSC | BG | English list URLs 404/moved (WordPress page_id routing); unstable. ESMA covers BG. |
+| MFSA | MT | Still 403 + JS app. ESMA covers MT. |
+| FMA | AT | Still 403 to non-browser clients. ESMA covers AT. |
+| CONSOB | IT | Radware challenge unchanged. ESMA covers IT. |
+| ATVP | SI | Still 403. ESMA covers SI. |
+| CMVM | PT | Portal URLs opaque/JS; old routes 404. ESMA covers PT. |
+| HCMC | GR | hcmc.gr routes 404/refused from this egress. ESMA covers GR. |
+| FCA | GB | Free-registration API — no key configured (operator step); skipped this run. |
+| CBI | IE | robots.txt expressly disallows bot harvesting — deliberately NOT harvested (unchanged policy). |
+| ČNB | CZ | JERRS OPENDATA lists 1–7 probed row-by-row: banks/intermediaries/consumer-credit only — NO fund-manager list on the open-data route; fund managers would need the registration-gated web service. GLEIF covers CZ funds. |
+
 ## Fallback
 
-ESMA's central registers (AIFM / UCITS / investment-firm CSVs at esma.europa.eu)
-cover every EU jurisdiction with name + home NCA + passporting data — a
-cross-check and a rescue path for the blocked NCAs (IT, AT, SI, PT, MT, HU),
+ESMA's central register core `esma_registers_upreg` is now a first-class
+harvester (see above) — it is the standing rescue path for every blocked NCA,
 at the cost of address/city granularity.
