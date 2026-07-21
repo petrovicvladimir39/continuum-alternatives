@@ -38,9 +38,19 @@ function main() {
     resources !== undefined &&
       "items" in resources &&
       JSON.stringify(resources.items.map((item) => item.label)) ===
-        // Phase 31B added Events (reader utility, not a Data ▾ dataset).
-        JSON.stringify(["Events", "Digest", "Reports", "Coverage", "Methodology", "About"]),
-    "Resources dropdown is Events·Digest·Reports·Coverage·Methodology·About",
+        // Phase 31B added Events; Phase 34B added Analyst tools + API & MCP
+        // (member utilities live with reader utilities, not under Data ▾).
+        JSON.stringify([
+          "Events",
+          "Digest",
+          "Reports",
+          "Analyst tools",
+          "API & MCP",
+          "Coverage",
+          "Methodology",
+          "About",
+        ]),
+    "Resources dropdown is Events·Digest·Reports·Analyst tools·API & MCP·Coverage·Methodology·About",
   );
   const leaves = navLeaves(NAV_TREE);
   check(

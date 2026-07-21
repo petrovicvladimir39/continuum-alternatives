@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import { composeTodayStrip, parseAsk, type AskFilters } from "@continuum/shared";
+import { llmGroundAsk, shouldInvokeGrounder } from "@continuum/pipeline";
 import {
   discussedEntities,
   findEntities,
@@ -87,22 +88,35 @@ export default async function NewsIndexPage({
 }) {
   const { q, class: classFilter } = await searchParams;
   const query = (q ?? "").trim();
-  const filters = query === "" ? null : parseAsk(query);
+  let filters = query === "" ? null : parseAsk(query);
 
   // Signed-in saved views (Clerk-off environments skip identity entirely).
   let savedViews: { id: string; name: string; q: string }[] = [];
   let signedIn = false;
+  let memberId: string | null = null;
   if (clerkEnabled) {
     const { userId } = await auth();
     if (userId !== null) {
       signedIn = true;
       const member = await getMemberByClerkId(userId);
       if (member !== null) {
+        memberId = member.id;
         savedViews = (await listSavedViews(member.id)).map((view) => {
           const stored = view.filters as { q?: string };
           return { id: view.id, name: view.name, q: stored.q ?? "" };
         });
       }
+    }
+  }
+
+  // Phase 34D — the AskGrounder seam, filled. Runs ONLY when the
+  // deterministic parse is empty/weak, only for signed-in members, capped
+  // and cached; its output is a Filters object rendered through the exact
+  // same chips+rails path below. The model has no prose channel here.
+  if (memberId !== null && query !== "" && shouldInvokeGrounder(filters, query)) {
+    const grounded = await llmGroundAsk(query, memberId);
+    if (grounded.status === "grounded" && grounded.filters.matches.length > 0) {
+      filters = grounded.filters;
     }
   }
 

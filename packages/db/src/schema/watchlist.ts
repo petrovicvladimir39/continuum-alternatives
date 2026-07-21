@@ -1,4 +1,5 @@
 import {
+  boolean,
   pgTable,
   primaryKey,
   text,
@@ -39,6 +40,9 @@ export const memberAlertPrefs = pgTable("member_alert_prefs", {
   // immediately, rest daily) | 'off'.
   frequency: text("frequency").notNull().default("daily"),
   lastDigestedAt: timestamp("last_digested_at", { withTimezone: true }),
+  // Phase 34E — the weekly Watchdog brief (founding, OPT-IN on /account;
+  // default off: nobody gets LLM-composed email they didn't ask for).
+  watchdogOptIn: boolean("watchdog_opt_in").notNull().default(false),
 });
 
 /**

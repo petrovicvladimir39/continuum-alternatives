@@ -81,6 +81,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           <Link href="/admin/claims" className={navLinkClass}>
             Claims
           </Link>
+          <Link href="/admin/ops" className={navLinkClass}>
+            Ops
+          </Link>
           <Link href="/admin/sources" className={navLinkClass}>
             Sources
           </Link>

@@ -75,12 +75,17 @@ export async function listWatchlist(memberId: string): Promise<WatchlistRow[]> {
 
 export type AlertFrequency = "daily" | "instant_important" | "off";
 
-export async function getAlertPrefs(memberId: string): Promise<{ frequency: AlertFrequency }> {
+export async function getAlertPrefs(
+  memberId: string,
+): Promise<{ frequency: AlertFrequency; watchdogOptIn: boolean }> {
   const rows = await db
     .select()
     .from(memberAlertPrefs)
     .where(eq(memberAlertPrefs.memberId, memberId));
-  return { frequency: (rows[0]?.frequency ?? "daily") as AlertFrequency };
+  return {
+    frequency: (rows[0]?.frequency ?? "daily") as AlertFrequency,
+    watchdogOptIn: rows[0]?.watchdogOptIn ?? false,
+  };
 }
 
 export async function setAlertFrequency(memberId: string, frequency: AlertFrequency): Promise<void> {

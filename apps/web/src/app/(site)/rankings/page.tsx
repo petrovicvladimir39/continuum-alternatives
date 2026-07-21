@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { parseAsOf } from "@continuum/shared";
 import {
   administratorRanking,
   cityRanking,
@@ -9,6 +10,7 @@ import {
   sql,
   type RankingRow,
 } from "@continuum/db";
+import { AsOfBanner, AsOfControl } from "@/components/asof-control";
 import { DataTable, numericCell } from "@/components/ui/data-table";
 import { countryName } from "@/lib/public-labels";
 
@@ -81,19 +83,22 @@ function RankingTable({
 export default async function RankingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ country?: string }>;
+  searchParams: Promise<{ country?: string; asof?: string }>;
 }) {
   // Default "All countries" (anti-skew) — the selector narrows honestly;
   // thin slices show their empty state rather than a fake table.
   const params = await searchParams;
   const rawCountry = params.country?.toUpperCase() ?? "";
   const country = /^[A-Z]{2}$/.test(rawCountry) ? rawCountry : undefined;
+  // Phase 34A: time-travel — the trailing-12-month windows end at asof and
+  // count only facts RECORDED by then (a backfill never rewrites history).
+  const asof = parseAsOf(params.asof, new Date().toISOString().slice(0, 10)) ?? undefined;
 
   const [courts, cities, administrators, degree, countryRows] = await Promise.all([
-    courtRanking(10, country),
-    cityRanking(10, country),
-    administratorRanking(10, country),
-    degreeRanking(20, country),
+    courtRanking(10, country, asof),
+    cityRanking(10, country, asof),
+    administratorRanking(10, country, asof),
+    degreeRanking(20, country, asof),
     db.execute(sql`
       select distinct e.country from entities e
       where e.status = 'active' and e.country is not null
@@ -104,7 +109,15 @@ export default async function RankingsPage({
 
   return (
     <div className="py-10">
-      <h1 className="type-h1">Rankings</h1>
+      {asof !== undefined ? (
+        <div className="mb-6">
+          <AsOfBanner asof={asof} basePath="/rankings" />
+        </div>
+      ) : null}
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h1 className="type-h1">Rankings</h1>
+        <AsOfControl basePath="/rankings" asof={asof ?? null} />
+      </div>
       <p className="mt-2 max-w-2xl text-ink-secondary">
         League tables computed from the approved record. Each table states its basis; where the
         data is thin, no table is shown.

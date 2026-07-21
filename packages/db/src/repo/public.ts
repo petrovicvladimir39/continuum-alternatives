@@ -85,6 +85,8 @@ export type PublicFact = {
   body: string | null;
   channels: string[];
   citation: { sourceName: string | null; url: string | null; documentTitle: string | null } | null;
+  /** Phase 34E — scout credit line ("Contributed by X"), null unless opted. */
+  contributedBy: string | null;
 };
 
 export type PublicConnection = {
@@ -146,6 +148,8 @@ export function orgEnrichmentOf(value: unknown): OrgEnrichment | null {
 
 /** Distinct source documents referencing an entity — the provenance section. */
 export type PublicMention = {
+  /** Document id — Phase 34C links each mention to its /documents page. */
+  id: string;
   url: string | null;
   title: string | null;
   sourceName: string | null;
@@ -183,13 +187,31 @@ export type PublicProfile = {
  * Full public profile for one entity. Returns null (→ 404) unless the slug
  * exists, is status='active', and matches the kind the route serves — a deal
  * slug requested under /companies must not render.
+ *
+ * Phase 34A — `opts.asof` reconstructs the record at a past date on BOTH
+ * time dimensions: occurred_on ≤ asof (the event had happened) AND the
+ * recorded dimension ≤ asof (Continuum knew about it). A backfilled fact
+ * about an old event does not leak into views dated before its ingestion.
+ * Only record data time-travels; watch/discussion/steward surfaces stay live.
  */
-export async function getPublicProfile(slug: string, kind: PublicKind): Promise<PublicProfile | null> {
+export async function getPublicProfile(
+  slug: string,
+  kind: PublicKind,
+  opts: { asof?: string | null } = {},
+): Promise<PublicProfile | null> {
   const entityRows = await db.select().from(entities).where(eq(entities.slug, slug));
   const entity = entityRows[0];
   if (!entity || entity.status !== "active" || entity.kind !== kind) {
     return null;
   }
+  const asof = opts.asof ?? null;
+  // recorded dimension mirrors compose: facts without recorded_at fall back
+  // to their occurred_on instant.
+  const factAsOf =
+    asof === null
+      ? sql`true`
+      : sql`${timelineFacts.occurredOn} <= ${asof}
+          AND coalesce(${timelineFacts.recordedAt}, ${timelineFacts.occurredOn}::timestamptz)::date <= ${asof}`;
 
   const tagRows = await db.select().from(entityTags).where(eq(entityTags.entityId, entity.id));
 
@@ -204,11 +226,12 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
       documentUrl: documents.url,
       documentTitle: documents.title,
       sourceName: sources.name,
+      contributedBy: sql<string | null>`${timelineFacts.data}->>'contributed_by'`,
     })
     .from(timelineFacts)
     .leftJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
     .leftJoin(sources, eq(sources.id, documents.sourceId))
-    .where(and(eq(timelineFacts.entityId, entity.id), eq(timelineFacts.status, "approved")))
+    .where(and(eq(timelineFacts.entityId, entity.id), eq(timelineFacts.status, "approved"), factAsOf))
     .orderBy(asc(timelineFacts.occurredOn), asc(timelineFacts.recordedAt));
 
   const facts: PublicFact[] = factRows.map((row) => ({
@@ -221,8 +244,16 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
       row.documentId === null
         ? null
         : { sourceName: row.sourceName, url: row.documentUrl, documentTitle: row.documentTitle },
+    contributedBy: row.contributedBy,
   }));
 
+  // Edges time-travel on the same two dimensions: known by then (created_at)
+  // and, when dated, in effect by then (started_on).
+  const edgeAsOf =
+    asof === null
+      ? sql`true`
+      : sql`coalesce(${edges.createdAt}, now())::date <= ${asof}
+          AND (${edges.startedOn} IS NULL OR ${edges.startedOn} <= ${asof})`;
   const edgeRows = await db
     .select()
     .from(edges)
@@ -230,6 +261,7 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
       and(
         eq(edges.status, "approved"),
         or(eq(edges.sourceEntityId, entity.id), eq(edges.targetEntityId, entity.id)),
+        edgeAsOf,
       ),
     );
 
@@ -306,6 +338,7 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
 
   const mentionRows = await db
     .select({
+      id: documents.id,
       url: documents.url,
       title: documents.title,
       sourceName: sources.name,
@@ -314,10 +347,11 @@ export async function getPublicProfile(slug: string, kind: PublicKind): Promise<
     .from(timelineFacts)
     .innerJoin(documents, eq(documents.id, timelineFacts.sourceDocumentId))
     .leftJoin(sources, eq(sources.id, documents.sourceId))
-    .where(and(eq(timelineFacts.entityId, entity.id), eq(timelineFacts.status, "approved")))
+    .where(and(eq(timelineFacts.entityId, entity.id), eq(timelineFacts.status, "approved"), factAsOf))
     .groupBy(documents.id, documents.url, documents.title, sources.name)
     .orderBy(sql`min(${timelineFacts.occurredOn}) desc`);
   const mentions: PublicMention[] = mentionRows.map((row) => ({
+    id: row.id,
     url: row.url,
     title: row.title,
     sourceName: row.sourceName,

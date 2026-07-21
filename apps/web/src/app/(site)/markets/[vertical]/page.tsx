@@ -6,6 +6,7 @@ import {
   CLASS_LEVEL,
   diversifyRail,
   meetsCoverageThreshold,
+  parseAsOf,
   strategyBySlug,
   verticalBySlug,
   VERTICALS,
@@ -147,10 +148,16 @@ function RankingTable({ title, rows }: { title: string; rows: RankingRow[] }) {
 
 export default async function MarketFrontPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ vertical: string }>;
+  searchParams: Promise<{ asof?: string }>;
 }) {
   const { vertical: slug } = await params;
+  // Phase 34A: market fronts ACCEPT ?asof (no date control here — the
+  // control lives on timelines and /rankings; deep links still work).
+  // Articles are editorial and never time-travel.
+  const asof = parseAsOf((await searchParams).asof, new Date().toISOString().slice(0, 10)) ?? undefined;
   let vertical = verticalBySlug(slug);
   if (vertical === null) {
     // Coverage-gated taxonomy front (26C): renders only above threshold.
@@ -176,11 +183,12 @@ export default async function MarketFrontPage({
   const [articles, feed, classifiedEntities, taggedEntities] = await Promise.all([
     listPublishedArticles(20),
     vertical.channels.length > 0
-      ? listAskFeed({ channels: vertical.channels, limit: 24 })
+      ? listAskFeed({ channels: vertical.channels, limit: 24, ...(asof !== undefined ? { asof } : {}) })
       : listAskFeed({
           assetClasses: vertical.taxonomy?.strategies == null ? [vertical.taxonomy!.assetClass] : [],
           strategies: vertical.taxonomy?.strategies ?? [],
           limit: 24,
+          ...(asof !== undefined ? { asof } : {}),
         }),
     vertical.taxonomy !== undefined
       ? topEntitiesForClassification(vertical.taxonomy.assetClass, vertical.taxonomy.strategies, 8)
@@ -205,11 +213,11 @@ export default async function MarketFrontPage({
   const wantsAdvisors = vertical.modules.includes("advisor_league");
   const [auctions, courts, typedFeed, advisors] = await Promise.all([
     wantsAuctions ? listAuctions("upcoming") : Promise.resolve(null),
-    wantsCourts ? courtRanking(8) : Promise.resolve([]),
+    wantsCourts ? courtRanking(8, undefined, asof) : Promise.resolve([]),
     wantsDeals && vertical.factTypes.length > 0
-      ? listAskFeed({ factTypes: vertical.factTypes, limit: 12 })
+      ? listAskFeed({ factTypes: vertical.factTypes, limit: 12, ...(asof !== undefined ? { asof } : {}) })
       : Promise.resolve(null),
-    wantsAdvisors ? administratorRanking(8) : Promise.resolve([]),
+    wantsAdvisors ? administratorRanking(8, undefined, asof) : Promise.resolve([]),
   ]);
   const typedRail =
     typedFeed === null ? [] : diversifyRail(typedFeed.items, 6, (item) => item.entityCountry);

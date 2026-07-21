@@ -58,6 +58,10 @@ export const NAV_TREE: NavNode[] = [
       { label: "Events", href: "/events" },
       { label: "Digest", href: "/digest" },
       { label: "Reports", href: "/reports" },
+      // Phase 34B: analyst tools are member utilities, so they sit with the
+      // reader utilities — not under Data ▾, which lists the record itself.
+      { label: "Analyst tools", href: "/tools/npl-simulator" },
+      { label: "API & MCP", href: "/docs/api" },
       { label: "Coverage", href: "/coverage" },
       { label: "Methodology", href: "/methodology" },
       { label: "About", href: "/about" },

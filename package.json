@@ -36,7 +36,8 @@
     "classify:corpus": "pnpm --filter @continuum/pipeline classify:corpus",
     "alerts:backfill": "pnpm --filter @continuum/pipeline alerts:backfill",
     "events:import": "pnpm --filter @continuum/pipeline events:import",
-    "events:harvest": "pnpm --filter @continuum/pipeline events:harvest"
+    "events:harvest": "pnpm --filter @continuum/pipeline events:harvest",
+    "ops:backup-check": "pnpm --filter @continuum/pipeline ops:backup-check"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

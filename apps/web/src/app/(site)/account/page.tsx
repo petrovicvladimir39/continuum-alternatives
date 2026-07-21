@@ -9,6 +9,7 @@ import {
   getMemberByClerkId,
   getSubscription,
   listSavedViews,
+  memberScoutStats,
   resolveMemberTier,
   searchPublic,
   upsertMemberProfile,
@@ -69,6 +70,8 @@ export default async function AccountPage({
 
   const contact = email !== null ? await findContactByEmail(email) : null;
   const savedViews = await listSavedViews(profile.id);
+  // Phase 34E — contributor credit (approved scout submissions).
+  const scoutStats = await memberScoutStats(profile.id);
   const [tier, subscription, affiliation, contactCounts] = await Promise.all([
     resolveMemberTier(profile.id),
     getSubscription(profile.id),
@@ -325,6 +328,23 @@ export default async function AccountPage({
           </div>
         </form>
       </div>
+
+      {scoutStats.submitted > 0 ? (
+        <p className="mt-6 text-[13px] text-ink-secondary">
+          Contributor: <span className="type-data font-medium">{scoutStats.approved}</span> signal
+          {scoutStats.approved === 1 ? "" : "s"} on the record ({scoutStats.submitted} submitted) ·{" "}
+          <a href="/contribute" className="text-accent hover:underline">
+            contribute →
+          </a>
+        </p>
+      ) : (
+        <p className="mt-6 text-[13px] text-ink-muted">
+          Saw something the record missed?{" "}
+          <a href="/contribute" className="text-accent hover:underline">
+            Contribute a signal →
+          </a>
+        </p>
+      )}
 
       <h2 className="type-h2 mt-8">Saved views</h2>
       {savedViews.length === 0 ? (

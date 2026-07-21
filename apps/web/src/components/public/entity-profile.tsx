@@ -17,6 +17,7 @@ import {
 import { ConnectionsGraph } from "@/components/public/connections-graph";
 import { DiscussionSection } from "@/components/discussion-section";
 import { OrgStewardSection } from "@/components/org-steward";
+import { AsOfBanner, AsOfControl } from "@/components/asof-control";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { StatBlock } from "@/components/ui/stat-block";
 import { TrackView } from "@/components/track-view";
@@ -197,6 +198,9 @@ function ActivityTimeline({ facts }: { facts: PublicProfile["facts"] }) {
                   </div>
                 ) : null}
                 <Citation citation={fact.citation} />
+                {fact.contributedBy !== null ? (
+                  <p className="type-small text-ink-muted">Contributed by {fact.contributedBy}</p>
+                ) : null}
               </div>
             ))}
           </div>
@@ -209,9 +213,15 @@ function ActivityTimeline({ facts }: { facts: PublicProfile["facts"] }) {
 export async function EntityProfile({
   profile,
   similar,
+  asof = null,
+  basePath = "",
 }: {
   profile: PublicProfile;
   similar: SimilarEntity[];
+  /** Phase 34A — active as-of date; record sections reflect it, live
+   * surfaces (watch, discussion, steward) deliberately do not. */
+  asof?: string | null;
+  basePath?: string;
 }) {
   const { entity, tags, facts, connections, organization, mentions } = profile;
   const kindLabel = KIND_LABELS[entity.kind as keyof typeof KIND_LABELS] ?? entity.kind;
@@ -242,6 +252,11 @@ export async function EntityProfile({
   return (
     <article className="py-10">
       <TrackView event="entity_viewed" props={{ kind: entity.kind }} />
+      {asof !== null && basePath !== "" ? (
+        <div className="mb-6">
+          <AsOfBanner asof={asof} basePath={basePath} />
+        </div>
+      ) : null}
       <header className="flex items-start gap-4">
         <EntityLogo
           name={entity.name}
@@ -364,10 +379,19 @@ export async function EntityProfile({
         </section>
       ) : null}
 
-      {facts.length > 0 ? (
+      {facts.length > 0 || asof !== null ? (
         <section className="mt-10">
-          <h2 className="type-h2">Activity</h2>
-          <ActivityTimeline facts={facts} />
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="type-h2">Activity</h2>
+            {basePath !== "" ? <AsOfControl basePath={basePath} asof={asof} /> : null}
+          </div>
+          {facts.length === 0 ? (
+            <p className="mt-3 text-[13px] text-ink-muted">
+              Nothing was on the record for this entity as of {asof}.
+            </p>
+          ) : (
+            <ActivityTimeline facts={facts} />
+          )}
         </section>
       ) : null}
 
@@ -438,6 +462,14 @@ export async function EntityProfile({
                     <span className="text-ink-secondary"> — {mention.title}</span>
                   ) : null}
                 </span>
+                {/* Phase 34C: every mention row links its document page,
+                    where members can ask the filing directly. */}
+                <Link
+                  href={`/documents/${mention.id}`}
+                  className="shrink-0 text-[12px] text-ink-muted hover:text-accent"
+                >
+                  ask →
+                </Link>
                 {mention.url !== null ? (
                   <a
                     href={mention.url}

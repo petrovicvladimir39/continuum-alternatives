@@ -19,3 +19,4 @@ export * from "./community";
 export * from "./attendance";
 export * from "./private-graph";
 export * from "./platform";
+export * from "./intelligence";

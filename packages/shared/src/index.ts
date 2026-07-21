@@ -60,6 +60,17 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export { emailDomain, emailMatchesWebsite, websiteHost } from "./claims";
+export { parseAsOf } from "./asof";
+export { COMPS_MIN_DEALS, compsRenderable } from "./comps";
+export {
+  mulberry32,
+  percentile,
+  runNplSimulation,
+  triangularSample,
+  validateNplParams,
+  type NplSimParams,
+  type NplSimResult,
+} from "./npl-sim";
 export {
   findWarmPaths,
   MEMBER_NODE,

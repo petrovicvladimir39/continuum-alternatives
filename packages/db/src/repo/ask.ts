@@ -24,9 +24,17 @@ export async function listAskFeed(opts: {
   entityQuery?: string;
   /** Only items recorded in the last N hours (saved-view alert evaluation). */
   recordedWithinHours?: number;
+  /** Phase 34A: reconstruct the feed as of a past date (both time dimensions). */
+  asof?: string;
   limit?: number;
 }): Promise<AskFeed> {
   const conditions = [eq(timelineFacts.status, "approved")];
+  if (opts.asof !== undefined && opts.asof !== "") {
+    conditions.push(
+      sql`${timelineFacts.occurredOn} <= ${opts.asof}
+        AND coalesce(${timelineFacts.recordedAt}, ${timelineFacts.occurredOn}::timestamptz)::date <= ${opts.asof}`,
+    );
+  }
   if (opts.recordedWithinHours !== undefined && opts.recordedWithinHours > 0) {
     conditions.push(
       sql`${timelineFacts.recordedAt} >= now() - make_interval(hours => ${opts.recordedWithinHours})`,

@@ -95,9 +95,24 @@ export {
   signWebhookPayload,
   verifyWebhookSignature,
 } from "./webhooks";
+export { askFiling, DOC_CHAT_FREE_PER_DAY } from "./filing-chat";
+export { guardFilingAnswer, NO_ANSWER_FALLBACK, type FilingAnswer } from "./filing-guards";
+export {
+  GROUNDED_ASKS_PER_MEMBER_PER_DAY,
+  llmGroundAsk,
+  sanitizeGroundedFilters,
+  shouldInvokeGrounder,
+} from "./ask-ground";
+export {
+  composeWatchdogBrief,
+  currentWeekStart,
+  runWatchdogWeekly,
+  WATCHDOG_WEEKLY_BUDGET_USD,
+} from "./watchdog-compose";
 
 import { alertsDaily } from "./functions/alerts-daily";
 import { webhooksDeliver } from "./functions/webhooks-deliver";
+import { watchdogWeekly } from "./functions/watchdog-weekly";
 import { anomaliesWeekly } from "./functions/anomalies-weekly";
 import { articlesWeekly } from "./functions/articles-weekly";
 import { digestWeeklyDraft } from "./functions/digest-weekly";
@@ -117,4 +132,5 @@ export const functions = [
   digestWeeklyDraft,
   alertsDaily,
   webhooksDeliver,
+  watchdogWeekly,
 ];

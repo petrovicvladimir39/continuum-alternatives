@@ -283,31 +283,51 @@ export async function auctionStats(today?: string): Promise<AuctionStats> {
 }
 
 // ── League tables (trailing 12 months, live queries) ───────────────────────
+//
+// Phase 34A: an `asof` date shifts the whole window — facts must have
+// OCCURRED in the 12 months up to asof AND been RECORDED by asof (both
+// bitemporal dimensions; a later backfill never rewrites a past table).
 
 export type RankingRow = { label: string; n: number; href?: string | null };
 
-export async function courtRanking(limit = 10, country?: string): Promise<RankingRow[]> {
+function rankingWindow(asof?: string) {
+  const end = asof ?? null;
+  return sql`
+      f.occurred_on <= coalesce(${end}::date, current_date)
+      and f.occurred_on >= coalesce(${end}::date, current_date) - interval '12 months'
+      and coalesce(f.recorded_at, f.occurred_on::timestamptz)::date <= coalesce(${end}::date, current_date)`;
+}
+
+export async function courtRanking(
+  limit = 10,
+  country?: string,
+  asof?: string,
+): Promise<RankingRow[]> {
   const result = await db.execute(sql`
     select f.data->>'court' as label, count(*)::int as n
     from timeline_facts f
     join entities e on e.id = f.entity_id
     where f.status = 'approved' and f.fact_type = 'insolvency_opened'
       and f.data->>'court' is not null
-      and f.occurred_on >= current_date - interval '12 months'
+      and ${rankingWindow(asof)}
       and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1 order by n desc, label limit ${limit}
   `);
   return result.rows.map((row) => ({ label: String(row.label), n: Number(row.n) }));
 }
 
-export async function cityRanking(limit = 10, country?: string): Promise<RankingRow[]> {
+export async function cityRanking(
+  limit = 10,
+  country?: string,
+  asof?: string,
+): Promise<RankingRow[]> {
   const result = await db.execute(sql`
     select coalesce(f.data->>'city', f.data->>'place') as label, count(*)::int as n
     from timeline_facts f
     join entities e on e.id = f.entity_id
     where f.status = 'approved'
       and coalesce(f.data->>'city', f.data->>'place') is not null
-      and f.occurred_on >= current_date - interval '12 months'
+      and ${rankingWindow(asof)}
       and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1 order by n desc, label limit ${limit}
   `);
@@ -343,13 +363,17 @@ export function groupAdministrators(
     .sort((a, b) => b.n - a.n || a.label.localeCompare(b.label));
 }
 
-export async function administratorRanking(limit = 10, country?: string): Promise<RankingRow[]> {
+export async function administratorRanking(
+  limit = 10,
+  country?: string,
+  asof?: string,
+): Promise<RankingRow[]> {
   const result = await db.execute(sql`
     select f.data->>'administrator' as name, count(*)::int as n
     from timeline_facts f
     join entities e on e.id = f.entity_id
     where f.status = 'approved' and f.data->>'administrator' is not null
-      and f.occurred_on >= current_date - interval '12 months'
+      and ${rankingWindow(asof)}
       and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by 1
   `);
@@ -358,12 +382,18 @@ export async function administratorRanking(limit = 10, country?: string): Promis
   ).slice(0, limit);
 }
 
-export async function degreeRanking(limit = 20, country?: string): Promise<RankingRow[]> {
+export async function degreeRanking(
+  limit = 20,
+  country?: string,
+  asof?: string,
+): Promise<RankingRow[]> {
   const result = await db.execute(sql`
     select e.name as label, e.slug, e.kind, count(*)::int as n
     from entities e
     join edges ed on ed.status = 'approved'
       and (ed.source_entity_id = e.id or ed.target_entity_id = e.id)
+      and coalesce(ed.created_at, now())::date <= coalesce(${asof ?? null}::date, current_date)
+      and (ed.started_on is null or ed.started_on <= coalesce(${asof ?? null}::date, current_date))
     where e.status = 'active'
       and (${country ?? null}::text is null or e.country = ${country ?? null})
     group by e.id, e.name, e.slug, e.kind

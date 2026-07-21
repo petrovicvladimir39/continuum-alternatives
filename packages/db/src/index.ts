@@ -21,6 +21,8 @@ export * from "./repo/attendance";
 export * from "./repo/private-graph";
 export * from "./repo/universe";
 export * from "./repo/platform";
+export * from "./repo/comps";
+export * from "./repo/intelligence";
 export * from "./resolve";
 export * from "./register-import";
 export * from "./export";

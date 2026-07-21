@@ -16,7 +16,16 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  */
 
 // /universe joined in Phase 32C — the egocentric map is signed-in only.
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/account(.*)", "/universe(.*)"]);
+const isProtectedRoute = createRouteMatcher([
+  "/admin(.*)",
+  "/account(.*)",
+  "/universe(.*)",
+  // Phase 34: analyst tools + document Q&A + scout submissions are
+  // member surfaces (founding checks happen in-page where applicable).
+  "/tools(.*)",
+  "/documents(.*)",
+  "/contribute(.*)",
+]);
 
 const clerkEnabled = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,

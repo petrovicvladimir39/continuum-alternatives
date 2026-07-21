@@ -9,6 +9,7 @@ import {
   eq,
   listArticlesByStatus,
   listProposedClassifications,
+  listPendingScouts,
   listProposedStories,
   listProvisionalEvents,
   ne,
@@ -30,7 +31,7 @@ import {
   rejectEventAction,
   rejectFactAction,
 } from "@/app/admin/actions";
-import { decideStoryAction } from "@/app/admin/claims/actions";
+import { decideScoutAction, decideStoryAction } from "@/app/admin/claims/actions";
 import { Button } from "@/components/ui/button";
 import { DataTable, numericCell } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
@@ -53,7 +54,7 @@ type FactData = {
   resolution?: { name: string; candidates: { slug: string; score: number }[] }[];
 };
 
-const FILTERS = ["all", "facts", "edges", "articles", "classifications", "events", "stories", ...CHANNELS] as const;
+const FILTERS = ["all", "facts", "edges", "articles", "classifications", "events", "stories", "scout", ...CHANNELS] as const;
 
 export default async function ReviewPage({
   searchParams,
@@ -74,6 +75,8 @@ export default async function ReviewPage({
   const proposedEvents = showEvents ? await listProvisionalEvents() : [];
   // Phase 33B: vendor stories — the operator gate atop the client-consent gate.
   const proposedStories = filter === "all" || filter === "stories" ? await listProposedStories() : [];
+  // Phase 34E: member scout submissions — approval publishes a cited fact.
+  const pendingScouts = filter === "all" || filter === "scout" ? await listPendingScouts() : [];
   // Grouped by (class, strategy) for batch decisions (Phase 26B).
   const classificationGroups = new Map<string, typeof proposedClassifications>();
   for (const row of proposedClassifications) {
@@ -328,6 +331,72 @@ export default async function ReviewPage({
                       </button>
                     </form>
                   </span>
+                </div>
+              ))}
+            </div>
+          </Section>
+        ) : null}
+
+        {pendingScouts.length > 0 ? (
+          <Section title="Scout submissions">
+            <p className="mb-3 text-[13px] text-ink-muted">
+              Member-contributed signals. Approving INSERTS an approved fact per entity with the
+              source URL as its citation — write the fact title yourself; member text never
+              publishes unedited.
+            </p>
+            <div className="space-y-3">
+              {pendingScouts.map((scout) => (
+                <div key={scout.id} className="border border-line p-3">
+                  <p className="text-[13px]">
+                    <span className="type-label">{scout.factType.replaceAll("_", " ")}</span>
+                    <span className="type-data text-ink-muted"> · {scout.occurredOn}</span>
+                    <span className="text-ink-muted">
+                      {" "}
+                      · by {scout.memberName}
+                      {scout.anonymous ? " (anonymous credit)" : ""}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[13px]">
+                    Entities: {scout.entityNames.join(", ") || "—"}
+                    {scout.entitiesFree !== null ? (
+                      <span className="text-ink-muted"> · free text: {scout.entitiesFree}</span>
+                    ) : null}
+                  </p>
+                  {scout.note !== null ? (
+                    <p className="mt-1 border-l-2 border-line pl-2 text-[13px] text-ink-secondary">
+                      {scout.note}
+                    </p>
+                  ) : null}
+                  <p className="type-small mt-1">
+                    <a href={scout.sourceUrl} rel="noopener noreferrer" className="text-accent hover:underline">
+                      {scout.sourceUrl.slice(0, 80)} ↗
+                    </a>
+                  </p>
+                  <form action={decideScoutAction} className="mt-2 flex flex-wrap items-end gap-2">
+                    <input type="hidden" name="scoutId" value={scout.id} />
+                    <input
+                      name="title"
+                      maxLength={200}
+                      placeholder="Fact title (required to approve)"
+                      className="min-w-[280px] flex-1 border border-line bg-surface px-2 py-1 text-[13px] outline-none focus:border-line-strong"
+                    />
+                    <button
+                      type="submit"
+                      name="decision"
+                      value="approve"
+                      className="rounded-sm border border-line-strong px-2.5 py-1 text-[12px] font-medium hover:border-accent hover:text-accent"
+                    >
+                      Approve → publish fact
+                    </button>
+                    <button
+                      type="submit"
+                      name="decision"
+                      value="reject"
+                      className="text-[12px] text-ink-muted hover:text-distressed"
+                    >
+                      Reject
+                    </button>
+                  </form>
                 </div>
               ))}
             </div>

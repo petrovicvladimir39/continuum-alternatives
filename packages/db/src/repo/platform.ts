@@ -370,6 +370,7 @@ export async function decideStory(storyId: string, publish: boolean): Promise<bo
 
 export type StoryView = {
   id: string;
+  entityId: string;
   title: string;
   bodyMd: string;
   status: string;
@@ -392,7 +393,7 @@ function anonymizedLabel(tag: string | null): string {
 
 async function mapStories(whereSql: ReturnType<typeof sql>): Promise<StoryView[]> {
   const result = await db.execute(sql`
-    SELECT s.id, s.title, s.body_md, s.status, s.client_consent, s.created_at,
+    SELECT s.id, s.entity_id, s.title, s.body_md, s.status, s.client_consent, s.created_at,
            v.name AS vendor_name,
            c.name AS client_name, c.slug AS client_slug, c.kind AS client_kind,
            (SELECT t.tag FROM entity_tags t WHERE t.entity_id = s.client_entity_id ORDER BY t.tag LIMIT 1) AS client_tag,
@@ -408,6 +409,7 @@ async function mapStories(whereSql: ReturnType<typeof sql>): Promise<StoryView[]
     const named = String(row.client_consent) === "granted" && row.client_name !== null;
     return {
       id: String(row.id),
+      entityId: String(row.entity_id),
       title: String(row.title),
       bodyMd: String(row.body_md),
       status: String(row.status),

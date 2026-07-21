@@ -176,6 +176,13 @@
       "when": 1784588702916,
       "tag": "0024_tricky_wallop",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1784611674108,
+      "tag": "0025_lethal_puppet_master",
+      "breakpoints": true
     }
   ]
 }

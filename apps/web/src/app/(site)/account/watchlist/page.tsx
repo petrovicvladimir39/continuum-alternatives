@@ -11,6 +11,7 @@ import {
   resolveMemberTier,
   upsertMemberProfile,
 } from "@continuum/db";
+import { toggleWatchdogAction } from "@/app/(site)/account/watchdog-actions";
 import { EntityLogo } from "@/components/ui/entity-logo";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -169,6 +170,36 @@ export default async function WatchlistPage() {
             );
           })}
         </ul>
+      )}
+
+      <h2 className="type-h2 mt-8">Weekly Watchdog brief</h2>
+      {/* Phase 34E — OPT-IN, founding. A composed weekly note from your
+          watched entities' week; empty weeks send nothing. */}
+      {tier === "founding" ? (
+        <form action={toggleWatchdogAction} className="mt-2 text-[13px]">
+          <input type="hidden" name="enable" value={prefs.watchdogOptIn ? "0" : "1"} />
+          <p className="text-ink-secondary">
+            A short composed note each Monday from your watchlist&apos;s week — every number and
+            name held to the week&apos;s sourced items. Empty week → no email.
+          </p>
+          <button
+            type="submit"
+            className={`mt-2 rounded-sm border px-2.5 py-1 text-[12px] font-medium ${
+              prefs.watchdogOptIn
+                ? "border-line-strong text-ink"
+                : "border-line text-ink-muted hover:text-accent"
+            }`}
+          >
+            {prefs.watchdogOptIn ? "Watchdog on — switch off" : "Switch Watchdog on"}
+          </button>
+        </form>
+      ) : (
+        <p className="mt-2 text-[13px] text-ink-muted">
+          A founding-member feature ·{" "}
+          <Link href="/pricing" className="text-accent hover:underline">
+            Learn more
+          </Link>
+        </p>
       )}
 
       <h2 className="type-h2 mt-8">Alert frequency</h2>
