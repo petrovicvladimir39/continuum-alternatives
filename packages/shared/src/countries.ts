@@ -38,6 +38,7 @@ export const EUROPE_COUNTRY_NAMES: Record<string, string> = {
   CH: "Switzerland",
   NO: "Norway",
   IS: "Iceland",
+  LI: "Liechtenstein",
   // Non-EU Balkans / Eastern Europe (existing corpus countries)
   AL: "Albania",
   BA: "Bosnia and Herzegovina",

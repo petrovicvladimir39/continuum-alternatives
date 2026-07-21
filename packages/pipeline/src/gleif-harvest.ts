@@ -101,9 +101,21 @@ function saveState(state: HarvestState): void {
 }
 
 async function fetchJson(url: string, attempt = 1): Promise<unknown> {
-  const response = await fetch(url, {
-    headers: { accept: "application/vnd.api+json", "user-agent": "ContinuumBot/1.0 (data platform; hello@continuumalternatives.com)" },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: { accept: "application/vnd.api+json", "user-agent": "ContinuumBot/1.0 (data platform; hello@continuumalternatives.com)" },
+    });
+  } catch (error) {
+    // Network-level failures (socket resets on long runs) retry like a 5xx.
+    if (attempt >= 5) {
+      throw error;
+    }
+    const backoff = 2000 * attempt;
+    console.log(`  fetch failed (${String(error).slice(0, 60)}) — backing off ${backoff}ms`);
+    await sleep(backoff);
+    return fetchJson(url, attempt + 1);
+  }
   if (response.status === 429 || response.status >= 500) {
     if (attempt >= 5) {
       throw new Error(`GLEIF ${response.status} after ${attempt} attempts: ${url}`);
