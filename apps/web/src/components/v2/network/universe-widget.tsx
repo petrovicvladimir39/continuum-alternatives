@@ -92,8 +92,10 @@ export function buildEgoGraph(
     }
     seen.add(other.id);
     const angle = -Math.PI / 2 + (placed / Math.max(1, Math.min(related.length, limit))) * Math.PI * 2;
-    const cx = Math.cos(angle) * RX;
-    const cy = Math.sin(angle) * RY;
+    // Rounded: float noise in style transforms causes SSR/client hydration
+    // attribute mismatches.
+    const cx = Math.round(Math.cos(angle) * RX);
+    const cy = Math.round(Math.sin(angle) * RY);
     nodes.push({
       id: other.id,
       type: "ego",
