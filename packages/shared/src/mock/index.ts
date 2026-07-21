@@ -13,12 +13,20 @@ import { buildMockFacts, type MockFact, type MockFactType } from "./facts";
  * either way, so flipping back to real data is one env change, zero page
  * edits. Mock rows are never written to the database and never render when
  * the flag is off. See README "Design/Build with mock data".
+ *
+ * FRONTEND-V2: the v2 route group is mock-first BY DESIGN (prototype), so
+ * v2 pages call these adapters directly; the flag continues to gate the
+ * production (site) surfaces only.
  */
 
 export * from "./entities";
 export * from "./facts";
 export * from "./graph";
 export * from "./extras";
+export * from "./articles";
+export * from "./reports";
+export * from "./threads";
+export * from "./media";
 
 export function mockModeEnabled(override?: boolean): boolean {
   if (override === true) {
@@ -47,16 +55,18 @@ export type MockFeedItem = {
   entityCountry: string | null;
   entityCity: string | null;
   entityAssetClass: string | null;
+  entityStrategySlug: string | null;
   entityHref: string | null;
   sourceName: string | null;
   sourceUrl: string | null;
+  imageSeed: string | null;
 };
 
 let cachedFacts: MockFact[] | null = null;
 let cachedAt = 0;
 
 /** Facts regenerate at most once a minute so "Nh ago" stays honest-fresh. */
-function factsNow(): MockFact[] {
+export function mockFacts(): MockFact[] {
   const now = Date.now();
   if (cachedFacts === null || now - cachedAt > 60_000) {
     cachedFacts = buildMockFacts(new Date(now));
@@ -69,6 +79,12 @@ export function mockFeedPage(opts: {
   factTypes?: string[];
   channel?: string;
   country?: string;
+  /** Dashed asset-class slug (v2) — filters on the acting entity's class. */
+  assetClass?: string;
+  /** Taxonomy strategy slug — filters on the acting entity's strategy. */
+  strategySlug?: string;
+  /** Free-text match against the headline + entity name. */
+  query?: string;
   page?: number;
   pageSize?: number;
 }): {
@@ -80,7 +96,7 @@ export function mockFeedPage(opts: {
 } {
   const pageSize = opts.pageSize ?? 25;
   const page = Math.max(1, opts.page ?? 1);
-  let facts = factsNow();
+  let facts = mockFacts();
   if (opts.factTypes !== undefined && opts.factTypes.length > 0) {
     const wanted = new Set(opts.factTypes as MockFactType[]);
     facts = facts.filter((f) => wanted.has(f.factType));
@@ -90,6 +106,24 @@ export function mockFeedPage(opts: {
   }
   if (opts.country) {
     facts = facts.filter((f) => MOCK_ENTITY_BY_ID.get(f.entityId)?.country === opts.country);
+  }
+  if (opts.assetClass) {
+    facts = facts.filter((f) => MOCK_ENTITY_BY_ID.get(f.entityId)?.assetClass === opts.assetClass);
+  }
+  if (opts.strategySlug) {
+    facts = facts.filter(
+      (f) => MOCK_ENTITY_BY_ID.get(f.entityId)?.strategySlug === opts.strategySlug,
+    );
+  }
+  if (opts.query !== undefined && opts.query.trim() !== "") {
+    const q = opts.query.trim().toLowerCase();
+    facts = facts.filter((f) => {
+      const e = MOCK_ENTITY_BY_ID.get(f.entityId);
+      return (
+        f.title.toLowerCase().includes(q) ||
+        (e !== undefined && e.name.toLowerCase().includes(q))
+      );
+    });
   }
   const total = facts.length;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -109,11 +143,13 @@ export function mockFeedPage(opts: {
       entityCountry: e.country,
       entityCity: e.city,
       entityAssetClass: e.assetClass,
+      entityStrategySlug: e.strategySlug === "" ? null : e.strategySlug,
       // Mock entities have no real profile pages — cards link nowhere rather
       // than 404 (design scaffolding, honest even in preview).
       entityHref: null,
       sourceName: f.sourceName,
       sourceUrl: f.sourceUrl,
+      imageSeed: f.imageSeed,
     };
   });
   const updatedAt = facts[0]?.recordedAt ?? new Date().toISOString();
