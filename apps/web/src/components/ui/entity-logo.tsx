@@ -8,8 +8,8 @@ import { monogramFor } from "@continuum/shared";
  * ground when there is no logo URL or the image fails to load (client onError
  * swap — the only reason this is a client component).
  */
-const SIZES = { sm: 20, md: 32, lg: 48 } as const;
-const FONT = { sm: 11, md: 16, lg: 24 } as const;
+const SIZES = { sm: 20, md: 32, lg: 48, xl: 72 } as const;
+const FONT = { sm: 11, md: 16, lg: 24, xl: 32 } as const;
 
 export function EntityLogo({
   name,

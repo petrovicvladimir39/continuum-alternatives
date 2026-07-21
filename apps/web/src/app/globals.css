@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 @theme {
   --color-ground: #fafaf8;
@@ -45,6 +47,39 @@
 @theme inline {
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
+  --font-heading: var(--font-sans);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  /* NOTE: shadcn's --accent/--accent-foreground are deliberately NOT
+     mapped — --color-accent stays the platform interaction navy #17456b.
+     Components wanting shadcn's hover-accent use bg-muted instead. */
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* Design mandate: border-radius never exceeds 4px. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 4px;
+  --radius-3xl: 4px;
+  --radius-4xl: 4px;
 }
 
 @layer base {
@@ -54,6 +89,13 @@
     font-family: var(--font-sans);
     font-size: 14px;
     line-height: 1.5;
+    @apply bg-background text-foreground;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
@@ -104,3 +146,33 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
+
+:root {
+  /* shadcn semantic tokens RECONCILED to the platform palette — structure
+     adopted, theme replaced (clean-100 flagship redesign). */
+  --background: #fafaf8;
+  --foreground: #141311;
+  --card: #ffffff;
+  --card-foreground: #141311;
+  --popover: #ffffff;
+  --popover-foreground: #141311;
+  --primary: #17456b;
+  --primary-foreground: #ffffff;
+  --secondary: #f1efe9;
+  --secondary-foreground: #141311;
+  --muted: #f1efe9;
+  --muted-foreground: #8a867c;
+  --accent: #f1efe9;
+  --accent-foreground: #141311;
+  --destructive: #a4442a;
+  --border: #e7e4dc;
+  --input: #e7e4dc;
+  --ring: #17456b;
+  --chart-1: #1d7a5f;
+  --chart-2: #96690f;
+  --chart-3: #a4442a;
+  --chart-4: #17456b;
+  --chart-5: #8a867c;
+  --radius: 0.25rem;
+}
+
