@@ -170,6 +170,23 @@ const CLASS_META: Record<
   },
 };
 
+/**
+ * Dark-mode accent RGB per class for canvas encodings (deck.gl layers on
+ * the dark map; charts on dark surfaces). Mirrors the --v2-ac-* dark hex
+ * values in globals.css — keep in sync by hand.
+ */
+export const CLASS_RGB_DARK: Record<string, [number, number, number]> = {
+  "private-equity": [71, 181, 152],
+  "private-credit": [198, 154, 61],
+  "real-assets": [176, 166, 62],
+  "hedge-funds": [165, 131, 207],
+  structured: [74, 166, 171],
+  esoteric: [181, 106, 168],
+  collectibles: [189, 110, 136],
+  climate: [111, 174, 92],
+  digital: [139, 142, 214],
+};
+
 /** Crimson NPL/Distressed strategy-variant accent (within Private Credit). */
 export const DISTRESSED_ACCENT: V2AssetClass["accent"] = {
   text: "text-ac-distressed",

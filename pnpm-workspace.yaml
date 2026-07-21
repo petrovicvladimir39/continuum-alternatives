@@ -3,6 +3,8 @@ packages:
   - "packages/*"
 allowBuilds:
   '@sentry/cli': true
+  # Transitive telemetry package (via deck.gl widgets) — never run its script.
+  '@vaadin/vaadin-usage-statistics': false
   esbuild: true
   protobufjs: true
   sharp: true
