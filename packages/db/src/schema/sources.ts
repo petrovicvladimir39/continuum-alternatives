@@ -13,6 +13,22 @@ export const sourceType = pgEnum("source_type", [
   "other",
 ]);
 
+/**
+ * EUROPE DEPTH RUN — authority tier, stamped on every source; facts inherit
+ * their tier via source_id. Backfill mapping (0027 migration): registry →
+ * tier2_regulator (all current registry sources are regulator/register feeds;
+ * GLEIF + commercial registers re-stamped tier1 by name), gazette/court →
+ * tier3_gazette, association/fund_site/company_site → tier4_exchange_corporate,
+ * press/other → signals_press.
+ */
+export const sourceTier = pgEnum("source_tier", [
+  "tier1_registry",
+  "tier2_regulator",
+  "tier3_gazette",
+  "tier4_exchange_corporate",
+  "signals_press",
+]);
+
 export const sources = pgTable("sources", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
@@ -26,6 +42,7 @@ export const sources = pgTable("sources", {
   // Org newsrooms discovered by sources:discover link back to their entity.
   entityId: uuid("entity_id").references(() => entities.id),
   schedule: text("schedule"),
+  sourceTier: sourceTier("source_tier"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   lastRunAt: timestamp("last_run_at", { withTimezone: true }),

@@ -44,7 +44,8 @@
     "alerts:backfill": "pnpm --filter @continuum/pipeline alerts:backfill",
     "events:import": "pnpm --filter @continuum/pipeline events:import",
     "events:harvest": "pnpm --filter @continuum/pipeline events:harvest",
-    "ops:backup-check": "pnpm --filter @continuum/pipeline ops:backup-check"
+    "ops:backup-check": "pnpm --filter @continuum/pipeline ops:backup-check",
+    "fx:rates": "pnpm --filter @continuum/pipeline fx:rates"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

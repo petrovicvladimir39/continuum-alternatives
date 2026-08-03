@@ -20,6 +20,12 @@ export const entityClassifications = pgTable(
       .references(() => entities.id),
     assetClass: text("asset_class").notNull(),
     strategy: text("strategy").notNull().default(""),
+    // EUROPE DEPTH RUN — Level-2 sub-class of the four-level taxonomy
+    // (L1 asset_class → L2 sub_class → L3 strategy). Deterministically derived
+    // from the L3 strategy slug (europe-taxonomy.ts); NULL on legacy rows and
+    // class-level rows where only L1 is known. Not part of the pk: L3 → L2 is
+    // a function, so (entity, class, strategy) stays the identity.
+    subClass: text("sub_class"),
     source: text("source").notNull(),
     confidence: numeric("confidence", { precision: 3, scale: 2 }).notNull().default("1.00"),
     status: text("status").notNull().default("proposed"),

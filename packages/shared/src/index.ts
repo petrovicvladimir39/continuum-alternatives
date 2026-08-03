@@ -61,6 +61,24 @@ export {
   type StrategyDef,
 } from "./alt-taxonomy";
 export { emailDomain, emailMatchesWebsite, websiteHost } from "./claims";
+export {
+  BAM_PER_EUR,
+  parseEurofxref,
+  toEur,
+  type EurConversion,
+  type FxRateTable,
+} from "./fx";
+export {
+  EUROPE_L1_SLUGS,
+  EUROPE_TAXONOMY,
+  LEGACY_CLASS_TO_L1,
+  classifyFromLicence,
+  l1ForSubClass,
+  subClassForStrategy,
+  type EuropeClassification,
+  type EuropeL1,
+  type EuropeL2,
+} from "./europe-taxonomy";
 export { parseAsOf } from "./asof";
 export { COMPS_MIN_DEALS, compsRenderable } from "./comps";
 export {
