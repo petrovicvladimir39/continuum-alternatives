@@ -2,79 +2,22 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Instrument_Sans, Newsreader } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth, currentUser } from "@clerk/nextjs/server";
-import {
-  classifiedLabel,
-  frontHrefFor,
-  meetsCoverageThreshold,
-  VERTICALS,
-  type NavLeaf,
-} from "@continuum/shared";
-import { getMemberByClerkId, strategyCoverage, unseenOutboxCount } from "@continuum/db";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader, type HeaderIdentity } from "@/components/site-header";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
 
 /**
- * Coverage-gated Markets ▾ extras (Phase 26C): taxonomy strategies above
- * the render threshold whose front is NOT one of the curated six join the
- * dropdown dynamically. Below threshold they exist only on /coverage.
+ * FRONTEND-V2 structural change: the root layout is now chrome-free —
+ * SiteHeader/SiteFooter (and their data fetching) moved verbatim into
+ * <SiteChrome> (src/components/site-chrome.tsx), rendered by the (site),
+ * admin and ecosystem layouts. Production output is unchanged; the (v2)
+ * route group supplies its own shell.
  */
-async function marketExtras(): Promise<NavLeaf[]> {
-  try {
-    const coverage = await strategyCoverage();
-    const curatedHrefs = new Set(VERTICALS.map((v) => `/markets/${v.slug}`));
-    const extras: NavLeaf[] = [];
-    for (const row of coverage) {
-      if (!meetsCoverageThreshold(row)) {
-        continue;
-      }
-      const href = frontHrefFor(row.assetClass, row.strategy);
-      if (curatedHrefs.has(href) || extras.some((e) => e.href === href)) {
-        continue;
-      }
-      extras.push({ label: classifiedLabel(row.assetClass, row.strategy), href });
-    }
-    return extras.sort((a, b) => a.label.localeCompare(b.label));
-  } catch {
-    return [];
-  }
-}
 
 // Clerk is active only when both keys exist (Phase 24A). Without them the
 // public site runs untouched and /admin + /account 404 in the middleware.
 const clerkEnabled = Boolean(
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
 );
-
-async function headerIdentity(): Promise<HeaderIdentity> {
-  if (!clerkEnabled) {
-    return { status: "off" };
-  }
-  const { userId } = await auth();
-  if (userId === null) {
-    return { status: "anon" };
-  }
-  const user = await currentUser();
-  const name =
-    user?.firstName ??
-    user?.username ??
-    user?.primaryEmailAddress?.emailAddress ??
-    "Account";
-  // Phase 28D: unseen-updates count — a quiet number beside the name, never
-  // a badge bubble.
-  let unseen = 0;
-  try {
-    const member = await getMemberByClerkId(userId);
-    if (member !== null) {
-      unseen = await unseenOutboxCount(member.id);
-    }
-  } catch {
-    unseen = 0;
-  }
-  return { status: "signed_in", name, unseen };
-}
 
 const serif = Newsreader({
   subsets: ["latin", "latin-ext"],
@@ -109,16 +52,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
-  const [identity, extras] = await Promise.all([headerIdentity(), marketExtras()]);
 
   const page = (
-    <html lang="en" className={`${serif.variable} ${sans.variable}`}>
+    // suppressHydrationWarning: the (v2) group stamps v2-root/data-v2-theme on
+    // <html> pre-paint (theme boot); attributes-only, standard next-themes
+    // pattern, no effect on production routes.
+    <html lang="en" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
-        <SiteHeader identity={identity} marketExtras={extras} />
-        <main className="flex w-full flex-1 flex-col">{children}</main>
-        <SiteFooter />
+        {children}
         {plausibleDomain ? (
           <script defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
         ) : null}

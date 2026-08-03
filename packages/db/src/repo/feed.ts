@@ -1,5 +1,5 @@
-import { normalizeAlias } from "@continuum/shared";
-import { and, count, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { mockFeedPage, mockModeEnabled, normalizeAlias } from "@continuum/shared";
+import { and, count, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { db } from "../client";
 import { documents, entities, sources, timelineFacts } from "../schema";
 import type { EntityKind } from "./entities";
@@ -17,13 +17,21 @@ export const FEED_PAGE_SIZE = 25;
 export type FeedItem = {
   id: string;
   occurredOn: string;
+  /** ISO datetime the fact entered the record — drives relative timestamps.
+   * Optional: other FeedItem producers (ask, leads) don't carry it. */
+  recordedAtIso?: string | null;
   title: string;
   factType: string;
   channels: string[];
+  /** Optional one-line context under the headline (fact body / mock context). */
+  contextLine?: string | null;
   entityName: string;
   entitySlug: string;
   entityKind: EntityKind;
   entityCountry: string | null;
+  entityCity?: string | null;
+  /** Taxonomy class slug when known (mock always; real when classified). */
+  entityAssetClass?: string | null;
   entityHref: string | null;
   sourceName: string | null;
   sourceUrl: string | null;
@@ -34,11 +42,41 @@ export type FeedPage = {
   total: number;
   page: number;
   pageCount: number;
+  /** recorded_at of the newest item in the filtered set — honest "Updated". */
+  updatedAt: string | null;
 };
 
 export async function listFeed(
-  opts: { channel?: string; country?: string; factType?: string; page?: number } = {},
+  opts: {
+    channel?: string;
+    country?: string;
+    factType?: string;
+    /** Multi-select fact-type filter (chip row); wins over factType when set. */
+    factTypes?: string[];
+    page?: number;
+    /** MOCK MODE (design scaffolding): per-call override of NEXT_PUBLIC_MOCK_MODE. */
+    mock?: boolean;
+  } = {},
 ): Promise<FeedPage> {
+  // ── MOCK MODE: fixture return, same shape — pages never change when the
+  //    flag flips (see @continuum/shared mock/ and README).
+  if (mockModeEnabled(opts.mock)) {
+    const mock = mockFeedPage({
+      ...(opts.factTypes !== undefined ? { factTypes: opts.factTypes } : {}),
+      ...(opts.channel !== undefined && opts.channel !== "" ? { channel: opts.channel } : {}),
+      ...(opts.country !== undefined && opts.country !== "" ? { country: opts.country } : {}),
+      ...(opts.page !== undefined ? { page: opts.page } : {}),
+      pageSize: FEED_PAGE_SIZE,
+    });
+    return {
+      items: mock.items.map(({ recordedAt, ...item }) => ({ ...item, recordedAtIso: recordedAt, entityKind: item.entityKind as EntityKind })),
+      total: mock.total,
+      page: mock.page,
+      pageCount: mock.pageCount,
+      updatedAt: mock.updatedAt,
+    };
+  }
+
   const page = Math.max(1, opts.page ?? 1);
   const conditions = [eq(timelineFacts.status, "approved")];
   if (opts.channel !== undefined && opts.channel !== "") {
@@ -47,7 +85,9 @@ export async function listFeed(
   if (opts.country !== undefined && opts.country !== "") {
     conditions.push(eq(entities.country, opts.country));
   }
-  if (opts.factType !== undefined && opts.factType !== "") {
+  if (opts.factTypes !== undefined && opts.factTypes.length > 0) {
+    conditions.push(inArray(timelineFacts.factType, opts.factTypes));
+  } else if (opts.factType !== undefined && opts.factType !== "") {
     conditions.push(eq(timelineFacts.factType, opts.factType));
   }
   const where = and(...conditions);
@@ -64,7 +104,9 @@ export async function listFeed(
     .select({
       id: timelineFacts.id,
       occurredOn: timelineFacts.occurredOn,
+      recordedAt: timelineFacts.recordedAt,
       title: timelineFacts.title,
+      body: timelineFacts.body,
       factType: timelineFacts.factType,
       channels: timelineFacts.audienceChannels,
       entityName: entities.name,
@@ -88,13 +130,17 @@ export async function listFeed(
     items: rows.map((row) => ({
       id: row.id,
       occurredOn: row.occurredOn,
+      recordedAtIso: row.recordedAt?.toISOString() ?? null,
       title: row.title,
       factType: row.factType,
       channels: row.channels,
+      contextLine: row.body,
       entityName: row.entityName,
       entitySlug: row.entitySlug,
       entityKind: row.entityKind,
       entityCountry: row.entityCountry,
+      entityCity: null,
+      entityAssetClass: null,
       entityHref:
         row.entityStatus === "active" ? publicPathFor(row.entityKind, row.entitySlug) : null,
       sourceName: row.sourceName,
@@ -103,10 +149,20 @@ export async function listFeed(
     total,
     page,
     pageCount,
+    updatedAt: rows[0]?.recordedAt?.toISOString() ?? null,
   };
 }
 
-export async function feedFilterOptions(): Promise<{ countries: string[]; factTypes: string[] }> {
+export async function feedFilterOptions(
+  opts: { mock?: boolean } = {},
+): Promise<{ countries: string[]; factTypes: string[] }> {
+  if (mockModeEnabled(opts.mock)) {
+    const mock = mockFeedPage({ pageSize: 1000 });
+    return {
+      countries: [...new Set(mock.items.map((i) => i.entityCountry).filter((c): c is string => c !== null))].sort(),
+      factTypes: [...new Set(mock.items.map((i) => i.factType))].sort(),
+    };
+  }
   const countryRows = await db
     .selectDistinct({ country: entities.country })
     .from(timelineFacts)

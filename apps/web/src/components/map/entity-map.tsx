@@ -272,7 +272,9 @@ export function EntityMap({ data, missingCount }: { data: MapData; missingCount:
         const source = map.getSource("cities") as maplibregl.GeoJSONSource;
         void source.getClusterExpansionZoom(clusterId).then((zoom) => {
           map.easeTo({
-            center: (feature.geometry as { coordinates: [number, number] }).coordinates,
+            // `as unknown` hop: the newer @types/geojson union (pulled in by
+            // deck.gl) no longer overlaps structurally; behavior unchanged.
+            center: (feature.geometry as unknown as { coordinates: [number, number] }).coordinates,
             zoom,
           });
         });
