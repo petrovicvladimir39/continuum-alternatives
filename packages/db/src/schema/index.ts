@@ -8,6 +8,7 @@ export * from "./engagement";
 export * from "./anomalies";
 export * from "./digests";
 export * from "./geocodes";
+export * from "./locations";
 export * from "./articles";
 export * from "./members";
 export * from "./saved-views";

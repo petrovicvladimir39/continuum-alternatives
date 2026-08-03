@@ -16,7 +16,12 @@
     "gleif:harvest": "tsx src/gleif-harvest.ts",
     "registers:harvest": "tsx src/registers-harvest.ts",
     "geocode:backfill": "tsx src/geocode-backfill.ts",
+    "locations:seed": "tsx src/locations-seed.ts",
+    "locations:gleif": "tsx src/locations-gleif.ts",
+    "locations:geocode": "tsx src/locations-geocode.ts",
+    "locations:report": "tsx src/locations-report.ts",
     "logos:backfill": "tsx src/logos-backfill.ts",
+    "logos:atlas": "tsx src/logos-atlas.ts",
     "enrich:batch": "tsx src/enrich-batch.ts",
     "ch:enrich": "tsx src/ch-enrich.ts",
     "wikidata:harvest": "tsx src/wikidata-harvest.ts",
@@ -52,6 +57,7 @@
   },
   "devDependencies": {
     "dotenv": "^17.2.3",
+    "sharp": "^0.35.3",
     "stripe": "^22.3.2",
     "svix": "^1.98.0",
     "tsx": "^4.20.6"
