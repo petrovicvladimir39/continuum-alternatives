@@ -31,19 +31,8 @@ const ARC_COLORS = [
   "#b06aa4", "#c0708f", "#5aa878", "#8486c9",
 ];
 
-/** ~30 arcs between European financial hubs (lat/lng pairs by city name). */
-const HUB_ARCS: [string, string][] = [
-  ["London", "Luxembourg"], ["Frankfurt", "Warsaw"], ["Milan", "Vienna"],
-  ["Stockholm", "Amsterdam"], ["Prague", "Bucharest"], ["Paris", "Milan"],
-  ["London", "Amsterdam"], ["Luxembourg", "Frankfurt"], ["Vienna", "Budapest"],
-  ["Warsaw", "Vilnius"], ["Budapest", "Belgrade"], ["Zagreb", "Ljubljana"],
-  ["Sofia", "Bucharest"], ["Belgrade", "Sofia"], ["Prague", "Bratislava"],
-  ["Vienna", "Bratislava"], ["Frankfurt", "Amsterdam"], ["Paris", "Madrid"],
-  ["Madrid", "Milan"], ["Stockholm", "Vilnius"], ["London", "Paris"],
-  ["Luxembourg", "Milan"], ["Warsaw", "Prague"], ["Budapest", "Bucharest"],
-  ["Amsterdam", "Luxembourg"], ["Frankfurt", "Vienna"], ["London", "Stockholm"],
-  ["Milan", "Zagreb"], ["Paris", "Luxembourg"], ["Warsaw", "Budapest"],
-];
+/** Arcs are generated between the SURVIVING pilot cities (all pairs, ≤30). */
+const MAX_ARCS = 30;
 
 export const HeroGlobe = forwardRef<
   HeroGlobeHandle,
@@ -105,24 +94,21 @@ export const HeroGlobe = forwardRef<
     },
   }));
 
-  const byCity = useMemo(() => new Map(cities.map((c) => [c.city, c])), [cities]);
-  const arcs = useMemo(
-    () =>
-      HUB_ARCS.flatMap(([from, to], i) => {
-        const a = byCity.get(from);
-        const b = byCity.get(to);
-        if (a === undefined || b === undefined) {
-          return [];
-        }
-        return [
-          {
-            startLat: a.lat, startLng: a.lng, endLat: b.lat, endLng: b.lng,
-            color: ARC_COLORS[i % ARC_COLORS.length],
-          },
-        ];
-      }),
-    [byCity],
-  );
+  const arcs = useMemo(() => {
+    const pairs: { startLat: number; startLng: number; endLat: number; endLng: number; color: string }[] = [];
+    for (let i = 0; i < cities.length; i += 1) {
+      for (let j = i + 1; j < cities.length; j += 1) {
+        pairs.push({
+          startLat: cities[i]!.lat,
+          startLng: cities[i]!.lng,
+          endLat: cities[j]!.lat,
+          endLng: cities[j]!.lng,
+          color: ARC_COLORS[pairs.length % ARC_COLORS.length]!,
+        });
+      }
+    }
+    return pairs.slice(0, MAX_ARCS);
+  }, [cities]);
 
   const maxCount = useMemo(() => Math.max(1, ...cities.map((c) => c.count)), [cities]);
 

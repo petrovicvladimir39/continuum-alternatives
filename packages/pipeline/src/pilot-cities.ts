@@ -3,26 +3,25 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { db, sql } from "@continuum/db";
-import { MOCK_ENTITIES, twoLetterMonogram } from "@continuum/shared";
+import { twoLetterMonogram } from "@continuum/shared";
 import { USER_AGENT } from "./crawl-shared";
 import { mapClassSlug } from "./map-icons";
 
 /**
- * GLOBE→CITY EXPERIENCE — pilot dataset. ~30 REAL register-verified
- * entities per pilot city, sourced from our own corpus via entity_locations
- * (never fabricated). Selection rank: has logo > has website > precision
- * (rooftop > street > city) > edge degree. A city short of 30 gets its
- * honest count reported and is topped up from the MOCK layer, every filler
- * flagged mock:true — we never invent real-looking firms.
+ * GLOBE→CITY EXPERIENCE — LOGO-DENSE pilot dataset (2026-08-04 rebuild).
+ * Real register-verified corpus entities only, LOGO-BEARING FIRST. A city
+ * SURVIVES only if it can field ≥${MIN_LOGOS} logo entities; its selection
+ * is capped at 2× its logo count so coverage never drops below ~50% —
+ * better 6–8 cities that look like the Stockholm map than 19 of gravel.
+ * Dropped cities are reported honestly, never monogram-padded. Monograms
+ * appear only as rare filler, in a DARKER receding card style.
  *
  * Outputs (all static, the map reads no Postgres):
- *   tiles/pilot.geojson        — pin features (icon, name, cls, sort, prec, mock…)
- *   sprites/pilot-atlas.png    — 64px ROUNDED-SQUARE WHITE CARDS: logo inside,
- *     or monogram in the class accent — never a blank pin (deck.gl iconAtlas)
+ *   tiles/pilot.geojson        — pin features (icon, name, cls, sort, prec…)
+ *   sprites/pilot-atlas.png    — 64px rounded-square cards (deck.gl iconAtlas)
  *   sprites/pilot-mapping.json — deck.gl iconMapping
- *   tiles/pilot-report.json    — per-city honest coverage counts
- *   tiles/country-stats.json   — full-corpus located counts + top classes per
- *     country (Level 1 choropleth + hover tooltips)
+ *   tiles/pilot-report.json    — per-city coverage incl. dropped cities
+ *   tiles/country-stats.json   — full-corpus counts per country (choropleth)
  */
 
 const SPRITES_DIR = path.join(process.cwd(), "..", "..", "apps", "web", "public", "map", "sprites");
@@ -30,6 +29,8 @@ const TILES_DIR = path.join(process.cwd(), "..", "..", "apps", "web", "public", 
 const TILE = 64;
 const COLS = 16;
 const TARGET_PER_CITY = 30;
+/** A city survives only with this many logo-bearing entities nearby. */
+const MIN_LOGOS = 8;
 const RADIUS_KM = 28;
 const FETCH_TIMEOUT_MS = 10_000;
 
@@ -103,11 +104,13 @@ function cardSvg(inner: string): string {
 </svg>`;
 }
 
+/** Dark receding card — rare filler that must NOT compete with logo cards. */
 function monogramCard(monogram: string, classSlug: string): string {
   const hex = LIGHT_HEX[classSlug] ?? LIGHT_HEX.neutral!;
-  return cardSvg(
-    `<text x="50%" y="50%" dy="0.36em" text-anchor="middle" font-family="Instrument Sans, Arial, sans-serif" font-size="24" font-weight="600" fill="${hex}">${monogram}</text>`,
-  );
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE}" height="${TILE}">
+  <rect x="0.5" y="0.5" width="${TILE - 1}" height="${TILE - 1}" rx="10" fill="#1f1f1e" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>
+  <text x="50%" y="50%" dy="0.36em" text-anchor="middle" font-family="Instrument Sans, Arial, sans-serif" font-size="22" font-weight="500" fill="${hex}" opacity="0.75">${monogram}</text>
+</svg>`;
 }
 
 async function logoCard(logoUrl: string): Promise<Buffer | null> {
@@ -160,76 +163,63 @@ async function main(): Promise<void> {
   ).rows as CorpusRow[];
   console.log(`corpus candidates in pilot countries: ${rows.length}`);
 
-  type Selected = CorpusRow & { pilotCity: string; mock: false };
-  type MockFill = {
-    slug: string;
-    name: string;
-    lat: number;
-    lon: number;
-    classSlug: string;
-    country: string;
-    kind: string;
-    pilotCity: string;
-    aumM: number | null;
-    tier: string;
-    mock: true;
-  };
+  type Selected = CorpusRow & { pilotCity: string };
 
-  const report: Record<string, Record<string, number>> = {};
+  const report: Record<string, Record<string, number | boolean>> = {};
   const selected: Selected[] = [];
-  const mockFill: MockFill[] = [];
+  const survivors: string[] = [];
 
+  // Pass 1 — coverage census, printed BEFORE building anything.
+  console.log("── logo-coverage census (city · nearby · logos · verdict) ──");
   for (const pilot of PILOT_CITIES) {
     const near = rows.filter(
       (r) =>
         r.country === pilot.country &&
         haversineKm(pilot.lat, pilot.lng, r.lat, r.lon) <= RADIUS_KM,
     );
+    const logos = near.filter((r) => r.logo_url !== null).length;
+    const survives = logos >= MIN_LOGOS;
+    console.log(
+      `${pilot.city.padEnd(12)} ${String(near.length).padStart(5)} ${String(logos).padStart(4)}  ${survives ? "KEEP" : "drop (<" + MIN_LOGOS + " logos)"}`,
+    );
+    report[pilot.city] = {
+      corpusLocatedNearby: near.length,
+      withLogo: logos,
+      survives,
+      selectedReal: 0,
+      logoCards: 0,
+      monogramCards: 0,
+      rooftop: 0,
+      street: 0,
+      cityCentroid: 0,
+    };
+    if (!survives) {
+      continue;
+    }
+    survivors.push(pilot.city);
+
+    // Pass 2 — LOGO-FIRST selection, capped at 2× logo count so monograms
+    // stay rare filler (coverage ≥ 50% by construction).
     const rank = (r: CorpusRow): number =>
       (r.logo_url !== null ? 100_000 : 0) +
       (r.website !== null ? 10_000 : 0) +
       (r.precision === "rooftop" ? 1_000 : r.precision === "street" ? 500 : 0) +
       r.degree;
     near.sort((a, b) => rank(b) - rank(a));
-    const take = near.slice(0, TARGET_PER_CITY);
+    const cap = Math.min(TARGET_PER_CITY, logos * 2);
+    const take = near.slice(0, cap);
     for (const r of take) {
-      selected.push({ ...r, pilotCity: pilot.city, mock: false });
+      selected.push({ ...r, pilotCity: pilot.city });
     }
-
-    let fill = 0;
-    if (take.length < TARGET_PER_CITY) {
-      const mocks = MOCK_ENTITIES.filter((m) => m.city === pilot.city).slice(
-        0,
-        TARGET_PER_CITY - take.length,
-      );
-      for (const m of mocks) {
-        mockFill.push({
-          slug: `mock-${m.slug}`,
-          name: m.name,
-          lat: m.lat,
-          lon: m.lng,
-          classSlug: m.assetClass,
-          country: m.country,
-          kind: m.kind,
-          pilotCity: pilot.city,
-          aumM: m.aumM,
-          tier: m.tier,
-          mock: true,
-        });
-      }
-      fill = mocks.length;
-    }
-    report[pilot.city] = {
-      corpusLocatedNearby: near.length,
-      withWebsite: near.filter((r) => r.website !== null).length,
-      withLogo: near.filter((r) => r.logo_url !== null).length,
-      rooftop: take.filter((r) => r.precision === "rooftop").length,
-      street: take.filter((r) => r.precision === "street").length,
-      cityCentroid: take.filter((r) => r.precision === "city").length,
-      selectedReal: take.length,
-      mockFill: fill,
-    };
+    const cityReport = report[pilot.city]!;
+    cityReport.selectedReal = take.length;
+    cityReport.logoCards = take.filter((r) => r.logo_url !== null).length;
+    cityReport.monogramCards = take.filter((r) => r.logo_url === null).length;
+    cityReport.rooftop = take.filter((r) => r.precision === "rooftop").length;
+    cityReport.street = take.filter((r) => r.precision === "street").length;
+    cityReport.cityCentroid = take.filter((r) => r.precision === "city").length;
   }
+  console.log(`survivors: ${survivors.join(", ")}`);
 
   // ── icons: one deck.gl atlas of rounded white cards ──
   const icons: { name: string; png: Buffer }[] = [];
@@ -255,15 +245,6 @@ async function main(): Promise<void> {
     }
     icons.push({ name: `p-${s.slug}`, png });
   }
-  for (const m of mockFill) {
-    const png = await sharp(
-      Buffer.from(monogramCard(twoLetterMonogram(m.name), mapClassSlug(m.classSlug))),
-    )
-      .png()
-      .toBuffer();
-    icons.push({ name: `p-${m.slug}`, png });
-  }
-
   const atlasRows = Math.ceil(icons.length / COLS);
   const mapping: Record<string, { x: number; y: number; width: number; height: number }> = {};
   const composites = icons.map((icon, i) => {
@@ -290,49 +271,29 @@ async function main(): Promise<void> {
     .toFile(path.join(SPRITES_DIR, "pilot-atlas.png"));
   fs.writeFileSync(path.join(SPRITES_DIR, "pilot-mapping.json"), JSON.stringify(mapping));
 
-  // ── pilot.geojson ──
-  const features = [
-    ...selected.map((s) => ({
-      type: "Feature" as const,
-      geometry: { type: "Point" as const, coordinates: [s.lon, s.lat] },
-      properties: {
-        icon: `p-${s.slug}`,
-        name: s.name,
-        slug: s.slug,
-        cls: mapClassSlug(s.class_slug),
-        country: s.country,
-        tier: s.has_registry ? "register" : "monitored",
-        kind: s.kind,
-        city: s.pilotCity,
-        aumM: null as number | null,
-        sort: -(
-          (s.logo_url !== null ? 5_000 : 0) +
-          (s.website !== null ? 2_000 : 0) +
-          s.degree * 50
-        ),
-        prec: s.precision,
-        mock: false,
-      },
-    })),
-    ...mockFill.map((m) => ({
-      type: "Feature" as const,
-      geometry: { type: "Point" as const, coordinates: [m.lon, m.lat] },
-      properties: {
-        icon: `p-${m.slug}`,
-        name: m.name,
-        slug: m.slug,
-        cls: mapClassSlug(m.classSlug),
-        country: m.country,
-        tier: m.tier,
-        kind: m.kind,
-        city: m.pilotCity,
-        aumM: m.aumM,
-        sort: -(m.aumM ?? 0),
-        prec: "city",
-        mock: true,
-      },
-    })),
-  ];
+  // ── pilot.geojson — real corpus entities only, logo cards sort first ──
+  const features = selected.map((s) => ({
+    type: "Feature" as const,
+    geometry: { type: "Point" as const, coordinates: [s.lon, s.lat] },
+    properties: {
+      icon: `p-${s.slug}`,
+      name: s.name,
+      slug: s.slug,
+      cls: mapClassSlug(s.class_slug),
+      country: s.country,
+      tier: s.has_registry ? "register" : "monitored",
+      kind: s.kind,
+      city: s.pilotCity,
+      aumM: null as number | null,
+      sort: -(
+        (s.logo_url !== null ? 5_000 : 0) +
+        (s.website !== null ? 2_000 : 0) +
+        s.degree * 50
+      ),
+      prec: s.precision,
+      mock: false,
+    },
+  }));
   fs.writeFileSync(
     path.join(TILES_DIR, "pilot.geojson"),
     JSON.stringify({ type: "FeatureCollection", features }),
@@ -367,7 +328,8 @@ async function main(): Promise<void> {
         generatedAt: new Date().toISOString(),
         totals: {
           real: selected.length,
-          mockFill: mockFill.length,
+          survivingCities: survivors.length,
+          droppedCities: PILOT_CITIES.length - survivors.length,
           logosFetched: logosOk,
           logoFailures: logosFailed,
           atlasIcons: icons.length,
@@ -379,12 +341,14 @@ async function main(): Promise<void> {
     ),
   );
 
-  console.log(`selected ${selected.length} real + ${mockFill.length} mock-fill across ${PILOT_CITIES.length} cities`);
-  console.log(`logos on cards: ${logosOk} (failed→monogram: ${logosFailed})`);
+  console.log(`\nselected ${selected.length} real entities across ${survivors.length} surviving cities (${PILOT_CITIES.length - survivors.length} dropped)`);
+  console.log(`logo cards fetched: ${logosOk} (failed→monogram: ${logosFailed})`);
   console.log(`atlas: ${COLS * TILE}×${atlasRows * TILE}px, ${icons.length} icons`);
-  for (const [city, r] of Object.entries(report)) {
+  for (const city of survivors) {
+    const r = report[city]!;
+    const pct = Number(r.selectedReal) > 0 ? Math.round((100 * Number(r.logoCards)) / Number(r.selectedReal)) : 0;
     console.log(
-      `${city.padEnd(12)} nearby ${String(r.corpusLocatedNearby).padStart(5)} · web ${String(r.withWebsite).padStart(4)} · logo ${String(r.withLogo).padStart(3)} · real ${String(r.selectedReal).padStart(2)} + mock ${r.mockFill}`,
+      `${city.padEnd(12)} selected ${String(r.selectedReal).padStart(2)} · logo cards ${String(r.logoCards).padStart(2)} (${pct}%) · monograms ${r.monogramCards}`,
     );
   }
 }

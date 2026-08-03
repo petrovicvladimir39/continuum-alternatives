@@ -1,202 +1,222 @@
 {
-  "generatedAt": "2026-08-03T21:17:15.034Z",
+  "generatedAt": "2026-08-03T22:16:11.209Z",
   "totals": {
-    "real": 570,
-    "mockFill": 0,
-    "logosFetched": 147,
-    "logoFailures": 18,
-    "atlasIcons": 570
+    "real": 212,
+    "survivingCities": 9,
+    "droppedCities": 10,
+    "logosFetched": 131,
+    "logoFailures": 17,
+    "atlasIcons": 212
   },
   "cities": {
     "Warsaw": {
       "corpusLocatedNearby": 509,
-      "withWebsite": 74,
       "withLogo": 74,
+      "survives": true,
+      "selectedReal": 30,
+      "logoCards": 30,
+      "monogramCards": 0,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 30
     },
     "Prague": {
       "corpusLocatedNearby": 489,
-      "withWebsite": 27,
       "withLogo": 27,
+      "survives": true,
+      "selectedReal": 30,
+      "logoCards": 27,
+      "monogramCards": 3,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 30
     },
     "Budapest": {
-      "corpusLocatedNearby": 1142,
-      "withWebsite": 9,
+      "corpusLocatedNearby": 1137,
       "withLogo": 9,
-      "rooftop": 21,
+      "survives": true,
+      "selectedReal": 18,
+      "logoCards": 9,
+      "monogramCards": 9,
+      "rooftop": 9,
       "street": 0,
-      "cityCentroid": 9,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 9
     },
     "Bucharest": {
-      "corpusLocatedNearby": 51,
-      "withWebsite": 13,
+      "corpusLocatedNearby": 55,
       "withLogo": 13,
+      "survives": true,
+      "selectedReal": 26,
+      "logoCards": 13,
+      "monogramCards": 13,
       "rooftop": 0,
-      "street": 17,
-      "cityCentroid": 13,
-      "selectedReal": 30,
-      "mockFill": 0
+      "street": 13,
+      "cityCentroid": 13
     },
     "Belgrade": {
       "corpusLocatedNearby": 218,
-      "withWebsite": 11,
       "withLogo": 11,
+      "survives": true,
+      "selectedReal": 22,
+      "logoCards": 11,
+      "monogramCards": 11,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 22
     },
     "Zagreb": {
       "corpusLocatedNearby": 234,
-      "withWebsite": 10,
       "withLogo": 10,
+      "survives": true,
+      "selectedReal": 20,
+      "logoCards": 10,
+      "monogramCards": 10,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 20
     },
     "Sofia": {
       "corpusLocatedNearby": 217,
-      "withWebsite": 7,
       "withLogo": 7,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
       "rooftop": 0,
-      "street": 6,
-      "cityCentroid": 24,
-      "selectedReal": 30,
-      "mockFill": 0
+      "street": 0,
+      "cityCentroid": 0
     },
     "Vilnius": {
       "corpusLocatedNearby": 88,
-      "withWebsite": 9,
       "withLogo": 9,
+      "survives": true,
+      "selectedReal": 18,
+      "logoCards": 9,
+      "monogramCards": 9,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 18
     },
     "Bratislava": {
       "corpusLocatedNearby": 209,
-      "withWebsite": 3,
       "withLogo": 3,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     },
     "Ljubljana": {
       "corpusLocatedNearby": 168,
-      "withWebsite": 5,
       "withLogo": 5,
-      "rooftop": 13,
-      "street": 6,
-      "cityCentroid": 11,
-      "selectedReal": 30,
-      "mockFill": 0
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
+      "street": 0,
+      "cityCentroid": 0
     },
     "Vienna": {
       "corpusLocatedNearby": 463,
-      "withWebsite": 9,
       "withLogo": 9,
-      "rooftop": 21,
+      "survives": true,
+      "selectedReal": 18,
+      "logoCards": 9,
+      "monogramCards": 9,
+      "rooftop": 9,
       "street": 0,
-      "cityCentroid": 9,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 9
     },
     "Frankfurt": {
       "corpusLocatedNearby": 325,
-      "withWebsite": 0,
       "withLogo": 0,
-      "rooftop": 30,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
       "street": 0,
-      "cityCentroid": 0,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     },
     "Luxembourg": {
-      "corpusLocatedNearby": 863,
-      "withWebsite": 1,
+      "corpusLocatedNearby": 864,
       "withLogo": 1,
-      "rooftop": 29,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
       "street": 0,
-      "cityCentroid": 1,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     },
     "Amsterdam": {
       "corpusLocatedNearby": 379,
-      "withWebsite": 0,
       "withLogo": 0,
-      "rooftop": 5,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
       "street": 0,
-      "cityCentroid": 25,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     },
     "Paris": {
-      "corpusLocatedNearby": 969,
-      "withWebsite": 73,
-      "withLogo": 73,
+      "corpusLocatedNearby": 973,
+      "withLogo": 74,
+      "survives": true,
+      "selectedReal": 30,
+      "logoCards": 30,
+      "monogramCards": 0,
       "rooftop": 30,
       "street": 0,
-      "cityCentroid": 0,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     },
     "London": {
       "corpusLocatedNearby": 438,
-      "withWebsite": 1,
       "withLogo": 1,
-      "rooftop": 29,
-      "street": 0,
-      "cityCentroid": 1,
-      "selectedReal": 30,
-      "mockFill": 0
-    },
-    "Milan": {
-      "corpusLocatedNearby": 547,
-      "withWebsite": 0,
-      "withLogo": 0,
-      "rooftop": 30,
-      "street": 0,
-      "cityCentroid": 0,
-      "selectedReal": 30,
-      "mockFill": 0
-    },
-    "Madrid": {
-      "corpusLocatedNearby": 616,
-      "withWebsite": 0,
-      "withLogo": 0,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
+    },
+    "Milan": {
+      "corpusLocatedNearby": 543,
+      "withLogo": 0,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
+      "street": 0,
+      "cityCentroid": 0
+    },
+    "Madrid": {
+      "corpusLocatedNearby": 615,
+      "withLogo": 0,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
+      "rooftop": 0,
+      "street": 0,
+      "cityCentroid": 0
     },
     "Stockholm": {
       "corpusLocatedNearby": 699,
-      "withWebsite": 0,
       "withLogo": 0,
+      "survives": false,
+      "selectedReal": 0,
+      "logoCards": 0,
+      "monogramCards": 0,
       "rooftop": 0,
       "street": 0,
-      "cityCentroid": 30,
-      "selectedReal": 30,
-      "mockFill": 0
+      "cityCentroid": 0
     }
   }
 }

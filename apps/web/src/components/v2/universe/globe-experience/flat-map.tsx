@@ -17,21 +17,22 @@ import { FilterRail } from "@/components/v2/universe/logo-map/filter-rail";
 import { EntitySheet } from "@/components/v2/universe/logo-map/entity-sheet";
 
 /**
- * 2D MAP — three levels on CARTO Positron (light), consumer POIs stripped:
+ * 2D MAP — three levels in ONE DARK REGISTER (the globe is dark; the map is
+ * dark; the crossfade reads as one world). Consumer POIs stripped:
  *   LEVEL 1 (z3–5)  country choropleth by full-corpus entity count, hover
  *                   tooltip (country · count · top classes), click → fly in
  *   LEVEL 2 (z6–9)  Supercluster badges (MapLibre cluster:true); other
  *                   countries dimmed by a mask layer
- *   LEVEL 3 (z10+)  deck.gl IconLayer — rounded-square WHITE CARDS with the
- *                   company logo (or accent monogram); labels rendered by a
- *                   separate MapLibre symbol layer so collisions are managed
- *                   (text-allow-overlap:false, symbol-sort-key=importance)
- * Style URL: https://basemaps.cartocdn.com/gl/positron-gl-style/style.json
+ *   LEVEL 3 (z10+)  deck.gl IconLayer — rounded-square WHITE logo cards that
+ *                   pop on the dark ground (dark receding monogram filler);
+ *                   labels via a separate MapLibre symbol layer so collisions
+ *                   are managed (text-allow-overlap:false, sort=importance)
+ * Style URL: https://tiles.openfreemap.org/styles/dark — the Dark-Matter-class
+ * minimal dark style on the keyless house-proven host (carto-hosted styles
+ * stalled in this environment).
  */
 
-// CARTO Positron design, served keyless by OpenFreeMap (the carto-hosted
-// style stalled in this environment; same cartography, house-proven host).
-const POSITRON = "https://tiles.openfreemap.org/styles/positron";
+const DARK_STYLE = "https://tiles.openfreemap.org/styles/dark";
 const PILOT_GEOJSON = "/map/tiles/pilot.geojson";
 const COUNTRY_STATS = "/map/tiles/country-stats.json";
 const WORLD = "/map/world.geojson";
@@ -128,7 +129,7 @@ export const FlatMap = forwardRef<
 
     (async () => {
       const [styleRaw, pilot, stats, world, mapping] = await Promise.all([
-        fetch(POSITRON).then((r) => r.json()),
+        fetch(DARK_STYLE).then((r) => r.json()),
         fetch(PILOT_GEOJSON).then((r) => r.json() as Promise<PinCollection>),
         fetch(COUNTRY_STATS).then((r) => r.json() as Promise<CountryStats>),
         fetch(WORLD).then((r) => r.json()),
@@ -201,9 +202,9 @@ export const FlatMap = forwardRef<
           paint: {
             "fill-color": [
               "interpolate", ["linear"], ["get", "count"],
-              0, "#f1efe9", 50, "#d8dfe6", 300, "#aabdcd", 1000, "#7aa7cd", 3000, "#4d7ba6",
+              0, "#1a1a19", 50, "#20303d", 300, "#2b4a63", 1000, "#3a648b", 3000, "#4d7ba6",
             ],
-            "fill-opacity": 0.72,
+            "fill-opacity": 0.66,
           },
         });
         map.addLayer({
@@ -211,7 +212,7 @@ export const FlatMap = forwardRef<
           type: "line",
           source: "countries",
           maxzoom: 10,
-          paint: { "line-color": "#cfcfcf", "line-width": 0.6 },
+          paint: { "line-color": "#383838", "line-width": 0.6 },
         });
         // LEVEL 2 — other countries dim while zoomed into one.
         map.addLayer({
@@ -221,7 +222,7 @@ export const FlatMap = forwardRef<
           minzoom: 6,
           maxzoom: 10,
           filter: ["==", ["get", "a2"], ""],
-          paint: { "fill-color": "#fcfbf9", "fill-opacity": 0.55 },
+          paint: { "fill-color": "#121212", "fill-opacity": 0.6 },
         });
 
         // LEVEL 2 — Supercluster badges, token-styled for the light ground.
@@ -232,8 +233,8 @@ export const FlatMap = forwardRef<
           minzoom: 6,
           filter: ["has", "point_count"],
           paint: {
-            "circle-color": "#ffffff",
-            "circle-stroke-color": "#17456b",
+            "circle-color": "rgba(24,24,23,0.9)",
+            "circle-stroke-color": "#7aa7cd",
             "circle-stroke-width": 1.25,
             "circle-radius": ["step", ["get", "point_count"], 16, 20, 22, 60, 28],
           },
@@ -246,11 +247,11 @@ export const FlatMap = forwardRef<
           filter: ["has", "point_count"],
           layout: {
             "text-field": ["concat", ["to-string", ["get", "point_count"]], " ent."],
-            "text-font": ["Montserrat Regular"],
+            "text-font": ["Noto Sans Regular"],
             "text-size": 10.5,
             "text-allow-overlap": true,
           },
-          paint: { "text-color": "#141311" },
+          paint: { "text-color": "#edecea" },
         });
 
         // LEVEL 3 — LABELS ONLY via MapLibre symbols (collision-managed);
@@ -263,7 +264,7 @@ export const FlatMap = forwardRef<
           filter: ["!", ["has", "point_count"]],
           layout: {
             "text-field": ["get", "name"],
-            "text-font": ["Montserrat Regular"],
+            "text-font": ["Noto Sans Regular"],
             "text-size": 11,
             "text-anchor": "left",
             "text-offset": [1.7, 0],
@@ -273,9 +274,9 @@ export const FlatMap = forwardRef<
             "text-max-width": 14,
           },
           paint: {
-            "text-color": "#141311",
-            "text-halo-color": "rgba(255,255,255,0.92)",
-            "text-halo-width": 1.4,
+            "text-color": "#cfcfcf",
+            "text-halo-color": "rgba(18,18,18,0.9)",
+            "text-halo-width": 1.3,
           },
         });
 
@@ -373,7 +374,7 @@ export const FlatMap = forwardRef<
   }, [filters, ready]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full" data-v2-theme="dark">
       <div ref={containerRef} className="h-full w-full" />
       <FilterRail filters={filters} onChange={setFilters} />
       <button

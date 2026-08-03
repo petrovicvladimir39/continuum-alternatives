@@ -37,26 +37,35 @@ const CITIES: Omit<GlobeCity, "count">[] = [
   { city: "Stockholm", country: "SE", lat: 59.3293, lng: 18.0686 },
 ];
 
-type PilotReport = { cities: Record<string, { selectedReal: number; mockFill: number }> };
+type PilotReport = {
+  cities: Record<string, { selectedReal: number; survives: boolean }>;
+};
+
+/** Second visit skips the dive animation entirely (sessionStorage). */
+const SKIP_KEY = "v2-globe-dived";
 
 export function GlobeExperience({ debug = false }: { debug?: boolean }) {
   const [mode, setMode] = useState<"globe" | "map">("globe");
   const [globeHidden, setGlobeHidden] = useState(false);
+  const [instant, setInstant] = useState(false);
   const [diving, setDiving] = useState(false);
   const [cities, setCities] = useState<GlobeCity[]>(CITIES.map((c) => ({ ...c, count: 30 })));
   const globeRef = useRef<HeroGlobeHandle>(null);
   const mapRef = useRef<FlatMapHandle>(null);
 
   useEffect(() => {
+    // Only surviving pilot cities land on the globe (logo-dense pilot).
     fetch("/map/tiles/pilot-report.json")
       .then((r) => r.json() as Promise<PilotReport>)
       .then((report) =>
         setCities(
-          CITIES.map((c) => ({
-            ...c,
-            count:
-              (report.cities[c.city]?.selectedReal ?? 0) + (report.cities[c.city]?.mockFill ?? 0),
-          })),
+          CITIES.flatMap((c) => {
+            const entry = report.cities[c.city];
+            if (entry === undefined || !entry.survives) {
+              return [];
+            }
+            return [{ ...c, count: entry.selectedReal }];
+          }),
         ),
       )
       .catch(() => undefined);
@@ -69,17 +78,25 @@ export function GlobeExperience({ debug = false }: { debug?: boolean }) {
     setDiving(true);
     mapRef.current?.jumpTo(lat, lng, zoom);
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduced) {
-      await globeRef.current?.dive(lat, lng, 900);
+    const skip = window.sessionStorage.getItem(SKIP_KEY) === "1";
+    setInstant(reduced || skip);
+    if (!reduced && !skip) {
+      await globeRef.current?.dive(lat, lng, 350);
     }
     setMode("map");
     setDiving(false);
+    try {
+      window.sessionStorage.setItem(SKIP_KEY, "1");
+    } catch {
+      // storage unavailable — every visit animates
+    }
     // visibility backstop — never rely on the transition finishing.
-    window.setTimeout(() => setGlobeHidden(true), 450);
+    window.setTimeout(() => setGlobeHidden(true), reduced || skip ? 0 : 250);
   }
 
   function backToGlobe(): void {
     globeRef.current?.resetView();
+    setInstant(false);
     setGlobeHidden(false);
     setMode("globe");
   }
@@ -98,7 +115,7 @@ export function GlobeExperience({ debug = false }: { debug?: boolean }) {
           pointerEvents: mode === "globe" ? "auto" : "none",
           opacity: mode === "globe" ? 1 : 0,
           visibility: globeHidden && mode !== "globe" ? "hidden" : "visible",
-          transition: "opacity 400ms ease-out",
+          transition: instant ? "none" : "opacity 200ms ease-out",
         }}
         className="absolute inset-0 z-20 bg-[#121212]"
         data-v2-theme="dark"
