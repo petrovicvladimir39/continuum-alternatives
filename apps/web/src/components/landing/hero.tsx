@@ -1,41 +1,43 @@
 "use client";
 
 /**
- * Landing hero — Aceternity "startup landing" pattern ported under the
- * 2026-08-03 CLAUDE.md front-page amendment. Word-by-word blur-in headline,
- * falling gradient beams with collision bursts over a rotated grid backdrop,
- * and a framed live-wire panel fed with REAL corpus data (no placeholder
- * copy, no remote images). Brand type and color tokens still apply.
+ * Aceternity template hero, ported faithfully: word-by-word blur-in headline,
+ * falling orange/yellow beams with collision bursts, rotated grid backdrop,
+ * dark mode via the v2 theme attribute. The template's dashboard screenshot
+ * slot renders the mock terminal wire instead (fictional entities — the
+ * MOCK DATA design scaffolding layer).
  */
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
+import { cn } from "@/lib/utils";
+import { LandingButton } from "./button";
 
-export type HeroStats = {
-  entities: number;
-  countries: number;
-  facts: number;
-  sources: number;
-};
-
-export type HeroWireItem = {
+export type WireItem = {
   id: string;
-  occurredOn: string;
+  when: string;
   title: string;
   meta: string;
 };
 
 const HEADLINE = "The map of European alternative assets.";
 
-export function LandingHero({ stats, items }: { stats: HeroStats; items: HeroWireItem[] }) {
+const STATS: [string, string][] = [
+  ["32,000+", "Institutions"],
+  ["39", "Countries"],
+  ["9", "Asset classes"],
+  ["400+", "Signals / week"],
+];
+
+export function LandingHero({ items }: { items: WireItem[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const parentRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
       ref={parentRef}
-      className="relative -mx-6 flex flex-col items-center justify-center overflow-hidden px-4 py-16 md:px-8 md:py-24"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-20 dark:bg-neutral-900 md:px-8 md:py-40"
     >
       <BackgroundGrids />
       <CollisionMechanism
@@ -59,7 +61,7 @@ export function LandingHero({ stats, items }: { stats: HeroStats; items: HeroWir
         parentRef={parentRef}
       />
 
-      <h1 className="text-balance relative z-20 mx-auto mt-4 max-w-4xl text-center font-serif text-4xl font-medium tracking-tight text-ink md:text-6xl">
+      <h1 className="text-balance relative z-20 mx-auto mb-4 mt-4 max-w-4xl text-center text-3xl font-semibold tracking-tight text-gray-700 dark:text-neutral-300 md:text-7xl">
         {HEADLINE.split(" ").map((word, index) => (
           <motion.span
             key={index}
@@ -76,69 +78,59 @@ export function LandingHero({ stats, items }: { stats: HeroStats; items: HeroWir
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: 0.5 }}
-        className="relative z-20 mx-auto mt-4 max-w-lg px-4 text-center text-[15px] leading-[1.6] text-ink-secondary"
+        className="relative z-20 mx-auto mt-4 max-w-lg px-4 text-center text-base/6 text-gray-600 dark:text-gray-200"
       >
-        Private equity, venture, private credit and distressed — every institution
-        register-verified, every signal sourced. Deepest coverage in Central and
-        South-Eastern Europe.
+        Private equity, venture, credit, real assets and everything in between —
+        every institution verified, every signal sourced, live in one terminal.
       </motion.p>
-
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: 0.7 }}
-        className="relative z-20 mb-10 mt-7 flex w-full flex-col items-center justify-center gap-3 px-8 sm:flex-row"
+        className="mb-10 mt-8 flex w-full flex-col items-center justify-center gap-4 px-8 sm:flex-row md:mb-20"
       >
-        <Link
-          href="/universe"
-          className="w-44 rounded-sm bg-accent px-4 py-2 text-center text-[13px] font-medium text-accent-ink transition hover:bg-[color-mix(in_srgb,var(--color-accent)_94%,var(--color-ink))]"
-        >
-          Explore the universe
-        </Link>
-        <Link
-          href="/pricing"
-          className="w-44 rounded-sm border border-line-strong bg-surface px-4 py-2 text-center text-[13px] font-medium text-ink transition hover:bg-ink/5"
-        >
+        <LandingButton as={Link} href="/v2" variant="dark" className="w-48 text-center">
+          Open the terminal
+        </LandingButton>
+        <LandingButton as={Link} href="/#pricing" variant="primary" className="w-48 text-center">
           See pricing
-        </Link>
+        </LandingButton>
       </motion.div>
 
-      {/* Framed live-wire panel — the template's "dashboard screenshot" slot,
-          filled with the real corpus instead of an image. */}
+      {/* The template's framed dashboard slot — filled with the mock wire. */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.9, ease: "easeOut" }}
         ref={containerRef}
-        className="relative z-20 mx-auto w-full max-w-4xl rounded-[32px] border border-line bg-ground/80 p-2 backdrop-blur-lg md:p-3"
+        className="relative z-20 mx-auto w-full max-w-7xl rounded-[32px] border border-neutral-200/50 bg-neutral-100 p-2 backdrop-blur-lg dark:border-neutral-700 dark:bg-neutral-800/50 md:p-4"
       >
-        <div className="rounded-[24px] border border-line-strong bg-[#141311] p-5 text-[#e9e6de] md:p-7">
-          <div className="flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-white/10 pb-4">
-            {(
-              [
-                [stats.entities, "Institutions"],
-                [stats.countries, "Countries"],
-                [stats.facts, "Recorded facts"],
-                [stats.sources, "Sources monitored"],
-              ] as const
-            ).map(([value, label]) => (
+        <div className="rounded-[24px] border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-black md:p-8">
+          <div className="flex flex-wrap items-baseline gap-x-10 gap-y-3 border-b border-neutral-200 pb-5 dark:border-neutral-800">
+            {STATS.map(([value, label]) => (
               <span key={label} className="flex items-baseline gap-2">
-                <span className="text-xl font-medium tabular-nums md:text-2xl">
-                  {value.toLocaleString("en-US")}
+                <span className="text-xl font-semibold tabular-nums text-neutral-800 dark:text-neutral-100 md:text-3xl">
+                  {value}
                 </span>
-                <span className="type-label !text-[#8a867c]">{label}</span>
+                <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+                  {label}
+                </span>
               </span>
             ))}
           </div>
-          <div className="mt-1">
+          <div className="mt-2">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-wrap items-baseline gap-x-3 border-b border-white/5 py-2.5 last:border-b-0"
+                className="flex flex-wrap items-baseline gap-x-4 border-b border-neutral-100 py-3 last:border-b-0 dark:border-neutral-900"
               >
-                <span className="text-[12px] tabular-nums text-[#8a867c]">{item.occurredOn}</span>
-                <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{item.title}</span>
-                <span className="hidden text-[12px] text-[#8a867c] md:inline">{item.meta}</span>
+                <span className="w-16 shrink-0 text-xs tabular-nums text-neutral-400">
+                  {item.when}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                  {item.title}
+                </span>
+                <span className="hidden text-xs text-neutral-400 md:inline">{item.meta}</span>
               </div>
             ))}
           </div>
@@ -159,7 +151,7 @@ const BackgroundGrids = () => {
         <GridLineVertical className="left-0" />
         <GridLineVertical className="left-auto right-0" />
       </div>
-      <div className="relative h-full w-full bg-gradient-to-b from-transparent via-[#f1efe9] to-transparent">
+      <div className="relative h-full w-full bg-gradient-to-b from-transparent via-neutral-100 to-transparent dark:via-neutral-800">
         <GridLineVertical className="left-0" />
         <GridLineVertical className="left-auto right-0" />
       </div>
@@ -264,12 +256,10 @@ const CollisionMechanism = ({
           delay: beamOptions.delay ?? 0,
           repeatDelay: beamOptions.repeatDelay ?? 0,
         }}
-        className={[
-          "absolute left-96 top-20 m-auto h-14 w-px rounded-full bg-gradient-to-t from-[#96690f] via-[#c9a227] to-transparent",
+        className={cn(
+          "absolute left-96 top-20 m-auto h-14 w-px rounded-full bg-gradient-to-t from-orange-500 via-yellow-500 to-transparent",
           beamOptions.className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
+        )}
       />
       <AnimatePresence>
         {collision.detected && collision.coordinates && (
@@ -295,13 +285,13 @@ const Explosion = (props: React.HTMLProps<HTMLDivElement>) => {
   }));
 
   return (
-    <div {...props} className={["absolute z-50 h-2 w-2", props.className].filter(Boolean).join(" ")}>
+    <div {...props} className={cn("absolute z-50 h-2 w-2", props.className)}>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 0] }}
         exit={{ opacity: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="absolute -inset-x-10 top-0 m-auto h-[4px] w-10 rounded-full bg-gradient-to-r from-transparent via-[#96690f] to-transparent blur-sm"
+        className="absolute -inset-x-10 top-0 m-auto h-[4px] w-10 rounded-full bg-gradient-to-r from-transparent via-orange-500 to-transparent blur-sm"
       />
       {spans.map((span) => (
         <motion.span
@@ -309,7 +299,7 @@ const Explosion = (props: React.HTMLProps<HTMLDivElement>) => {
           initial={{ x: 0, y: 0, opacity: 1 }}
           animate={{ x: span.directionX, y: span.directionY, opacity: 0 }}
           transition={{ duration: Math.random() * 1.5 + 0.5, ease: "easeOut" }}
-          className="absolute h-1 w-1 rounded-full bg-gradient-to-b from-[#96690f] to-[#c9a227]"
+          className="absolute h-1 w-1 rounded-full bg-gradient-to-b from-orange-500 to-yellow-500"
         />
       ))}
     </div>
@@ -321,26 +311,26 @@ const GridLineVertical = ({ className, offset }: { className?: string; offset?: 
     <div
       style={
         {
-          "--background": "#fafaf8",
-          "--color": "rgba(20, 19, 17, 0.14)",
+          "--background": "#ffffff",
+          "--color": "rgba(0, 0, 0, 0.2)",
           "--height": "5px",
           "--width": "1px",
           "--fade-stop": "90%",
           "--offset": offset ?? "150px",
+          "--color-dark": "rgba(255, 255, 255, 0.3)",
           maskComposite: "exclude",
         } as React.CSSProperties
       }
-      className={[
+      className={cn(
         "absolute top-[calc(var(--offset)/2*-1)] h-[calc(100%+var(--offset))] w-[var(--width)]",
         "bg-[linear-gradient(to_bottom,var(--color),var(--color)_50%,transparent_0,transparent)]",
         "[background-size:var(--width)_var(--height)]",
         "[mask:linear-gradient(to_top,var(--background)_var(--fade-stop),transparent),_linear-gradient(to_bottom,var(--background)_var(--fade-stop),transparent),_linear-gradient(black,black)]",
         "[mask-composite:exclude]",
         "z-30",
+        "dark:bg-[linear-gradient(to_bottom,var(--color-dark),var(--color-dark)_50%,transparent_0,transparent)]",
         className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      )}
     />
   );
 };

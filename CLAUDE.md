@@ -6,11 +6,14 @@ The map of European alternative assets (PE, VC, private credit, distressed/NPL) 
 
 Neon Postgres (+ pgvector, PostGIS) with Drizzle ORM · Clerk auth (from Phase 23, not before) · Inngest jobs (from Phase 7) · Langfuse LLM observability (from Phase 10) · Upstash Redis (from Phase 33) · Sentry (from Phase 22) · Voyage embeddings (from Phase 14) · Resend email · Firecrawl crawling · MapLibre GL maps · Vercel hosting. Root Directory on Vercel is apps/web; vercel.json pins framework nextjs.
 
-## Design mandate (binding)
+## Design mandate (binding — REWRITTEN 2026-08-03, operator decision)
 
-The tokens in apps/web/src/app/globals.css and the /styleguide route are the only visual source of truth. Serif = Newsreader (headings only, 400/500). Sans = Instrument Sans (everything else, 400/500). All numeric/data displays use tabular-nums, right-aligned in tables. PROHIBITED, always: box-shadows, gradients, border-radius above 4px, Inter/system-ui as brand type, component libraries (shadcn/radix), icon libraries, emoji in UI, animations beyond hover color changes, dark mode. Elevation is expressed by 1px borders only.
+The old austerity mandate (no shadows/gradients/radius/motion/dark mode) is REPEALED in full. The visual law is now:
 
-AMENDMENT (2026-08-03, operator decision): the front page (`(site)/page.tsx` + `src/components/landing/*`) is exempt from the motion/gradient/radius/shadow prohibitions — it may use Aceternity-style patterns (entrance animations, gradient beams, large radii) built on `motion` and `cobe`. Brand type (Newsreader/Instrument Sans) and the color tokens still bind. Inner product pages remain under the full mandate; still no dark mode, icon libraries, or component libraries anywhere.
+- **Landing ("/", `(landing)` group + `src/components/landing/*`)**: the Aceternity "startup landing" template is the reference design — motion (framer/motion), gradient beams, large radii, layered shadows, lucide icons, dark mode via the v2 theme attribute. Template-faithful porting is the goal, with Continuum content.
+- **Product (`(v2)` group)**: the v2 token system in globals.css (`.v2-root`, light + dark via `data-v2-theme`) is the source of truth — v2's own laws (radius 0, neutral hairlines) apply there, plus shadcn/radix, recharts, deck.gl as already adopted on that surface.
+- **v2 IS the production presentation layer**, running on the mock design-scaffolding data (`packages/shared/src/mock/*`, fictional entities) until the operator schedules the data cutover. The old DB-backed `(site)` front page is retired; remaining `(site)` routes are legacy until migrated.
+- Numeric displays keep tabular-nums. Fonts remain Newsreader + Instrument Sans where the v2 tokens use them; the landing may use the template's default sans stack.
 
 ## Rules of engagement
 
