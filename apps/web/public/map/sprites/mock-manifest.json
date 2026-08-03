@@ -1,0 +1,15 @@
+{
+  "prefix": "mock",
+  "generatedAt": "2026-08-03T19:56:59.232Z",
+  "icons": 109,
+  "logos": 0,
+  "logoFailures": 0,
+  "sheets": [
+    {
+      "id": "mock-0",
+      "file": "mock-0.png",
+      "jsonFile": "mock-0.json",
+      "count": 109
+    }
+  ]
+}

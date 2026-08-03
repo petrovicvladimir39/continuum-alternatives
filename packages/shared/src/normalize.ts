@@ -127,6 +127,18 @@ export function monogramFor(name: string): string {
   return (match?.[0] ?? "•").toUpperCase();
 }
 
+/**
+ * Two-letter monogram for logo-pin map tiles (S2 atlas + S3 icon refs must
+ * agree on this exactly — single source of truth).
+ */
+export function twoLetterMonogram(name: string): string {
+  const latin = transliterateDisplay(name);
+  const words = latin.split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 0);
+  const first = words[0]?.[0] ?? "•";
+  const second = words[1]?.[0] ?? words[0]?.[1] ?? "";
+  return (first + second).toUpperCase();
+}
+
 export function slugify(name: string): string {
   const base = transliterate(name.toLowerCase())
     .replace(/[^a-z0-9\s-]/g, "")

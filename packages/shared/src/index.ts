@@ -7,6 +7,7 @@ export {
   transliterateDisplay,
   hasCyrillic,
   monogramFor,
+  twoLetterMonogram,
 } from "./normalize";
 export { ENTITY_TAGS, VENDOR_TAGS, type EntityTag } from "./taxonomy";
 export {
