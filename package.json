@@ -24,6 +24,7 @@
     "locations:report": "pnpm --filter @continuum/pipeline locations:report",
     "logos:atlas": "pnpm --filter @continuum/pipeline logos:atlas",
     "tiles:build": "pnpm --filter @continuum/pipeline tiles:build",
+    "pilot:cities": "pnpm --filter @continuum/pipeline pilot:cities",
     "logos:backfill": "pnpm --filter @continuum/pipeline logos:backfill",
     "enrich:batch": "pnpm --filter @continuum/pipeline enrich:batch",
     "gleif:harvest": "pnpm --filter @continuum/pipeline gleif:harvest",
