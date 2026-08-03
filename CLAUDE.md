@@ -10,6 +10,8 @@ Neon Postgres (+ pgvector, PostGIS) with Drizzle ORM · Clerk auth (from Phase 2
 
 The tokens in apps/web/src/app/globals.css and the /styleguide route are the only visual source of truth. Serif = Newsreader (headings only, 400/500). Sans = Instrument Sans (everything else, 400/500). All numeric/data displays use tabular-nums, right-aligned in tables. PROHIBITED, always: box-shadows, gradients, border-radius above 4px, Inter/system-ui as brand type, component libraries (shadcn/radix), icon libraries, emoji in UI, animations beyond hover color changes, dark mode. Elevation is expressed by 1px borders only.
 
+AMENDMENT (2026-08-03, operator decision): the front page (`(site)/page.tsx` + `src/components/landing/*`) is exempt from the motion/gradient/radius/shadow prohibitions — it may use Aceternity-style patterns (entrance animations, gradient beams, large radii) built on `motion` and `cobe`. Brand type (Newsreader/Instrument Sans) and the color tokens still bind. Inner product pages remain under the full mandate; still no dark mode, icon libraries, or component libraries anywhere.
+
 ## Rules of engagement
 
 - Work proceeds in numbered phases; build ONLY what the current phase prompt specifies. Never install a package, add a route, or create a table that the prompt does not name.

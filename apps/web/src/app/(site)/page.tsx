@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  auctionStats,
   channelColumn,
   db,
   desc,
@@ -19,6 +18,9 @@ import {
 import { FACT_PRIORITY } from "@continuum/pipeline";
 import { diversifyRail, pickRotatedLead, timeAgo, visibleHomeSections } from "@continuum/shared";
 import { EntityLogo } from "@/components/ui/entity-logo";
+import { LandingHero, type HeroWireItem } from "@/components/landing/hero";
+import { LandingBento } from "@/components/landing/bento";
+import { LandingCta } from "@/components/landing/cta";
 import { SubscribeBlock } from "@/components/subscribe-block";
 import { ClassKicker, ClassTopRule } from "@/components/editorial/class-accent";
 import { Tag } from "@/components/ui/tag";
@@ -78,10 +80,9 @@ function CompactRow({ item }: { item: FeedItem }) {
 
 export default async function Home() {
   const now = new Date();
-  const [stats, auctionsAll, candidates, latest, colDistressed, colEquity, colInstitutions, sentDigests, publishedArticles] =
+  const [stats, candidates, latest, colDistressed, colEquity, colInstitutions, sentDigests, publishedArticles] =
     await Promise.all([
       homeStats(),
-      auctionStats(),
       leadCandidates(),
       // Over-fetch so the diversity cap still fills the rails.
       latestRecorded(20),
@@ -152,27 +153,32 @@ export default async function Home() {
     { ...CHANNEL_GROUPS[2]!, items: diverseItems(colInstitutions), articles: articlesFor(CHANNEL_GROUPS[2]!.channels) },
   ].filter((column) => column.items.length > 0 || column.articles.length > 0);
 
+  // Aceternity landing (2026-08-03 amendment): the hero + bento replace the
+  // static stat strip; the editorial front continues below unchanged.
+  const wireItems: HeroWireItem[] = latest.slice(0, 12).map((item) => ({
+    id: item.id,
+    occurredOn: item.occurredOn,
+    title: item.title,
+    meta: [item.entityName, item.entityCountry !== null ? countryName(item.entityCountry) : null]
+      .filter(Boolean)
+      .join(" · "),
+  }));
+
   return (
     <div className="pb-12">
-      {/* 1 · Stat strip — ticker register, hairline band, no animation. */}
-      <div className="-mx-6 border-b border-line px-6">
-        <div className="flex flex-wrap items-baseline gap-x-8 gap-y-1 py-2.5">
-          {(
-            [
-              ["Entities", stats.activeEntities],
-              ["Countries", stats.countries],
-              ["Facts", stats.factsTracked],
-              ["Upcoming auctions", auctionsAll.upcoming],
-              ["Sources", stats.sourcesMonitored],
-            ] as const
-          ).map(([label, value]) => (
-            <span key={label} className="flex items-baseline gap-1.5">
-              <span className="type-data font-medium">{value}</span>
-              <span className="type-label">{label}</span>
-            </span>
-          ))}
-        </div>
-      </div>
+      {/* 1 · Hero — animated landing over the live wire. */}
+      <LandingHero
+        stats={{
+          entities: stats.activeEntities,
+          countries: stats.countries,
+          facts: stats.factsTracked,
+          sources: stats.sourcesMonitored,
+        }}
+        items={wireItems.slice(0, 6)}
+      />
+
+      {/* 1b · Bento — the product, in four cards. */}
+      <LandingBento facts={stats.factsTracked} items={wireItems.slice(6, 11)} />
 
       {/* 2 · Lead story + latest rail. */}
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
@@ -455,6 +461,9 @@ export default async function Home() {
           </div>
         </section>
       ) : null}
+
+      {/* 7 · Closing CTA band (2026-08-03 amendment). */}
+      <LandingCta />
     </div>
   );
 }
