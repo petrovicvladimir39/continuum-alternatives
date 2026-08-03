@@ -1,5 +1,6 @@
-import { mockFeedPage } from "@continuum/shared";
+import { MOCK_ARTICLES, mockFeedPage, mockImage } from "@continuum/shared";
 import { LandingHero, type WireItem } from "@/components/landing/hero";
+import { LandingJournal, type JournalPost } from "@/components/landing/journal";
 import { LandingFeatures } from "@/components/landing/features";
 import { LandingPricing } from "@/components/landing/pricing";
 import { LandingCta } from "@/components/landing/cta";
@@ -47,9 +48,24 @@ export default function Home() {
     meta: [item.entityName, item.entityCountry].filter(Boolean).join(" · "),
   }));
 
+  // News section: latest mock editorial pieces, cover story first.
+  const posts: JournalPost[] = [...MOCK_ARTICLES]
+    .sort((a, b) => (a.publishedOn < b.publishedOn ? 1 : -1))
+    .slice(0, 13)
+    .map((article) => ({
+      title: article.headline,
+      description: article.deck,
+      date: article.publishedOn,
+      slug: article.slug,
+      image: mockImage(article.imageSeed, 1280, 640),
+      author: article.byline,
+      readMinutes: article.readMinutes,
+    }));
+
   return (
     <>
       <LandingHero items={wire.slice(0, 7)} />
+      <LandingJournal posts={posts} />
       <LandingFeatures items={wire.slice(7, 12)} />
       <LandingPricing />
       <LandingCta />
