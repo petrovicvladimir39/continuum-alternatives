@@ -22,6 +22,7 @@
     "locations:report": "tsx src/locations-report.ts",
     "logos:backfill": "tsx src/logos-backfill.ts",
     "logos:atlas": "tsx src/logos-atlas.ts",
+    "tiles:build": "tsx src/tiles-build.ts",
     "enrich:batch": "tsx src/enrich-batch.ts",
     "ch:enrich": "tsx src/ch-enrich.ts",
     "wikidata:harvest": "tsx src/wikidata-harvest.ts",

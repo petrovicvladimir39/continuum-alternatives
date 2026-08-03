@@ -9,3 +9,5 @@ dist
 .claude/
 data/.gleif/
 exports/
+# Purchased Aceternity reference template (kept local)
+manuarora700-startup-landing-simple-aceternity-*/

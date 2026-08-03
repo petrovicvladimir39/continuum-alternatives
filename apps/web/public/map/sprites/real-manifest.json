@@ -1,0 +1,39 @@
+{
+  "prefix": "real",
+  "generatedAt": "2026-08-03T20:12:44.275Z",
+  "icons": 1074,
+  "logos": 218,
+  "logoFailures": 19,
+  "sheets": [
+    {
+      "id": "real-0",
+      "file": "real-0.png",
+      "jsonFile": "real-0.json",
+      "count": 256
+    },
+    {
+      "id": "real-1",
+      "file": "real-1.png",
+      "jsonFile": "real-1.json",
+      "count": 256
+    },
+    {
+      "id": "real-2",
+      "file": "real-2.png",
+      "jsonFile": "real-2.json",
+      "count": 256
+    },
+    {
+      "id": "real-3",
+      "file": "real-3.png",
+      "jsonFile": "real-3.json",
+      "count": 256
+    },
+    {
+      "id": "real-4",
+      "file": "real-4.png",
+      "jsonFile": "real-4.json",
+      "count": 50
+    }
+  ]
+}

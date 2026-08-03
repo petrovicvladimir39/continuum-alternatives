@@ -124,17 +124,23 @@ async function main(): Promise<void> {
   }
   console.log(`${rows.length} rows pending across ${groups.size} unique addresses`);
 
+  // Biggest buildings first — each API call locates the most entities.
+  const ordered = [...groups.values()].sort((a, b) => b.rowIds.length - a.rowIds.length);
+
   let calls = 0;
   let rooftop = 0;
   let street = 0;
   let cityFallback = 0;
   let unresolved = 0;
 
-  for (const group of groups.values()) {
+  for (const group of ordered) {
     if (calls >= limit) {
       break;
     }
     calls += 1;
+    // Neon http driver does not serialize JS arrays to PG arrays — pass an
+    // array literal and cast.
+    const idsLiteral = `{${group.rowIds.join(",")}}`;
     const located = await geocodeAddress(group.raw);
     if (located !== null) {
       if (located.precision === "rooftop") {
@@ -148,7 +154,7 @@ async function main(): Promise<void> {
             precision = ${located.precision},
             location_confidence = ${located.confidence},
             geocoded_at = now()
-        WHERE id = ANY(${group.rowIds}::uuid[])
+        WHERE id = ANY(${idsLiteral}::uuid[])
       `);
     } else {
       // Definitive miss → per-entity city-centroid fallback, never invented.
@@ -157,7 +163,7 @@ async function main(): Promise<void> {
         SET lat = c.lat, lon = c.lon, precision = 'city',
             location_confidence = 0.4, geocoded_at = now()
         FROM entity_locations c
-        WHERE l.id = ANY(${group.rowIds}::uuid[])
+        WHERE l.id = ANY(${idsLiteral}::uuid[])
           AND c.entity_id = l.entity_id AND c.source = 'city_centroid'
           AND c.lat IS NOT NULL
       `);
@@ -168,7 +174,7 @@ async function main(): Promise<void> {
       await db.execute(sql`
         UPDATE entity_locations
         SET geocoded_at = now()
-        WHERE id = ANY(${group.rowIds}::uuid[]) AND geocoded_at IS NULL
+        WHERE id = ANY(${idsLiteral}::uuid[]) AND geocoded_at IS NULL
       `);
     }
     if (calls % 25 === 0) {

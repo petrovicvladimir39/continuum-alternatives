@@ -22,6 +22,8 @@
     "locations:gleif": "pnpm --filter @continuum/pipeline locations:gleif",
     "locations:geocode": "pnpm --filter @continuum/pipeline locations:geocode",
     "locations:report": "pnpm --filter @continuum/pipeline locations:report",
+    "logos:atlas": "pnpm --filter @continuum/pipeline logos:atlas",
+    "tiles:build": "pnpm --filter @continuum/pipeline tiles:build",
     "logos:backfill": "pnpm --filter @continuum/pipeline logos:backfill",
     "enrich:batch": "pnpm --filter @continuum/pipeline enrich:batch",
     "gleif:harvest": "pnpm --filter @continuum/pipeline gleif:harvest",

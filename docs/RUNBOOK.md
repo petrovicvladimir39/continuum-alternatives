@@ -52,6 +52,17 @@ cap: briefs $2/day, filing chat $1/day, ask grounding $1/day, watchdog $2/week, 
 Kill switch = remove `ANTHROPIC_API_KEY` from env; every surface degrades to its honest
 "opens soon / try tomorrow" state and nothing crashes.
 
+## Logo-pin map tiles are stale (after a harvest)
+
+1. `pnpm locations:seed` (new entities pick up centroids)
+2. `pnpm locations:gleif` then `pnpm locations:geocode -- --limit 500` (repeat —
+   resumable; each unique address costs one Nominatim call at 1 rps)
+3. `pnpm logos:atlas` then `pnpm tiles:build`
+4. Commit the regenerated `apps/web/public/map/{sprites,tiles}` artifacts.
+   On a machine with tippecanoe, `tiles:build` also emits `entities.pmtiles`;
+   the vector-tile cutover (map reads pmtiles, clustering moves into
+   tippecanoe) is documented in the S4 build report.
+
 ## Backlogged with reason (standing)
 
 - **Learning digest ranking** — BACKLOG. Click-tracking ethics undecided: open-tracking pixels

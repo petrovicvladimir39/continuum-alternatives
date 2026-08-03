@@ -15,6 +15,25 @@ Monorepo for Continuum Alternatives — the map of European alternative assets: 
 - `pnpm lint` — lint the whole repo with ESLint
 - `pnpm format` — format the whole repo with Prettier
 
+## Logo-pin Europe map (frontend-v2)
+
+`/v2/universe/logo-map` — address-level company-logo pins with collision-managed
+labels. `?mock=1` forces the mock design layer; `?debug=1` shows the FPS meter.
+
+Data pipeline (deterministic, $0):
+
+- `pnpm locations:seed` — city-centroid rows into `entity_locations` from `entities.geo`
+- `pnpm locations:gleif` — registered addresses via the GLEIF API for bare-LEI orgs
+- `pnpm locations:geocode -- --limit N` — Nominatim street geocoder (1 rps, resumable,
+  address-deduped, SPV-collision downgrade); run repeatedly until the backlog drains
+- `pnpm locations:report` — precision split, per-country coverage, top collision buildings
+- `pnpm logos:atlas [-- --mock]` — sprite atlases (framed 64px logos + monogram tiles)
+  into `apps/web/public/map/sprites/`
+- `pnpm tiles:build` — export the geocoded corpus to
+  `apps/web/public/map/tiles/entities.geojson`; when `tippecanoe` is on PATH it also
+  cuts `entities.pmtiles`. Re-run after every harvest. The map reads these static
+  artifacts — never live Postgres.
+
 ## Background jobs (Inngest)
 
 Ingestion is scheduled and executed by Inngest. To run jobs locally, start the

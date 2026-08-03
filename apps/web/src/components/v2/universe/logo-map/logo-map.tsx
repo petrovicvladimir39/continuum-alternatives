@@ -40,7 +40,6 @@ import { FpsMeter } from "./fps-meter";
 const BASEMAP = "https://tiles.openfreemap.org/styles/dark";
 const SPRITES_BASE = "/map/sprites";
 const TILES_GEOJSON = "/map/tiles/entities.geojson";
-const TILE_PX = 64;
 
 /** v2 dark-ground class accents for the z6–9 dot tier. */
 const CLASS_COLOR: [string, string][] = [
@@ -342,7 +341,7 @@ export function LogoMap() {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- init once per mock toggle
+    // Init once per mock toggle — debug/reducedMotion are read-at-init only.
   }, [forceMock]);
 
   // Filters rebuild in-memory data — layer visibility changes, no refetch.
