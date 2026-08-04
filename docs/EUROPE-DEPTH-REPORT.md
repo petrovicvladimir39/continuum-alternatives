@@ -334,3 +334,55 @@ paid/ToS-locked APIs.
 - **Surprise**: Switzerland's register is federally indexed but API-gated,
   while its *gazette* (SHAB) is openly queryable — the inverse of Germany.
 
+## SE
+
+- entities: 1172 → 1175 (1097 active)
+- classified: 7 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 3
+    - Liquid Alternatives & Hedge Funds: 4
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: commodities, infrastructure_economic
+- field coverage (1171 orgs): legal_name 0% · reg-no 94% · LEI 69% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 806 · unlocated 683 · rooftop 8
+- facts: proposed 1
+- sources in DB: signals_press active 10 · signals_press 12
+- ledger: SE $0.488 / $0.45 · cumulative $4.738 / $20.00
+
+## PL
+
+- entities: 1078 → 1078 (1036 active)
+- classified: 35 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 24
+    - Private Debt & Credit: 4
+    - Real Assets & Infrastructure: 7
+    - Liquid Alternatives & Hedge Funds: 3
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: commodities, direct_lending, mezzanine, natural_resources, npl, venture_capital
+- field coverage (1068 orgs): legal_name 0% · reg-no 94% · LEI 48% · VAT 0% · legal_form 0% · status 0% · address 0% · website 8% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 8%
+- geocode precision: unlocated 624 · city 597
+- facts: proposed 5
+- sources in DB: tier4_exchange_corporate 13 · tier4_exchange_corporate active 8 · signals_press active 9 · signals_press 14
+- ledger: PL $0.461 / $0.45 · cumulative $4.738 / $20.00
+
+### SE / PL run notes (2026-08-04)
+
+- **SE**: 76 sources cataloged (the largest catalog of the run; 49 entities-side
+  / 27 news-side). 10 news active, 5 dead/blocked documented. Finansinspektionen
+  prior harvest stands (187). Bolagsverket's bulk product is fee-based
+  (documented, not purchased); allabolag is a reseller, not a primary source.
+  $0.450 extraction → 1 fact PROPOSED, backlog 21 — Swedish generalist feeds
+  again show a low alternatives hit rate vs specialist ones.
+- **PL**: 69 sources cataloged (45 entities-side / 24 news-side). 9 news active
+  (17 fetched incl. carried firm newsrooms), 28 new docs. KNF TFI harvest
+  stands (324 + 271 manages edges). The KRS open JSON API (api-krs.ms.gov.pl)
+  and REGON/GUS API are cataloged as the standing tier-1 routes — KRS is
+  per-entity lookup (no bulk enumeration), so it is an ENRICHMENT route for
+  known entities rather than a discovery sweep; recorded as such.
+  $0.450 → 4 relevant of 10, 1 fact PROPOSED, backlog 45.
+

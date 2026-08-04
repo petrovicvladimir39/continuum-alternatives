@@ -9,7 +9,9 @@
     "ES": 0.46031099999999997,
     "NL": 0.470244,
     "LU": 0.449175,
-    "CH": 0.48507
+    "CH": 0.48507,
+    "SE": 0.48787200000000003,
+    "PL": 0.46097699999999997
   },
   "completed": [
     "DE",
@@ -19,7 +21,9 @@
     "ES",
     "NL",
     "LU",
-    "CH"
+    "CH",
+    "SE",
+    "PL"
   ],
   "before": {
     "DE": {
@@ -61,6 +65,16 @@
       "entities": 2705,
       "facts": 0,
       "takenAt": "2026-08-04T07:43:53.152Z"
+    },
+    "SE": {
+      "entities": 1172,
+      "facts": 0,
+      "takenAt": "2026-08-04T07:53:42.840Z"
+    },
+    "PL": {
+      "entities": 1078,
+      "facts": 5,
+      "takenAt": "2026-08-04T07:55:28.854Z"
     }
   },
   "backlog": {
@@ -70,6 +84,8 @@
     "IT": "37 unextracted documents (last 14d) at sub-budget stop",
     "ES": "27 unextracted documents (last 14d) at sub-budget stop",
     "NL": "36 unextracted documents (last 14d) at sub-budget stop",
-    "CH": "26 unextracted documents (last 14d) at sub-budget stop"
+    "CH": "26 unextracted documents (last 14d) at sub-budget stop",
+    "SE": "21 unextracted documents (last 14d) at sub-budget stop",
+    "PL": "45 unextracted documents (last 14d) at sub-budget stop"
   }
 }
