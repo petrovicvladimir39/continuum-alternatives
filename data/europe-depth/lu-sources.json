@@ -1,0 +1,560 @@
+{
+  "country": "LU",
+  "sources": [
+    {
+      "name": "Luxembourg Business Registers (LBR) — RCS portal",
+      "url": "https://www.lbr.lu/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified live (redirects to mjrcs-web-front app). Free per-entity search + filed-document download with account; LBR operates an open-data REST API covering RCS records and RESA publications; bulk datasets pushed to data.public.lu under CC0."
+    },
+    {
+      "name": "data.public.lu — Luxembourg open data portal (RCS/company datasets)",
+      "url": "https://data.public.lu/en/datasets/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Verified live; ~3,000 datasets with an API reference. Dataset listing is JS-rendered so exact RCS bulk datasets not confirmed in this pass — recommended route for bulk register mirroring per multiple secondary sources."
+    },
+    {
+      "name": "RESA — Recueil électronique des sociétés et associations (company gazette)",
+      "url": "https://www.lbr.lu/",
+      "side": "entities",
+      "category": "company-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "RESA is the legal gazette for company publications (incorporations, changes, liquidations), served via the LBR portal and covered by the LBR open-data API. Portal verified live; dedicated RESA deep-link not separately verified."
+    },
+    {
+      "name": "RBE — Register of Beneficial Owners",
+      "url": "https://www.lbr.lu/",
+      "side": "entities",
+      "category": "ubo-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Exists under LBR but public access is restricted post-CJEU (legitimate-interest regime). Catalogued for completeness only — project rule: never assume open UBO data."
+    },
+    {
+      "name": "CSSF Search Entities (supervised entities database)",
+      "url": "https://edesk.apps.cssf.lu/search-entities/search?lng=en",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live (searchentities.apps.cssf.lu 302→edesk.apps.cssf.lu; SPA shell only via plain fetch). Covers banks, PFS, IFMs/AIFMs, UCIs, VASPs/CASPs by category; CSSF documentation states data downloadable as PDF/CSV in-app."
+    },
+    {
+      "name": "CSSF bulk XLSX lists (e.g. AIFs under management quarterly list)",
+      "url": "https://www.cssf.lu/wp-content/uploads/AIFS_UNDER_MANAGEMENT_QUARTERLY_LIST.xlsx",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Direct XLSX URL surfaced in search results — CSSF publishes flat-file lists under /wp-content/uploads/ (AIF quarterly list, UCI lists, banks/PFS lists). Matches the project's already-harvested CSSF bulk-file route. File itself not downloaded in this pass."
+    },
+    {
+      "name": "CSSF Publication & Data library (official lists: banks, PFS, IFMs, UCIs, depositaries, administrators)",
+      "url": "https://www.cssf.lu/en/publication-data/",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search (2,853 results in library). Filterable document library including 'Lists' document type — the index for hunting fund-administrator, depositary and PFS lists. Note /en/document-type/list/ guess returned 404; filter within the library instead."
+    },
+    {
+      "name": "CSSF crypto-assets / VASP-CASP register pages",
+      "url": "https://www.cssf.lu/en/crypto-assets/",
+      "side": "entities",
+      "category": "crypto-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified page exists. VASP list and MiCA CASP/EMT/ART supervised entities are exposed through the Search Entities app (JS); MiCA transition ended 1 July 2026 so CASP list is now the operative register. EU-wide cross-check via ESMA register."
+    },
+    {
+      "name": "CSSF public register of approved audit firms (réviseurs d'entreprises agréés)",
+      "url": "https://www.cssf.lu/en/publication-data/",
+      "side": "entities",
+      "category": "auditor-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "CSSF is audit oversight authority and maintains the public REA/audit-firm register (confirmed via Guichet.lu and IRE secondary sources); exact register URL not pinned down in this pass — locate via the publication library."
+    },
+    {
+      "name": "Banque centrale du Luxembourg (BCL) — registers and statistics",
+      "url": "https://www.bcl.lu/en/index.html",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "rssUrl": "https://www.bcl.lu/en/support/rss/00_rssfeed.rss",
+      "verdict": "Verified live. Publishes official registers (designated payment/settlement systems, third-country systems), MFI/credit-institution reporting populations, and extensive statistics; RSS feed present in site structure."
+    },
+    {
+      "name": "CAA — Commissariat aux Assurances operator lists",
+      "url": "https://www.caa.lu/en/operators",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: caa.lu serves per-category operator lists as plain pages (life/non-life insurers, reinsurers, PSA, brokers/agents/agencies with ?l= pagination, domiciliaries). The reinsurance-captive and PSA lists are directly relevant to alt-fund service graph and ILS."
+    },
+    {
+      "name": "CAA pension funds list (CAA-supervised pension vehicles)",
+      "url": "https://www.caa.lu/en/operators",
+      "side": "entities",
+      "category": "pension-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "CAA supervises certain pension funds (verified in CAA's own scope statement); CSSF supervises SEPCAV/ASSEP separately (in CSSF lists). Together these are the LP-side registers for Luxembourg."
+    },
+    {
+      "name": "Administration de l'environnement — Luxembourg EU ETS registry (Union Registry national accounts)",
+      "url": "https://environnement.public.lu/fr/emweltprozeduren/Autorisations/ETS_systeme_dechange_de_quotas_demission_de_gaz_a_effet_de_serre/registre-emissions-gaz-serre.html",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Verified via search: Administration de l'environnement is the national administrator of the Luxembourg part of the Union Registry; pages cover ETS1/ETS2 and account opening. Account-holder data itself sits in the EU Union Registry / EUTL."
+    },
+    {
+      "name": "ESMA registers (CASPs, AIFMD passporting, MiFID firms — LU filter)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "eu-regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Not re-verified this pass but well-established open register with machine-readable access; CSSF itself points consumers to the ESMA register for CASP verification. Useful LU cross-check and passporting view."
+    },
+    {
+      "name": "ECB Banking Supervision — list of supervised entities (LU banks)",
+      "url": "https://www.bankingsupervision.europa.eu/banking/list/html/index.en.html",
+      "side": "entities",
+      "category": "banking-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Known-good ECB list (significant + less significant institutions, XLSX/PDF), referenced by CSSF publications; covers Luxembourg banking groups including depositary banks. URL not re-fetched this pass."
+    },
+    {
+      "name": "Legilux — Journal officiel du Grand-Duché (Mémorial A/B)",
+      "url": "https://legilux.public.lu/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (minimal server-rendered shell). Official legislation gazette with ELI-structured URIs; company publications moved to RESA in 2016, so Legilux matters for laws/regulatory instruments rather than entity events."
+    },
+    {
+      "name": "Justice.public.lu — courts portal (insolvency/faillites information)",
+      "url": "https://justice.public.lu/",
+      "side": "entities",
+      "category": "court-insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass. Bankruptcy judgments are legally published via RESA and the court registry; the justice portal documents procedure and curator appointments. Use RESA as the machine route for insolvency events."
+    },
+    {
+      "name": "Portail des marchés publics (PMP)",
+      "url": "https://pmp.b2g.etat.lu/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live via search (individual consultation pages resolve). Central e-procurement portal for tender notices and e-submission; interactive app, no obvious bulk export — above-threshold notices mirrored on TED."
+    },
+    {
+      "name": "marches.public.lu — public procurement information portal",
+      "url": "https://marches.public.lu/fr.html",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified in search results as the state's procurement information site accompanying PMP. Not fetched directly."
+    },
+    {
+      "name": "TED — Tenders Electronic Daily (Luxembourg notices)",
+      "url": "https://ted.europa.eu/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "EU-level with documented public API and bulk XML; the reliable machine route for LU above-threshold procurement. Not re-verified this pass (well-known)."
+    },
+    {
+      "name": "Luxembourg Stock Exchange (LuxSE) — securities and issuer search, official list",
+      "url": "https://www.luxse.com/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. ISIN/issuer search, official list access, new listings, market data; ~40k listed securities incl. the world's largest bond-listing venue — key for fund/SPV/CLO issuance discovery. Heavier data likely behind JS or paid services."
+    },
+    {
+      "name": "LGX — Luxembourg Green Exchange (sustainable securities display)",
+      "url": "https://www.luxse.com/discover-lgx",
+      "side": "entities",
+      "category": "stock-exchange-esg",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "LGX section confirmed prominent on verified luxse.com homepage; this deep URL not individually fetched. Green/social/sustainability bond issuer universe — relevant to energy-transition and ESG alts."
+    },
+    {
+      "name": "LPEA — Luxembourg Private Equity & Venture Capital Association members list",
+      "url": "https://lpea.lu/membership/members-list/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live and public: searchable directory with membership type, organisation type, investment focus and industry focus fields — rendered by a JS smart-search component (shortcode lpea_member_smart_search), so needs headless or endpoint discovery. Note /members/ path is password-protected; use /membership/members-list/."
+    },
+    {
+      "name": "ALFI — Association of the Luxembourg Fund Industry",
+      "url": "https://www.alfi.lu/",
+      "side": "entities",
+      "category": "fund-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch attempt failed (connection refused from this environment) — could not verify the membership directory URL. ALFI is real and central (fund industry association); retry from another network."
+    },
+    {
+      "name": "ABBL — Luxembourg Bankers' Association",
+      "url": "https://www.abbl.lu/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Site verified live (professional pages resolve) but my guessed members-directory URL (/en/members/) returned 404 — public member list location unconfirmed."
+    },
+    {
+      "name": "ACA — Association des Compagnies d'Assurances et de Réassurances",
+      "url": "https://www.aca.lu/en/about-us/who-we-are/",
+      "side": "entities",
+      "category": "insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live pages; 146 members stated. Full public member directory not confirmed — CAA regulator lists are the more complete machine route for the insurance population."
+    },
+    {
+      "name": "Luxembourg for Finance — financial centre agency",
+      "url": "https://www.luxembourgforfinance.com/",
+      "side": "entities",
+      "category": "promotion-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; well-established public-private financial-centre development agency (House of Finance, alongside ABBL/ALFI/ACA per verified ACA pages). Sector reports and ecosystem mapping."
+    },
+    {
+      "name": "LHoFT — Luxembourg House of Financial Technology",
+      "url": "https://lhoft.com/",
+      "side": "entities",
+      "category": "fintech-hub",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass. Fintech hub with resident/member startup listings — useful for tokenized-RWA and fund-tech entity discovery."
+    },
+    {
+      "name": "Luxinnovation — national innovation agency",
+      "url": "https://www.luxinnovation.lu/",
+      "side": "entities",
+      "category": "promotion-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; real national agency, operates startup ecosystem mapping with Dealroom (see Startup Luxembourg)."
+    },
+    {
+      "name": "Startup Luxembourg — national startup database (Dealroom-powered)",
+      "url": "https://www.startupluxembourg.com/",
+      "side": "entities",
+      "category": "startup-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Not fetched this pass; known Luxinnovation/Dealroom ecosystem database of LU startups — JS app. Market-map use only where Dealroom ToS applies to embedded data."
+    },
+    {
+      "name": "SNCI — Société Nationale de Crédit et d'Investissement",
+      "url": "https://www.snci.lu/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; Luxembourg's national development bank (loans, equity participations) — annual reports disclose participations. Real institution, URL standard."
+    },
+    {
+      "name": "Chambre de Commerce Luxembourg",
+      "url": "https://www.cc.lu/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; mandatory-membership chamber, economic publications and company services. Not a register substitute (use LBR)."
+    },
+    {
+      "name": "Barreau de Luxembourg — annuaire des avocats",
+      "url": "https://www.barreau.lu/annuaire/",
+      "side": "entities",
+      "category": "bar-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: public directory of ~713 law firms/études with contacts. Insolvency curators are drawn from the bar — relevant to distressed/NPL service graph. Respect the no-personal-data-at-scale rule: firm-level only."
+    },
+    {
+      "name": "IRE — Institut des Réviseurs d'Entreprises",
+      "url": "https://www.ire.lu/",
+      "side": "entities",
+      "category": "auditor-institute",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real professional institute of approved statutory auditors (REA); confirmed via Guichet.lu secondary sources. Member roll location not verified — CSSF's public audit register is the authoritative list."
+    },
+    {
+      "name": "OEC — Ordre des Experts-Comptables",
+      "url": "https://www.oec.lu/",
+      "side": "entities",
+      "category": "accountant-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real chartered-accountants order with a public register (confirmed via secondary source ilicompta.lu); directory URL not verified this pass. Relevant to fund-administration service graph."
+    },
+    {
+      "name": "RICS — regulated firms directory (Luxembourg filter)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; RICS's find-a-firm service is the standard public route to accredited valuers operating in LU real estate. Verify LU filtering before adapter work."
+    },
+    {
+      "name": "FDC — Fonds de Compensation (sovereign pension reserve fund)",
+      "url": "https://www.fdc.lu/",
+      "side": "entities",
+      "category": "pension-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; real state pension reserve fund (~€27bn class), publishes annual reports with external-manager mandates — a genuine LP-side signal source."
+    },
+    {
+      "name": "STATEC — national statistics institute",
+      "url": "https://statec.gouvernement.lu/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Not fetched this pass; official statistics office with open datasets (business demography, finance sector) also mirrored on data.public.lu. Context/denominator data, not entity records."
+    },
+    {
+      "name": "EIB — European Investment Bank (HQ Luxembourg) project & data portal",
+      "url": "https://www.eib.org/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Not re-verified this pass; EIB is headquartered in Luxembourg and publishes a public financed-projects database and open-data portal — DFI/LP-side signals for European infra and credit."
+    },
+    {
+      "name": "EIF — European Investment Fund equity & guarantee mandates",
+      "url": "https://www.eif.org/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Not re-verified this pass; EIF (Luxembourg-based) discloses fund commitments and intermediaries lists publicly — one of the best open LP-side sources for European PE/VC fund discovery."
+    },
+    {
+      "name": "Paperjam — business daily (Maison Moderne)",
+      "url": "https://paperjam.lu/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site verified live; the leading LU business medium (FR). No working RSS found — /rss and /feed both 404; distribution is via newsletters. Headline+link ingest would need HTML parsing of section pages."
+    },
+    {
+      "name": "Delano — English-language business news (Maison Moderne)",
+      "url": "https://delano.lu/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real and active (same publisher as Paperjam); /rss returned 404, no feed URL found. English-language finance/fund coverage of the LU centre."
+    },
+    {
+      "name": "Luxembourg Times",
+      "url": "https://www.luxtimes.lu/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch blocked from this environment (unable to fetch); real English daily (Mediahuis Luxembourg). RSS availability unconfirmed; partial paywall expected."
+    },
+    {
+      "name": "Luxemburger Wort",
+      "url": "https://www.wort.lu/",
+      "side": "news",
+      "category": "news-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; the largest LU daily (DE/FR, Mediahuis). Paywalled; feed status unverified. Business desk covers finance centre and insolvencies."
+    },
+    {
+      "name": "Tageblatt",
+      "url": "https://www.tageblatt.lu/",
+      "side": "news",
+      "category": "news-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; real second daily (Editpress). Feed status unverified."
+    },
+    {
+      "name": "RTL Today / RTL.lu",
+      "url": "https://today.rtl.lu/",
+      "side": "news",
+      "category": "news-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch blocked from this environment; RTL is the dominant broadcaster with English (Today) and Luxembourgish news. RSS endpoint unconfirmed."
+    },
+    {
+      "name": "Chronicle.lu",
+      "url": "https://www.chronicle.lu/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: English news portal with business/finance sections; server-rendered and parseable, but no RSS feed visible (daily eNewsletter instead)."
+    },
+    {
+      "name": "Silicon Luxembourg — startup & tech media",
+      "url": "https://www.siliconluxembourg.lu/",
+      "side": "news",
+      "category": "news-startup",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.siliconluxembourg.lu/feed/",
+      "verdict": "VERIFIED WORKING RSS (RSS 2.0, items current to Aug 2026). Best open feed for LU startup/VC/space/fintech signals."
+    },
+    {
+      "name": "Investment Officer Luxembourg — fund industry media",
+      "url": "https://www.investmentofficer.lu/",
+      "side": "news",
+      "category": "news-funds",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real specialist fund-industry outlet (EN/FR); /en/rss.xml returned 404 so feed unconfirmed. High-signal coverage of ManCos, AIFMs, private markets in LU."
+    },
+    {
+      "name": "AGEFI Luxembourg — financial monthly",
+      "url": "https://www.agefi.lu/",
+      "side": "news",
+      "category": "news-financial",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; long-standing LU financial publication (FR/EN). Feed status unverified."
+    },
+    {
+      "name": "Reporter.lu — investigative journalism",
+      "url": "https://www.reporter.lu/",
+      "side": "news",
+      "category": "news-investigative",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; real subscription investigative outlet, occasionally deep finance/fund exposés. Paywalled — headline+link only."
+    },
+    {
+      "name": "Lëtzebuerger Journal",
+      "url": "https://www.journal.lu/",
+      "side": "news",
+      "category": "news-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; real digital-first outlet. Lower finance density than Paperjam/Delano."
+    },
+    {
+      "name": "CSSF news & communiqués",
+      "url": "https://www.cssf.lu/en/news/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cssf.lu/en/rss-feed/",
+      "verdict": "Verified live: communiqués, press releases (incl. entity dissolutions/withdrawals — direct alt-signals), circulars, FAQs, statistics; page links 'Subscribe to the RSS feed' at /en/rss-feed/ (subscription page — resolve the concrete feed URL there)."
+    },
+    {
+      "name": "BCL press & statistical releases",
+      "url": "https://www.bcl.lu/en/Media-and-News/index.html",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.bcl.lu/en/support/rss/00_rssfeed.rss",
+      "verdict": "BCL homepage verified with press/statistical release sections and an RSS icon referencing support/rss/00_rssfeed.rss; this deep press URL itself not individually fetched."
+    },
+    {
+      "name": "Ministry of Finance press (mfin.gouvernement.lu)",
+      "url": "https://mfin.gouvernement.lu/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; standard gouvernement.lu ministry subsite with press releases on financial-centre policy. gouvernement.lu sites historically expose RSS — verify per-site."
+    },
+    {
+      "name": "Gouvernement.lu — government news portal",
+      "url": "https://gouvernement.lu/",
+      "side": "news",
+      "category": "government-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this pass; central government news/press portal covering all ministries (economy, environment/ETS, justice). Feed status unverified."
+    },
+    {
+      "name": "LuxSE press centre & 'Beyond the bell'",
+      "url": "https://www.luxse.com/",
+      "side": "news",
+      "category": "exchange-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified on live luxse.com: dedicated press centre plus blog; listings/new-issuance announcements are direct signals for fund/SPV/bond activity. A LuxSE RSS feed historically existed (announced via Paperjam) — current feed URL unconfirmed."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Deep coverage of Luxembourg as Europe's #1 fund domicile: AIFs, RAIFs, SIFs, SCSp structures, AIFM/ManCo mapping, LP commitments into LU vehicles. Weak on the local service-provider graph below top-tier admins.",
+      "publicSourcesTheyUse": "CSSF official lists and bulk XLSX files (AIFM/UCI/AIF lists), LBR/RCS filings and RESA publications, LuxSE prospectuses and official list, ALFI/LPEA reports and statistics — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Strong on PE/VC deals and funds whose vehicles sit in Luxembourg (SCSp/SCA fund entities, holdcos); good GP/LP linkage. LU-specific entity depth is filings-driven and patchy for smaller structures.",
+      "publicSourcesTheyUse": "RCS/RESA incorporation and capital-change filings, LuxSE bond/fund listings, press (Paperjam, Delano, wire services), fund-manager websites."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Powers the official national startup database (Startup Luxembourg with Luxinnovation), so LU startup/VC coverage is unusually good for a small market; thin on funds, credit, real assets.",
+      "publicSourcesTheyUse": "Luxinnovation ecosystem data, startup self-reporting, Silicon Luxembourg and general press, registry cross-checks against RCS — the underlying public routes (Luxinnovation, press, RCS) are open to us."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Basic LU startup and funding-round coverage; self-reported and press-driven, weak entity resolution against RCS names; almost no fund/AIFM coverage.",
+      "publicSourcesTheyUse": "Press releases, Silicon Luxembourg-type media, company self-submissions."
+    },
+    {
+      "platform": "Monterey Insight (local specialist)",
+      "coverageNotes": "The Luxembourg Fund Report — the reference local dataset on fund service providers: market shares of fund administrators, custodians/depositaries, auditors, legal advisers, ManCos per fund. Exactly our category-6 service graph.",
+      "publicSourcesTheyUse": "Fund annual reports and prospectuses (filed via RCS/LuxSE), CSSF UCI/AIF lists, LuxSE official list — all public and directly harvestable by us."
+    },
+    {
+      "platform": "Kneip (Deutsche Börse) / LuxSE-Fundsquare data services",
+      "coverageNotes": "LU-based fund reference-data and reporting utilities; cover fund document/data dissemination for domiciled funds. Infrastructure providers more than intelligence competitors, but their existence shows the underlying data flows.",
+      "publicSourcesTheyUse": "CSSF filings, fund prospectuses/KIDs, LuxSE official list — the official-list and CSSF routes are open."
+    },
+    {
+      "platform": "OpenCorporates / Kyckr / Topograph / Zephira (registry resellers)",
+      "coverageNotes": "Resell or guide access to LU company-register data; OpenCorporates lists the RCS as register #144. Coverage is raw register-grade with no alternatives-specific enrichment.",
+      "publicSourcesTheyUse": "LBR RCS portal and open-data API, RESA gazette, data.public.lu CC0 datasets — confirming our direct tier-1 route is viable."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not found/confirmed: (1) working RSS feeds for Paperjam and Delano — /rss and /feed both 404; Maison Moderne appears to have moved distribution to newsletters; (2) a public ABBL member-directory URL — site live but /en/members/ 404; (3) ALFI membership directory — alfi.lu refused connections from this environment, unverified; (4) a single full-register RCS bulk dump — data.public.lu hosts RCS datasets and LBR has an open-data API, but the exact bulk dataset pages are JS-rendered and were not individually confirmed; (5) open UBO data — RBE access is restricted post-CJEU (expected, per project rule); (6) a confirmed current LuxSE RSS feed URL (one was announced historically); (7) Luxembourg Times and RTL feeds — both hosts blocked plain fetch; (8) any LU-specific litigation-funding, royalty, or private-carbon registry — none exists; carbon route is the EU Union Registry/EUTL with Administration de l'environnement as national administrator; (9) CSSF /en/document-type/list/ and /en/supervised-entities/ guessed URLs — 404; correct routes are the Publication & Data library and the edesk Search Entities SPA."
+}

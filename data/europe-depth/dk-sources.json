@@ -1,0 +1,648 @@
+{
+  "country": "DK",
+  "sources": [
+    {
+      "name": "CVR — Det Centrale Virksomhedsregister (Virk)",
+      "url": "https://datacvr.virk.dk",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Canonical Danish company register, genuinely open and free. Full company records, ownership (legal owners + beneficial-owner registrations where public), status incl. bankruptcy/dissolution. Verified live via Erhvervsstyrelsen documentation."
+    },
+    {
+      "name": "CVR system-til-system Elasticsearch API",
+      "url": "http://distribution.virk.dk/cvr-permanent",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Near-real-time full-register JSON via Elasticsearch (v6.8) REST _search endpoint. Free credentials by emailing cvrselvbetjening@erst.dk + signing a data-conditions declaration. Confirmed via erhvervsstyrelsen.dk docs ('Kom godt igang med Elasticsearch'). This is the backbone entity source for DK."
+    },
+    {
+      "name": "Virk Datahub — open dataset catalog (CVR datasets)",
+      "url": "http://datahub.virk.dk/dataset/system-til-system-adgang-til-cvr-data",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Official dataset catalog page for CVR system-to-system access; confirmed exists via search. Entry point for bulk CVR data documentation."
+    },
+    {
+      "name": "CVR regnskabsdata — published annual reports (XBRL) system-to-system",
+      "url": "https://datacvr.virk.dk/artikel/system-til-system-adgang-til-regnskabsdata",
+      "side": "entities",
+      "category": "financial-statements",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "All published Danish annual reports (XBRL + PDF) retrievable machine-to-machine — deterministic financials for fund SPVs, GPs, portfolio companies, servicers. Page confirmed to exist via search results; same ERST access regime as CVR."
+    },
+    {
+      "name": "Erhvervsstyrelsen (Danish Business Authority)",
+      "url": "https://erhvervsstyrelsen.dk",
+      "side": "entities",
+      "category": "commercial-register-authority",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Parent authority for CVR, XBRL filings, and the Danish EU ETS national registry administration. Site returned 403 to our fetcher (bot protection) but its Elasticsearch documentation page appeared in search results — real, but crawl politely."
+    },
+    {
+      "name": "Finanstilsynet Virksomhedsregister (Danish FSA company register)",
+      "url": "https://virksomhedsregister.finanstilsynet.dk/",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "The register of all FSA-licensed/registered firms: banks, AIFMs, UCITS ManCos, investment firms, insurers, pension funds, crypto/MiCA CASPs. Verified it is a JS app shell (loading spinners, no data in HTML, no documented API) — the XHR endpoint must be captured in a live browser session. Key AIFM/ManCo source once the endpoint is found."
+    },
+    {
+      "name": "Finanstilsynet register — virksomhedsområder (business areas incl. fund managers, MiCA CASPs)",
+      "url": "https://virksomhedsregister.finanstilsynet.dk/virksomhedsomraader.html",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Area-segmented views of the same register (confirmed URL via search). Denmark has no separate pension regulator — Finanstilsynet supervises pension funds too, so this register is also the LP-side license list."
+    },
+    {
+      "name": "Danmarks Nationalbank",
+      "url": "https://www.nationalbanken.dk",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Central bank; MFI/financial statistics, publications. Site verified live; no RSS found — daily email newsletter offered instead."
+    },
+    {
+      "name": "Danmarks Nationalbank StatBank",
+      "url": "https://nationalbanken.statistikbank.dk",
+      "side": "entities",
+      "category": "central-bank-statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Nationalbank's statistics bank runs on the same engine as Statistics Denmark's StatBank (open JSON API pattern). Investment-fund, securities and financial-accounts series. Not fetched directly this session; engine verified via api.statbank.dk."
+    },
+    {
+      "name": "EU ETS Union Registry / EUTL — Danish accounts (national administrator: Erhvervsstyrelsen)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Danish operator-holding and trading accounts are public in the EU Transaction Log. The Danish national administrator is Erhvervsstyrelsen (its kvoteregister page returned 403 to our bot). EUTL itself is crawlable HTML — the carbon-alts entity source for DK."
+    },
+    {
+      "name": "Statstidende (official gazette)",
+      "url": "https://www.statstidende.dk",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Official gazette: bankruptcy decrees, compulsory dissolutions, estate/creditor calls, debt restructuring. Site verified live but is a JS SPA; use the API instead."
+    },
+    {
+      "name": "Statstidende API",
+      "url": "https://api.statstidende.dk/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Endpoint verified live (page titled 'Statstidende API'). JSON; requires certificate-based registration per datavejviser.dk. This is the machine route to Danish insolvency notices — the distressed/NPL signal spine."
+    },
+    {
+      "name": "Danmarks Domstole / Sø- og Handelsretten (bankruptcy court)",
+      "url": "https://www.domstol.dk",
+      "side": "entities",
+      "category": "court-insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "The Maritime & Commercial Court's Skifteret handles Copenhagen-area insolvencies and appoints kuratorer. Not fetched this session; well-established official site. Insolvency notices themselves flow through Statstidende."
+    },
+    {
+      "name": "Domsdatabasen (court decisions database)",
+      "url": "https://domsdatabasen.dk",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: ~8,400 decisions since Jan 2022, run by Domstolsstyrelsen. Pseudonymized (no party-name search), no public API found. Useful for litigation-funding context, limited for entity mapping."
+    },
+    {
+      "name": "Tinglysning.dk (digital land & charge register)",
+      "url": "https://www.tinglysning.dk",
+      "side": "entities",
+      "category": "land-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Denmark's digital land register (title, mortgages, charges — real-estate debt side). Our fetch got connection-refused (likely geo/bot filtering); the system is real and has system-to-system access for professional users. Needs browser/session verification."
+    },
+    {
+      "name": "Datafordeleren (state data distributor: BBR, property, addresses, CVR)",
+      "url": "https://datafordeler.dk",
+      "side": "entities",
+      "category": "property-open-data",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified live. Official distributor for basic registers (BBR buildings, land/matrikel, addresses, ownership lists, CVR). APIs free after registration + API key/OAuth. Core for real-assets coverage."
+    },
+    {
+      "name": "OIS — Den Offentlige Informationsserver (public property info)",
+      "url": "https://www.ois.dk",
+      "side": "entities",
+      "category": "property-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Long-standing public property information server (per-property lookups). Not fetched this session; being progressively superseded by Datafordeleren."
+    },
+    {
+      "name": "Nasdaq Copenhagen — listed companies (European market activity)",
+      "url": "https://www.nasdaq.com/european-market-activity/shares",
+      "side": "entities",
+      "category": "exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified: old nasdaqomxnordic.com issuer pages 301-redirect here; the new nasdaq.com pages are JS-rendered. No simple issuer-list download found on the new site — Wikipedia's Nasdaq Copenhagen list is a usable seed, and GlobeNewswire announcements (below) identify active issuers continuously."
+    },
+    {
+      "name": "Nasdaq Nordic & Baltic membership list (Excel)",
+      "url": "https://www.nasdaq.com/solutions/nordic-baltic-membership-list",
+      "side": "entities",
+      "category": "exchange-members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Official Excel download of exchange members (brokers/banks) across Nordic markets incl. Copenhagen. Confirmed via search; the execution-broker layer of the service graph."
+    },
+    {
+      "name": "Euronext Securities Copenhagen (CSD, formerly VP Securities)",
+      "url": "https://www.euronext.com/en/post-trade/euronext-securities/copenhagen",
+      "side": "entities",
+      "category": "csd",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Denmark's central securities depository — custody/issuance layer of the service graph. Not fetched this session; institutional site, real."
+    },
+    {
+      "name": "Aktive Ejere (formerly DVCA) — member directory",
+      "url": "https://aktiveejere.dk/",
+      "side": "entities",
+      "category": "association-pe-vc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live with an 'Alle medlemmer' directory spanning PE funds, VC funds, business angels, family offices, impact funds, institutional investors and advisors. IMPORTANT: DVCA rebranded — the old dvca.dk domain now serves a broken webhosting certificate; use aktiveejere.dk."
+    },
+    {
+      "name": "DanBAN — Danish Business Angels network",
+      "url": "https://www.danban.org/",
+      "side": "entities",
+      "category": "association-business-angels",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Denmark's leading angel network (DKK 3bn+ invested, 1,300+ startups) but NO public member roster — members-only portal. Useful for ecosystem context, not bulk entity extraction."
+    },
+    {
+      "name": "Finans Danmark — member list",
+      "url": "https://finansdanmark.dk/om-os/medlemmer/",
+      "side": "entities",
+      "category": "association-banking",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Banking association member list; URL confirmed from the verified homepage navigation. Covers banks and mortgage institutions."
+    },
+    {
+      "name": "Finans Danmark — Tal og data (incl. Investering Danmark fund statistics)",
+      "url": "https://finansdanmark.dk/tal-og-data/",
+      "side": "entities",
+      "category": "association-statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified section: housing-market, interest-rate and investment-fund statistics. Investering Danmark (the investment-fund industry body) sits under Finans Danmark — its fund stats live here."
+    },
+    {
+      "name": "Forsikring & Pension (F&P) — member list",
+      "url": "https://fogp.dk/om-os/medlemmer-af-fp/",
+      "side": "entities",
+      "category": "association-insurance-pension",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified: fogp.dk live with member-list link. Danish insurers + commercial pension companies — the institutional LP map for DK."
+    },
+    {
+      "name": "EjendomDanmark (real estate industry association)",
+      "url": "https://ejd.dk/",
+      "side": "entities",
+      "category": "association-real-estate",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: real-estate owners/investors/administrators association with administrator listing, market statistics and rulings database. Real-assets entity + signal source."
+    },
+    {
+      "name": "ATP",
+      "url": "https://www.atp.dk",
+      "side": "entities",
+      "category": "pension-fund-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Denmark's largest pension investor (major global alternatives LP). Annual reports and press are public. Not fetched this session — universally known institution."
+    },
+    {
+      "name": "EIFO — Export and Investment Fund of Denmark",
+      "url": "https://www.eifo.dk/en/",
+      "side": "entities",
+      "category": "dfi-promotional-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. National promotional bank + export credit agency (merger of Vækstfonden and EKF). Publishes investments (incl. VC fund commitments — an LP into Danish/European funds) and active news section."
+    },
+    {
+      "name": "IFU — Impact Fund Denmark (Investment Fund for Developing Countries)",
+      "url": "https://impactfund.dk/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified: ifu.dk 301-redirects to impactfund.dk (rebrand of the 1967 DFI). DKK 25.7bn capital, 189-company portfolio list published, active news."
+    },
+    {
+      "name": "Invest in Denmark (Ministry of Foreign Affairs)",
+      "url": "https://investindk.com/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. FDI promotion agency; sector landscape material rather than a register."
+    },
+    {
+      "name": "Copenhagen Fintech — member directory",
+      "url": "https://copenhagenfintech.dk/",
+      "side": "entities",
+      "category": "fintech-hub-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: 100+ fintech startup members plus corporate partners listed on-site. Good niche-alts/service-graph seed list."
+    },
+    {
+      "name": "The Hub — Nordic startup directory (Danske Bank/Rainmaking)",
+      "url": "https://thehub.io/startups",
+      "side": "entities",
+      "category": "startup-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live: ~11,000 Nordic startups with funding/job data, but Nuxt/JS-rendered (internal JSON API behind the frontend, not documented). Respect ToS; treat as discovery aid, and re-verify each entity against CVR."
+    },
+    {
+      "name": "Udbud.dk (national public procurement portal)",
+      "url": "https://udbud.dk/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site answers but serves an app shell with no crawlable content. Run by the Danish Competition and Consumer Authority. Use TED for machine access to Danish notices."
+    },
+    {
+      "name": "TED — Tenders Electronic Daily (Denmark filter)",
+      "url": "https://ted.europa.eu",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "EU procurement platform with documented open Search API and bulk XML downloads; filter country=DNK. The reliable machine route for Danish public contracts (infra/EPC/concession signals). Not re-fetched this session — well-documented public API."
+    },
+    {
+      "name": "Advokatnøglen (Danish Bar's lawyer directory)",
+      "url": "https://www.advokatnoeglen.dk/",
+      "side": "entities",
+      "category": "bar-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: 'contains information about all Danish lawyers', searchable by practice area (insolvency, M&A, capital markets) via plain HTML forms. Service-graph goldmine."
+    },
+    {
+      "name": "Danske Advokater (law firm association)",
+      "url": "https://www.danskeadvokater.dk",
+      "side": "entities",
+      "category": "association-law-firms",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The trade association of Danish law firms (complement to the Bar). Not fetched this session; real organization."
+    },
+    {
+      "name": "Kuratorforeningen (insolvency administrators association)",
+      "url": "https://www.kuratorforeningen.dk/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: members are kuratorer appointed by the Sø- og Handelsretten bankruptcy court; a 'Medlemmer' member list exists on-site. Denmark has no statutory public IP roll — this is the best proxy."
+    },
+    {
+      "name": "RICS — Find a Member / regulated firms (Denmark)",
+      "url": "https://www.rics.org/networking/find-a-member",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Global RICS directory filterable to Denmark for accredited valuers. Not fetched this session; RICS directory access can be interactive-only."
+    },
+    {
+      "name": "Finansiel Stabilitet (state bank wind-down entity)",
+      "url": "https://www.fs.dk/",
+      "side": "entities",
+      "category": "npl-distressed-state",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. State resolution entity winding up failed banks — publishes an 'Aktiver til salg' (assets for sale) section and quarterly/annual reports. Directly relevant to distressed/NPL coverage."
+    },
+    {
+      "name": "Statistics Denmark — StatBank API",
+      "url": "https://api.statbank.dk/console",
+      "side": "entities",
+      "category": "national-statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Verified live (Prod console). Fully open JSON API — sector counts, construction, property, macro context for coverage baselines."
+    },
+    {
+      "name": "GLEIF LEI search (Danish entities)",
+      "url": "https://search.gleif.org",
+      "side": "entities",
+      "category": "lei-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Open, documented GLEIF API; filter LegalAddress country=DK to map funds, SPVs, ManCos and their parent relationships. Not fetched this session — the API is publicly documented and free."
+    },
+    {
+      "name": "GlobeNewswire — News from Denmark (Nasdaq Copenhagen company announcements)",
+      "url": "https://www.globenewswire.com/en/search/country/Denmark",
+      "side": "news",
+      "category": "exchange-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.globenewswire.com/RssFeed/country/Denmark/feedTitle/GlobeNewswire%20-%20News%20from%20Denmark",
+      "verdict": "VERIFIED WORKING RSS: fetched live with Mærsk, Zealand Pharma, Sparinvest announcements. This is the de-facto disclosure feed for Nasdaq Copenhagen issuers (regulatory releases route through GlobeNewswire). Highest-value free signal feed for DK."
+    },
+    {
+      "name": "DR Nyheder — Penge (business/money desk)",
+      "url": "https://www.dr.dk/nyheder/penge",
+      "side": "news",
+      "category": "public-broadcaster-business",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.dr.dk/nyheder/service/feeds/penge",
+      "verdict": "VERIFIED WORKING RSS (fetched live, current items). Public broadcaster; free, stable, no paywall."
+    },
+    {
+      "name": "Børsen",
+      "url": "https://borsen.dk",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Denmark's leading business daily. Domain refuses our fetcher entirely; hard paywall; no public RSS confirmed. Headline-and-link monitoring only, likely via manual/browser tooling."
+    },
+    {
+      "name": "Finans (Jyllands-Posten business site)",
+      "url": "https://finans.dk",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major business news site. Domain refuses our fetcher; RSS status unverified. Real and active."
+    },
+    {
+      "name": "Berlingske Business",
+      "url": "https://www.berlingske.dk/business",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Business section of Berlingske. Domain refuses our fetcher; historic RSS endpoints unverified this session. Paywalled."
+    },
+    {
+      "name": "Politiken Økonomi",
+      "url": "https://politiken.dk/oekonomi",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Economy desk of Politiken. Domain refuses our fetcher; RSS unverified."
+    },
+    {
+      "name": "FinansWatch (Watch Medier)",
+      "url": "https://finanswatch.dk",
+      "side": "news",
+      "category": "trade-media-finance",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "The financial-sector trade daily. Domain blocks our fetcher; paywalled; no public RSS found despite targeted searching. Confirmed active via Watch Medier corporate site."
+    },
+    {
+      "name": "AMWatch (Watch Medier — Nordic asset management, English)",
+      "url": "https://amwatch.com",
+      "side": "news",
+      "category": "trade-media-asset-management",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (English-language, Nordic asset-management/pension coverage — directly on-thesis). /rss is 404; headlines visible in HTML; paywalled articles."
+    },
+    {
+      "name": "EjendomsWatch (Watch Medier — real estate)",
+      "url": "https://ejendomswatch.dk",
+      "side": "news",
+      "category": "trade-media-real-estate",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The real-estate industry's trade daily (confirmed active via Watch Medier). Fetch blocked; no public RSS found; paywalled."
+    },
+    {
+      "name": "EnergiWatch (Watch Medier — energy)",
+      "url": "https://energiwatch.dk",
+      "side": "news",
+      "category": "trade-media-energy",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Energy-sector trade daily (renewables/transition deal signals). Confirmed in Watch Medier portfolio; not fetchable by our tools; paywalled."
+    },
+    {
+      "name": "KapitalWatch (Watch Medier — capital markets/PE)",
+      "url": "https://kapitalwatch.dk",
+      "side": "news",
+      "category": "trade-media-capital-markets",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Listed in Watch Medier's current 16-title portfolio (capital markets coverage). URL not individually fetched — verify in browser; likely same paywall/bot-block regime."
+    },
+    {
+      "name": "AdvokatWatch (Watch Medier — legal industry)",
+      "url": "https://advokatwatch.dk",
+      "side": "news",
+      "category": "trade-media-legal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Legal-industry trade daily — service-graph signals (law firm mandates, insolvency appointments). Confirmed in Watch Medier portfolio; not individually fetched."
+    },
+    {
+      "name": "ShippingWatch (Watch Medier — maritime)",
+      "url": "https://shippingwatch.com",
+      "side": "news",
+      "category": "trade-media-shipping",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Maritime/transport trade daily (relevant to real-asset and trade-finance signals in shipping-heavy Denmark). Confirmed in Watch Medier portfolio; not individually fetched."
+    },
+    {
+      "name": "InsideBusiness",
+      "url": "https://ib.dk/",
+      "side": "news",
+      "category": "trade-media-finance-ma",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (insidebusiness.dk 301s to ib.dk). Covers M&A, private equity/kapitalfonde, pensions, banking, insurance. Free newsletter + paid tier. Also runs InsideForsikring (insideforsikring.dk)."
+    },
+    {
+      "name": "InsidePrivateEquity",
+      "url": "https://insidepe.dk/",
+      "side": "news",
+      "category": "trade-media-private-equity",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: dedicated Danish/Nordic private-equity media (funds, exits, M&A, people moves). Directly on-thesis; subscription for depth, headlines visible."
+    },
+    {
+      "name": "Økonomisk Ugebrev",
+      "url": "https://ugebrev.dk/",
+      "side": "news",
+      "category": "financial-weekly",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: investigative finance/governance weekly since 1994 (finance, boards, asset management). Newsletter-first model; no RSS seen."
+    },
+    {
+      "name": "Bootstrapping.dk",
+      "url": "https://bootstrapping.dk",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://bootstrapping.dk/feed/",
+      "verdict": "VERIFIED WORKING RSS (fetched live — current items on Danish VC rounds, funds, founders). Free startup/VC media."
+    },
+    {
+      "name": "TechSavvy",
+      "url": "https://techsavvy.media",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://techsavvy.media/feed/",
+      "verdict": "Danish startup/tech-ecosystem media (WordPress). /feed/ returned 403 to our fetcher — a standard-UA crawler will likely succeed, but honestly: unverified this session."
+    },
+    {
+      "name": "Version2",
+      "url": "https://www.version2.dk",
+      "side": "news",
+      "category": "tech-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.version2.dk/it-nyheder/rss",
+      "verdict": "VERIFIED WORKING RSS (fetched live). Danish IT/tech professional media — data-center, AI, digital-infrastructure signals."
+    },
+    {
+      "name": "Danmarks Nationalbank — News & knowledge",
+      "url": "https://www.nationalbanken.dk/en/news-and-knowledge",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: press releases, analyses, working papers, speeches. No RSS found; daily-email newsletter offered. Crawlable HTML index."
+    },
+    {
+      "name": "Finanstilsynet — Nyheder og presse",
+      "url": "https://www.finanstilsynet.dk/nyheder-og-presse",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. FSA news, decisions, inspection reports, publication calendar, newsletter. No RSS found. Supervisory actions = high-authority signals."
+    },
+    {
+      "name": "Erhvervsministeriet (Ministry of Industry, Business and Financial Affairs) — press",
+      "url": "https://em.dk",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Ministry owning financial-sector and business legislation. Not fetched this session; real official site."
+    },
+    {
+      "name": "Finansministeriet (Ministry of Finance) — news",
+      "url": "https://fm.dk",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Ministry of Finance news/publications (state assets, fiscal policy). Not fetched this session; real official site."
+    },
+    {
+      "name": "State of Green",
+      "url": "https://stateofgreen.com",
+      "side": "news",
+      "category": "energy-transition-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Public-private green-transition portal (partners incl. Danish state and industry) — renewable/infra project news in English. Not fetched this session; RSS unverified."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Strong on Danish GPs (Axcel, Polaris, Maj Invest, Nordic Alpha, Seed Capital, NREP on real assets) and especially Danish LPs — ATP, PFA, PKA, PensionDanmark, Sampension are heavily profiled allocators. Fund-level performance where LPs disclose.",
+      "publicSourcesTheyUse": "Finanstilsynet AIFM/ManCo register, CVR filings and XBRL annual reports, pension funds' own annual/responsible-investment reports, press releases — all directly accessible to us via datacvr.virk.dk, virksomhedsregister.finanstilsynet.dk and fund websites."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "Good Danish deal coverage (VC rounds, buyouts, M&A) and advisor league tables; weaker on niche alts and the service graph.",
+      "publicSourcesTheyUse": "GlobeNewswire/Nasdaq Copenhagen announcements, CVR ownership changes, Aktive Ejere member activity, startup press (Bootstrapping, TechSavvy) — every one of these is public and catalogued above."
+    },
+    {
+      "platform": "Dealroom.co",
+      "coverageNotes": "Deep Danish startup/scale-up graph, ecosystem reports (often with public partners); strong on VC rounds and founder data, not on funds-as-entities or credit/real assets.",
+      "publicSourcesTheyUse": "The Hub startup directory, CVR register data, news crawling of Danish startup media, self-reported profiles. We can go to The Hub + CVR + Bootstrapping/TechSavvy RSS directly."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Danish startup coverage; self-reported, patchy on Danish-language sources.",
+      "publicSourcesTheyUse": "Press releases, self-registration, GlobeNewswire — nothing exclusive."
+    },
+    {
+      "platform": "The Hub (Danske Bank / Rainmaking) — LOCAL",
+      "coverageNotes": "~11,000 Nordic startups with funding stage, jobs, investors; the de-facto free Danish startup directory. Not a competitor for funds/credit/real assets.",
+      "publicSourcesTheyUse": "Startup self-registration + CVR verification. It is itself a public directory (JS app) — discovery aid only, re-verify against CVR."
+    },
+    {
+      "platform": "Lasso (lasso.dk / Lassox) — LOCAL",
+      "coverageNotes": "Danish company-intelligence platform (monitoring, credit, networks) built almost entirely on open registry data; strong CVR/network UX, no alternatives-specific taxonomy.",
+      "publicSourcesTheyUse": "CVR Elasticsearch distribution, published XBRL regnskaber, Statstidende notices — precisely the open pipes we catalogued; proof the primary sources support a full product."
+    },
+    {
+      "platform": "Proff.dk (Eniro) — LOCAL",
+      "coverageNotes": "Free Danish company lookup with financials and roles; consumer-grade, no alternatives lens.",
+      "publicSourcesTheyUse": "CVR + published annual reports (XBRL). Same open sources."
+    },
+    {
+      "platform": "cvr.dev / cvrapi.dk — LOCAL developer APIs",
+      "coverageNotes": "Thin commercial/free API wrappers over CVR for developers; validation that direct ERST Elasticsearch access is the canonical route (we should go direct, not through wrappers).",
+      "publicSourcesTheyUse": "ERST's distribution.virk.dk Elasticsearch and regnskabsdata feeds."
+    },
+    {
+      "platform": "BiQ (Ritzau) / NN Markedsdata (Dun & Bradstreet) — LOCAL legacy",
+      "coverageNotes": "Person-company network data (BiQ, used by journalists) and firmographic/credit data (NN/D&B); B2B sales orientation, no alternatives focus.",
+      "publicSourcesTheyUse": "CVR roles/ownership data, Statstidende, published accounts — all open."
+    },
+    {
+      "platform": "Experian Danmark (RKI) — LOCAL credit",
+      "coverageNotes": "Consumer/business credit and the RKI debtor register; closed proprietary negative-data, not replicable and not our lane.",
+      "publicSourcesTheyUse": "Own proprietary debtor registrations plus CVR/Statstidende; only the public layers (CVR, Statstidende) are accessible to us — do not touch the proprietary register."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not found or not confirmable: (1) Public RSS feeds for any Watch Medier title (FinansWatch/EjendomsWatch/EnergiWatch/KapitalWatch/AdvokatWatch) and for Børsen — none discoverable; these are hard-paywalled and their domains block our fetcher, so headline monitoring needs browser-grade tooling or licensing. (2) A documented public JSON/XHR endpoint behind the Finanstilsynet Virksomhedsregister SPA — the shell verifiably loads data via JS but the endpoint is undocumented; it must be captured live in DevTools (flagged as the single most valuable unlock for the AIFM/ManCo/MiCA layer). (3) Public Statstidende API documentation — the endpoint (api.statstidende.dk) is live but docs are sparse and access is certificate-gated per datavejviser.dk. (4) A statutory public roll of Danish insolvency practitioners — appointments are court-made; Kuratorforeningen membership is the best public proxy. (5) A bulk issuer-list download for Nasdaq Copenhagen on the new nasdaq.com (the old nasdaqomxnordic.com pages now 301 to JS pages; the Nordic membership-list Excel covers members, not issuers). (6) dvca.dk is dead (serves a mismatched webhosting certificate) — the association renamed to Aktive Ejere at aktiveejere.dk. (7) A separate Danish pension regulator — none exists; Finanstilsynet supervises pensions. (8) A Danish national voluntary carbon registry beyond the EU ETS Union Registry (Erhvervsstyrelsen-administered). (9) Erhvervsstyrelsen's kvoteregister page and ens.dk EU ETS pages returned 403/404 to our fetcher, so the exact Danish ETS-administration URL is unconfirmed. (10) Session constraint: the web-search budget was exhausted mid-run and several major dailies (Berlingske, Politiken, Finans.dk, Børsen) plus TechSavvy block automated fetching, so their RSS status is honestly marked unknown/js-blocked rather than assumed."
+}

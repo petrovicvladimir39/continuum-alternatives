@@ -1,5 +1,15 @@
 import "./env";
-import { createEntity, db, entities, entityTags, eq, organizations, resolveEntity } from "@continuum/db";
+import {
+  createEntity,
+  db,
+  entities,
+  entityClassifications,
+  entityTags,
+  eq,
+  organizations,
+  resolveEntity,
+} from "@continuum/db";
+import { classifyFromLicence } from "@continuum/shared";
 
 /**
  * CLEAN-100 Part 4 — national PE/VC association member directories (the GP
@@ -23,11 +33,13 @@ import { createEntity, db, entities, entityTags, eq, organizations, resolveEntit
 
 const UA = "ContinuumBot/1.0 (data platform; hello@continuumalternatives.com)";
 
+type AssocMember = { name: string; website?: string | null; category?: string };
+
 type AssocAdapter = {
   key: string;
   assoc: string;
   country: string;
-  fetch: () => Promise<{ name: string; website?: string | null }[]>;
+  fetch: () => Promise<AssocMember[]>;
 };
 
 async function fetchText(url: string): Promise<string> {
@@ -297,6 +309,62 @@ const ADAPTERS: AssocAdapter[] = [
       return collect(html, /"title":"([^"]{3,120})"/g).filter((r) => corporate.test(r.name));
     },
   },
+  // ── EUROPE DEPTH RUN adapters (probed 2026-08-04) ─────────────────────────
+  {
+    key: "bai",
+    assoc: "BAI (Bundesverband Alternative Investments)",
+    country: "DE",
+    fetch: async () => {
+      // TYPO3 solr member search, 12/page; block: results-topic (name) +
+      // results-tags (self-declared category — feeds the keyword classifier).
+      const out: AssocMember[] = [];
+      const seen = new Set<string>();
+      for (let page = 1; page <= 30; page++) {
+        const url =
+          page === 1
+            ? "https://www.bvai.de/en/bai-members"
+            : `https://www.bvai.de/en/bai-members?tx_solr%5Bpage%5D=${page}`;
+        const html = await fetchText(url);
+        let added = 0;
+        // Split on member blocks (anchor tags carry class="member"); within
+        // each, name + optional category tag.
+        for (const block of html.split('class="member"').slice(1)) {
+          const nameM = /<h3 class="results-topic">\s*([^<]{3,140}?)\s*<\/h3>/.exec(block);
+          if (nameM === null) {
+            continue;
+          }
+          const name = decodeEntities(nameM[1] ?? "");
+          if (name.length < 3 || seen.has(name.toLowerCase())) {
+            continue;
+          }
+          seen.add(name.toLowerCase());
+          const catM = /<div class="results-tags">\s*<p>\s*([^<]{3,120}?)\s*<\/p>/.exec(block);
+          const category = catM === null ? undefined : decodeEntities(catM[1] ?? "");
+          out.push({ name, ...(category !== undefined ? { category } : {}) });
+          added += 1;
+        }
+        if (added === 0) {
+          break;
+        }
+        await sleep(1200);
+      }
+      return out;
+    },
+  },
+  {
+    key: "bks",
+    assoc: "BKS (Bundesvereinigung Kreditankauf und Servicing)",
+    country: "DE",
+    fetch: async () => {
+      // The German NPL association — accordion titles are the member names.
+      // Every member is debt-purchase/servicing by charter; category fixed.
+      const html = await fetchText("https://bks-ev.de/mitglieder/aktuelle-mitglieder/");
+      return collect(html, /<h5 class="aagb__accordion_title">([^<]{3,120})<\/h5>/g).map((r) => ({
+        name: r.name.replace(/\s*\((Fördermitglied|Fördermitglieder)\)\s*$/i, ""),
+        category: "Kreditankauf und Servicing (NPL)",
+      }));
+    },
+  },
 ];
 
 async function main(): Promise<void> {
@@ -311,7 +379,7 @@ async function main(): Promise<void> {
     if (only !== null && !only.has(adapter.key)) {
       continue;
     }
-    let members: { name: string; website?: string | null }[];
+    let members: AssocMember[];
     try {
       members = (await adapter.fetch()).slice(0, cap);
     } catch (error) {
@@ -325,6 +393,7 @@ async function main(): Promise<void> {
     let created = 0;
     let merged = 0;
     let ambiguous = 0;
+    let classified = 0;
     const tag = `assoc_${adapter.key}`;
     for (const member of members) {
       const resolved = await resolveEntity({
@@ -332,6 +401,7 @@ async function main(): Promise<void> {
         country: adapter.country,
         kindHint: "organization",
       });
+      let entityId: string | undefined;
       if (resolved.outcome === "matched" && resolved.entityId !== undefined) {
         const tagRows = await db
           .select({ tag: entityTags.tag })
@@ -341,28 +411,49 @@ async function main(): Promise<void> {
           await db.insert(entityTags).values([{ entityId: resolved.entityId, tag }]);
         }
         merged += 1;
-        continue;
-      }
-      if (resolved.outcome === "ambiguous") {
+        entityId = resolved.entityId;
+      } else if (resolved.outcome === "ambiguous") {
         ambiguous += 1;
         continue;
+      } else {
+        const entity = await createEntity({
+          kind: "organization",
+          name: member.name,
+          country: adapter.country,
+          tags: [tag, "needs_verification"],
+        });
+        await db.update(entities).set({ status: "provisional" }).where(eq(entities.id, entity.id));
+        await db.insert(organizations).values({
+          entityId: entity.id,
+          website: member.website ?? null,
+          verificationNote: `${adapter.assoc} member directory (awaiting verification)`,
+        });
+        created += 1;
+        entityId = entity.id;
       }
-      const entity = await createEntity({
-        kind: "organization",
-        name: member.name,
-        country: adapter.country,
-        tags: [tag, "needs_verification"],
-      });
-      await db.update(entities).set({ status: "provisional" }).where(eq(entities.id, entity.id));
-      await db.insert(organizations).values({
-        entityId: entity.id,
-        website: member.website ?? null,
-        verificationNote: `${adapter.assoc} member directory (clean-100 Part 4; awaiting verification)`,
-      });
-      created += 1;
+      // Self-declared directory category → deterministic keyword classifier →
+      // PROPOSED classification (source 'keyword' is never auto-approved).
+      if (entityId !== undefined && member.category !== undefined) {
+        const cls = classifyFromLicence(member.category);
+        if (cls !== undefined) {
+          await db
+            .insert(entityClassifications)
+            .values({
+              entityId,
+              assetClass: cls.l1,
+              strategy: cls.l3 ?? "",
+              subClass: cls.l2 ?? null,
+              source: "keyword",
+              status: "proposed",
+              confidence: "0.70",
+            })
+            .onConflictDoNothing();
+          classified += 1;
+        }
+      }
     }
     summary.push(
-      `✓ ${adapter.assoc}: ${members.length} names — created ${created} provisional, merged ${merged}, ambiguous ${ambiguous}`,
+      `✓ ${adapter.assoc}: ${members.length} names — created ${created} provisional, merged ${merged}, ambiguous ${ambiguous}, classifications proposed ${classified}`,
     );
     await sleep(1500);
   }

@@ -1,0 +1,642 @@
+{
+  "country": "NO",
+  "sources": [
+    {
+      "name": "Brønnøysundregistrene — Enhetsregisteret open API",
+      "url": "https://data.brreg.no/enhetsregisteret/api/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED this session: fully open HAL/JSON REST API, no auth. Endpoints for enheter, underenheter, organisasjonsformer, and change feeds (/oppdateringer) — ideal for incremental sync. Gold-standard national register API."
+    },
+    {
+      "name": "Brønnøysundregistrene — full dataset downloads",
+      "url": "https://data.brreg.no/enhetsregisteret/api/enheter/lastned",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Bulk gzip JSON download of the entire Enhetsregisteret (all Norwegian legal entities), documented alongside the open API. Not fetched this session but part of the same open-data service; also cataloged on data.norge.no."
+    },
+    {
+      "name": "Foretaksregisteret (Register of Business Enterprises)",
+      "url": "https://www.brreg.no/en/about-us-2/our-registers/about-the-register-of-business-enterprises/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Company-law register (roles, capital, signatories) behind Brreg; role and registration data exposed via the same data.brreg.no API family. Site verified indirectly via brreg.no announcement page fetch."
+    },
+    {
+      "name": "Regnskapsregisteret (Register of Company Accounts)",
+      "url": "https://www.brreg.no/en/about-us-2/our-registers/about-the-register-of-company-accounts/",
+      "side": "entities",
+      "category": "annual-accounts",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Annual accounts for all Norwegian companies. Individual accounts orderable; a machine route exists (regnskapsregisteret API) but terms/auth for bulk not verified this session — flag for adapter research. Financials here are what Proff/Purehelp resell."
+    },
+    {
+      "name": "Løsøreregisteret (Register of Movable Property / charges)",
+      "url": "https://www.brreg.no/en/about-us-2/our-registers/about-the-register-of-mortgaged-movable-property/",
+      "side": "entities",
+      "category": "charges-security-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Security interests/charges over movables — high value for private-debt signals (who is pledging what). Public lookup exists; machine access not verified this session."
+    },
+    {
+      "name": "Finanstilsynet Registry (Virksomhetsregisteret) — search UI",
+      "url": "https://www.finanstilsynet.no/en/finanstilsynets-registry/",
+      "side": "entities",
+      "category": "financial-regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED this session: covers all licensees under FSA supervision — AIFMs (incl. sub-threshold registered AIFMs), AIFs, EuVECA/ELTIF, investment firms, ManCos, and crypto/virtual-currency providers. Reports feature allows filtered downloads by licence type. Updated hourly. Note: since 1 Oct 2025 EEA-passported marketed funds are no longer included."
+    },
+    {
+      "name": "Finanstilsynet Registry API v1",
+      "url": "https://api.finanstilsynet.no/registry/v1/",
+      "side": "entities",
+      "category": "financial-regulator-register-api",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "OAS 3.0 REST API for the full FSA registry (found via search, doc page confirmed to exist). This is the machine route already partially harvested — extend to pull all licence types incl. VASP/crypto registrations."
+    },
+    {
+      "name": "Norges Bank open data API",
+      "url": "https://data.norges-bank.no/",
+      "side": "entities",
+      "category": "central-bank-data",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Central bank's data API (exchange rates, interest rates, government debt auctions) — SDMX/JSON. Known open service; endpoint itself not fetched this session. ECB-style deterministic FX source for NOK conversion."
+    },
+    {
+      "name": "Statistics Norway (SSB) PxWeb API",
+      "url": "https://www.ssb.no/en/api",
+      "side": "entities",
+      "category": "statistics-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Open statistical API (PxWeb + StatBank) covering credit, banking, property prices, fund holdings, pension-fund balance sheets. Known open API; not fetched this session."
+    },
+    {
+      "name": "Skatteetaten (Norwegian Tax Administration) RSS + open services",
+      "url": "https://www.skatteetaten.no/en/rss",
+      "side": "entities",
+      "category": "tax-authority",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.skatteetaten.no/en/rss",
+      "verdict": "VERIFIED this session: RSS hub page lists feeds for press releases, legal statements, tax appeal board decisions. Useful for regulatory/tax signals affecting fund structuring; VAT register status also queryable via Brreg-linked services."
+    },
+    {
+      "name": "Brønnøysund Kunngjøringer (official announcements — gazette function)",
+      "url": "https://w2.brreg.no/kunngjoring/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via brreg.no announcements page: Norway's gazette function (company events, liquidations, mergers, bankruptcies) lives here, with an XML-format feed and free daily/weekly subscription. Norway has no separate printed gazette for company events — this is it."
+    },
+    {
+      "name": "Konkursregisteret (Register of Bankruptcies)",
+      "url": "https://www.brreg.no/en/searching-our-registers/announcements/about-announcements/announcements-from-the-register-of-bankruptcies/",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search + brreg page: all bankruptcies, compulsory liquidations/dissolutions. Public announcements flow through kunngjøringer (XML available); the JSON konkursvarsel API (DSOP) requires authorization to handle personal ID numbers — company-level announcements are the open route. Dataset also listed on data.norge.no."
+    },
+    {
+      "name": "Norges Domstoler (courts)",
+      "url": "https://www.domstol.no/",
+      "side": "entities",
+      "category": "court-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "District courts open insolvency proceedings; case-level data is not bulk-open. Use as reference/verification source; not fetched this session."
+    },
+    {
+      "name": "Lovdata",
+      "url": "https://lovdata.no/",
+      "side": "entities",
+      "category": "legal-database",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Statutes, regulations and (partly) court decisions. Free tier covers legislation; case law largely in paid Lovdata Pro. Reference source; not fetched this session."
+    },
+    {
+      "name": "Konkursrådet (Norwegian Bankruptcy Council)",
+      "url": "https://www.konkursradet.no/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Insolvency council — guidance, practice notes and practitioner ecosystem around bankruptcy administration. Not fetched this session."
+    },
+    {
+      "name": "Euronext Oslo Børs — issuer lists / market pages",
+      "url": "https://live.euronext.com/en/markets/oslo",
+      "side": "entities",
+      "category": "stock-exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist via search. live.euronext.com is a JS-heavy SPA; issuer/equity lists load via internal JSON endpoints. Euronext also publishes downloadable instrument/issuer lists — adapter should target the underlying JSON, honoring ToS."
+    },
+    {
+      "name": "NewsWeb (Oslo Børs OAM — company disclosures)",
+      "url": "https://newsweb.oslobors.no/",
+      "side": "entities",
+      "category": "issuer-disclosure-feed",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED reachable this session but renders as a JS SPA (fetch returned only the 'NewsWeb' shell). This is the officially appointed mechanism for all listed-company announcements — the SPA is backed by a JSON API that an adapter can use; the highest-value corporate-event feed in Norway."
+    },
+    {
+      "name": "Euronext Oslo regulation news",
+      "url": "https://www.euronext.com/en/regulation/oslo-regulation-news",
+      "side": "entities",
+      "category": "exchange-regulation",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Exchange regulatory notices (admissions, sanctions, rule changes). URL found via search; not fetched."
+    },
+    {
+      "name": "Euronext Securities Oslo (VPS — CSD)",
+      "url": "https://www.euronext.com/en/post-trade/euronext-securities/oslo",
+      "side": "entities",
+      "category": "csd",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Norwegian CSD (former VPS). Shareholder-register data is not open; useful for institutional-service-graph mapping (account operators list). Not fetched this session."
+    },
+    {
+      "name": "NVCA — Norwegian Venture Capital & Private Equity Association members",
+      "url": "https://www.nvca.no/medlemmer/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED this session: 100+ members with websites, categorized into seed/venture funds, corporate ventures, family offices, buyout funds, fund investors (LPs), law firms, fund administrators, advisors — a ready-made map of categories 1 and 6. Already harvested per task hint; the category structure is worth re-harvesting."
+    },
+    {
+      "name": "Finans Norge (Finance Norway)",
+      "url": "https://www.finansnorge.no/",
+      "side": "entities",
+      "category": "banking-insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Industry association for banks, insurers, pension providers — member list + banking/insurance statistics. Not fetched this session."
+    },
+    {
+      "name": "VFF — Verdipapirfondenes forening (Fund & Asset Management Association)",
+      "url": "https://www.vff.no/",
+      "side": "entities",
+      "category": "fund-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED this session: publishes monthly market statistics and fund data (AUM > NOK 3,000bn); member list partly behind Medlemsnett but manager universe visible via statistics. Maps Norwegian ManCos/asset managers."
+    },
+    {
+      "name": "Pensjonskasseforeningen (Association of Pension Funds)",
+      "url": "https://pensjonskasseforeningen.no/",
+      "side": "entities",
+      "category": "pension-association-LP-side",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Members = Norwegian occupational pension funds, i.e. the domestic LP base. Not fetched this session; member list expected public."
+    },
+    {
+      "name": "VPFF — Verdipapirforetakenes Forbund (Securities Dealers Association)",
+      "url": "https://www.vpff.no/",
+      "side": "entities",
+      "category": "securities-firms-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association of investment firms/brokers — member directory maps execution brokers and corporate-finance houses. Not fetched this session."
+    },
+    {
+      "name": "Finansieringsselskapenes Forening (FinFo — leasing/factoring association)",
+      "url": "https://www.finfo.no/",
+      "side": "entities",
+      "category": "leasing-factoring-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association for finance companies (leasing, factoring, ABL) — specialty-finance mapping for category 2. URL from prior knowledge, NOT verified this session."
+    },
+    {
+      "name": "Norsk Eiendom (real estate industry association)",
+      "url": "https://www.norskeiendom.org/",
+      "side": "entities",
+      "category": "real-estate-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association of property developers/owners — member list maps category 3 entities. URL from prior knowledge, NOT verified this session."
+    },
+    {
+      "name": "Norsk takst (valuers association)",
+      "url": "https://www.norsktakst.no/",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Norwegian valuers/appraisers association with find-a-valuer directory (RICS-adjacent role in NO market). Not verified this session; RICS global directory also covers Norway."
+    },
+    {
+      "name": "Advokatforeningen — Finn advokat",
+      "url": "https://www.advokatforeningen.no/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Bar association lawyer-search directory — maps fund-structuring/M&A law firms. Not fetched this session."
+    },
+    {
+      "name": "Tilsynsrådet for advokatvirksomhet (Supervisory Council for Legal Practice)",
+      "url": "https://tilsynet.no/",
+      "side": "entities",
+      "category": "lawyer-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Official register of practising lawyers/law firms (the regulator-grade counterpart to the bar association). URL from prior knowledge, NOT verified this session."
+    },
+    {
+      "name": "Innovasjon Norge (Innovation Norway)",
+      "url": "https://www.innovasjonnorge.no/",
+      "side": "entities",
+      "category": "development-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State development agency — grant/loan recipients and startup ecosystem signals. Grant award data is public. Not fetched this session."
+    },
+    {
+      "name": "Investinor",
+      "url": "https://www.investinor.no/",
+      "side": "entities",
+      "category": "state-VC-LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State evergreen VC investor and fund LP — public portfolio and fund-commitment lists. Not fetched this session."
+    },
+    {
+      "name": "Argentum (state PE fund-of-funds) + State of Nordic PE database",
+      "url": "https://argentum.no/en/insights/",
+      "side": "entities",
+      "category": "state-LP-market-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: Argentum invests in 200+ Nordic PE funds and publishes free 'State of Nordic Private Equity' reports (info.argentum.no) built on its internal market database since 2008 — the single best public window on the Norwegian GP/fund universe."
+    },
+    {
+      "name": "Nysnø Climate Investments",
+      "url": "https://www.nysnoinvest.no/",
+      "side": "entities",
+      "category": "state-climate-investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State climate investment company — portfolio + fund investments public on site. Not fetched this session."
+    },
+    {
+      "name": "Eksfin (Export Finance Norway)",
+      "url": "https://www.eksfin.no/",
+      "side": "entities",
+      "category": "export-credit-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State export credit/guarantee agency — deal announcements relevant to shipping/energy asset finance. Not fetched this session."
+    },
+    {
+      "name": "Siva (Industrial Development Corporation of Norway)",
+      "url": "https://siva.no/",
+      "side": "entities",
+      "category": "state-infrastructure-investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State owner of innovation/industrial infrastructure (incubators, industrial estates) — ecosystem + real-assets mapping. Not fetched this session."
+    },
+    {
+      "name": "Enova",
+      "url": "https://www.enova.no/",
+      "side": "entities",
+      "category": "energy-transition-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State energy-transition funding agency — project support lists are public, strong signal source for renewables/transition SPVs. Not fetched this session."
+    },
+    {
+      "name": "NBIM — Norges Bank Investment Management (GPFG)",
+      "url": "https://www.nbim.no/",
+      "side": "entities",
+      "category": "sovereign-wealth-fund-LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.nbim.no/en/news-and-insights/rss-feed/",
+      "verdict": "World's largest SWF; publishes full equity/bond/real-estate/renewables holdings and an RSS feed (RSS page confirmed via search). The unlisted real-estate and renewable-infrastructure holdings are directly relevant to category 3."
+    },
+    {
+      "name": "Folketrygdfondet",
+      "url": "https://www.folketrygdfondet.no/",
+      "side": "entities",
+      "category": "state-pension-fund-LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Manages Government Pension Fund Norway — holdings disclosures public. Not fetched this session."
+    },
+    {
+      "name": "Statens pensjonskasse (SPK)",
+      "url": "https://www.spk.no/",
+      "side": "entities",
+      "category": "public-pension-LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State occupational pension provider — LP-side institution. Not fetched this session."
+    },
+    {
+      "name": "Doffin — public procurement portal + notices API",
+      "url": "https://www.doffin.no/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via search: national tender database with an Azure API Management developer portal (dof-notices-prod-api.developer.azure-api.net, free subscription key) and an open-data page at doffin.no/data using eForms machine-readable standard. Signals for EPC contractors, concessions, servicer mandates."
+    },
+    {
+      "name": "Miljødirektoratet — Klimakvoteregisteret (EU ETS Norwegian registry)",
+      "url": "https://www.miljodirektoratet.no/ansvarsomrader/klima/klimakvoter/klimakvoteregisteret/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED via search: Norwegian Environment Agency administers the national entrance to the EU Union Registry (Norway in EU ETS since 2008). Account-level holdings are in the pan-EU registry; the open machine route for account/compliance data is the EU Transaction Log (EUTL) public downloads filtered to NO accounts."
+    },
+    {
+      "name": "Kartverket — Se eiendom (land register lookup)",
+      "url": "https://seeiendom.kartverket.no/",
+      "side": "entities",
+      "category": "land-property-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Public property/grunnbok lookup from the mapping authority; per-property ownership visible, bulk access licensed. Not fetched this session — access terms need adapter research before use."
+    },
+    {
+      "name": "data.norge.no (national open-data catalog)",
+      "url": "https://data.norge.no/",
+      "side": "entities",
+      "category": "open-data-catalog",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search (Konkursregisteret dataset page found there): the meta-catalog listing all Norwegian public datasets/APIs — use to discover further machine routes."
+    },
+    {
+      "name": "E24",
+      "url": "https://e24.no/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://e24.no/rss",
+      "verdict": "VERIFIED this session: working RSS (~40 items) covering markets, oil, Norwegian corporates. NOTE: feed header carries explicit licensing restrictions against AI-training/derivative use — headline+link only, per project compliance rules."
+    },
+    {
+      "name": "Dagens Næringsliv (DN)",
+      "url": "https://www.dn.no/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://services.dn.no/tools/rss",
+      "verdict": "Norway's leading business daily. RSS info page confirmed via search; section feeds use pattern dn.no/rss?section=<name> (e.g. dnenergi, stock market, startups). Individual section feed URLs not fetched this session. Content is paywalled — headlines/links only."
+    },
+    {
+      "name": "Finansavisen",
+      "url": "https://www.finansavisen.no/",
+      "side": "news",
+      "category": "financial-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major markets/finance daily (Hegnar Media). Searched for a public RSS feed — none found; third-party aggregators generate feeds. Paywalled; treat as headline-monitoring target without RSS."
+    },
+    {
+      "name": "Shifter",
+      "url": "https://www.shifter.no/",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The Norwegian startup/VC trade publication (funding rounds, fund closes). Both /rss and /rss/ returned 404 this session — no working feed found; site itself is live. Partly paywalled."
+    },
+    {
+      "name": "Kapital",
+      "url": "https://www.kapital.no/",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Business magazine; publishes the annual '400 richest' list — useful for family-office/HNW mapping. Not fetched this session."
+    },
+    {
+      "name": "FinansWatch",
+      "url": "https://finanswatch.no/",
+      "side": "news",
+      "category": "finance-industry-trade",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Watch Media trade daily for banking, insurance, pensions, asset management, fintech, regulation. Fetch was blocked this session (bot protection); subscription-financed. High-relevance vertical — needs polite crawling arrangement."
+    },
+    {
+      "name": "EiendomsWatch",
+      "url": "https://eiendomswatch.no/",
+      "side": "news",
+      "category": "real-estate-trade",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Watch Media real-estate trade daily — transactions, projects, actors. Existence confirmed via search; site not fetched (sister site blocked fetch). Subscription-based."
+    },
+    {
+      "name": "EnergiWatch",
+      "url": "https://energiwatch.no/",
+      "side": "news",
+      "category": "energy-trade",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Watch Media energy trade daily — renewables/transition deal flow. Existence confirmed via search (Watch Media launched EnergiWatch in Norway); not fetched this session."
+    },
+    {
+      "name": "AdvokatWatch",
+      "url": "https://advokatwatch.no/",
+      "side": "news",
+      "category": "legal-industry-trade",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Watch Media legal-industry daily — law-firm moves and mandates (service-graph signals). URL from prior knowledge, NOT verified this session."
+    },
+    {
+      "name": "Estate Nyheter",
+      "url": "https://www.estatenyheter.no/",
+      "side": "news",
+      "category": "real-estate-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Commercial real-estate news site — existence VERIFIED via search; /rss returned 404 this session, no feed found. Partly open content."
+    },
+    {
+      "name": "Teknisk Ukeblad (TU)",
+      "url": "https://www.tu.no/",
+      "side": "news",
+      "category": "tech-energy-industry",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.tu.no/rss",
+      "verdict": "VERIFIED this session: working RSS covering energy, infrastructure, industrial projects — good for real-assets/energy-transition signals."
+    },
+    {
+      "name": "Europower",
+      "url": "https://www.europower.no/",
+      "side": "news",
+      "category": "energy-markets-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Power-sector trade publication (NHST group) — Norwegian energy market deals and policy. Not fetched this session; subscription-based."
+    },
+    {
+      "name": "Montel News",
+      "url": "https://montelnews.com/",
+      "side": "news",
+      "category": "energy-markets-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Oslo-headquartered European power-market news service — relevant to energy/carbon alts. Subscription; not fetched this session."
+    },
+    {
+      "name": "IntraFish",
+      "url": "https://www.intrafish.no/",
+      "side": "news",
+      "category": "seafood-industry-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Seafood/aquaculture trade press (NHST) — Norway's aquaculture sector is a real-assets/PE deal arena. Subscription; not fetched this session."
+    },
+    {
+      "name": "TradeWinds",
+      "url": "https://www.tradewindsnews.com/",
+      "side": "news",
+      "category": "shipping-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Oslo-based global shipping trade paper (NHST) — shipping finance/asset deals, core Norwegian alt-asset niche. Subscription; not fetched this session."
+    },
+    {
+      "name": "NRK — toppsaker feed",
+      "url": "https://www.nrk.no/",
+      "side": "news",
+      "category": "public-broadcaster",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.nrk.no/toppsaker.rss",
+      "verdict": "Public broadcaster; historically offers open RSS feeds incl. toppsaker.rss and per-section feeds. Feed URL from prior knowledge, NOT verified this session — verify before wiring."
+    },
+    {
+      "name": "Norges Bank — press releases + RSS",
+      "url": "https://www.norges-bank.no/en/published/press-releases",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.norges-bank.no/en/rss-feeds/",
+      "verdict": "VERIFIED via search: dedicated RSS-feeds page for press releases, publications, financial stability reports. The rssUrl is the feed-listing page — pick specific feeds from it."
+    },
+    {
+      "name": "Finanstilsynet — news & supervisory announcements",
+      "url": "https://www.finanstilsynet.no/en/news/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Licence grants/withdrawals, sanctions, consultations — direct signal source for entity lifecycle events. News section exists (main site fetched this session); RSS availability not confirmed."
+    },
+    {
+      "name": "Regjeringen.no — Ministry of Finance press",
+      "url": "https://www.regjeringen.no/en/dep/fin/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.regjeringen.no/en/rss/",
+      "verdict": "Government portal offers per-ministry RSS; Finance Ministry press covers tax/fund regulation and GPFG policy. RSS service known from prior knowledge, feed IDs NOT verified this session."
+    },
+    {
+      "name": "NTB Kommunikasjon (press-release wire)",
+      "url": "https://kommunikasjon.ntb.no/",
+      "side": "news",
+      "category": "press-release-wire",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "National newswire's press-release distribution — Norwegian corporates and funds publish here; per-publisher pages exist. Machine access/RSS not verified this session."
+    },
+    {
+      "name": "Euronext Oslo — company press releases",
+      "url": "https://live.euronext.com/en/markets/oslo/equities/company-news",
+      "side": "news",
+      "category": "exchange-news-feed",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist via search; JS-rendered like the rest of live.euronext.com. Overlaps NewsWeb — prefer NewsWeb's underlying JSON as the canonical disclosure feed."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Strong on Norwegian LPs (NBIM/GPFG, Folketrygdfondet, KLP, Storebrand, Argentum) and established buyout/infrastructure GPs (FSN, Verdane, HitecVision, Norvestor); fund-level performance where LPs disclose. Thin on sub-threshold AIFMs and niche alts.",
+      "publicSourcesTheyUse": "Finanstilsynet registry (AIFM/fund licences), NBIM and Folketrygdfondet public holdings/annual reports, Argentum's State of Nordic PE reports, Brreg annual accounts, NVCA membership — all directly accessible to us via the sources above."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Good Norwegian VC/PE deal coverage and cap-table estimates; covers Verdane/Norvestor/HitecVision deal histories and Oslo Børs listings/exits. Estimates (valuations, dry powder) are proprietary modeling.",
+      "publicSourcesTheyUse": "Brreg filings (share capital changes signal rounds), NewsWeb/Euronext disclosures for listed events, NTB press releases, Shifter/E24/DN deal reporting, NVCA and Argentum statistics — we can hit the same primaries directly."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Broad Norwegian startup/scaleup mapping (works with Nordic ecosystem bodies); good on rounds, founders, ecosystem taxonomies. Weak on debt, real assets, service graph.",
+      "publicSourcesTheyUse": "Brreg open API for entity data, Shifter and E24 funding coverage, Innovation Norway/Investinor portfolio pages, company self-reporting — the registry and press primaries are open to us."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Patchy Norway coverage skewed to internationally-visible startups; self-reported plus press-scraped rounds; unreliable for entity completeness.",
+      "publicSourcesTheyUse": "English-language press, TechCrunch/Sifted, company submissions. Its gaps (Norwegian-language press, registry data) are exactly what Brreg + Shifter + DN give us directly."
+    },
+    {
+      "platform": "Proff.no (Proff AS)",
+      "coverageNotes": "The dominant Norwegian company-information site: financials, roles, shareholders for every registered company; Proff Forvalt is the paid credit/prospecting tier. Not alternatives-aware — no fund/asset-class taxonomy.",
+      "publicSourcesTheyUse": "Entirely built on public data: Brreg Enhetsregisteret/Foretaksregisteret + Regnskapsregisteret accounts + Skatteetaten shareholder register extracts. We go to the same registers at source, at $0."
+    },
+    {
+      "platform": "Purehelp.no",
+      "coverageNotes": "Free-tier Norwegian company financials and org data, similar to Proff with lighter UX.",
+      "publicSourcesTheyUse": "Brreg open API + Regnskapsregisteret accounts — same open primaries we already ingest."
+    },
+    {
+      "platform": "Enin.ai",
+      "coverageNotes": "Norwegian company-intelligence/credit startup — real-time bankruptcy risk, networks of roles, procurement wins. Closest local analogue to a signals engine, but credit-focused, not alternatives-focused.",
+      "publicSourcesTheyUse": "Brreg APIs incl. announcement/bankruptcy feeds, Regnskapsregisteret, Doffin procurement data, court announcements — a validation that these open feeds support a commercial intelligence product."
+    },
+    {
+      "platform": "Dun & Bradstreet Norway (ex-Bisnode)",
+      "coverageNotes": "Credit ratings and payment-remark data on Norwegian entities; enterprise market. Payment remarks are licensed, not open.",
+      "publicSourcesTheyUse": "Brreg registers + accounts as the public backbone; payment remarks from licensed debt-collection sources (not available to us — and personal-data rules keep them out of scope anyway)."
+    },
+    {
+      "platform": "Argentum (State of Nordic PE / market database)",
+      "coverageNotes": "Semi-competitor: the best free analytical coverage of the Nordic PE/VC fund universe (fundraising, buyout activity, fund lists) since 2008, published as open reports at info.argentum.no.",
+      "publicSourcesTheyUse": "Own LP data plus GP interviews and public announcements — we can cite its published aggregates and reconstruct the underlying fund list from Finanstilsynet + NVCA + press."
+    },
+    {
+      "platform": "Nordic 9",
+      "coverageNotes": "Nordic deal-intelligence service tracking VC rounds and investors incl. Norway; lightweight, press-driven.",
+      "publicSourcesTheyUse": "Nordic tech press (Shifter, E24, ArcticStartup), press releases — same open press layer we monitor via RSS."
+    }
+  ],
+  "searchedButAbsent": "Searched but not found or not confirmable: (1) a working public RSS feed for Shifter (both /rss and /rss/ return 404) and for Finansavisen and Estate Nyheter — none located; (2) a separate Norwegian official gazette for company events — Norsk Lysingsblad's company-announcement role was absorbed by Brønnøysund kunngjøringer, which is the actual gazette route; (3) open bulk access to the beneficial-ownership register (register over reelle rettighetshavere) — exists at Brreg but public machine access is still restricted/phased, consistent with the project's no-open-UBO assumption; (4) an open shareholder register — Skatteetaten's aksjonærregister is only released via annual extracts to media/on request, not an open API; (5) machine access to VPS/Euronext Securities holdings — not public. Session constraint: the web-search budget was exhausted near the end, so several association/agency URLs (FinFo, Norsk Eiendom, Tilsynsrådet, AdvokatWatch, NRK feed URL, regjeringen.no feed IDs) are from prior knowledge and marked unverified in their verdicts rather than dropped; the Finanstilsynet crypto/MiCA register was confirmed only as a licence-type filter inside the main FSA registry rather than as a standalone register page."
+}

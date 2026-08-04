@@ -1,0 +1,593 @@
+{
+  "country": "AT",
+  "sources": [
+    {
+      "name": "Firmenbuch (Austrian Commercial Register) via JustizOnline",
+      "url": "https://justizonline.gv.at/jop/web/firmenbuchabfrage",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Official register of all Austrian companies. Paid per query (current extract EUR 3.76, historical EUR 6.30 per usp.gv.at); no free bulk/open-data dump exists. Portal is a JS app (fetch returned only the shell). Data also flows through 10 BMJ-authorized Verrechnungsstellen."
+    },
+    {
+      "name": "Firmenbuch clearing-house API (auszug.at, official Verrechnungsstelle)",
+      "url": "https://api.auszug.at/",
+      "side": "entities",
+      "category": "commercial register API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "auszug.at (Wiener Zeitung Digitale Publikationen) is an authorized government clearing house since 2015 offering paid API access to Firmenbuch data/extracts. The machine route to Firmenbuch — paid per hit. Other API clearing houses: firmenabfrage.at, opendata.host, BREX/360kompany."
+    },
+    {
+      "name": "OpenFirmenbuch (free unofficial Firmenbuch search)",
+      "url": "https://openfirmenbuch.at/",
+      "side": "entities",
+      "category": "commercial register (free layer)",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Free search of Austrian Firmenbuch core data (name, FN number, legal form, location) without registration. Unofficial third-party layer — useful for lookup/matching, not authoritative extracts. Found via search; not fetch-verified this run."
+    },
+    {
+      "name": "GISA — Gewerbeinformationssystem Austria (trade licence register)",
+      "url": "https://www.gisa.gv.at/",
+      "side": "entities",
+      "category": "trade register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Free public query of all Austrian trade businesses (name, location, wording of trade authorization) since 2018, no registration, DE+EN. Confirmed via multiple official pages (wien.gv.at, usp.gv.at, bmwet.gv.at); site itself not fetched this run."
+    },
+    {
+      "name": "ZVR — Zentrales Vereinsregister (central register of associations)",
+      "url": "https://citizen.bmi.gv.at/at.gv.bmi.fnsweb-p/zvn/public/Registerauszug",
+      "side": "entities",
+      "category": "associations register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Interior-ministry register of all Austrian Vereine (relevant for foundations/association-form vehicles). Free public Registerauszug query; zvr.bmi.gv.at/Start redirects here (302 verified)."
+    },
+    {
+      "name": "Grundbuch (land register) via JustizOnline / Verrechnungsstellen",
+      "url": "https://justizonline.gv.at/",
+      "side": "entities",
+      "category": "land register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Land/mortgage register for real-asset ownership verification. Paid per query via JustizOnline or the same clearing houses as Firmenbuch. JustizOnline root verified reachable; the specific Grundbuch query path not individually verified."
+    },
+    {
+      "name": "WiEReG — beneficial ownership register (BMF)",
+      "url": "https://www.bmf.gv.at/services/wiereg.html",
+      "side": "entities",
+      "category": "UBO register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Austrian UBO register. Public access is RESTRICTED post-CJEU (legitimate-interest extracts via USP, fee-based). Include for completeness; per project law, never assume open UBO data. URL not fetch-verified this run."
+    },
+    {
+      "name": "FMA Unternehmensdatenbank (licensed banks, insurers, AIFMs, investment firms)",
+      "url": "https://www.fma.gv.at/unternehmensdatenbank-suche/",
+      "side": "entities",
+      "category": "financial regulator register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "The authoritative Austrian licence database (all FMA-licensed entities incl. KAGs/AIFMs, Pensionskassen, Vorsorgekassen, insurers, crypto). WAF confirmed: EN search page returns 403 to our fetcher. Workaround: ESMA registers for AIFMs/UCITS/firms; OeNB lists for banks; WKO lists for pension/severance funds."
+    },
+    {
+      "name": "FMA MiCAR/CASP supervision + crypto licensee information",
+      "url": "https://www.fma.gv.at/querschnittsthemen/markets-in-crypto-assets-regulation-micar/",
+      "side": "entities",
+      "category": "crypto/MiCA register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "FMA licenses CASPs under MiCAR (regime live since 30 Dec 2024; ~12 VASP-registered providers transitioning). Licensees appear in the Unternehmensdatenbank — same WAF 403 applies. ESMA's MiCA interim register is the machine-readable fallback."
+    },
+    {
+      "name": "ESMA Registers (AIFMs, UCITS, investment firms, MiCA — Austrian entities)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU regulator register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "EU-level registers with country filter AT — the practical machine route around the FMA WAF for AIFMs, management companies and investment firms. JS front-end but register datasets are downloadable/openly accessible; page verified reachable (app shell loads)."
+    },
+    {
+      "name": "OeNB — Listen Finanzinstitute (MFI and non-MFI lists)",
+      "url": "https://www.oenb.at/Statistik/Klassifikationen/Listen-Finanzinstitute.html",
+      "side": "entities",
+      "category": "central bank register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED: free CSV/ZIP downloads of Austrian MFIs and non-MFI credit institutions; investment funds and securitization vehicles (FVCs) delegated to ECB lists. Clean deterministic source for the banking/lender universe."
+    },
+    {
+      "name": "OeNB — SEPA-Zahlungsverkehrs-Verzeichnis (bank master data, daily CSV)",
+      "url": "https://www.oenb.at/docroot/downloads_observ/sepa-zv-vz_gesamt.csv",
+      "side": "entities",
+      "category": "central bank register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Daily-updated CSV of all Austrian credit institutions (bank codes, BICs, names); companion bank-branch directory on the SEPA-Verzeichnis page. Direct CSV URL surfaced by search; page confirmed, file itself not downloaded this run."
+    },
+    {
+      "name": "ECB lists of financial institutions (AT investment funds, FVCs, MFIs)",
+      "url": "https://www.ecb.europa.eu/stats/financial_corporations/list_of_financial_institutions/html/index.en.html",
+      "side": "entities",
+      "category": "EU central bank register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "OeNB's own lists page delegates Austrian investment-fund and securitization-vehicle (FVC) lists to the ECB — full AT fund universe in downloadable datasets. Linked from verified OeNB page; ECB URL itself not fetched this run."
+    },
+    {
+      "name": "Emissionshandelsregisterstelle Österreich (EU ETS registry office, Umweltbundesamt)",
+      "url": "https://www.emissionshandelsregister.at/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Austrian part of the EU Union Registry, administered by Umweltbundesamt GmbH (account holders = installation operators + traders). Account data lives in the EU-wide Union Registry / EUTL; this site carries Austrian participant guidance and lists. Verified via search snippets."
+    },
+    {
+      "name": "EVI — digital official gazette of the Republic of Austria (evi.gv.at)",
+      "url": "https://www.evi.gv.at/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: successor to the Amtsblatt zur Wiener Zeitung since 1 Jul 2023. Free access to Firmenbuch change publications, FMA warnings, insolvency creditor notices, AGM invitations, financial statements. No API/RSS advertised — HTML monitoring required."
+    },
+    {
+      "name": "Ediktsdatei (court edicts database, justiz.gv.at)",
+      "url": "https://edikte.justiz.gv.at/",
+      "side": "entities",
+      "category": "court/insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED open: all court announcements, free, no registration. A signed IWG re-use agreement (bmj.gv.at PDF) exists for structured re-use of Ediktsdatei data — a legal bulk route worth pursuing. Core NPL/distressed signal source for AT."
+    },
+    {
+      "name": "Insolvenzdatei (insolvency file, simple search)",
+      "url": "https://edikte.justiz.gv.at/edikte/id/idedi8.nsf/suche!OpenForm",
+      "side": "entities",
+      "category": "insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Exclusive publication venue for all Austrian insolvency proceedings (bankruptcies, restructurings, debt regulation). Free; data visible up to 1-3 years after close. Lotus-Notes-style URLs but HTML is parseable. URL confirmed via search results."
+    },
+    {
+      "name": "Insolvenzverwalterliste (insolvency administrators) + data.gv.at API",
+      "url": "https://insolvenzverwalter.justiz.gv.at/edikte/mv/ivliste.nsf/suche!OpenForm",
+      "side": "entities",
+      "category": "insolvency practitioner roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Public roll of Austrian insolvency administrators, searchable by industry/region; an official open-data API dataset exists on data.gv.at ('Liste der Insolvenzverwalter:innen', dataset id 0343b1ca-71c1-47c3-8ceb-db00b2a12e09). One data.gv.at path 404'd; the datasets-id URL from search is the live one."
+    },
+    {
+      "name": "Gerichtssachverständigenliste (SDG list — court-certified experts incl. real-estate valuers)",
+      "url": "https://justizonline.gv.at/jop/web/exl-suche/sv",
+      "side": "entities",
+      "category": "valuer/expert roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "8,100+ court-certified experts searchable by specialty and court district — the Austrian equivalent of a valuer directory ('Immobilien Bewertung' category). Free. Complements RICS which has no separate AT public roll."
+    },
+    {
+      "name": "RIS — Rechtsinformationssystem des Bundes",
+      "url": "https://www.ris.bka.gv.at/",
+      "side": "entities",
+      "category": "legal information / official publications",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Federal legal information system (laws, Bundesgesetzblatt, case law) with a documented OGD API on data.gv.at. Fetch returned 503 at check time (transient); the service is long-established."
+    },
+    {
+      "name": "WKO Firmen A-Z (chamber of commerce company directory)",
+      "url": "https://firmen.wko.at/",
+      "side": "entities",
+      "category": "company directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: free directory claiming all 625,292 Austrian companies (membership is mandatory in AT), searchable by name/industry/location. Excellent free matching/enrichment layer alongside the paid Firmenbuch."
+    },
+    {
+      "name": "Wiener Börse — list of listed companies",
+      "url": "https://www.wienerborse.at/en/listing/shares/companies-list/",
+      "side": "entities",
+      "category": "stock exchange issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: all Austrian-listed issuers across prime/standard/global/direct market segments, filterable by ISIN/segment. Free CSV export was discontinued per exchange — HTML parsing required."
+    },
+    {
+      "name": "Wiener Börse — trading member list",
+      "url": "https://www.wienerborse.at/en/trading/members/member-list/",
+      "side": "entities",
+      "category": "exchange members (brokers)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Exchange member firms (execution brokers — service-graph category 4/6). URL confirmed from the exchange's own market-data navigation; page itself not fetched."
+    },
+    {
+      "name": "Wiener Börse — listed debt securities",
+      "url": "https://www.wienerborse.at/en/listing/debt-securities/listed/",
+      "side": "entities",
+      "category": "bond issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Listed bonds incl. corporate/real-estate issuers (Vienna MTF is a significant CEE bond listing venue). URL confirmed from site navigation; not individually fetched."
+    },
+    {
+      "name": "invest.austria (merged aaia + AVCO — PE/VC/business-angel association)",
+      "url": "https://www.invest-austria.com/",
+      "side": "entities",
+      "category": "PE/VC association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Austria's PE/VC + angel association (350+ members) formed 2023 from AVCO and aaia merger — the canonical AT GP/angel directory. Member directory reportedly ingested already per task hint; site reachable."
+    },
+    {
+      "name": "VÖIG — Vereinigung Österreichischer Investmentgesellschaften",
+      "url": "https://www.voeig.at/",
+      "side": "entities",
+      "category": "fund management association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Umbrella body for 100% of Austrian investment-fund and real-estate-fund management companies (KAGs) — the AT ManCo universe. EFAMA member. Verified via search; legacy Lotus-Notes site, parseable."
+    },
+    {
+      "name": "VÖL — Verband Österreichischer Leasing-Gesellschaften (member list)",
+      "url": "https://www.leasingverband.at/mitglieder-kategorie/leasingunternehmen/",
+      "side": "entities",
+      "category": "leasing association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: 43 member companies listed openly (≈94% of AT leasing new business, EUR 9.9bn 2025) — asset-backed-lending universe for category 2."
+    },
+    {
+      "name": "VVO — Versicherungsverband Österreich (insurance association)",
+      "url": "https://www.vvo.at/",
+      "side": "entities",
+      "category": "insurance association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED reachable: represents all private insurers operating in Austria (LP side). No member directory on homepage — member universe better sourced from FMA/OeNB; VVO-Newsroom useful for sector signals."
+    },
+    {
+      "name": "Verband österreichischer Banken und Bankiers (Bankenverband)",
+      "url": "https://www.bankenverband.at/",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: banking association with a Mitglieder (members) section and press area. Complements OeNB CSV lists with the association view."
+    },
+    {
+      "name": "WKO — Liste der Pensionskassen",
+      "url": "https://www.wko.at/bank-versicherung/vorsorgeverband/pensionskassen/kassen/liste-der-pensionskassen",
+      "side": "entities",
+      "category": "pension funds (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "The AT pension-fund universe is tiny and fully enumerable: 8 Pensionskassen under FMA supervision (5 multi-employer, 2-3 company). WKO Fachverband list confirmed via search; bypasses the FMA WAF."
+    },
+    {
+      "name": "WKO — Vorsorgekassen in Österreich (severance funds)",
+      "url": "https://www.wko.at/bank-versicherung/vorsorgeverband/vorsorgekassen/betriebliche/vorsorgekassen-in-oesterreich",
+      "side": "entities",
+      "category": "severance funds (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "7 betriebliche Vorsorgekassen (mandatory severance funds, ~EUR 20bn AUM class) — institutional allocators. URL confirmed via search."
+    },
+    {
+      "name": "ÖRAK Anwaltsverzeichnis (Austrian bar — lawyer directory)",
+      "url": "http://service.oerak.at/ravzsuche/Pages/SearchForm.aspx",
+      "side": "entities",
+      "category": "bar association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "National directory of 7,344 lawyers searchable by name/region/practice area — source for M&A/fund-structuring law firm mapping (category 6). Legacy ASP.NET search form; confirmed via search results."
+    },
+    {
+      "name": "KSW Mitgliederverzeichnis (tax advisors & auditors chamber)",
+      "url": "https://www.ksw.or.at/",
+      "side": "entities",
+      "category": "auditor/tax-advisor directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: chamber of Steuerberater/Wirtschaftsprüfer with public member search, 12,000+ entries (fund auditors, category 6). Directory at ksw.or.at/mitgliederverzeichnis/."
+    },
+    {
+      "name": "Hauptverband der Gerichtssachverständigen — expert search",
+      "url": "https://suche.gerichts-sv.at/",
+      "side": "entities",
+      "category": "valuer/expert directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Association-run search over court-certified experts (parallel to the official SDG list, friendlier interface). Surfaced and confirmed via search; not fetched this run."
+    },
+    {
+      "name": "aws — Austria Wirtschaftsservice (federal promotional bank)",
+      "url": "https://www.aws.at/",
+      "side": "entities",
+      "category": "development bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: 100% federally owned promotional bank; runs guarantees, seed programs and (via aws Gründerfonds) VC — co-investor appearing in AT deal flow. Funding-program pages parseable."
+    },
+    {
+      "name": "OeEB — Oesterreichische Entwicklungsbank (development bank of Austria)",
+      "url": "https://www.oe-eb.at/",
+      "side": "entities",
+      "category": "DFI",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: publishes its project/investment list ('Our Projects at a Glance') and impact reports — DFI LP/lender active in emerging-market PE funds and infrastructure."
+    },
+    {
+      "name": "OeKB — Oesterreichische Kontrollbank (export credit + CSD + capital-market data)",
+      "url": "https://www.oekb.at/",
+      "side": "entities",
+      "category": "export credit agency / CSD",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: ISIN allocation, government bond auctions, CSD (EUR 841bn custody), ESG Data Hub, fund data services — infrastructure node of the AT capital market and a data source for issuers/funds."
+    },
+    {
+      "name": "ÖBAG — Österreichische Beteiligungs AG (state holding portfolio)",
+      "url": "https://oebag.gv.at/unser-portfolio/",
+      "side": "entities",
+      "category": "state asset agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via homepage: manages 9 state shareholdings worth EUR 29.85bn (OMV, VERBUND, Post, Telekom, Casinos, BIG, APK Pensionskasse etc.) — the privatization/state-asset map. /beteiligungen/ 404s; /unser-portfolio/ is the correct path."
+    },
+    {
+      "name": "ABA — Austrian Business Agency (Invest in Austria)",
+      "url": "https://investinaustria.at/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: federal investment-promotion agency with sector intelligence, success stories (FDI signals) and a News/Events/Press section."
+    },
+    {
+      "name": "data.gv.at — Austrian open data portal (incl. procurement Kerndaten)",
+      "url": "https://www.data.gv.at/",
+      "side": "entities",
+      "category": "open data portal / public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "CKAN portal with API. Since 1 Mar 2019 ALL Austrian procurement notices/awards >= EUR 50k must publish core data (Kerndaten) metadata here in machine-readable open format — the national procurement feed. Also hosts justice datasets (e.g. insolvency administrators API)."
+    },
+    {
+      "name": "TED — Tenders Electronic Daily (Austria filter)",
+      "url": "https://ted.europa.eu/",
+      "side": "entities",
+      "category": "public procurement (EU above-threshold)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Above-threshold AT tenders and contract awards (infrastructure/concession signals) with an open API and bulk downloads. Standard EU source; not fetch-verified this run."
+    },
+    {
+      "name": "Statistik Austria",
+      "url": "https://www.statistik.at/",
+      "side": "entities",
+      "category": "national statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Business demography, insolvency statistics, FDI and sector data via STATcube and open data downloads. Well-known official source; not fetch-verified this run."
+    },
+    {
+      "name": "Der Standard — Wirtschaft RSS",
+      "url": "https://www.derstandard.at/wirtschaft",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.derstandard.at/rss/wirtschaft",
+      "verdict": "VERIFIED working RSS 2.0 feed (~30 items, Austrian corporate news: OMV, RBI, Erste, BAWAG, insolvencies). Top-quality AT business signal feed."
+    },
+    {
+      "name": "Die Presse — Wirtschaft",
+      "url": "https://www.diepresse.com/wirtschaft",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.diepresse.com/rss/Wirtschaft",
+      "verdict": "Leading quality daily with strong economy/finance desk. Our fetcher is blocked at the domain level; the documented RSS URL is recorded but could NOT be verified from this environment — retest from production IPs."
+    },
+    {
+      "name": "brutkasten — startup/VC media",
+      "url": "https://brutkasten.com/",
+      "side": "news",
+      "category": "startup & VC media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://brutkasten.com/feed",
+      "verdict": "VERIFIED working RSS (hourly; funding rounds, acquisitions, fund launches — e.g. Highland Europe EUR 1.1bn fund). Primary AT venture signal source."
+    },
+    {
+      "name": "Trending Topics — tech/startup media",
+      "url": "https://www.trendingtopics.eu/",
+      "side": "news",
+      "category": "startup & tech media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.trendingtopics.eu/feed/",
+      "verdict": "VERIFIED working WordPress RSS ('The Techcrunch of Austria'); AT/CEE startup funding coverage. Note domain migrated from .at to .eu."
+    },
+    {
+      "name": "ORF News",
+      "url": "https://orf.at/",
+      "side": "news",
+      "category": "public broadcaster",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://rss.orf.at/news.xml",
+      "verdict": "VERIFIED RSS 1.0 feed, hourly, incl. economy stories. Broad national wire — useful for insolvency/major-deal breaking news."
+    },
+    {
+      "name": "Kurier — Wirtschaft",
+      "url": "https://kurier.at/wirtschaft",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Major daily with economy section. Domain refuses our fetcher; RSS endpoint could not be located/verified from this environment."
+    },
+    {
+      "name": "APA-OTS — press release distribution (Wirtschaft/Finanzen channels)",
+      "url": "https://www.ots.at/",
+      "side": "news",
+      "category": "press releases / ad-hoc disclosures",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED reachable: APA-Comm platform carrying 1.5m+ releases incl. corporate ad-hoc and fund announcements, channelized (Wirtschaft, Finanzen). /rss/ returns 404 and no public feed index is advertised — channel pages are parseable HTML; per-keyword RSS appears to require registration."
+    },
+    {
+      "name": "Börse Express",
+      "url": "https://www.boerse-express.com/",
+      "side": "news",
+      "category": "capital markets media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Austrian stock-market news portal (Vienna-listed issuers, ad-hoc commentary). Returned 403 to our fetcher; retest from production infrastructure."
+    },
+    {
+      "name": "Institutional Money",
+      "url": "https://www.institutional-money.com/",
+      "side": "news",
+      "category": "institutional investor media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Austrian-published magazine for institutional investors (pension funds, insurers — the LP discourse). Hard GDPR consent wall (pay-or-accept) blocks unauthenticated fetching; publisher FONDS professionell Multimedia GmbH."
+    },
+    {
+      "name": "FONDS professionell Österreich",
+      "url": "https://www.fondsprofessionell.at/",
+      "side": "news",
+      "category": "fund industry media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Fund-industry trade publication (AT edition), same publisher as Institutional Money — expect the same consent wall. Not fetch-verified this run; include for evaluation."
+    },
+    {
+      "name": "e-fundresearch.com",
+      "url": "https://e-fundresearch.com/",
+      "side": "news",
+      "category": "fund research media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Vienna-based fund/asset-management news portal. Both homepage and /feed returned 403 to our fetcher — retest from production IPs."
+    },
+    {
+      "name": "immoflash (IMMOBILIEN Magazin / Immomedien)",
+      "url": "https://immomedien.at/de/immoflash",
+      "side": "news",
+      "category": "real estate media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Daily Austrian real-estate news (deals, developers, funds) — category 3 signals. Old immoflash.at/feed 302-redirects here (verified); no working RSS found at new domain."
+    },
+    {
+      "name": "trend. — business weekly",
+      "url": "https://www.trend.at/",
+      "side": "news",
+      "category": "business magazine",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED reachable: executive business magazine (companies, finance, Top 500 ranking, trend.invest). No RSS link visible; offers 'trend. daily' email newsletter — HTML parsing needed."
+    },
+    {
+      "name": "FMA — news & press releases",
+      "url": "https://www.fma.gv.at/en/news/",
+      "side": "news",
+      "category": "regulator press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Enforcement actions, investor warnings, licence decisions, quarterly pension/severance-fund reports. Same WAF 403 as the rest of fma.gv.at from our fetcher; warnings are republished on EVI (open) as a partial workaround."
+    },
+    {
+      "name": "OeNB — media/press page",
+      "url": "https://www.oenb.at/en/Media.html",
+      "side": "news",
+      "category": "central bank press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: press releases on financial stability, banking statistics, monetary policy. No RSS visible — HTML monitoring of the press archive."
+    },
+    {
+      "name": "BMF — Finanzministerium press",
+      "url": "https://www.bmf.gv.at/presse.html",
+      "side": "news",
+      "category": "finance ministry press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Ministry announcements (tax, capital-market policy, WiEReG). URL not fetch-verified this run — confirm exact press path on ingestion."
+    },
+    {
+      "name": "Der Börsianer",
+      "url": "https://www.derboersianer.com/",
+      "side": "news",
+      "category": "financial markets magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Austrian capital-markets magazine (banking, insurance, funds rankings). Known publication but URL not fetch-verified this run — verify before ingestion."
+    },
+    {
+      "name": "Wiener Börse — news & official announcements",
+      "url": "https://www.wienerborse.at/en/news-1/",
+      "side": "news",
+      "category": "exchange news / ad-hoc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Exchange news plus legally required announcements at /en/legal/announcements/ (both URLs confirmed from the exchange's own navigation). Issuer ad-hoc disclosures also flow via euro adhoc (APA-OTS)."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (global)",
+      "coverageNotes": "Covers the larger Austrian GPs/LPs (Erste/RBI asset-management arms, insurers, Pensionskassen as LPs) and pan-European funds with AT exposure; thin on AT lower-mid-market, NPL servicers, and the service graph.",
+      "publicSourcesTheyUse": "FMA licence disclosures, ESMA registers, fund annual reports, association data (Invest Europe, which invest.austria feeds), press releases — all reachable directly via FMA/ESMA/OTS."
+    },
+    {
+      "platform": "PitchBook (global)",
+      "coverageNotes": "AT PE/VC deal and valuation coverage via press + filings; good on buyouts of Austrian Mittelstand by DACH sponsors; weak on private-debt and real-asset vehicles.",
+      "publicSourcesTheyUse": "Firmenbuch filings (via commercial clearing-house data), APA-OTS press releases, Wiener Börse disclosures, EVI gazette publications — we can go to justizonline/auszug.at, ots.at, wienerborse.at, evi.gv.at directly."
+    },
+    {
+      "platform": "Dealroom (global; local flavor via vienna.dealroom.co with Vienna Business Agency)",
+      "coverageNotes": "Strong Vienna/AT startup + VC round coverage through the co-branded Vienna ecosystem instance (fetch returned 403 — actively bot-protected; do not scrape).",
+      "publicSourcesTheyUse": "brutkasten, Trending Topics, der Standard startup coverage, invest.austria member data, founders' self-reporting, Firmenbuch capital-increase filings — the press feeds and Firmenbuch route are directly available to us."
+    },
+    {
+      "platform": "Crunchbase (global)",
+      "coverageNotes": "Broad but shallow AT startup coverage, mostly self-reported profiles plus funding press; unreliable for legal-entity ground truth.",
+      "publicSourcesTheyUse": "Company self-submissions and English-language tech press; underlying verifiable layer is the same AT press (brutkasten/TT) + Firmenbuch we ingest directly."
+    },
+    {
+      "platform": "KSV1870 (local — Austria's dominant credit bureau)",
+      "coverageNotes": "640,000 AT companies with payment history, insolvencies, register data; membership/paywall model; the local ground-truth standard for creditworthiness and insolvency stats.",
+      "publicSourcesTheyUse": "Firmenbuch (clearing-house feed), Ediktsdatei/Insolvenzdatei (open!), GISA, EVI gazette — every underlying register is public and independently ingestable by us; their proprietary layer is payment-experience data."
+    },
+    {
+      "platform": "Creditreform Österreich (local credit bureau)",
+      "coverageNotes": "Same category as KSV1870: credit reports, insolvency trend statistics (their semi-annual insolvency studies are themselves a public signal worth monitoring).",
+      "publicSourcesTheyUse": "Firmenbuch, Ediktsdatei, GISA, financial statements filed to Firmenbuch — all reachable directly."
+    },
+    {
+      "platform": "Wirtschafts-Compass / Compass-Verlag (local, 150+ years)",
+      "coverageNotes": "Aggregates Firmenbuch, Grundbuch, GISA, Vereinsregister, WiEReG, insolvencies and balance sheets into one paid platform with a real API (api.wirtschaftscompass.at); from EUR 24/yr entry tier. The closest local analogue to an entity-data backbone.",
+      "publicSourcesTheyUse": "Exactly the tier-1/3 registers in this catalog (Firmenbuch, Grundbuch, GISA, ZVR, Ediktsdatei, EVI) — validates our source map; we ingest the same registers directly rather than their platform."
+    },
+    {
+      "platform": "Dun & Bradstreet Austria (ex-Bisnode) + firm directories (FirmenABC, HEROLD)",
+      "coverageNotes": "Commercial firmographics and marketing data on AT companies; FirmenABC/HEROLD are ad-financed directories with SEO-visible company pages.",
+      "publicSourcesTheyUse": "Firmenbuch clearing-house data, WKO Firmen A-Z, GISA — the free WKO and GISA layers give us equivalent breadth at $0."
+    }
+  ],
+  "searchedButAbsent": "Searched for but confirmed absent or unusable: (1) a free/open-data bulk dump of the Firmenbuch — does not exist; access is per-query paid via JustizOnline or the 10 authorized Verrechnungsstellen (APIs exist but are paid); (2) Wiener Börse free CSV issuer export — explicitly discontinued by the exchange (HTML lists remain); (3) a public OTS RSS index — /rss/ returns 404; per-channel/keyword RSS appears registration-gated; (4) FMA machine access of any kind — the WAF 403 confirmed on fma.gv.at (company database, MiCAR pages, news alike); ESMA registers + OeNB CSVs + WKO lists are the workarounds; (5) a standalone Austrian carbon-account list — Austrian ETS accounts live inside the EU Union Registry/EUTL, with only guidance at emissionshandelsregister.at; (6) open UBO data — WiEReG public access is restricted post-CJEU (legitimate-interest, fee-based); (7) a dedicated NPL/servicer register — no such AT register exists; the lender universe must be assembled from OeNB lists + FMA licences + Ediktsdatei activity; (8) a separate RICS Austria public directory — Austrian valuers are best covered by the open Gerichtssachverständigenliste; (9) WirtschaftsBlatt (former financial daily) — defunct since 2016; (10) RSS for Die Presse, Kurier, Börse Express, e-fundresearch — all four domains block or refuse our fetcher, so their feeds are recorded as unverified and must be retested from production infrastructure. Web-search budget for this session was exhausted near the end; ÖBAG/aws/OeEB/KSW/RIS rows were verified by direct fetch instead, and items marked 'not fetch-verified' are flagged honestly in their verdicts."
+}

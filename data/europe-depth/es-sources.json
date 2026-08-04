@@ -1,0 +1,660 @@
+{
+  "country": "ES",
+  "sources": [
+    {
+      "name": "Registro Mercantil Central (RMC)",
+      "url": "https://www.rmc.es/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Central commercial register: company-name (denominaciones) search, registered-company lookup, statistics; full extracts are paid via Registradores. Good for existence checks; bulk data flows via BORME instead."
+    },
+    {
+      "name": "Registradores de España — Información Mercantil (Registro Mercantil online)",
+      "url": "https://sede.registradores.org/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Official paid channel for mercantile extracts (notas simples, deposited accounts). Per-document fee, credential-gated; use for targeted enrichment, not bulk."
+    },
+    {
+      "name": "BORME open-data API (BOE datos abiertos)",
+      "url": "https://www.boe.es/datosabiertos/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Verified: GET /datosabiertos/api/borme/sumario/{yyyymmdd} returns JSON/XML daily summary linking every commercial-register act (incorporations, administrators, insolvencies, capital changes). THE free machine route to Spanish company events — highest-yield source in the country."
+    },
+    {
+      "name": "BOE — Boletín Oficial del Estado open-data API",
+      "url": "https://www.boe.es/datosabiertos/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Verified. Same API family as BORME for the state gazette (laws, public-sector acts, sanctions, concessions). JSON/XML daily sumarios; high yield for regulatory and concession signals."
+    },
+    {
+      "name": "CNMV — Registros de entidades (Búsqueda por entidad)",
+      "url": "https://www.cnmv.es/portal/Consultas/BusquedaPorEntidad.aspx",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. One portal over all CNMV registers: SGIIC/SGEIC fund managers, ESIs, IICs/UCITS, venture-capital entities (SCR/FCR/EICC), foreign AIFMs passported in. Server-rendered, enumerable lists — core GP/ManCo harvest."
+    },
+    {
+      "name": "CNMV — Entidades de capital riesgo register (SCR/FCR/FESE/EICC)",
+      "url": "https://www.cnmv.es/portal/Consultas/MostrarListados.aspx?id=18",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Listado route of the same portal for registered venture-capital/closed-ended vehicles; exact listado id should be confirmed at harvest time, but register is public and enumerable. Direct map of the Spanish PE/VC fund universe."
+    },
+    {
+      "name": "CNMV — descarga de ficheros de información individual de IIC",
+      "url": "https://www.cnmv.es/portal/Consultas/DescargaIIC.aspx",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Bulk download section for per-fund IIC filings (prospectuses, periodic reports) referenced on the portal; route exists though the exact URL should be re-resolved from the portal menu. Fund-level depth at $0."
+    },
+    {
+      "name": "CNMV — MiCA crypto-asset service provider (CASP) register",
+      "url": "https://www.cnmv.es/portal/mica/regulacion-criptoactivos",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: CNMV is the MiCA authority; public CASP register (~134 providers incl. passported) published on the portal. Tokenized-RWA/crypto coverage."
+    },
+    {
+      "name": "Banco de España — Registro de Entidades (search + record download)",
+      "url": "https://app.bde.es/rbe_spa/home",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search (old /wbe/ URL 404s — use app.bde.es/rbe_spa). Banks, EFCs (specialty lenders), payment/e-money firms, appraisal companies; current + historical data, downloadable records. Core credit-side register."
+    },
+    {
+      "name": "Banco de España — sociedades de tasación (registered appraisal companies)",
+      "url": "https://app.bde.es/rbe_spa/home",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Valuation companies are one entity class inside the BdE register — the official Spanish valuer roll (real-assets service graph). Same access route as above."
+    },
+    {
+      "name": "DGSFP — registros públicos (insurers, pension funds, gestoras de fondos de pensiones, mediadores)",
+      "url": "https://dgsfp.mineco.gob.es/",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (homepage; registers behind 'Registros públicos' section). The LP side: pension funds and their management companies, insurers. Register search apps; some lists downloadable."
+    },
+    {
+      "name": "FROB — Spanish bank resolution authority",
+      "url": "https://www.frob.es/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; well-known official body. Resolution decisions and stake disposals (distressed/NPL signals). Low volume, high value."
+    },
+    {
+      "name": "Registro Público Concursal (RPC)",
+      "url": "https://www.publicidadconcursal.es/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Verified via search as the official insolvency register (Ministry of Justice / Colegio de Registradores). Free search by NIF/name across edictos, resoluciones, acuerdos extrajudiciales; no bulk API — BORME + BOE edicts are the machine route, RPC for lookups."
+    },
+    {
+      "name": "CENDOJ — judicial decisions search (Poder Judicial)",
+      "url": "https://www.poderjudicial.es/search/indexAN.jsp",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetched this run; long-standing public case-law search incl. mercantile/insolvency rulings. Useful for litigation-funding and distressed research; form-driven search."
+    },
+    {
+      "name": "Plataforma de Contratación del Sector Público (PLACSP)",
+      "url": "https://contrataciondelestado.es/wps/portal/plataforma",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified live; has an open-data section with bulk ATOM/XML syndication of tenders and awards. Infrastructure/concession deal flow (EPC contractors, concessionaires)."
+    },
+    {
+      "name": "INE — DIRCE central business directory / statistics",
+      "url": "https://www.ine.es/dyngs/INEbase/es/operacion.htm?c=Estadistica_C&cid=1254736160707&menu=ultiDatos&idp=1254735576550",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Not fetched this run; INE's DIRCE gives company-population statistics (not per-company records) as downloadable tables + JSON API (servicios web INE). Context layer, not entity records."
+    },
+    {
+      "name": "datos.gob.es — national open-data catalog (apidata)",
+      "url": "https://datos.gob.es/es/apidata",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Catalog page rendered empty to fetcher (JS) but the documented REST API (apidata) is the machine route over thousands of public datasets. Discovery layer for regional registers."
+    },
+    {
+      "name": "BME — Bolsas y Mercados Españoles listed companies",
+      "url": "https://www.bolsasymercados.es/bme-exchange/en/Markets-and-venues/Equity/Listed-Companies",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (site hub; listed-companies section + Download Center). Issuer lists, indices, statistics. Pair with CNMV disclosure feeds for filings."
+    },
+    {
+      "name": "BME Growth — growth-market issuers incl. SOCIMIs",
+      "url": "https://www.bmegrowth.es/esp/Listado.aspx",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetched this run; BME Growth publishes issuer lists where most Spanish SOCIMIs (private REITs) list — the SOCIMI census route. Confirm exact listado URL at harvest."
+    },
+    {
+      "name": "MARF — Mercado Alternativo de Renta Fija (alternative fixed income)",
+      "url": "https://www.bolsasymercados.es/bme-exchange/en/Markets-and-venues/Fixed-Income/MARF",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetched this run; MARF issuer/programme lists = private-debt issuance map (direct lending adjacent, securitization fund SPVs). Part of verified bolsasymercados.es site."
+    },
+    {
+      "name": "CNMV — Información privilegiada / Otra Información Relevante (issuer disclosures)",
+      "url": "https://www.cnmv.es/portal/otra-informacion-relevante/aldia-oir",
+      "side": "entities",
+      "category": "regulator-disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "rssUrl": "https://www.cnmv.es/portal/gpage?id=RSS",
+      "verdict": "Verified via search: daily IP/OIR disclosure lists plus an RSS/subscription page (cnmv.es/portal/gpage?id=RSS) and real-time email subscriptions. Issuer-event firehose."
+    },
+    {
+      "name": "SpainCap (ex-ASCRI) — member lists + annual directory",
+      "url": "https://www.spaincap.org/quienes-somos/organizacion/socios/inversor",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: ~186 GP members, 107 advisors, 26 LP members listed on socios pages; annual Anuario PDF (spaincap.org/storage/documents/2025/01/anuario-2025.pdf) is a full directory. /en/partners/ 404s — use the socios routes."
+    },
+    {
+      "name": "INVERCO — funds & pension funds association statistics",
+      "url": "https://www.inverco.es/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified live. Monthly/quarterly Excel statistics on funds, pension plans and their gestoras — LP-side AUM context and manager league tables at $0."
+    },
+    {
+      "name": "AEB — Asociación Española de Banca (member banks)",
+      "url": "https://www.aebanca.es/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; well-known association with member list and banking statistics. Cross-check against BdE register."
+    },
+    {
+      "name": "CECA — savings-banks association",
+      "url": "https://www.ceca.es/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; member entities (CaixaBank et al heritage sector) and sector reports."
+    },
+    {
+      "name": "UNACC — credit cooperatives association",
+      "url": "https://www.unacc.com/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; rural/credit co-op member list — long-tail LP/lender entities."
+    },
+    {
+      "name": "ASNEF — consumer & specialty finance association",
+      "url": "https://www.asnef.com/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; members = consumer lenders/EFCs (specialty finance). Cross-check with BdE EFC register."
+    },
+    {
+      "name": "AEF — Asociación Española de Factoring",
+      "url": "https://www.factoringasociacion.com/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; member list + factoring/confirming volumes — trade/supply-chain finance mapping. Verify URL at harvest."
+    },
+    {
+      "name": "UNESPA — insurance association",
+      "url": "https://www.unespa.es/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; insurer members and sector reports — LP-side (insurance capital) context."
+    },
+    {
+      "name": "ICO — Instituto de Crédito Oficial",
+      "url": "https://www.ico.es/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified (axispart.com serves ICO-group content). State promotional bank: credit lines, bonds, annual reports, press. Anchor DFI entity."
+    },
+    {
+      "name": "AXIS / Fond-ICO Global (ICO group fund-of-funds)",
+      "url": "https://www.axispart.com/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified: resolves into ICO-group site describing AXIS as the group's capital-riesgo gestora. Fond-ICO Global award rounds are public — LP-commitment signals for Spanish GPs."
+    },
+    {
+      "name": "COFIDES — development finance for internationalization",
+      "url": "https://www.cofides.es/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; state DFI co-investing in Spanish companies abroad; publishes portfolio and press."
+    },
+    {
+      "name": "ENISA — state startup/venture-debt lender",
+      "url": "https://www.enisa.es/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; participative loans to startups — venture-debt-adjacent signals and portfolio news."
+    },
+    {
+      "name": "CDTI — innovation agency (Innvierte co-investment)",
+      "url": "https://www.cdti.es/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; Innvierte program co-invests with VCs; award publications = deal signals."
+    },
+    {
+      "name": "SEPI — state industrial holding company",
+      "url": "https://www.sepi.es/",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; state shareholdings portfolio and disposals — privatization/state-asset side."
+    },
+    {
+      "name": "Sareb — state bad bank (NPL/REO portfolios)",
+      "url": "https://www.sareb.es/",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; portfolio sales and servicer contracts are prime Spanish NPL signals; publishes press and reports."
+    },
+    {
+      "name": "ICEX / Invest in Spain",
+      "url": "https://www.investinspain.org/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; FDI promotion agency; announcements are inbound-investment signals."
+    },
+    {
+      "name": "RENADE — Spanish national section of the EU ETS Union Registry",
+      "url": "https://www.renade.es/esp/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: account holder registry + EU-ETS transaction info pages under MITECO/OECC. Carbon-alts entity anchor; account lists limited but installation/operator data public via MITECO."
+    },
+    {
+      "name": "AEV — Asociación Española de Análisis de Valor (appraisal companies)",
+      "url": "https://www.asociacionaev.org/",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; association of BdE-registered valuation companies; member list complements the BdE tasación register. Verify URL at harvest."
+    },
+    {
+      "name": "Abogacía Española — census of lawyers / bar directory",
+      "url": "https://www.abogacia.es/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; national bar council with censo search; use for law-firm service-graph verification only (no bulk personal-data harvest, per project law)."
+    },
+    {
+      "name": "REFOR — Registro de Economistas Forenses (insolvency practitioners)",
+      "url": "https://refor.economistas.es/",
+      "side": "entities",
+      "category": "insolvency-practitioner-roll",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; economists' insolvency-administrator body, publishes concursal statistics and practitioner info. Private-debt service graph."
+    },
+    {
+      "name": "Fondo de Garantía de Depósitos — member entities",
+      "url": "https://www.fgd.es/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; deposit-guarantee scheme member list — cross-check of the deposit-taking universe."
+    },
+    {
+      "name": "AEFI — Asociación Española de FinTech e InsurTech",
+      "url": "https://www.asociacionfintech.es/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; fintech member directory — origination layer for specialty finance and crypto entities."
+    },
+    {
+      "name": "Expansión (Unidad Editorial) — RSS",
+      "url": "https://www.expansion.com/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://e00-expansion.uecdn.es/rss/portada.xml",
+      "verdict": "Feed VERIFIED working (portada; section feeds exist on same CDN pattern, e.g. /rss/economia.xml, /rss/empresas.xml). Top-tier Spanish financial daily; M&A, banking, funds."
+    },
+    {
+      "name": "Cinco Días (El País Economía)",
+      "url": "https://cincodias.elpais.com/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://feeds.elpais.com/mrss-s/pages/ep/site/cincodias.elpais.com/portada",
+      "verdict": "Fetcher blocked from cincodias.elpais.com this run; the elpais.com feeds host serves the mrss feed pattern recorded here — re-verify from a normal crawler UA. Strong companies/markets coverage."
+    },
+    {
+      "name": "El Confidencial — empresas/mercados feeds",
+      "url": "https://www.elconfidencial.com/empresas/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://rss.elconfidencial.com/empresas/",
+      "verdict": "rss.elconfidencial.com refused this fetcher; the /empresas/ and /mercados/ feed paths are the publisher's documented pattern — re-verify with standard UA. Best Spanish outlet for deal scoops and distressed stories."
+    },
+    {
+      "name": "elEconomista.es — RSS index",
+      "url": "https://www.eleconomista.es/rss/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.eleconomista.es/rss/rss-empresas-finanzas.php",
+      "verdict": "Feed URL returned 403 to this fetcher (bot protection), not 404 — feeds exist behind UA checks; re-verify from pipeline crawler. Broad companies/finance coverage."
+    },
+    {
+      "name": "Europa Press — economía/finanzas wire RSS",
+      "url": "https://www.europapress.es/economia/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.europapress.es/rss/rss.aspx?ch=00136",
+      "verdict": "Domain blocked to this fetcher; the ch-parameter RSS endpoints are Europa Press's documented pattern (00136 = economía). High-volume wire — good dedupe anchor."
+    },
+    {
+      "name": "Vozpópuli — economía y finanzas",
+      "url": "https://www.vozpopuli.com/economia_y_finanzas/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; known for banking/distressed scoops. Hunt /feed at activation."
+    },
+    {
+      "name": "El Español — Invertia (markets/companies vertical)",
+      "url": "https://www.elespanol.com/invertia/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; strong banking and energy coverage; RSS route unconfirmed."
+    },
+    {
+      "name": "La Información",
+      "url": "https://www.lainformacion.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; economics-focused digital daily; RSS route unconfirmed."
+    },
+    {
+      "name": "FundsPeople España",
+      "url": "https://fundspeople.com/es/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://fundspeople.com/es/feed/",
+      "verdict": "Feed VERIFIED working, hourly, current. Asset-management trade press: gestoras, mandates, private-markets funds. High signal for categories 1-4 and service graph."
+    },
+    {
+      "name": "Funds Society (ES edition)",
+      "url": "https://www.fundssociety.com/es/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.fundssociety.com/es/feed/",
+      "verdict": "Feed VERIFIED valid RSS but sampled items dated Dec 2024 — feed may lag or paginate oddly; treat as working-but-monitor. Asset/wealth management news."
+    },
+    {
+      "name": "Brainsre News (real estate)",
+      "url": "https://brainsre.news/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://brainsre.news/feed/",
+      "verdict": "Feed VERIFIED working, current, hourly. Data-driven Spanish RE media: transactions, SOCIMIs, hotels, logistics — real-assets signal engine."
+    },
+    {
+      "name": "EjePrime (real estate / retail RE)",
+      "url": "https://www.ejeprime.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; established RE trade outlet; probe /rss at activation."
+    },
+    {
+      "name": "idealista/news",
+      "url": "https://www.idealista.com/news/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; largest RE portal's newsroom + price data; robots posture must be checked before crawling."
+    },
+    {
+      "name": "El Periódico de la Energía",
+      "url": "https://elperiodicodelaenergia.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://elperiodicodelaenergia.com/feed/",
+      "verdict": "Feed VERIFIED working, current. Energy/renewables projects, PPAs, auctions — transition-infrastructure deal flow."
+    },
+    {
+      "name": "Energías Renovables",
+      "url": "https://www.energias-renovables.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; veteran renewables outlet; probe feed at activation."
+    },
+    {
+      "name": "El Referente (startups & VC)",
+      "url": "https://elreferente.es/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://elreferente.es/feed/",
+      "verdict": "Feed VERIFIED working, current. Funding rounds and ecosystem news — Spanish VC round coverage at $0."
+    },
+    {
+      "name": "Capital & Corporate (IFAES)",
+      "url": "https://www.capitalcorporate.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Dedicated Spanish M&A/PE trade portal: deals feed, interviews, CapCorp yearbook. No RSS found — crawl the deals index politely; do not scrape their CapCorpData product."
+    },
+    {
+      "name": "Webcapitalriesgo",
+      "url": "https://www.webcapitalriesgo.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Academic-rooted Spanish VC/PE transparency initiative; 30k+ article archive, reports, newsletter. Both a news source and a methodology reference."
+    },
+    {
+      "name": "CNMV press releases / RSS hub",
+      "url": "https://www.cnmv.es/portal/gpage?id=RSS",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cnmv.es/portal/gpage?id=RSS",
+      "verdict": "RSS hub page verified via search (feed catalog page — extract concrete channel URLs from it at activation). Authorizations, sanctions, warnings, new registrations."
+    },
+    {
+      "name": "Banco de España — news & press",
+      "url": "https://www.bde.es/wbe/en/noticias-eventos/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "bde.es fetches redirect through app.bde.es bot-gate; press section exists but machine route unconfirmed — re-verify from pipeline crawler."
+    },
+    {
+      "name": "Tesoro Público / Ministerio de Economía press",
+      "url": "https://www.tesoro.es/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; treasury auctions and ministry announcements; low volume, official."
+    },
+    {
+      "name": "Iberian Lawyer",
+      "url": "https://iberianlawyer.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not fetched this run; legal-market trade press (Iberia) — law-firm deal mandates feed the service graph. Probe /feed at activation."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (global)",
+      "coverageNotes": "Spanish GPs/LPs and fund performance covered top-down; thin on mid-market and regional service graph.",
+      "publicSourcesTheyUse": "CNMV SGIIC/SGEIC and capital-riesgo registers, DGSFP pension-fund register (LP side), fund annual accounts filed via Registro Mercantil/BORME — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook (global)",
+      "coverageNotes": "Good on Spanish VC rounds and PE deals via press mining; weaker on debt, NPL, real assets.",
+      "publicSourcesTheyUse": "BORME incorporation/capital-increase events, CNMV registers, SpainCap yearbook, startup press (El Referente-class outlets) — we can consume the same gazette + press layer."
+    },
+    {
+      "platform": "Dealroom (global, strong ES via partnerships)",
+      "coverageNotes": "Startup/VC ecosystem mapping incl. Spain hubs (endorsed by public agencies).",
+      "publicSourcesTheyUse": "Public startup announcements, ENISA/CDTI award publications, accelerator lists, BORME-derived company data via local data resellers."
+    },
+    {
+      "platform": "Crunchbase (global)",
+      "coverageNotes": "Broad but shallow Spanish startup coverage, self-reported heavy.",
+      "publicSourcesTheyUse": "Press releases and startup media; little registry depth — our BORME/CNMV route out-depths it."
+    },
+    {
+      "platform": "TTR Data — Transactional Track Record (Iberia/LatAm local champion)",
+      "coverageNotes": "VERIFIED live. The Iberian M&A/PE/VC/capital-markets deal database; claims 3x more local data than globals; monthly league tables.",
+      "publicSourcesTheyUse": "BORME acts, CNMV IP/OIR disclosures, BME/MARF listings, insolvency edicts, law-firm deal announcements — every one a public source we catalog above."
+    },
+    {
+      "platform": "Capital & Corporate / CapCorpData (local)",
+      "coverageNotes": "VERIFIED live. Spanish M&A/PE deal intelligence + yearbook + magazine; strong advisor/deal attribution.",
+      "publicSourcesTheyUse": "Deal press releases, advisor submissions, BORME confirmations, SpainCap directory."
+    },
+    {
+      "platform": "Informa D&B / eInforma (local company-data incumbent)",
+      "coverageNotes": "Full Spanish company universe with financials, scores, UBO-adjacent linkage; the de-facto registry reseller.",
+      "publicSourcesTheyUse": "BORME open data + paid Registro Mercantil deposited accounts + BOE — their entire base layer is public; we can replicate the event layer free via the BORME API, while per-company financials remain paid at the registry."
+    },
+    {
+      "platform": "Axesor (a Grupo Experian company, local)",
+      "coverageNotes": "Ratings, company data and risk scores on Spanish companies; MARF rating agency presence.",
+      "publicSourcesTheyUse": "BORME, deposited accounts via Registradores, RPC insolvency register, court/gazette edicts."
+    },
+    {
+      "platform": "Iberinform / Insight View (Crédito y Caución, local)",
+      "coverageNotes": "Company risk data platform on Spain/Portugal.",
+      "publicSourcesTheyUse": "Same public base: BORME, Registro Mercantil accounts, RPC."
+    },
+    {
+      "platform": "Webcapitalriesgo (local, semi-academic)",
+      "coverageNotes": "VERIFIED live. Long-run Spanish VC/PE statistics, reports and 30k-article news archive; the historical-series reference for the market.",
+      "publicSourcesTheyUse": "SpainCap surveys, CNMV ECR register, self-collected deal press — its published aggregates are citable context."
+    },
+    {
+      "platform": "Brainsre (local RE data platform)",
+      "coverageNotes": "Spanish real-estate data/analytics platform + free news arm (brainsre.news, verified RSS).",
+      "publicSourcesTheyUse": "Catastro open data, Registradores property data, SOCIMI filings on BME Growth, land-registry statistics — the public RE layer we can also tap."
+    }
+  ],
+  "searchedButAbsent": "Searched but not found / not verifiable this run: (1) a direct machine-readable list URL for the CNMV MiCA CASP register (register confirmed to exist on the portal, concrete list endpoint to be resolved at harvest); (2) SpainCap /en/partners/ page — 404; member data lives on /quienes-somos/organizacion/socios/* pages and the Anuario PDF; (3) any free bulk download of Spanish company financial statements — deposited accounts are paid-per-document at Registradores (no open route exists; Informa/Axesor pay for it too); (4) public UBO register access — restricted in the EU, correctly not cataloged; (5) a Spanish litigation-funding association or public litigation-funder register — none exists; litigation-finance entities must come via commercial-register + press; (6) RSS endpoints for El Economista, El Confidencial, Cinco Días and Europa Press could not be confirmed live because those hosts block this fetcher (403/connection refused) — recorded URLs follow each publisher's documented feed pattern and are marked js-blocked, to be re-verified from the pipeline crawler UA; (7) AELR (leasing/renting association) and ASPAC (insolvency administrators association) were left out rather than padded, since I could not verify a canonical URL this run; (8) old Banco de España register URL (/wbe/.../registros-entidades/) 404s — replaced by the verified app.bde.es/rbe_spa/home portal."
+}

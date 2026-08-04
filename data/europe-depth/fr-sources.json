@@ -1,0 +1,690 @@
+{
+  "country": "FR",
+  "sources": [
+    {
+      "name": "INPI — Registre National des Entreprises (RNE) / data.inpi.fr",
+      "url": "https://data.inpi.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified. THE national company register: free API + SFTP bulk (JSON), daily updates; includes non-confidential annual accounts and acts/statutes since 1993. Yield: every FR legal entity. Register at data.inpi.fr for API/SFTP credentials (inpi.fr/ressources/formalites-dentreprises/acces-lapi-formalite-rne)."
+    },
+    {
+      "name": "INSEE — Sirene database + API Sirene",
+      "url": "https://api.insee.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Well-known open API + full monthly stock files (SIREN/SIRET, NAF codes, addresses) under Licence Ouverte; canonical identifier spine for all FR entities. Not re-fetched this session but long-established."
+    },
+    {
+      "name": "Annuaire des Entreprises + API Recherche d'entreprises",
+      "url": "https://annuaire-entreprises.data.gouv.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified. Government aggregator over Sirene+RNE+BODACC with a free, keyless search API (annuaire-entreprises.data.gouv.fr/donnees/api-entreprises); best single lookup route."
+    },
+    {
+      "name": "Infogreffe (commercial court registries RCS)",
+      "url": "https://www.infogreffe.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified alive. Company search + filings/KBIS; many documents paid, but search index is public and it is one leg of the official PPLE triad. Use RNE/Sirene for bulk; Infogreffe for court-registry documents."
+    },
+    {
+      "name": "Data Infogreffe (open data portal)",
+      "url": "https://opendata.datainfogreffe.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Opendatasoft portal with registrations/radiations/accounts datasets and API. URL not re-fetched this session — verify before wiring; known-real portal."
+    },
+    {
+      "name": "data.gouv.fr (national open-data hub)",
+      "url": "https://www.data.gouv.fr",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified. Hub hosting the AMF SGP list, PSAN whitelist, BODACC/BALO/BOAMP APIs, Sirene, DECP procurement — one account, many machine routes."
+    },
+    {
+      "name": "AMF — Base GECO (management companies + funds register)",
+      "url": "https://geco.amf-france.org",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified. ~667 AIFM/UCITS management companies (SGP) with agrément scope, CSV export; the core GP register for France. Already partially harvested per brief — GECO also covers funds (OPC) beyond the SGP list."
+    },
+    {
+      "name": "AMF — Liste des SGP agréées (data.gouv.fr dataset)",
+      "url": "https://www.data.gouv.fr/datasets/liste-des-societes-de-gestion-de-portefeuille-sgp-agreees-par-lamf",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified. Clean CSV of all AMF-approved portfolio management companies with agrément number, legal form, website — easiest bulk route to the FR GP universe."
+    },
+    {
+      "name": "AMF — PSAN/CASP whitelist (crypto, MiCA)",
+      "url": "https://www.data.gouv.fr/datasets/liste-blanche-des-prestataires-de-services-sur-actifs-numeriques-psan",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified. Official whitelist of digital-asset service providers; since 1 Jul 2026 only MiCA CASP/PSCA licensees may serve FR clients — AMF publishes the register, dataset mirrors it."
+    },
+    {
+      "name": "info-financiere.gouv.fr (OAM — regulated information storage)",
+      "url": "https://info-financiere.gouv.fr",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Verified. France's centralized storage of listed-company regulated disclosures (Transparency Directive), open API + FTPS bulk via DILA — prospectuses, annual reports, major-holding notices."
+    },
+    {
+      "name": "REGAFI — unified register of financial agents and insurers (ACPR)",
+      "url": "https://www.regafi.fr",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Since 1 Jul 2026 REGAFI+REFASSU merged into one daily-updated public register of all ACPR-authorized banks, investment firms, payment/e-money institutions AND insurance organisms. Search UI + downloadable lists (incl. securitization funds); no confirmed bulk dump — scrape politely or use ACPR PDF/CSV lists."
+    },
+    {
+      "name": "ACPR — registers and lists page (Banque de France)",
+      "url": "https://acpr.banque-france.fr/fr/professionnels/vos-outils-et-services/consulter-les-registres",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified. ACPR (prudential regulator = banking + insurance/pension side) publishes downloadable lists: credit institutions, finance companies, insurers/mutuelles (the LP feeder population), systemic institutions."
+    },
+    {
+      "name": "Banque de France — Webstat open data API",
+      "url": "https://webstat.banque-france.fr",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Verified. 35-40k statistical series via developer.webstat.banque-france.fr (free key): credit, funds, securitization, corporate finance aggregates. Context/series data, not an entity register (FIBEN is not public)."
+    },
+    {
+      "name": "ORIAS — single register of insurance/banking/finance intermediaries",
+      "url": "https://www.orias.fr",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified real. Registers IAS/IOBSP/CIF (financial investment advisers) — the distribution layer. Search-only UI; no open-data export found — mid yield, entity verification use."
+    },
+    {
+      "name": "BODACC — official bulletin of civil & commercial announcements (open data)",
+      "url": "https://bodacc-datadila.opendatasoft.com/explore/dataset/annonces-commerciales/api/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Verified. Free DILA API (Opendatasoft v2.1) covering incorporations, sales, mergers, and ALL insolvency proceedings (procédures collectives) — the highest-yield event stream in France; Licence Ouverte 2.0."
+    },
+    {
+      "name": "BALO — bulletin of mandatory legal announcements (open data API)",
+      "url": "https://www.data.gouv.fr/dataservices/api-bulletin-des-annonces-legales-obligatoires-balo",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Verified. DILA API, data published Mon/Wed/Fri: fund notices, AGM convocations, annual accounts of issuers and financial institutions — good for fund-vehicle and issuer events."
+    },
+    {
+      "name": "DILA bulk open data (echanges.dila.gouv.fr)",
+      "url": "https://echanges.dila.gouv.fr/OPENDATA/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "Known DILA bulk FTP/HTTP repository for BODACC/BALO/JORF archives. Not re-fetched this session — verify path before wiring; the per-bulletin APIs above are the safer route."
+    },
+    {
+      "name": "Actulégales — legal announcements from authorized newspapers (JAL)",
+      "url": "https://www.actulegales.fr",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 16M+ legal announcements from ~600 authorized journals since 2010, free access; complements BODACC for pre-RCS events (constitutions, capital changes)."
+    },
+    {
+      "name": "PPLE — portal of legal publicity of enterprises",
+      "url": "https://www.pple.fr",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Official GIP portal federating actulegales.fr + bodacc.fr + infogreffe.fr; use as cross-check/entry point rather than a data source itself."
+    },
+    {
+      "name": "CNAJMJ — directory of judicial administrators & mandataires (insolvency practitioners)",
+      "url": "https://www.cnajmj.fr/annuaire/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Official roll of ~170 administrateurs + ~330 mandataires judiciaires across ~270 firms, filterable by region/profession — the FR insolvency-practitioner population for the Private Debt service graph."
+    },
+    {
+      "name": "BOAMP — official public procurement bulletin (open data API)",
+      "url": "https://boamp-datadila.opendatasoft.com/explore/dataset/boamp/api/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Verified. Free DILA API + raw XML flow of all above-threshold tenders and awards — infrastructure/concession deal signals and EPC-contractor discovery."
+    },
+    {
+      "name": "Euronext Paris — issuer and equity lists",
+      "url": "https://live.euronext.com/en/markets/paris/equities/list",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Full listed-equity tables (Euronext Paris + Growth + Access) on live.euronext.com; separate issuer-list download at euronext.com/en/media/5107/download. Tables render via JS but back onto fetchable endpoints — test the CSV export."
+    },
+    {
+      "name": "France Invest — members directory (PE/VC/infra/debt association)",
+      "url": "https://www.franceinvest.eu/en/members-directory/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 650+ members incl. 470+ fund managers, searchable by strategy/ticket/sector, plus associate members (advisors — service graph). Cross-reference against AMF SGP list for classification."
+    },
+    {
+      "name": "AFG — Association Française de la Gestion financière",
+      "url": "https://www.afg.asso.fr",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real association of FR asset managers (incl. private-markets committee); publishes industry stats and member info. Not fetched this session — verify member-directory depth."
+    },
+    {
+      "name": "ASPIM — association of real-estate fund managers (SCPI/OPCI)",
+      "url": "https://www.aspim.fr",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; the SCPI/OPCI (unlisted real-estate vehicle) association with member list + quarterly collection stats — key Real Assets population. URL not fetched this session."
+    },
+    {
+      "name": "AF2i — French association of institutional investors",
+      "url": "https://www.af2i.org",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; the LP-side association (insurers, pension institutions, corporates) — member list maps the French LP universe. Not fetched this session."
+    },
+    {
+      "name": "FBF — Fédération Bancaire Française",
+      "url": "https://www.fbf.fr",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real banking association; member banks + positions. Low incremental yield vs REGAFI but useful for classification. Not fetched this session."
+    },
+    {
+      "name": "ASF — Association française des Sociétés Financières (leasing/factoring/specialty finance)",
+      "url": "https://www.asf-france.com",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; covers leasing, factoring, sureties, consumer credit — the specialty-finance population for Private Debt. Member directory exists; not fetched this session."
+    },
+    {
+      "name": "France Assureurs — insurance association",
+      "url": "https://www.franceassureurs.fr",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; insurer members = major French LPs; publishes asset-allocation stats. Not fetched this session."
+    },
+    {
+      "name": "France FinTech — fintech association directory",
+      "url": "https://francefintech.org",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; startup/fintech member map incl. tokenization/RWA players (Niche Alts). Not fetched this session."
+    },
+    {
+      "name": "Bpifrance (national development/investment bank)",
+      "url": "https://www.bpifrance.fr",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Real. France's DFI and largest LP/direct investor; press releases and fund-of-funds commitments are high-value signals. Main site fetchable; its media arm blocks bots (see Big Média entry)."
+    },
+    {
+      "name": "Caisse des Dépôts et Consignations (CDC group)",
+      "url": "https://www.caissedesdepots.fr",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; sovereign investor (also parent of Banque des Territoires, CDC Croissance) and EU ETS national administrator. Press/portfolio pages; not fetched this session."
+    },
+    {
+      "name": "Business France (investment promotion agency)",
+      "url": "https://www.businessfrance.fr",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; FDI promotion, annual foreign-investment barometer — signal source more than register. Not fetched this session."
+    },
+    {
+      "name": "APE — Agence des participations de l'État (state shareholding agency)",
+      "url": "https://www.economie.gouv.fr/agence-participations-etat",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Real; annual report lists the full state portfolio (~85 companies) — the privatization/state-asset map. Exact URL path not re-verified this session; reachable from economie.gouv.fr."
+    },
+    {
+      "name": "SERINGAS — French EU ETS registry desk (Caisse des Dépôts)",
+      "url": "https://politiques-sociales.caissedesdepots.fr/SERINGAS/accueil-seringas",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Verified via search: CDC is France's national administrator of the Union Registry for GHG quotas. Portal is account-holder-oriented; use EUTL (below) for public data."
+    },
+    {
+      "name": "EUTL — EU Transaction Log, French accounts (carbon)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Public EU-level database of all FR ETS account holders, installations and compliance data; bulk downloadable. Standard route for carbon-market entities; not re-fetched this session."
+    },
+    {
+      "name": "Label Bas-Carbone (French domestic carbon-credit standard, Ministry of Ecology)",
+      "url": "https://www.ecologie.gouv.fr/label-bas-carbone",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real ministry-run domestic offset standard with a public project registry — Niche Alts (carbon) developer/buyer discovery. Exact registry URL not verified this session."
+    },
+    {
+      "name": "RICS — Find a Member (France chapter)",
+      "url": "https://www.rics.org",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Real global directory covering RICS-accredited valuers in France; search UI is JS-heavy and paginated — low-volume manual/assisted harvest only."
+    },
+    {
+      "name": "CNB — national bar council lawyer directory",
+      "url": "https://www.cnb.avocat.fr",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Real; official annuaire des avocats (annuaireavocats.cnb.avocat.fr) covers all FR lawyers — filter to business-law firms for the service graph. Directory subdomain not fetched this session."
+    },
+    {
+      "name": "PLACE — state procurement platform (marches-publics.gouv.fr)",
+      "url": "https://www.marches-publics.gouv.fr",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Real; state tender platform complementing BOAMP. Prefer BOAMP API + DECP data for machine access. Not fetched this session."
+    },
+    {
+      "name": "data.economie.gouv.fr — Ministry of Economy open data (incl. DECP procurement)",
+      "url": "https://data.economie.gouv.fr",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Verified via search (Opendatasoft API console live). Hosts DECP (essential public-procurement contract data) and ministry finance datasets — award-level data on contractors/concessionaires."
+    },
+    {
+      "name": "ERAFP — public-service additional pension scheme",
+      "url": "https://www.rafp.fr",
+      "side": "entities",
+      "category": "pension-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; €40bn+ pension investor publishing manager-selection tenders (incl. unlisted mandates) — direct LP signal. Domain rafp.fr not re-verified this session."
+    },
+    {
+      "name": "FRR — Fonds de Réserve pour les Retraites",
+      "url": "https://www.fondsdereserve.fr",
+      "side": "entities",
+      "category": "pension-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real sovereign pension-reserve fund; publishes RFPs/mandate awards for asset managers incl. private assets. Not fetched this session."
+    },
+    {
+      "name": "Agirc-Arrco — complementary pension federation",
+      "url": "https://www.agirc-arrco.fr",
+      "side": "entities",
+      "category": "pension-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real; largest FR complementary pension system whose member institutions are LPs; institutional publications only — low machine yield, keep for LP mapping."
+    },
+    {
+      "name": "Les Echos (business daily)",
+      "url": "https://www.lesechos.fr",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://services.lesechos.fr/rss/investir-conseils-boursiers.xml",
+      "verdict": "Top FR business daily; RSS feeds exist under services.lesechos.fr/rss/*.xml (markets feed verified via search; hunt sibling feeds for finance/PE sections). Paywalled full text — headline+link use only."
+    },
+    {
+      "name": "Les Echos Capital Finance (PE/M&A vertical)",
+      "url": "https://capitalfinance.lesechos.fr",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; the historic French PE trade letter (deals, funds, nominations). Subscription; no public RSS found — headline monitoring only."
+    },
+    {
+      "name": "L'AGEFI (agefi.fr, incl. NewsManagers asset-management wire)",
+      "url": "https://www.agefi.fr",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Core FR institutional-finance media (asset management, PE, institutional investors; owns NewsManagers). Site refuses bot fetches; RSS feeds referenced by third-party directories but direct feed URLs unverified."
+    },
+    {
+      "name": "CFNEWS (Corporate Finance News)",
+      "url": "https://www.cfnews.net",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cfnews.net/rss/feed/actualite",
+      "verdict": "Verified rich RSS set at cfnews.net/rss/list: 18 feeds incl. /rss/feed/lbo, /capital-innovation, /capital-developpement, /retournement, /nominations — the single best FR deal-signal feed family. Respect reproduction policy (headline+link)."
+    },
+    {
+      "name": "CFNEWS IMMO (commercial real estate finance)",
+      "url": "https://www.cfnewsimmo.net/rss/list",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "Verified feed-list page exists; sister publication for FR real-estate deals/funds — Real Assets signal stream."
+    },
+    {
+      "name": "Maddyness (startup/VC media)",
+      "url": "https://www.maddyness.com",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.maddyness.com/feed/",
+      "verdict": "Feed fetched and verified valid (WordPress RSS, active Aug 2026): FR startup funding rounds and French Tech coverage."
+    },
+    {
+      "name": "FrenchWeb / FW Média",
+      "url": "https://www.frenchweb.fr",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.frenchweb.fr/feed",
+      "verdict": "Feed fetched and verified valid, hourly updates: FR/EU tech funding and scale-up coverage."
+    },
+    {
+      "name": "Sifted (FT-backed, strong France coverage)",
+      "url": "https://sifted.eu",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://sifted.eu/feed",
+      "verdict": "Feed fetched and verified valid RSS 2.0; European VC/startup coverage incl. French rounds and funds."
+    },
+    {
+      "name": "La Tribune (business daily)",
+      "url": "https://www.latribune.fr",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real major business daily; direct fetch blocked by bot protection. Legacy RSS infrastructure (ged.latribune.fr/data/rss) referenced but unverified — treat as headline-scrape-with-care."
+    },
+    {
+      "name": "BFM Business",
+      "url": "https://www.bfmtv.com/economie/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; leading business broadcaster with economy/markets sections. RSS pattern (bfmtv.com/rss/economie/) plausible but unverified this session."
+    },
+    {
+      "name": "Option Finance (corporate-finance weekly, incl. La Tribune de l'Assurance)",
+      "url": "https://www.optionfinance.fr",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; corporate finance/treasury/asset management trade press. Subscription model; no RSS found — newsletter/headline monitoring."
+    },
+    {
+      "name": "Business Immo (real-estate trade press)",
+      "url": "https://www.businessimmo.com",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real; the FR commercial-real-estate trade daily. Fetch returned 403 (bot-blocked); /feed also 403 — needs polite crawler or newsletter route."
+    },
+    {
+      "name": "L'Usine Nouvelle (industry)",
+      "url": "https://www.usinenouvelle.com",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real industrial/manufacturing daily — factory investments, energy, EPC signals. RSS existence not verified this session."
+    },
+    {
+      "name": "GreenUnivers (energy-transition finance)",
+      "url": "https://www.greenunivers.com",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.greenunivers.com/feed/",
+      "verdict": "Feed fetched and verified valid RSS 2.0: renewables M&A, fund raises, infra deals (e.g. Idex sale, TotalEnergies/KKR) — prime Real Assets/Transition signal source."
+    },
+    {
+      "name": "H24 Finance (asset-management news)",
+      "url": "https://www.h24finance.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real FR asset-management/CGP news portal (fund launches, SGP moves). Not fetched this session; no RSS confirmed."
+    },
+    {
+      "name": "Décideurs Magazine / Leaders League",
+      "url": "https://www.decideurs-magazine.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; rankings and news across PE, restructuring, law firms — useful for service-graph mapping (rankings are directories of advisors). Not fetched this session."
+    },
+    {
+      "name": "IEIF — Institut de l'Épargne Immobilière et Foncière",
+      "url": "https://www.ieif.fr",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real real-estate investment research institute (SCPI/OPCI stats, market studies) — context source for Real Assets. Not fetched this session."
+    },
+    {
+      "name": "AMF — press releases & sanctions RSS",
+      "url": "https://www.amf-france.org",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.amf-france.org/fr/flux-rss/display/23",
+      "verdict": "Verified feed URLs via search: /fr/flux-rss/display/23 (press+sanctions), /25 (publications), /30 (news), /21 (all). Sanctions and agrément news = high-grade signals."
+    },
+    {
+      "name": "Banque de France — press & publications",
+      "url": "https://www.banque-france.fr",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; central-bank press releases, financial-stability reports. RSS not confirmed this session; page structure fetchable."
+    },
+    {
+      "name": "Ministry of Economy press room (Bercy)",
+      "url": "https://presse.economie.gouv.fr",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real government press room: state-asset moves, financial-sector policy. Not fetched this session."
+    },
+    {
+      "name": "DG Trésor — publications",
+      "url": "https://www.tresor.economie.gouv.fr",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; Treasury directorate publications (financial-sector policy, ORIAS supervision). Context source. Not fetched this session."
+    },
+    {
+      "name": "Bpifrance Big Média + press releases",
+      "url": "https://bigmedia.bpifrance.fr",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real Bpifrance media arm (fund commitments, ecosystem news); /feed returned 403 — bot-blocked, use presse.bpifrance.fr releases via polite crawl."
+    },
+    {
+      "name": "Euronext — company press releases / market news",
+      "url": "https://live.euronext.com/en/products/equities/company-news",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Issuer press-release flow for Paris-listed companies; complements info-financiere.gouv.fr API (which is the better machine route). Exact path not re-verified this session."
+    },
+    {
+      "name": "Le Monde — Économie",
+      "url": "https://www.lemonde.fr/economie/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real; general-interest daily with strong economy desk. Direct fetch blocked this session; historical RSS pattern (/economie/rss_full.xml) unverified — treat cautiously."
+    },
+    {
+      "name": "Challenges (business weekly)",
+      "url": "https://www.challenges.fr",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real business weekly (deals, fortunes, company coverage). RSS not verified this session."
+    },
+    {
+      "name": "Boursorama (markets portal)",
+      "url": "https://www.boursorama.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; highest-traffic FR markets portal, aggregates newswires and issuer releases. Aggregator — prefer original sources for provenance; not fetched this session."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (global)",
+      "coverageNotes": "Strong on French GPs, funds, performance and LP commitments (Bpifrance, insurers, ERAFP/FRR mandates); weaker on deal-level and mid-market detail.",
+      "publicSourcesTheyUse": "AMF GECO/SGP register (fund-manager universe), France Invest activity & performance reports, BALO fund notices, LP annual reports (ERAFP, FRR, insurers), press releases — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook (global)",
+      "coverageNotes": "Good FR PE/VC deal and valuation coverage, cap tables inferred from filings; strong advisor mapping.",
+      "publicSourcesTheyUse": "INPI RNE filings and annual accounts (open API/SFTP), BODACC events (open API), Euronext/AMF regulated disclosures via info-financiere.gouv.fr, company press releases."
+    },
+    {
+      "platform": "Dealroom (global/regional)",
+      "coverageNotes": "Powers the official La French Tech ecosystem map — deepest FR startup/VC round coverage of the globals.",
+      "publicSourcesTheyUse": "INSEE Sirene + INPI RNE open data for firmographics, press/startup-media (Maddyness, FrenchWeb, Sifted class), self-reported profiles, France Invest/EDF-style association stats."
+    },
+    {
+      "platform": "Crunchbase (global)",
+      "coverageNotes": "Broad but shallow FR coverage; rounds from press and self-report, patchy on non-tech alternatives.",
+      "publicSourcesTheyUse": "Press releases and startup media, Sirene-derived registry data via aggregators — nothing we cannot get from Sirene + RSS feeds directly."
+    },
+    {
+      "platform": "CFNEWS / CFNEWS IMMO (local, France)",
+      "coverageNotes": "THE French deal reference: near-exhaustive mid-market M&A/LBO/venture and real-estate deal tables, advisor league tables, nominations; subscription DB.",
+      "publicSourcesTheyUse": "Own journalism plus BODACC/greffe filings, actulegales JAL announcements, advisor deal submissions and press releases; its free RSS layer (18 feeds) is itself a usable public signal source for us."
+    },
+    {
+      "platform": "Pappers (local, France)",
+      "coverageNotes": "Free full-text French company intelligence (filings, accounts, beneficial-owner history where public); has become the default FR company lookup.",
+      "publicSourcesTheyUse": "Built ENTIRELY on public open data — INPI RNE API/SFTP, BODACC open data, BALO, Infogreffe documents, Sirene — the clearest proof-of-route: everything Pappers shows, we can ingest from the same open endpoints at $0."
+    },
+    {
+      "platform": "Societe.com (local, France)",
+      "coverageNotes": "Mass-market company lookups, financials, legal events; ad/freemium model.",
+      "publicSourcesTheyUse": "Sirene, RCS/Infogreffe, BODACC — same open stack as Pappers."
+    },
+    {
+      "platform": "Altares (D&B France) / Ellisphere (local credit bureaus)",
+      "coverageNotes": "Credit risk, payment behavior, firmographics for the full FR company universe; sell scores not intelligence.",
+      "publicSourcesTheyUse": "Greffes/Infogreffe filings, BODACC, Sirene, annual accounts from RNE; their proprietary layer (payment data) is not public — the registry layer underneath is."
+    },
+    {
+      "platform": "Xerfi (local, France)",
+      "coverageNotes": "Sector research studies (incl. asset management, real estate, NPL-adjacent sectors); analysis product, not entity data.",
+      "publicSourcesTheyUse": "INSEE statistics, Banque de France/Webstat series, annual accounts from RNE — context sources we already catalog."
+    }
+  ],
+  "searchedButAbsent": "Searched but not found or excluded to keep the count honest: (1) direct AGEFI RSS feed URLs — the site blocks bot fetches and only third-party feed directories attest feeds exist, so no rssUrl recorded; (2) any ORIAS bulk/open-data export — only the per-record search UI; (3) a confirmed full bulk dump of the merged REGAFI register — daily search UI plus ACPR downloadable lists only; (4) a separate French fund-administrator/depositary licensee register — that population lives inside REGAFI (credit institutions/depositaries) and AMF lists, no standalone roll; (5) Private Equity Magazine and L'Informé — both real publications but I could not confirm their exact domains this session, so they were excluded rather than guessed; (6) a downloadable RICS France valuer roster — only the JS-heavy global Find-a-Member UI; (7) verified RSS for La Tribune, Le Monde Économie, Business Immo, BFM Business, Usine Nouvelle — sites bot-blocked or feeds unconfirmed, marked accordingly rather than invented; (8) a public UBO (bénéficiaires effectifs) feed — INPI RBE access is restricted post-2022 CJEU ruling, consistent with the project's no-open-UBO assumption."
+}

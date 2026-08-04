@@ -1,0 +1,647 @@
+{
+  "country": "GB",
+  "sources": [
+    {
+      "name": "Companies House — Find and update company information",
+      "url": "https://find-and-update.company-information.service.gov.uk/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "The national register; free REST API behind it (dev hub verified live). Backbone for every UK entity record; effectively unlimited yield."
+    },
+    {
+      "name": "Companies House REST API (developer hub)",
+      "url": "https://developer.company-information.service.gov.uk/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified live. Free key, company profiles, officers, filings, charges, PSC; rate-limited 600 req/5min. Primary deterministic ingest route."
+    },
+    {
+      "name": "Companies House Streaming API",
+      "url": "https://developer-specs.company-information.service.gov.uk/streaming-api/guides/overview",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Real-time push of register changes (companies, filings, officers, PSC, charges, insolvency). Documented on the verified dev hub; ideal change-detection feed."
+    },
+    {
+      "name": "Companies House Free Company Data Product (monthly bulk snapshot)",
+      "url": "https://download.companieshouse.gov.uk/en_output.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Verified: ~470MB CSV ZIP of all live companies, refreshed within 5 working days of month end. $0 full-universe seed."
+    },
+    {
+      "name": "Companies House PSC (persons with significant control) bulk snapshot",
+      "url": "https://download.companieshouse.gov.uk/en_pscdata.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Daily JSON snapshot of beneficial-ownership (PSC) data — the UK is the rare jurisdiction where UBO data is genuinely open. URL follows verified download-site pattern; snapshot page itself not individually fetched."
+    },
+    {
+      "name": "Companies House Accounts Monthly Data (iXBRL bulk)",
+      "url": "https://download.companieshouse.gov.uk/en_accountsdata.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Bulk iXBRL company accounts as filed — deterministic financials for portfolio companies, lenders, servicers. Same verified download host; page not individually fetched."
+    },
+    {
+      "name": "FCA Financial Services Register",
+      "url": "https://register.fca.org.uk/s/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "The register of all authorised firms incl. AIFMs, MiFID firms, fund managers, payment/credit firms. Salesforce UI is JS-heavy (developer page returned empty to fetch) but the Register API is real and free-keyed at register.fca.org.uk/Developer/s/ — sign up for key; high yield."
+    },
+    {
+      "name": "FCA Data portal + National Storage Mechanism (regulated filings)",
+      "url": "https://data.fca.org.uk/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "NSM holds prospectuses, annual reports and regulated disclosures of listed issuers; searchable index. Not fetch-verified this run; known-official FCA property."
+    },
+    {
+      "name": "FCA Cryptoasset (MLR) register",
+      "url": "https://register.fca.org.uk/s/search?predefined=CA",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "UK equivalent of a MiCA register (UK is outside MiCA): FCA-registered cryptoasset firms. Same Salesforce register — reachable via the Register API rather than the JS UI."
+    },
+    {
+      "name": "FCA Mutuals Public Register",
+      "url": "https://mutuals.fca.org.uk/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Registered societies, credit unions, friendly societies (niche LP/lender side). Not fetch-verified; long-standing FCA subdomain."
+    },
+    {
+      "name": "Bank of England / PRA — lists of authorised banks and insurers",
+      "url": "https://www.bankofengland.co.uk/prudential-regulation/authorisations/which-firms-does-the-pra-regulate",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "BoE publishes monthly 'List of banks' and insurer lists (PDF/XLS). Site returned 403 to automated fetch — expect bot-protection; manual/headed retrieval or the monthly PDFs are the route."
+    },
+    {
+      "name": "The Pensions Regulator (TPR)",
+      "url": "https://www.thepensionsregulator.gov.uk/",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Press page fetch-verified (no RSS). Publishes list of authorised DC master trusts and DB landscape data — the UK LP side's regulator. Scheme-level register not fully public."
+    },
+    {
+      "name": "Pension Protection Fund (Purple Book / PPF 7800)",
+      "url": "https://www.ppf.co.uk/",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Annual Purple Book + monthly PPF 7800 index: aggregate DB pension universe data (LP-side context). Not fetch-verified this run; well-known official publications."
+    },
+    {
+      "name": "Charity Commission Register of Charities (+ API and full extract)",
+      "url": "https://register-of-charities.charitycommission.gov.uk/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Public API and full data download of all E&W charities incl. endowments/foundations — a genuine LP-side source. Not fetch-verified this run; official service."
+    },
+    {
+      "name": "FRC — UK Audit Register (statutory auditors)",
+      "url": "https://www.frc.org.uk/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "FRC oversees the register of statutory audit firms (fund auditors — service graph cat. 6). Register access route not verified this run."
+    },
+    {
+      "name": "The Gazette (London/Edinburgh/Belfast) — official gazette + Linked Data API",
+      "url": "https://www.thegazette.co.uk/data",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Fetch-verified: free Linked Data API (JSON-LD/XML/RDF) + SPARQL, docs on github.com/TheGazette; insolvency notices from 1998. Paid bulk data service exists; free API under fair-use is the route. High yield for insolvency/NPL signals."
+    },
+    {
+      "name": "Insolvency Service (gov.uk)",
+      "url": "https://www.gov.uk/government/organisations/insolvency-service",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.gov.uk/government/organisations/insolvency-service.atom",
+      "verdict": "Atom feed fetch-verified and active (director disqualifications, IP sanctions, statistics). Monthly insolvency statistics downloadable. Strong distressed/credit signal source."
+    },
+    {
+      "name": "Individual Insolvency Register",
+      "url": "https://www.gov.uk/search-bankruptcy-insolvency-register",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Official search of bankruptcies/IVAs. Personal data — use only for insolvency-practitioner/case context, not individual harvesting. Machine route unverified."
+    },
+    {
+      "name": "Find an Insolvency Practitioner (Insolvency Service directory)",
+      "url": "https://www.gov.uk/find-an-insolvency-practitioner",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Official IP roll (category 2 entity type). URL is the canonical gov.uk slug; not fetch-verified this run."
+    },
+    {
+      "name": "Find Case Law — The National Archives (court judgments)",
+      "url": "https://caselaw.nationalarchives.gov.uk/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Open judgments incl. Insolvency and Companies Court, with Atom feeds and a documented open API. Not fetch-verified this run; official service. Good for litigation-funding and distressed coverage."
+    },
+    {
+      "name": "London Stock Exchange — issuer reports and lists",
+      "url": "https://www.londonstockexchange.com/reports?tab=issuers",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned title only — heavy JS app. Issuer/instrument lists exist as XLS downloads behind the app; headed browser or the FCA NSM/Investegate are better machine routes."
+    },
+    {
+      "name": "Investegate — free RNS regulatory announcements aggregator",
+      "url": "https://www.investegate.co.uk/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "FE fundinfo's free full-text RNS archive with clean per-company indexes — the practical machine route to LSE disclosures. Not fetch-verified this run; long-established."
+    },
+    {
+      "name": "Aquis Stock Exchange (AQSE) — issuer list and announcements",
+      "url": "https://www.aquis.eu/aquis-stock-exchange/companies",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Growth-market issuers outside LSE. URL not fetch-verified; modest but distinct yield."
+    },
+    {
+      "name": "UK Private Capital (formerly BVCA) — member directory",
+      "url": "https://www.ukprivatecapital.co.uk/membership/member-directory.html",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: BVCA renamed UK Private Capital (Jan 2026); ~600 member firms. Quick-search is public; full directory is paid — use public tier only, names then resolved via Companies House/FCA."
+    },
+    {
+      "name": "The Investment Association (IA)",
+      "url": "https://www.theia.org/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "UK asset-management trade body (ManCos, liquid alts adjacents). Old members-page path 404s — member list location must be re-found; do not count on it until located."
+    },
+    {
+      "name": "AIMA — Alternative Investment Management Association",
+      "url": "https://www.aima.org/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Global hedge-fund/private-credit body HQ'd in London; member visibility is partial/paid. Not fetch-verified; treat as context, resolve entities via FCA register."
+    },
+    {
+      "name": "UK Finance — member list (banking association)",
+      "url": "https://www.ukfinance.org.uk/membership/our-members",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Banking/finance trade association ~300 members. URL pattern not fetch-verified this run."
+    },
+    {
+      "name": "Finance & Leasing Association (FLA) members",
+      "url": "https://www.fla.org.uk/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Leasing, asset finance and consumer credit lenders (ABL/specialty-finance side). Member list location unverified."
+    },
+    {
+      "name": "Association of British Insurers (ABI) members",
+      "url": "https://www.abi.org.uk/about-the-abi/abi-members/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Insurer LP-side and ILS-adjacent entities. Not fetch-verified this run."
+    },
+    {
+      "name": "PLSA — Pensions and Lifetime Savings Association",
+      "url": "https://www.plsa.co.uk/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Pension-fund trade body (LP side); member visibility limited. Context source, unverified."
+    },
+    {
+      "name": "British Business Bank (DFI)",
+      "url": "https://www.british-business-bank.co.uk/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "National development bank; publishes delivery-partner lists and LP commitments to UK VC/growth funds (e.g. £55.6m to Highland Europe seen in press this week). Site not fetch-verified this run."
+    },
+    {
+      "name": "National Wealth Fund (ex UK Infrastructure Bank)",
+      "url": "https://www.nationalwealthfund.org.uk/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State infrastructure/transition investor — deal announcements are entity+signal gold for real assets. URL not fetch-verified."
+    },
+    {
+      "name": "UKRI Gateway to Research (GtR) API",
+      "url": "https://gtr.ukri.org/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Open API over all UKRI/Innovate UK grants incl. company recipients — deterministic early-stage/venture-adjacent entity source. Not fetch-verified this run; documented public API."
+    },
+    {
+      "name": "Find a Tender Service (FTS) — UK above-threshold procurement",
+      "url": "https://www.find-tender.service.gov.uk/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "OCDS-format API for UK high-value procurement (infrastructure concessionaires, EPC, advisors). Official service; API documented, not fetch-verified this run."
+    },
+    {
+      "name": "Contracts Finder — below-threshold procurement",
+      "url": "https://www.contractsfinder.service.gov.uk/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Companion OCDS API for smaller public contracts. Official; not fetch-verified this run."
+    },
+    {
+      "name": "UK Emissions Trading Registry — participant/account reports",
+      "url": "https://www.gov.uk/government/publications/uk-ets-registry-reports",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "UK ETS (post-Brexit equivalent of EU ETS national accounts): account-holder and compliance reports published on gov.uk. Exact publication slug should be confirmed at ingest; gov.uk publication pattern is reliable."
+    },
+    {
+      "name": "UK Land Carbon Registry (Woodland Carbon Code / Peatland Code)",
+      "url": "https://woodlandcarboncode.org.uk/uk-land-carbon-registry",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Public registry of UK voluntary carbon projects and unit holders (niche-alts cat. 5). Hosted registry (S&P Global Environmental Registry); machine route unverified."
+    },
+    {
+      "name": "RICS — Find a Member / regulated-firm directory",
+      "url": "https://www.rics.org/find-a-member",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Accredited valuers/appraisers (real-assets service graph). Directory exists but is search-form based; machine route unverified — expect JS."
+    },
+    {
+      "name": "Solicitors Regulation Authority — check a solicitor/firm",
+      "url": "https://www.sra.org.uk/consumers/register/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Register of all E&W law firms and solicitors (fund-structuring/M&A law firms, cat. 6). SRA has offered a data feed historically; route unverified this run."
+    },
+    {
+      "name": "The Law Society — Find a Solicitor",
+      "url": "https://solicitors.lawsociety.org.uk/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Complementary public directory with practice-area facets. Not fetch-verified; likely JS search."
+    },
+    {
+      "name": "The Takeover Panel — disclosure table and documents",
+      "url": "https://www.thetakeoverpanel.org.uk/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Live offer disclosure table = authoritative UK public-M&A deal flow (PE take-privates). Simple HTML site historically; not re-verified this run."
+    },
+    {
+      "name": "British Property Federation members",
+      "url": "https://bpf.org.uk/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real-estate industry body (developers, REITs, RE fund managers). Member list location unverified."
+    },
+    {
+      "name": "UKBAA — UK Business Angels Association directory",
+      "url": "https://ukbaa.org.uk/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Angel groups and early-stage funds directory. Unverified; moderate yield."
+    },
+    {
+      "name": "Financial Times",
+      "url": "https://www.ft.com/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ft.com/rss/home",
+      "verdict": "The UK business daily of record; hard paywall but RSS gives headlines+links (feed URL well-known, not re-verified this run). Headline+link ingest only per compliance rules."
+    },
+    {
+      "name": "City AM",
+      "url": "https://www.cityam.com/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cityam.com/feed/",
+      "verdict": "Fetch-verified working RSS 2.0, hourly updates, free access. Strong City/markets/IPO coverage."
+    },
+    {
+      "name": "The Guardian — Business",
+      "url": "https://www.theguardian.com/uk/business",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.theguardian.com/uk/business/rss",
+      "verdict": "Free, reliable section RSS (Guardian feed infrastructure is stable; this feed not re-verified this run)."
+    },
+    {
+      "name": "BBC News — Business",
+      "url": "https://www.bbc.co.uk/news/business",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://feeds.bbci.co.uk/news/business/rss.xml",
+      "verdict": "Free national coverage; long-stable RSS (not re-verified this run)."
+    },
+    {
+      "name": "Sky News — Business",
+      "url": "https://news.sky.com/business",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://feeds.skynews.com/feeds/rss/business.xml",
+      "verdict": "Mark Kleinman's City scoops make this disproportionately valuable for UK deal signals. Feed URL long-established, not re-verified this run."
+    },
+    {
+      "name": "Sifted",
+      "url": "https://sifted.eu/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://sifted.eu/feed",
+      "verdict": "Fetch-verified working feed, updated daily; FT-backed European startup/VC coverage with strong UK weighting. Partial paywall."
+    },
+    {
+      "name": "UKTN (UK Tech News)",
+      "url": "https://www.uktech.news/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.uktech.news/feed",
+      "verdict": "Fetch-verified working feed, hourly; UK funding rounds and weekly deal roundups. Free."
+    },
+    {
+      "name": "Hedgeweek",
+      "url": "https://www.hedgeweek.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.hedgeweek.com/feed/",
+      "verdict": "Fetch-verified working feed; daily hedge-fund/liquid-alts coverage. Free with registration prompts."
+    },
+    {
+      "name": "Private Equity Wire",
+      "url": "https://www.privateequitywire.co.uk/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.privateequitywire.co.uk/feed/",
+      "verdict": "Fetch-verified working feed; daily PE/private-credit deal and fund news incl. UK-specific items."
+    },
+    {
+      "name": "Institutional Asset Manager",
+      "url": "https://www.institutionalassetmanager.co.uk/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Sister title to Hedgeweek/PE Wire (same publisher, same WordPress stack — /feed/ very likely works but was not verified this run). Asset-management/LP coverage."
+    },
+    {
+      "name": "Finextra",
+      "url": "https://www.finextra.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.finextra.com/rss/headlines.aspx",
+      "verdict": "Fintech/banking-infrastructure news; long-established RSS endpoint (not re-verified this run). Free."
+    },
+    {
+      "name": "Investment Week",
+      "url": "https://www.investmentweek.co.uk/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "UK fund-industry trade title (Incisive/Arena). Registration-walled; RSS status unverified."
+    },
+    {
+      "name": "Financial News (FN London)",
+      "url": "https://www.fnlondon.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Dow Jones City title — asset management, IB, PE people moves. Hard paywall; headline monitoring only; RSS unverified."
+    },
+    {
+      "name": "Private Equity News",
+      "url": "https://www.penews.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Dow Jones UK/European PE title. Hard paywall; headline-only value; RSS unverified."
+    },
+    {
+      "name": "Pensions Expert (FT Specialist)",
+      "url": "https://www.pensions-expert.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "UK pension-scheme (LP-side) trade coverage. Paywalled; RSS unverified."
+    },
+    {
+      "name": "IPE — Investment & Pensions Europe",
+      "url": "https://www.ipe.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Pan-European institutional-investor coverage with strong UK LP reporting. /feed returned 404 — no working RSS found; registration wall. Headline monitoring via site only."
+    },
+    {
+      "name": "Property Week",
+      "url": "https://www.propertyweek.com/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Leading UK real-estate trade title (EG having closed). Paywalled; RSS unverified."
+    },
+    {
+      "name": "CoStar News UK",
+      "url": "https://www.costar.com/news",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Free-to-read UK commercial-real-estate news desk (absorbed much ex-EG readership). Machine route unverified."
+    },
+    {
+      "name": "FCA — news and press releases",
+      "url": "https://www.fca.org.uk/news",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.fca.org.uk/news/rss.xml",
+      "verdict": "Fetch-verified working RSS: enforcement, authorisation policy, firm failures (e.g. Blue Motor Finance administration). High-signal regulator feed."
+    },
+    {
+      "name": "Bank of England — news",
+      "url": "https://www.bankofengland.co.uk/news",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Site 403s automated fetch. BoE historically exposes RSS under /rss — needs a headed retry; until then treat as blocked."
+    },
+    {
+      "name": "HM Treasury (gov.uk)",
+      "url": "https://www.gov.uk/government/organisations/hm-treasury",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.gov.uk/government/organisations/hm-treasury.atom",
+      "verdict": "Fetch-verified working Atom feed (Budget dates, pension-capital policy). The gov.uk .atom pattern works for every department."
+    },
+    {
+      "name": "Department for Business and Trade (gov.uk)",
+      "url": "https://www.gov.uk/government/organisations/department-for-business-and-trade",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.gov.uk/government/organisations/department-for-business-and-trade.atom",
+      "verdict": "Investment-promotion and industrial-policy announcements via the verified gov.uk Atom pattern (this specific org feed not individually fetched)."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Deepest global alt-funds coverage — UK GPs, LPs, fund performance, dry powder; strong on pensions/insurers as LPs.",
+      "publicSourcesTheyUse": "FCA Financial Services Register (AIFM/manager authorisations), Companies House accounts of fund GPs/LLPs (UK LLP accounts disclose carry vehicles), local-authority pension fund FOI/committee papers, LSE/RNS disclosures — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "UK M&A/PE/VC deal coverage, valuations, service-provider league tables.",
+      "publicSourcesTheyUse": "Companies House filings (SH01 share allotments, charges), RNS announcements via LSE, The Gazette insolvency notices, press releases — the SH01/charges route is fully open via CH API."
+    },
+    {
+      "platform": "Dealroom.co",
+      "coverageNotes": "Strong UK/European startup and VC round coverage; powers several UK government/ecosystem reports.",
+      "publicSourcesTheyUse": "Companies House incorporations and filings, press/funding announcements, accelerator and university spinout lists, Innovate UK/UKRI grant data (GtR API)."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow UK startup coverage; self-reported plus press.",
+      "publicSourcesTheyUse": "Press releases and startup-media announcements (Sifted/UKTN-type sources we ingest directly); little registry depth."
+    },
+    {
+      "platform": "Beauhurst (LOCAL, London)",
+      "coverageNotes": "The key UK-native competitor: tracks every UK high-growth company incl. UNANNOUNCED equity rounds, at 8-figure company coverage.",
+      "publicSourcesTheyUse": "Their visible moat is systematic parsing of Companies House filings — SH01 (allotment of shares) forms reveal fundraises never press-released, plus PSC data, accounts and The Gazette. Every one of those inputs is free via the CH API/bulk products; this is the single most instructive public-source blueprint for our UK build."
+    },
+    {
+      "platform": "With Intelligence (London)",
+      "coverageNotes": "Hedge fund, private-credit and asset-owner (LP) data; events-driven; strong UK/EU institutional coverage.",
+      "publicSourcesTheyUse": "FCA register, US SEC ADV filings, pension-scheme annual reports and local-authority committee documents — the UK LGPS committee-paper route is public and underused."
+    },
+    {
+      "platform": "Debtwire / Mergermarket (ION Analytics)",
+      "coverageNotes": "Distressed debt, NPL, restructuring and leveraged-credit intelligence with strong London desk.",
+      "publicSourcesTheyUse": "The Gazette insolvency notices, Companies House charge registrations (secured lending events), court lists/Find Case Law, administrators' progress reports filed at CH — all directly ingestible."
+    },
+    {
+      "platform": "FullCircl / Creditsafe / Endole (UK company-data resellers)",
+      "coverageNotes": "Commodity company-data layers over the registry; not alts-specific but show the data plumbing.",
+      "publicSourcesTheyUse": "Companies House bulk products and streaming API, Gazette feeds, accounts iXBRL — confirming those are the canonical $0 routes."
+    }
+  ],
+  "searchedButAbsent": "AltFi is dead — fetch of altfi.com/rss returned a closure announcement ('we are closing the AltFi business'), so the hinted source is removed rather than padded. EG/Estates Gazette (LexisNexis) ceased publication, so it is excluded despite being the historic RE trade paper. No working RSS found for IPE (/feed 404s) or for The Pensions Regulator/BoE (BoE 403s bots). No free machine-readable LSE issuer list — the reports page is a JS app returning only a title; Investegate + FCA NSM are the workaround. The Investment Association's members page has moved (old path 404s) and was not relocated this run. Peel Hunt research (hinted) is not public — broker research sits behind MiFID walls (Research Tree is paid), so no entry was made. BVCA's own domain now 301s to ukprivatecapital.co.uk and the full member directory is paid; only the public quick-search tier is catalogued. UK note contra the usual EU rule: PSC (UBO) data IS genuinely public here via Companies House bulk — an exception worth exploiting, not assuming elsewhere."
+}

@@ -1,0 +1,738 @@
+{
+  "country": "SE",
+  "sources": [
+    {
+      "name": "Bolagsverket (Swedish Companies Registration Office)",
+      "url": "https://bolagsverket.se/",
+      "side": "entities",
+      "category": "national commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified. National register of all Swedish companies. Company-information API (JSON, OAuth2, 20 req/s) documented at bolagsverket.se/apierochoppnadata.2531.html."
+    },
+    {
+      "name": "Bolagsverket API för värdefulla datamängder (high-value datasets API)",
+      "url": "https://bolagsverket.se/apierochoppnadata/hamtaforetagsinformation/vardefulladatamangder/apiforvardefulladatamangder.5513.html",
+      "side": "entities",
+      "category": "commercial register bulk/open data",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified via official pages. Free, no-agreement API exposing Bolagsverket + SCB company data (EU high-value-datasets route). The best $0 machine route into the SE company universe."
+    },
+    {
+      "name": "Bolagsverket Näringslivsregistret search (Sök företagsinformation)",
+      "url": "https://foretagsinfo.bolagsverket.se/sok-foretagsinformation-web/",
+      "side": "entities",
+      "category": "company search UI",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Official per-company lookup incl. bankruptcy/liquidation status. JS app; URL not fetch-verified — use the APIs above for machine access."
+    },
+    {
+      "name": "Post- och Inrikes Tidningar (PoIT) — official gazette",
+      "url": "https://poit.bolagsverket.se/",
+      "side": "entities",
+      "category": "official gazette: bankruptcies, liquidations, company announcements",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified to exist (run by Bolagsverket, updated every weekday, free). Direct fetch hits a CAPTCHA wall — automated access needs a headless/browser route or the Bolagsverket data products."
+    },
+    {
+      "name": "Finansinspektionen (FI) company register",
+      "url": "https://www.fi.se/en/our-registers/company-register/",
+      "side": "entities",
+      "category": "regulator register: AIFMs, fund managers, investment firms, banks, insurers, MiCA licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Searchable register of all FI-authorised/registered firms incl. AIF managers under LAIF and MiCA crypto licensees. Data explicitly free to re-use with attribution; no bulk API found — scraping the search UI or per-category listings required. Already harvested per project hints — extend to MiCA and payment categories."
+    },
+    {
+      "name": "FI open data (PDMR/insyn CSV + statistics)",
+      "url": "https://www.fi.se/en/about-fi/about-fi.se/open-data/",
+      "side": "entities",
+      "category": "regulator open data: insider transactions, short positions, statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified via fetch. PDMR insider-transaction register downloadable as CSV; short-selling register and statistics also public; FI statistics mirrored on SCB open data."
+    },
+    {
+      "name": "FI Marknadssök (PDMR + short position search client)",
+      "url": "https://marknadssok.fi.se/publiceringsklient",
+      "side": "entities",
+      "category": "insider transactions / net short positions",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Known FI publication client with CSV export; URL not fetch-verified in this run."
+    },
+    {
+      "name": "Sveriges Riksbank — SWEA / developer APIs",
+      "url": "https://developer.api.riksbank.se/",
+      "side": "entities",
+      "category": "central bank: FX reference rates, interest rates",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Verified via fetch: developer portal live with API catalog. Use for deterministic SEK/EUR conversion per the data-integrity law."
+    },
+    {
+      "name": "SCB Företagsregistret (Statistics Sweden business register) API",
+      "url": "https://www.scb.se/vara-tjanster/bestall-data-och-statistik/foretagsregistret/",
+      "side": "entities",
+      "category": "statistical business register incl. workplaces, SNI industry codes",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified via search: free API since 26 June 2025 for searching/downloading Swedish company and workplace data. Strong complement to Bolagsverket for industry classification."
+    },
+    {
+      "name": "SCB Statistical Database PxWebApi v2",
+      "url": "https://www.scb.se/en/services/open-data-api/pxwebapi/",
+      "side": "entities",
+      "category": "macro/sector statistics API",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Verified. RESTful GET API, CC0 license, 150k cells/call. Includes financial-market statistics produced for FI and Riksbank."
+    },
+    {
+      "name": "Nasdaq Stockholm — listed companies index",
+      "url": "https://www.nasdaqomxnordic.com/shares/listed-companies/stockholm",
+      "side": "entities",
+      "category": "stock exchange issuer list (Main Market)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search (~379 issuers). Page renders a full issuer table; historically backed by an XML/JSON endpoint on nasdaqomxnordic.com. Company disclosures flow via GlobeNewswire/MFN."
+    },
+    {
+      "name": "Nasdaq First North Growth Market — listed companies",
+      "url": "https://www.nasdaqomxnordic.com/shares/listed-companies/first-north",
+      "side": "entities",
+      "category": "growth-market issuer list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Same site/structure as Main Market list; URL pattern standard but this exact page not fetch-verified in this run."
+    },
+    {
+      "name": "NGM (Nordic Growth Market) — our companies",
+      "url": "https://www.ngm.se/en/our-companies",
+      "side": "entities",
+      "category": "exchange issuer list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search: ~100+ listed companies on NGM (Boerse Stuttgart Group). Issuer list on public page."
+    },
+    {
+      "name": "Spotlight Stock Market — company list",
+      "url": "https://spotlightstockmarket.com/",
+      "side": "entities",
+      "category": "MTF issuer list + company news",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real venue (Spotlight Group subsidiary; new Spotlight Value list launched). Exact machine-readable list route not verified — site has company pages and a news section."
+    },
+    {
+      "name": "SVCA — ordinary members (GPs)",
+      "url": "https://www.svca.se/ordinarie-medlemmar/",
+      "side": "entities",
+      "category": "PE/VC association member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Full members = PE/VC/growth firms. Already harvested per hints — keep for refresh."
+    },
+    {
+      "name": "SVCA — associated members (service graph)",
+      "url": "https://www.svca.se/associerade-medlemmar/",
+      "side": "entities",
+      "category": "association directory: law firms, advisors, placement agents",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Prime source for Category 6 (Institutional Service Graph): law firms, auditors, banks around SE private equity."
+    },
+    {
+      "name": "Fondbolagens förening — member fund companies",
+      "url": "https://fondbolagen.se/om-oss/medlemmar/",
+      "side": "entities",
+      "category": "fund-industry association (~50 ManCos, ~90% of SE fund assets)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Member list of Swedish fund management companies — Liquid Alternatives / ManCo coverage."
+    },
+    {
+      "name": "Svenska Bankföreningen (Swedish Bankers' Association) — members",
+      "url": "https://www.swedishbankers.se/om-oss/medlemmar/",
+      "side": "entities",
+      "category": "banking association members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association confirmed real; exact members-page URL not fetch-verified."
+    },
+    {
+      "name": "Finansbolagens Förening — members (leasing/factoring/consumer credit)",
+      "url": "https://finansbolagen.se/om-finansbolagen/medlemmar",
+      "side": "entities",
+      "category": "finance-company association members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Members are credit-market companies and financial institutions — specialty-finance/ABL side of Private Debt."
+    },
+    {
+      "name": "Svensk Försäkring (Insurance Sweden) — members + statistics",
+      "url": "https://www.svenskforsakring.se/",
+      "side": "entities",
+      "category": "insurance association (LP side) + industry statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real association; member list and stats published. Machine route not verified."
+    },
+    {
+      "name": "Första AP-fonden (AP1)",
+      "url": "https://www.ap1.se/",
+      "side": "entities",
+      "category": "state pension buffer fund — LP; holdings & annual reports",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; publishes holdings lists and PE fund commitments in reports (PDF/Excel). Not fetch-verified this run."
+    },
+    {
+      "name": "Andra AP-fonden (AP2)",
+      "url": "https://www.ap2.se/",
+      "side": "entities",
+      "category": "state pension buffer fund — LP",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; significant alternatives allocation, publishes holdings. Not fetch-verified this run."
+    },
+    {
+      "name": "Tredje AP-fonden (AP3)",
+      "url": "https://www.ap3.se/",
+      "side": "entities",
+      "category": "state pension buffer fund — LP",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; annual/half-year reports with alternatives holdings. Not fetch-verified this run."
+    },
+    {
+      "name": "Fjärde AP-fonden (AP4)",
+      "url": "https://www.ap4.se/",
+      "side": "entities",
+      "category": "state pension buffer fund — LP",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; publishes holdings incl. real assets and PE. Not fetch-verified this run."
+    },
+    {
+      "name": "Sjätte AP-fonden (AP6) — dedicated PE buffer fund",
+      "url": "https://www.ap6.se/",
+      "side": "entities",
+      "category": "state fund investing ONLY in private equity — LP + GP relationships",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; AP6's annual report discloses its PE fund portfolio and co-investments — a map of which GPs raise from the Swedish state. Not fetch-verified this run."
+    },
+    {
+      "name": "Sjunde AP-fonden (AP7)",
+      "url": "https://www.ap7.se/",
+      "side": "entities",
+      "category": "premium-pension default fund — LP",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Real; publishes holdings. Not fetch-verified this run."
+    },
+    {
+      "name": "Pensionsmyndigheten — fondtorget fund search",
+      "url": "https://www.pensionsmyndigheten.se/mina-tjanster/fondtorg/sok",
+      "side": "entities",
+      "category": "premium-pension fund register (funds + fund companies)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Search/compare all premium-pension funds; being migrated to procured fund marketplace."
+    },
+    {
+      "name": "Fondtorgsnämnden (FTN, Swedish Fund Selection Agency)",
+      "url": "https://www.ftn.se/english/en.html",
+      "side": "entities",
+      "category": "procured premium-pension funds + procurement decisions",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Publishes which asset managers win fund-marketplace procurements — a signal-rich LP/mandate source."
+    },
+    {
+      "name": "Riksgälden (Swedish National Debt Office)",
+      "url": "https://www.riksgalden.se/",
+      "side": "entities",
+      "category": "debt office: auctions, guarantees, deposit insurance, press",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Real authority; auction results and press published. Machine route not verified."
+    },
+    {
+      "name": "Saminvest AB — state fund-of-funds",
+      "url": "https://www.saminvest.se/en/",
+      "side": "entities",
+      "category": "state LP: anchors new SE VC funds; portfolio of funds published",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Lists the VC funds it has backed — direct GP/LP edges for the graph."
+    },
+    {
+      "name": "Industrifonden",
+      "url": "https://industrifonden.com/",
+      "side": "entities",
+      "category": "state-founded evergreen VC foundation + portfolio",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Real (state foundation since 1979); portfolio published on site. Not fetch-verified this run."
+    },
+    {
+      "name": "Almi Invest",
+      "url": "https://www.almi.se/en/venture-capital/",
+      "side": "entities",
+      "category": "state VC (early stage) + regional funds + portfolio",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Sweden's most active seed investor; portfolio and regional fund structure public."
+    },
+    {
+      "name": "Swedfund — Swedish development finance institution",
+      "url": "https://www.swedfund.se/",
+      "side": "entities",
+      "category": "DFI: portfolio investments and fund commitments",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Real DFI; publishes portfolio incl. fund investments. Not fetch-verified this run."
+    },
+    {
+      "name": "SEK (Svensk Exportkredit) + EKN (export credit agency)",
+      "url": "https://www.sek.se/",
+      "side": "entities",
+      "category": "state export finance institutions",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real institutions (sek.se, ekn.se); lending/guarantee activity in reports and press. Machine route not verified."
+    },
+    {
+      "name": "Business Sweden — investment promotion agency",
+      "url": "https://www.business-sweden.com/",
+      "side": "entities",
+      "category": "investment promotion; sector reports, FDI signals",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real agency; publications and press useful for signals. No structured register."
+    },
+    {
+      "name": "Vinnova — open data on funded projects",
+      "url": "https://www.vinnova.se/",
+      "side": "entities",
+      "category": "innovation agency grants database (startup universe signal)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Real; Vinnova exposes funded-project open data/API (data.vinnova.se). Exact endpoint not re-verified this run."
+    },
+    {
+      "name": "Upphandlingsmyndigheten — procurement statistics & open data",
+      "url": "https://www.upphandlingsmyndigheten.se/statistik/",
+      "side": "entities",
+      "category": "public procurement statistics authority",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified via search: procurement statistics as open data on its site and Sweden's dataportal (who buys what from whom, values, ~17k notices/yr). Konkurrensverket lists the registered private notice databases (Mercell TendSign, e-Avrop etc.)."
+    },
+    {
+      "name": "TED (EU tenders) — Sweden notices",
+      "url": "https://ted.europa.eu/",
+      "side": "entities",
+      "category": "EU procurement notices, SE filter; API available",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "EU-level but the machine route for above-threshold Swedish tenders (TED API / bulk XML). Standard, known-good."
+    },
+    {
+      "name": "Energimyndigheten — Swedish EU ETS national administrator",
+      "url": "https://www.energimyndigheten.se/klimat/eus-utslappshandelssystem-eu-ets/",
+      "side": "entities",
+      "category": "carbon: union registry Swedish accounts administration",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search. Account-level detail is confidential; installation/operator identities are public via the EUTL (next entry)."
+    },
+    {
+      "name": "EUTL (EU Transaction Log) — Swedish accounts & installations",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry: SE installations, operators, verified emissions",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Standard public route for Swedish ETS operators and compliance data; bulk downloads available. Not re-verified this run."
+    },
+    {
+      "name": "Sveriges advokatsamfund — Sök advokat (bar directory)",
+      "url": "https://www.advokatsamfundet.se/Sok-advokat/",
+      "side": "entities",
+      "category": "bar association directory (searchable by specialization incl. insolvency, M&A)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. Search by legal specialization and location — feeds the service graph and insolvency-practitioner mapping."
+    },
+    {
+      "name": "REKON (Rekonstruktör- & Konkursförvaltarkollegiet) — members",
+      "url": "https://rekon.nu/medlemmar/",
+      "side": "entities",
+      "category": "insolvency practitioner roll (bankruptcy administrators/reconstructors)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL via search. National association of bankruptcy administrators, all members of the bar — the SE insolvency-practitioner list."
+    },
+    {
+      "name": "Samhällsbyggarna — authorized property valuers",
+      "url": "https://www.samhallsbyggarna.org/",
+      "side": "entities",
+      "category": "valuer accreditation directory (auktoriserade fastighetsvärderare)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real body granting Swedish property-valuer authorization; directory exists on site, exact URL not verified. RICS 'find a member' (rics.org) is the complement."
+    },
+    {
+      "name": "Kronofogden (Enforcement Authority) incl. TSM bankruptcy supervision",
+      "url": "https://www.kronofogden.se/",
+      "side": "entities",
+      "category": "enforcement: executive auctions, debt statistics, bankruptcy supervision",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Real authority; executive auction listings and debt statistics public. No bulk API found."
+    },
+    {
+      "name": "Sveriges Domstolar",
+      "url": "https://www.domstol.se/",
+      "side": "entities",
+      "category": "courts: bankruptcy/reorganization case handling",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Real. NOTE: Sweden has no public online court insolvency register — bankruptcy events surface via PoIT and Bolagsverket status flags; case documents by request."
+    },
+    {
+      "name": "Lantmäteriet — land & property register + open geodata",
+      "url": "https://www.lantmateriet.se/",
+      "side": "entities",
+      "category": "land registry, property formation, open geodata APIs",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Real. Open geodata APIs free; full fastighetsregistret (ownership/mortgages) is licensed, not open bulk. Relevant to Real Assets mapping."
+    },
+    {
+      "name": "allabolag.se",
+      "url": "https://www.allabolag.se/",
+      "side": "entities",
+      "category": "free company directory (financials, boards) — UC/Enento",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Verified alive (appeared in searches). Useful lookup/triangulation layer; commercial site — respect ToS, prefer Bolagsverket/SCB APIs for ingest."
+    },
+    {
+      "name": "Swedish House of Finance — Data Center (FinBas, Serrano)",
+      "url": "https://www.hhs.se/en/houseoffinance/data-center/",
+      "side": "entities",
+      "category": "national research data: historical prices, company financials",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real (Stockholm School of Economics). Research-grade Swedish company/market datasets; access requires registration, mostly academic."
+    },
+    {
+      "name": "Fastighetsägarna (Swedish Property Federation)",
+      "url": "https://www.fastighetsagarna.se/",
+      "side": "entities",
+      "category": "real estate owners association; market reports",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real association; member ecosystem and reports for Real Assets. No structured directory verified."
+    },
+    {
+      "name": "MFN (Modular Finance News) — Nordic regulatory press releases",
+      "url": "https://mfn.se/",
+      "side": "news",
+      "category": "listed-company press release aggregator",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://mfn.se/all/s.rss",
+      "verdict": "VERIFIED RSS via fetch — live feed of Nordic issuer announcements; filterable by market/sector, feeds exist per filter. Top-grade disclosure signal source."
+    },
+    {
+      "name": "Cision News Sweden",
+      "url": "https://news.cision.com/se",
+      "side": "news",
+      "category": "press release distribution (companies + agencies incl. Fondbolagens förening)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Site real and widely used; direct fetch returned 403 — needs browser-grade client. Per-company RSS feeds historically available."
+    },
+    {
+      "name": "beQuoted",
+      "url": "https://www.bequoted.com/",
+      "side": "news",
+      "category": "small/mid-cap press release distribution",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real Swedish distributor for smaller listed companies; feed route not verified."
+    },
+    {
+      "name": "GlobeNewswire — Nordic distribution",
+      "url": "https://www.globenewswire.com/",
+      "side": "news",
+      "category": "Nasdaq's press release wire for Stockholm issuers",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; RSS feed builder exists by region/company. Not fetch-verified this run."
+    },
+    {
+      "name": "Dagens Industri (di.se)",
+      "url": "https://www.di.se/",
+      "side": "news",
+      "category": "leading business daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.di.se/rss",
+      "verdict": "Site real (Sweden's #1 business paper) but blocks our fetcher entirely; /rss widely referenced yet unverified — third-party proxies exist, suggesting the native feed may be unreliable. Paywalled content."
+    },
+    {
+      "name": "Breakit",
+      "url": "https://www.breakit.se/",
+      "side": "news",
+      "category": "startup/tech/VC news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.breakit.se/feed/artiklar",
+      "verdict": "VERIFIED RSS via fetch — live, current (funding rounds, bankruptcies, fintech). Core VC signal feed."
+    },
+    {
+      "name": "Realtid",
+      "url": "https://www.realtid.se/",
+      "side": "news",
+      "category": "financial industry news (asset management, banking, M&A)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Site live (verified in search); /rss returns 403 to our fetcher. Feed likely exists behind bot protection."
+    },
+    {
+      "name": "Affärsvärlden",
+      "url": "https://www.afv.se/",
+      "side": "news",
+      "category": "equity analysis / business weekly",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real; fetch of rss.xml returned 403. Heavily paywalled — headline-level monitoring only."
+    },
+    {
+      "name": "Dagens PS",
+      "url": "https://www.dagensps.se/",
+      "side": "news",
+      "category": "business/finance news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.dagensps.se/feed/",
+      "verdict": "VERIFIED RSS via fetch — valid RSS 2.0, current items."
+    },
+    {
+      "name": "EFN Ekonomikanalen",
+      "url": "https://www.efn.se/",
+      "side": "news",
+      "category": "markets video/news channel (Handelsbanken-backed)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "rssUrl": "https://efn-marknad.libsyn.com/rss",
+      "verdict": "Real; only the podcast RSS verified via search. Site feed unknown."
+    },
+    {
+      "name": "Placera (Avanza)",
+      "url": "https://www.placera.se/",
+      "side": "news",
+      "category": "markets news + Nyhetsbyrån Direkt telegram flow",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real and carries Direkt newswire telegrams (the main SE financial newswire has no public site of its own). Feed route not verified."
+    },
+    {
+      "name": "Privata Affärer",
+      "url": "https://www.privataaffarer.se/",
+      "side": "news",
+      "category": "personal finance / funds news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real long-running title; feed not verified."
+    },
+    {
+      "name": "SvD Näringsliv",
+      "url": "https://www.svd.se/naringsliv",
+      "side": "news",
+      "category": "business section of major daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; SvD has had RSS (svd.se feed endpoints) but none verified this run. Paywalled."
+    },
+    {
+      "name": "DN Ekonomi",
+      "url": "https://www.dn.se/ekonomi/",
+      "side": "news",
+      "category": "business section of major daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; DN RSS index exists historically (dn.se/rss) but not verified this run. Paywalled."
+    },
+    {
+      "name": "Omni Ekonomi",
+      "url": "https://omniekonomi.se/",
+      "side": "news",
+      "category": "curated business news aggregator (Schibsted)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real (app-first, own newsroom since 2017); no public RSS known."
+    },
+    {
+      "name": "Fastighetsvärlden",
+      "url": "https://www.fastighetsvarlden.se/",
+      "side": "news",
+      "category": "commercial real estate news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real, key CRE title; /feed/ redirects into a paywall SSO (worldoftulo) — feed effectively subscriber-gated."
+    },
+    {
+      "name": "Fastighetsnytt",
+      "url": "https://www.fastighetsnytt.se/",
+      "side": "news",
+      "category": "real estate & urban development news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real title; feed not verified."
+    },
+    {
+      "name": "Fastighetssverige / Nordic Property News",
+      "url": "https://www.fastighetssverige.se/",
+      "side": "news",
+      "category": "real estate news (SV) with English sister site nordicpropertynews.com",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real publisher; transaction coverage strong. Feed not verified."
+    },
+    {
+      "name": "Sak & Liv",
+      "url": "https://www.sakochliv.se/",
+      "side": "news",
+      "category": "insurance industry news (LP side)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real niche title covering Swedish insurers/pension companies; likely WordPress /feed/ but unverified."
+    },
+    {
+      "name": "Finansliv",
+      "url": "https://www.finansliv.se/",
+      "side": "news",
+      "category": "banking & finance sector magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real (Finansförbundet's magazine); feed not verified."
+    },
+    {
+      "name": "ArcticStartup",
+      "url": "https://arcticstartup.com/",
+      "side": "news",
+      "category": "Nordic startup/VC news (English)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real; /feed/ returned 403 to our fetcher — bot protection, feed likely exists."
+    },
+    {
+      "name": "Impact Loop",
+      "url": "https://www.impactloop.se/",
+      "side": "news",
+      "category": "climate tech / impact startup news (by Breakit founders)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real newer title covering Swedish climate tech funding; URL not fetch-verified — confirm before wiring."
+    },
+    {
+      "name": "Montel News",
+      "url": "https://montelnews.com/",
+      "side": "news",
+      "category": "Nordic energy markets news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real (Oslo-based, strong Sweden coverage — relevant to energy-transition alts). Largely paywalled."
+    },
+    {
+      "name": "Second Opinion Energi",
+      "url": "https://second-opinion.se/",
+      "side": "news",
+      "category": "Swedish energy sector analysis",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; feed not verified."
+    },
+    {
+      "name": "Finansinspektionen — news & press",
+      "url": "https://www.fi.se/sv/publicerat/",
+      "side": "news",
+      "category": "regulator press: sanctions, authorisations, interventions",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.fi.se/sv/publicerat/nyheter/rss",
+      "verdict": "FI officially documents RSS by appending /rss to any list page (per fi.se/sv/prenumerera). This exact constructed URL not fetch-verified (a different guess 404ed) — confirm the exact list-page URL when wiring."
+    },
+    {
+      "name": "Sveriges Riksbank — press & publications",
+      "url": "https://www.riksbank.se/sv/press-och-publicerat/",
+      "side": "news",
+      "category": "central bank press, financial stability reports",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Verified pages exist incl. an RSS subscription page (prenumerera-via-rss), but concrete feed URLs could not be extracted by fetch — inspect in browser."
+    },
+    {
+      "name": "Regeringen.se — Finansdepartementet press",
+      "url": "https://www.regeringen.se/sveriges-regering/finansdepartementet/",
+      "side": "news",
+      "category": "finance ministry press releases, legislation pipeline",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real; regeringen.se offers subscription/RSS services, exact feed URLs not verified this run."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Strong on Swedish GPs, fund performance and the LP side — AP1–AP7, insurers (Folksam, Alecta, AMF) are heavily profiled; alternatives allocations and commitments tracked.",
+      "publicSourcesTheyUse": "AP-fund annual reports and holdings disclosures (ap1–ap7.se), FI company register for AIFM/manager identification, SVCA membership, fund managers' own reports — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Deep on Swedish PE/VC deals, valuations and cap tables; good service-provider tagging (law firms, advisors).",
+      "publicSourcesTheyUse": "Bolagsverket filings (via data resellers), MFN/Cision/GlobeNewswire press releases, Nasdaq Stockholm/First North listings and prospectuses, SVCA member data — the underlying registry + wire routes are in our catalog."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best-in-class Swedish startup/scaleup ecosystem mapping; runs co-branded ecosystem dashboards with Nordic agencies.",
+      "publicSourcesTheyUse": "Bolagsverket/SCB company data, Vinnova grant open data, startup media (Breakit, Di Digital, ArcticStartup), funds' portfolio pages — all public routes we've cataloged."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Swedish funding-round coverage, English-language bias, self-reported profiles.",
+      "publicSourcesTheyUse": "Press releases (MFN/Cision/GlobeNewswire), TechCrunch/Breakit-type media, self-submission — the press-wire layer is directly available to us."
+    },
+    {
+      "platform": "Valu8 (Swedish; acquired by Datasite, May 2026)",
+      "coverageNotes": "Local champion for private-company financials and M&A target screening across Europe from its Swedish base; proprietary cleaned financials on essentially every SE company.",
+      "publicSourcesTheyUse": "Bolagsverket annual reports (årsredovisningar) in bulk, SCB business register, group-structure data from registries — proof that the Bolagsverket high-value-datasets API + digital annual reports are the foundation for SE private-company intelligence."
+    },
+    {
+      "platform": "Modular Finance (Holdings / Monitor / MFN)",
+      "coverageNotes": "Nordic market leader in listed-company ownership data (Holdings) and IR tooling; expanded into unlisted ownership in 2021; also operates the MFN newswire.",
+      "publicSourcesTheyUse": "Euroclear Sweden share registers (obtained per-company, not open bulk), FI PDMR and short-position open data, fund holdings reports, Bolagsverket — FI's CSVs and Bolagsverket are directly open to us; Euroclear registers are not."
+    },
+    {
+      "platform": "UC / allabolag.se (Enento Group)",
+      "coverageNotes": "Dominant SE credit-information provider; allabolag is the consumer-facing free directory with financials, boards, and credit events.",
+      "publicSourcesTheyUse": "Bolagsverket, Skatteverket (tax status), Kronofogden (payment remarks), SCB — the registry layer is public; the credit-remark layer partly requires licensed access."
+    },
+    {
+      "platform": "Retriever Business / Dun & Bradstreet (ex-Bisnode)",
+      "coverageNotes": "Nordic firmographics, media monitoring (Retriever) and risk data (D&B) on all Swedish companies.",
+      "publicSourcesTheyUse": "Bolagsverket registers and annual reports, SCB, PoIT gazette announcements — same public backbone we ingest directly."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not found or not available: (1) a public bulk/API route for the FI company register — only the search UI plus free-reuse policy exists; the register must be crawled per category (MiCA, AIFM, etc.). (2) Exact Riksbank and FI RSS feed URLs — both document RSS subscription mechanisms but concrete feed URLs could not be extracted via fetch (bot/404 issues); needs one browser session to pin down. (3) A native di.se RSS feed that answers to non-browser clients — di.se blocks fetchers outright and third-party feed proxies have sprung up, suggesting the native feed is unreliable. (4) A public online Swedish court/insolvency case register — does not exist; bankruptcy events must come from PoIT (CAPTCHA-walled) and Bolagsverket status data. (5) Open bulk access to Euroclear Sweden share registers (ownership) — per-company paid extracts only. (6) A separate fund-administrator licensee list — fund administration is not separately licensed in Sweden; the FI register categories are the closest proxy. (7) Open bulk UBO data — Bolagsverket's beneficial-ownership register requires e-ID login, consistent with EU-wide access restrictions (per project law: never assume open UBO). (8) NGM/Spotlight bulk issuer downloads — HTML lists only. (9) An RSS or API for Nyhetsbyrån Direkt — the wire has no public site; its telegrams surface via Placera and brokers."
+}

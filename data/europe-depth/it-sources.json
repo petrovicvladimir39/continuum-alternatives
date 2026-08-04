@@ -1,0 +1,665 @@
+{
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Strong on Italian GP/LP fund data (SGRs, closed-end FIA funds, fundraising, LP commitments from casse di previdenza and fondazioni); weak on sub-institutional deals and service-graph entities.",
+      "publicSourcesTheyUse": "Banca d'Italia SGR/SICAF albi, COVIP pension fund albo and annual reports, ACRI/AdEPP annual reports, fund annual reports filed at Registro Imprese, AIFI/PwC semi-annual market statistics."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Good Italian PE/VC deal and valuation coverage, cap tables reconstructed from filings; patchy on private debt, NPL and real assets.",
+      "publicSourcesTheyUse": "Registro Imprese/InfoCamere company filings (via commercial resellers), Borsa Italiana/Euronext listing notices, Gazzetta Ufficiale, press (Il Sole 24 Ore, MF, BeBeez)."
+    },
+    {
+      "platform": "Dealroom.co",
+      "coverageNotes": "Best-in-class Italian startup/VC ecosystem mapping (runs co-branded ecosystem reports with local agencies); little depth beyond VC.",
+      "publicSourcesTheyUse": "startup.registroimprese.it innovative-startup special section (public downloadable register), Italian Tech Alliance and CDP Venture Capital announcements, startup press (StartupItalia, Startupbusiness, EU-Startups)."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Italian startup/funding-round coverage, heavily crowd-sourced; weak entity hygiene (duplicates, stale statuses).",
+      "publicSourcesTheyUse": "Press releases and startup media, self-reported profiles; the underlying verifiable layer is the same innovative-startup register and funding announcements we can ingest directly."
+    },
+    {
+      "platform": "BeBeez Private Data (EdiBeez)",
+      "coverageNotes": "THE local benchmark: Italian private equity, venture, private debt, NPL and M&A deal database built on 10+ years of BeBeez reporting; subscription product, do not scrape.",
+      "publicSourcesTheyUse": "Own newsroom reporting plus Registro Imprese filings, Borsa Italiana notices, Gazzetta Ufficiale, court/insolvency announcements — all public routes we can go to directly."
+    },
+    {
+      "platform": "Cerved",
+      "coverageNotes": "Dominant Italian company-information and credit-risk group (also a major NPL servicer via Cerved Credit Management); full financials on all Italian companies.",
+      "publicSourcesTheyUse": "Bulk licensed InfoCamere/Registro Imprese feed (bilanci, cariche, soci), Gazzetta Ufficiale and court/insolvency records, protesti registers — the register-grade layer is reachable via Telemaco, just paid."
+    },
+    {
+      "platform": "CRIF",
+      "coverageNotes": "Credit bureau + business information on Italian companies (Margò/SkyMinder products); strong on credit events and ownership chains.",
+      "publicSourcesTheyUse": "Same InfoCamere registry ingest, Banca d'Italia intermediary lists, insolvency/PVP auction data."
+    },
+    {
+      "platform": "Moody's/Bureau van Dijk (AIDA, Orbis)",
+      "coverageNotes": "AIDA is the standard academic/PE screening database for Italian company financials (10 yrs of accounts, ownership); licensed product.",
+      "publicSourcesTheyUse": "InfoCamere financial statements and shareholder filings — originals are obtainable per-document from registroimprese.it/Telemaco."
+    },
+    {
+      "platform": "Leanus + local observatories (Osservatori Politecnico di Milano, AIFI/PwC, Osservatorio VeM)",
+      "coverageNotes": "Leanus: Italian financial-statement analytics platform; the PoliMi startup/VC observatories and AIFI/PwC and VeM reports are the reference market statistics for Italian VC/PE — free PDF layers we can cite.",
+      "publicSourcesTheyUse": "Registro Imprese accounts (Leanus), AIFI member surveys, innovative-startup register, public deal press — the free report PDFs themselves are usable signal sources."
+    }
+  ],
+  "country": "IT",
+  "searchedButAbsent": "Searched for but genuinely absent or restricted: (1) a FREE bulk/open-data dump of the full Registro Imprese — does not exist; machine route is the paid InfoCamere Telemaco contract/API, free layer is per-company search only; (2) public UBO register access — the Italian titolare-effettivo register at the Chambers of Commerce is suspended for general public access after the 2022 CJEU ruling and pending Italian litigation (consistent with project rule: never assume open UBO data); (3) a separate fund-administrator licensee list — Italy has no standalone fund-admin license; depositaries and ManCos sit inside the Banca d'Italia albi; (4) a national machine-readable bar roll — lawyer albi are held per local Ordine; CNF-level bulk download not found; (5) official public RSS for Milano Finanza, CONSOB, We Wealth and Focus Risparmio — hunted /rss, /feed variants, none confirmed working; (6) a national carbon account-holder bulk list from ISPRA — account-level EU ETS data is published at EU level (EUTL), not by the Italian administrator; (7) PVP insolvency-auction open-data/API for the general public — interoperability API exists but only for accredited advertising sites. Nothing in the catalog below is padded: every URL was either fetched directly or returned by search as the canonical page; unverified ones are flagged in their verdicts.",
+  "sources": [
+    {
+      "name": "Registro Imprese (InfoCamere) — Italian Business Register",
+      "url": "https://www.registroimprese.it",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Canonical register of ~6M companies (filings, officers, shareholders, bilanci); no free bulk — machine route is the paid Telemaco contract + InfoCamere API; per-document purchases work at low volume. Highest-value paid source in Italy."
+    },
+    {
+      "name": "Registro Imprese — sezione speciale Startup e PMI innovative",
+      "url": "https://startup.registroimprese.it/isin/static/startup/dashboard.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Free public special section listing ALL innovative startups and innovative SMEs (the register Dealroom builds on); dashboard + periodically refreshed downloadable lists — the one truly open slice of the company register, verified live."
+    },
+    {
+      "name": "Banca d'Italia — Albi ed elenchi di vigilanza (supervisory registers)",
+      "url": "https://www.bancaditalia.it/servizi-cittadino/servizi/albi-elenchi/index.html",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Master registers for banks, SGR (AIFM/UCITS sections), SICAV/SICAF, art.106 financial intermediaries, payment/e-money institutions, depositaries; searchable online service with historical data — core GP/ManCo spine for Italy, verified via search."
+    },
+    {
+      "name": "Banca d'Italia — CASP (MiCA) authorization section",
+      "url": "https://www.bancaditalia.it/compiti/vigilanza/accesso-mercato/soggetti-mercato-cripto-attivita/casp/faq-casp/index.html",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Post-MiCA crypto authorizations sit with Banca d'Italia/Consob (transitional regime to 30 Jun 2026); authorized CASPs appear in the Bank's albi + ESMA register — pair with the legacy OAM VASP list during transition."
+    },
+    {
+      "name": "OAM — Organismo Agenti e Mediatori (incl. legacy VASP register)",
+      "url": "https://www.organismo-am.it/elenchi-registri/operatori_valute_virtuali/index.html",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Public registers of credit agents/brokers plus the legacy crypto (VASP) register still relevant through the MiCA transition; consultable online, verified via search — historical crypto-operator population source."
+    },
+    {
+      "name": "CONSOB — registers (imprese di investimento, emittenti, albi) + Bollettino",
+      "url": "https://www.consob.it/web/area-pubblica/intermediari",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Investment-firm and issuer registers plus the Bollettino where SGR/SICAF register changes are published; site sits behind Radware bot protection (as hinted) — pages resolve in search but automated fetch is unreliable; plan browser-grade crawling or manual pulls."
+    },
+    {
+      "name": "COVIP — Albo dei fondi pensione + open data",
+      "url": "https://www.covip.it/la-covip-e-la-sua-attivita/albo-fondi-pensione/elenco-fondi-albo",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Complete register of Italian pension funds (the LP side) with per-fund sheets, cost/return datasets and a dedicated open-data page (covip.it/open-data) — high-yield, machine-friendly, verified via search."
+    },
+    {
+      "name": "IVASS — Albo imprese di assicurazione + RUI intermediary register",
+      "url": "https://www.ivass.it/operatori/imprese/albi/index.html",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Insurance company albo and the RUI intermediaries register with CSV/open-data export updated weekly — insurer LPs and distribution graph at near-zero cost, verified via search."
+    },
+    {
+      "name": "OCF — Albo unico dei consulenti finanziari",
+      "url": "https://organismocf.it/portal/web/portale-ocf/ricerca-nelle-sezioni-dell-albo",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "National register of financial advisors (individuals + SCF advisory firms), searchable only on OCF portal; useful for the service graph's advisory layer, verified via search."
+    },
+    {
+      "name": "Gazzetta Ufficiale della Repubblica Italiana",
+      "url": "https://www.gazzettaufficiale.it",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Official gazette free in digital form since 2013; per-issue HTML/PDF with text search, reuse allowed with attribution; no official bulk API but structure is crawlable (community projects and a HuggingFace corpus prove parseability)."
+    },
+    {
+      "name": "Portale delle Vendite Pubbliche (Ministero della Giustizia)",
+      "url": "https://pvp.giustizia.it/pvp/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "National portal of ALL judicial sales from enforcement and insolvency proceedings (incl. whole going-concern aziende); public search UI crawlable; formal API only for accredited advertisers — key NPL/distressed signal, verified live."
+    },
+    {
+      "name": "Elenco dei gestori della crisi d'impresa (Ministry of Justice)",
+      "url": "https://albocrisiimpresa.giustizia.it/crisi-di-impresa/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "National list of insolvency practitioners eligible as curatore/commissario/liquidatore under the Crisis Code (replaced the old Albo in 2024); public portal, verified via search — fills the insolvency-practitioner roll requirement."
+    },
+    {
+      "name": "Borsa Italiana / Euronext Milan — listed companies, notices, IPO admissions",
+      "url": "https://www.borsaitaliana.it/azioni/mercati/euronext-milan/home/caratteristiche.en.htm",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "~430 issuers across Euronext Milan/EGM/MIV; company directory, avvisi di borsa and admission notices crawlable on borsaitaliana.it, with Euronext Live as the group-level data layer; no open bulk API but pages are stable and parseable."
+    },
+    {
+      "name": "AIFI — Italian Private Equity, Venture Capital and Private Debt Association",
+      "url": "https://www.aifi.it/en/soci/associati/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "~107 full + ~125 associate members = the Italian GP population plus advisors; directory pages exist (soci/associati and soci/aderenti) but the site returned HTTP 500 during verification — retry needed; semi-annual AIFI/PwC stats PDFs are a bonus."
+    },
+    {
+      "name": "Italian Tech Alliance (ex VC Hub Italia) — investor members",
+      "url": "https://www.italiantechalliance.com/en/board-team-associati",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "The Italian VC/innovation-investor association (VC SGRs, CVCs, angel groups, family offices); member/board pages public, verified via search — complements AIFI on the venture side."
+    },
+    {
+      "name": "ABI — Associazione Bancaria Italiana, elenco associati",
+      "url": "https://www.abi.it/wp-content/uploads/2026/02/Elenco-Associati-2026-02-18.pdf",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Full member list published as a dated PDF (Feb 2026 edition verified in search results), refreshed monthly-ish on abi.it — simple deterministic parse of the Italian banking population."
+    },
+    {
+      "name": "Assogestioni — asset management association",
+      "url": "https://www.assogestioni.it",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Represents Italian ManCos/SGRs; publishes quarterly 'Mappa del Risparmio Gestito' with per-company AUM tables (PDF/xls) — associate list and data reports public, though directory URL not individually fetch-verified this run."
+    },
+    {
+      "name": "Assilea — Italian Leasing Association",
+      "url": "https://www.assilea.it",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "~200 leasing companies (asset-backed lending population); member info public on site, verified only via search — crawl to confirm directory structure."
+    },
+    {
+      "name": "Assifact — Italian Factoring Association, gli Associati",
+      "url": "https://www.assifact.it/chi-siamo/gli-associati/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "31 factoring banks/intermediaries + service members listed on a plain associates page (trade/supply-chain finance vertical), verified via search."
+    },
+    {
+      "name": "ANIA — Associazione Nazionale fra le Imprese Assicuratrici",
+      "url": "https://www.ania.it",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Insurance industry association (insurer LPs); publishes member lists and the ANIA statistical yearbooks; URL canonical but directory route not fetch-verified this run."
+    },
+    {
+      "name": "ACRI — banking foundations (fondazioni di origine bancaria)",
+      "url": "https://www.acri.it/contatti-fondazioni/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "~83 banking foundations — a distinctive Italian LP class with mandatory annual reports; ACRI contacts page lists them all and the annual Rapporto PDF gives assets/allocations, verified via search."
+    },
+    {
+      "name": "AdEPP — Associazione degli Enti Previdenziali Privati (casse di previdenza)",
+      "url": "https://www.adepp.info",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "~20 private professional pension funds (major Italian alternatives LPs — Cassa Forense, ENPAM, Inarcassa...); association site lists members and reports; existence verified via search, site not fetch-verified — confirm URL on crawl."
+    },
+    {
+      "name": "CDP — Cassa Depositi e Prestiti (press + participations)",
+      "url": "https://www.cdp.it",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "The national promotional institution: equity participations, funds, infra investments disclosed in press releases and financial reports (semi-annual PDFs verified); anchor node of the Italian LP/DFI graph."
+    },
+    {
+      "name": "CDP Venture Capital SGR — Fondo Nazionale Innovazione",
+      "url": "https://www.cdpventurecapital.it",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The dominant Italian VC LP/GP (70% CDP Equity, 30% Invitalia); funds and portfolio disclosed on site and via press; canonical URL, portfolio-page structure to confirm on crawl."
+    },
+    {
+      "name": "Fondo Italiano d'Investimento SGR",
+      "url": "https://www.fondoitalianodinvestimento.it",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State-anchored PE/fund-of-funds platform (CDP + banks) with public portfolio and funds pages; URL canonical, not fetch-verified this run."
+    },
+    {
+      "name": "Invitalia — national investment promotion agency",
+      "url": "https://www.invitalia.it",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Runs startup/SME incentive programs (Smart&Start etc.) whose beneficiary and program data generate deal-adjacent signals; press and open-administration sections crawlable."
+    },
+    {
+      "name": "SIMEST (Gruppo CDP) — internationalization equity investor",
+      "url": "https://www.simest.it",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Equity portfolio of 220+ investee projects plus a MAECI venture-capital fund co-investing with CDP VC; press releases (verified via search) name investees — steady co-investment signal."
+    },
+    {
+      "name": "MEF Dipartimento del Tesoro — Partecipazioni pubbliche open data (Patrimonio PA)",
+      "url": "https://www.de.mef.gov.it/it/attivita_istituzionali/partecipazioni_pubbliche/open_data_partecipazioni/dati_partecipazioni_2023.html",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Annual CC-BY 4.0 open dataset of ALL shareholdings held by Italian public administrations (state/local ownership graph, privatization pipeline); latest release Mar 2026; companion BDAP catalog at bdap-opendata.rgs.mef.gov.it — verified via search."
+    },
+    {
+      "name": "ANAC — open data appalti (BDNCP, OCDS)",
+      "url": "https://dati.anticorruzione.it/opendata",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "All public contracts >EUR 40k in OCDS JSON/CSV, monthly dumps plus a Swagger REST API with near-real-time data — best-in-class procurement source (concessionaires, EPC contractors, infra), verified via search."
+    },
+    {
+      "name": "ISPRA — Registro Italiano Emission Trading (EU ETS national administrator)",
+      "url": "https://www.isprambiente.gov.it/en/ispra-services/emission_trading_registry",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "ISPRA administers the Italian section of the Union Registry (operators authorized by the Comitato ETS); account-holder detail lives in the EU EUTL — use ISPRA for national operator decisions, EUTL for bulk data; verified via search."
+    },
+    {
+      "name": "GSE — Gestore dei Servizi Energetici (CO2 auctions + renewables registers)",
+      "url": "https://www.gse.it/servizi-per-te/mercati-energetici/aste-co2/sistema-eu-ets",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "State energy-services operator: EU ETS auction reports, renewable incentive registers and counterparty lists — feeds the energy-transition asset class; site crawlable, verified via search."
+    },
+    {
+      "name": "ARERA — energy regulator, anagrafica operatori",
+      "url": "https://www.arera.it",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Regulator of electricity/gas/water; maintains an operator registry (anagrafica) covering energy companies relevant to infra investors; canonical URL but registry export route not verified this run."
+    },
+    {
+      "name": "RICS — Find a Member / Find a Firm directory (Italy)",
+      "url": "https://www.rics.org/find-a-member",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Global RICS directory filters to Italy for accredited valuers (real-assets service graph); JS search form, no bulk export — low-volume lookup only; URL canonical, not fetch-verified."
+    },
+    {
+      "name": "Consiglio Nazionale Forense — lawyer albi",
+      "url": "https://www.consiglionazionaleforense.it",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Italian bar rolls are held per local Ordine degli Avvocati; CNF is the national body — no confirmed national bulk search; treat law-firm sourcing via press/deal credits instead. Included for completeness with honest caveat."
+    },
+    {
+      "name": "UNIREC — credit servicers / collection industry association",
+      "url": "https://www.unirec.it",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association of Italian credit-management/collection companies (NPL service graph); publishes member list and annual industry report; URL canonical, not fetch-verified this run."
+    },
+    {
+      "name": "Assoimmobiliare — Confindustria real estate association",
+      "url": "https://www.assoimmobiliare.it",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Members = the institutional Italian real estate industry (developers, RE SGRs, servicers); member directory on site; URL canonical, not fetch-verified this run."
+    },
+    {
+      "name": "Il Sole 24 Ore — Finanza RSS",
+      "url": "https://www.ilsole24ore.com/sez/finanza",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ilsole24ore.com/rss/finanza.xml",
+      "verdict": "Italy's business daily of record; finanza.xml feed FETCH-VERIFIED live (items from today), full RSS hub at /rss with per-section feeds — top-priority signal source, headline+link only per compliance."
+    },
+    {
+      "name": "MF - Milano Finanza",
+      "url": "https://www.milanofinanza.it",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The other core financial daily (deals, funds, banking); historical RSS support confirmed but no working public feed URL found (/rss 404s) — crawl section pages or use Class Editori newsletters; partial paywall."
+    },
+    {
+      "name": "BeBeez.it (EdiBeez)",
+      "url": "https://bebeez.it",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://bebeez.it/feed/",
+      "verdict": "THE Italian private-capital newswire (PE, VC, private debt, NPL, real estate); WordPress /feed/ exists but returned 403 to plain fetch (bot protection) — expect success with proper RSS client headers; premium tier paywalled."
+    },
+    {
+      "name": "BeBeez International (English)",
+      "url": "https://bebeez.eu",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://bebeez.eu/feed/",
+      "verdict": "English sister site with weekly Italian PE/debt/NPL roundups; /feed/ FETCH-VERIFIED valid RSS updated today — easiest machine entry into BeBeez content."
+    },
+    {
+      "name": "FIRSTonline",
+      "url": "https://www.firstonline.info",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.firstonline.info/feed/",
+      "verdict": "Independent finance/economy daily; /feed/ FETCH-VERIFIED valid RSS, hourly updates — free, reliable general finance signal."
+    },
+    {
+      "name": "ANSA — Economia",
+      "url": "https://www.ansa.it/sito/notizie/economia/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ansa.it/sito/notizie/economia/economia_rss.xml",
+      "verdict": "National newswire economy channel; RSS FETCH-VERIFIED valid — high-volume baseline feed for corporate/M&A events."
+    },
+    {
+      "name": "Corriere della Sera — Economia",
+      "url": "https://www.corriere.it/economia/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://xml2.corriereobjects.it/rss/economia.xml",
+      "verdict": "Top general daily's economy section; RSS FETCH-VERIFIED valid (feed serves ~30 items) — good macro/corporate context feed."
+    },
+    {
+      "name": "la Repubblica — Economia & Finanza",
+      "url": "https://www.repubblica.it/economia/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "rssUrl": "https://www.repubblica.it/rss/economia/rss2.0.xml",
+      "verdict": "Second general daily; the long-standing rss2.0.xml URL is widely referenced but the domain blocked our fetcher — verify from production IPs before relying on it."
+    },
+    {
+      "name": "Teleborsa",
+      "url": "https://www.teleborsa.it",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.teleborsa.it/feed/rss",
+      "verdict": "Market newswire with a public RSS hub FETCH-VERIFIED (/feed/rss all news, /feed/rss/energia, /feed/rss/banche) — free for non-commercial use, check terms for commercial ingestion."
+    },
+    {
+      "name": "Radiocor (Il Sole 24 Ore agency) via Borsa Italiana news pages",
+      "url": "https://www.borsaitaliana.it/borsa/notizie/radiocor/finanza/archivio.html",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Exchange-distributed newswire (finanza/economia archives, timestamped) — no public RSS found but archive pages are stable and parseable; closest thing to an exchange news feed for Milan."
+    },
+    {
+      "name": "StartupItalia",
+      "url": "https://www.startupitalia.eu",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.startupitalia.eu/feed/",
+      "verdict": "Leading startup/VC outlet; WordPress /feed/ exists but 403'd our fetcher (bot shield) — likely fine with RSS-client headers."
+    },
+    {
+      "name": "Startupbusiness.it",
+      "url": "https://www.startupbusiness.it",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.startupbusiness.it/feed/",
+      "verdict": "Veteran startup-ecosystem publication; /feed/ FETCH-VERIFIED valid RSS — complements StartupItalia on funding rounds."
+    },
+    {
+      "name": "EconomyUp",
+      "url": "https://www.economyup.it",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Digital-innovation/open-innovation outlet (Digital360 group) covering CVC and startup finance; feed URL not verified this run — probe /feed/ on crawl."
+    },
+    {
+      "name": "We Wealth",
+      "url": "https://www.wewealth.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Wealth-management/private-markets vertical; /feed returned empty — no working RSS found; crawl section pages if needed."
+    },
+    {
+      "name": "FundsPeople Italia",
+      "url": "https://fundspeople.com/it/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://fundspeople.com/it/feed/",
+      "verdict": "Asset-management trade press (SGR launches, mandates, private-markets funds); /it/feed/ FETCH-VERIFIED valid RSS hourly — strong fund-industry signal."
+    },
+    {
+      "name": "Focus Risparmio (Assogestioni)",
+      "url": "https://www.focusrisparmio.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Assogestioni's own magazine on the fund industry; /feed 404 — no RSS found; site crawlable."
+    },
+    {
+      "name": "Bluerating",
+      "url": "https://www.bluerating.com",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.bluerating.com/feed",
+      "verdict": "Asset-management/advisory trade daily; /feed 403'd plain fetch (bot shield) — retry with RSS-client headers."
+    },
+    {
+      "name": "Credit Village",
+      "url": "https://www.creditvillage.news",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.creditvillage.news/feed/",
+      "verdict": "The Italian NPL/credit-management trade portal (servicer deals, portfolio sales); /feed/ FETCH-VERIFIED valid RSS updated today — core private-debt/NPL signal."
+    },
+    {
+      "name": "Dealflower",
+      "url": "https://dealflower.it",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://dealflower.it/feed/",
+      "verdict": "Legal/finance deal outlet (M&A, PE, advisors); WordPress /feed/ 403'd plain fetch — likely works with proper headers."
+    },
+    {
+      "name": "Financecommunity (LC Publishing Group)",
+      "url": "https://financecommunity.it",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://financecommunity.it/feed/",
+      "verdict": "Deal + advisor-league coverage (sister of Legalcommunity for law-firm mandates — mine both for the service graph); /feed/ 403'd plain fetch, retry with client headers."
+    },
+    {
+      "name": "Monitorimmobiliare",
+      "url": "https://www.monitorimmobiliare.it",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Main institutional real estate news portal (RE funds/SGR deals); /rss 403'd — feed existence unconfirmed; section pages crawlable with browser-grade client."
+    },
+    {
+      "name": "Requadro",
+      "url": "https://requadro.com",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://requadro.com/feed",
+      "verdict": "Institutional real estate weekly; /feed FETCH-VERIFIED valid RSS — reliable RE signal at zero cost."
+    },
+    {
+      "name": "Il Quotidiano Immobiliare (ilQI)",
+      "url": "https://www.ilqi.it",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Subscription real estate daily with strong institutional coverage; mostly paywalled, no feed verified — headline layer only."
+    },
+    {
+      "name": "QualEnergia.it",
+      "url": "https://www.qualenergia.it",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.qualenergia.it/feed/",
+      "verdict": "Sustainable-energy market portal (renewables/transition deals and policy); /feed/ FETCH-VERIFIED valid RSS hourly — feeds the real-assets/energy class."
+    },
+    {
+      "name": "Staffetta Quotidiana",
+      "url": "https://www.staffettaonline.com",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The historic Italian energy daily; heavily paywalled, no feed found — optional headline crawl only."
+    },
+    {
+      "name": "Banca d'Italia — press releases + RSS/e-mail alert service",
+      "url": "https://www.bancaditalia.it/media/comunicati/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://alert.bancaditalia.it/alert/rss.jsp?LANGUAGE=it",
+      "verdict": "Central-bank press channel with a dedicated RSS alert hub (topic-selectable) verified via search — authorizations, sanctions and supervisory news signal."
+    },
+    {
+      "name": "CONSOB Informa — weekly newsletter",
+      "url": "https://www.consob.it/web/consob-and-its-activities/newsletter/latests",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Weekly digest of Commission decisions (authorizations, register changes, warnings), English edition each Monday; behind the same Radware shield as the registers — parse via browser-grade fetch."
+    },
+    {
+      "name": "MEF — Ministry of Economy and Finance press room",
+      "url": "https://www.mef.gov.it/ufficio-stampa/index.html",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Privatizations, state holdings, guarantee schemes (GACS successors) announced here; press index crawlable; #openmef open-data page exists — no RSS confirmed."
+    },
+    {
+      "name": "Itinerari Previdenziali (think tank + annual investor reports)",
+      "url": "https://www.itinerariprevidenziali.it",
+      "side": "news",
+      "category": "newsletter",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Publishes THE annual census of Italian institutional investors (casse, fondazioni, fondi pensione) with alternatives allocations — free PDF layer maps the LP universe; site not fetch-verified this run."
+    },
+    {
+      "name": "AIFI/PwC statistics + Osservatorio VeM and PoliMi observatory reports",
+      "url": "https://www.aifi.it/it/studi-ricerche",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Free semi-annual PE/VC/private-debt market statistics PDFs — the citable market-size layer for Italy; AIFI site was erroring (500) during checks, PDFs usually mirrored in press coverage."
+    }
+  ]
+}

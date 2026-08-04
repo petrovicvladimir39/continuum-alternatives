@@ -32,7 +32,68 @@ export type RegisterRow = {
   tags: string[];
   /** Audit note stored on organizations.verification_note for NEW entities. */
   note?: string;
+  /**
+   * EUROPE DEPTH RUN — every additional schema field the source exposes,
+   * deterministic-fill only, absent when the source does not state it.
+   * On merge, fields only ever FILL NULLs (never overwrite earlier data).
+   */
+  depth?: RegisterDepthFields;
 };
+
+export type RegisterDepthFields = {
+  legalName?: string;
+  commercialName?: string;
+  leiCode?: string;
+  taxId?: string;
+  legalFormNative?: string;
+  /** corp|partnership|fund_vehicle|spv|branch|other */
+  legalFormStandardized?: string;
+  incorporationDate?: string; // YYYY-MM-DD verbatim from the register
+  /** active|liquidation|restructuring|dissolved */
+  legalStatus?: string;
+  /** regulated|unregulated|exempt */
+  regulatoryStatus?: string;
+  primaryRegulator?: string;
+  regulatoryLicenseNumber?: string;
+  registeredAddress?: { street?: string; city?: string; postal?: string; country?: string };
+  hqCountry?: string;
+  corporateEmail?: string;
+  corporatePhone?: string;
+  /** GP|LP|ManCo|Fund Vehicle|SPV|Servicer|Advisor|Vendor|Portfolio Co|Regulator */
+  primaryRole?: string;
+  /** Original amount + currency + deterministic ECB conversion + rate date. */
+  shareCapital?: { amount: number; currency: string; amountEur: number | null; rateDate: string | null };
+};
+
+/** organizations columns derived from depth fields (create + fill-null merge). */
+function depthPatch(
+  depth: RegisterDepthFields | undefined,
+): Partial<typeof organizations.$inferInsert> {
+  if (depth === undefined) {
+    return {};
+  }
+  const patch: Partial<typeof organizations.$inferInsert> = {};
+  if (depth.legalName !== undefined) patch.legalName = depth.legalName;
+  if (depth.commercialName !== undefined) patch.commercialName = depth.commercialName;
+  if (depth.leiCode !== undefined) patch.leiCode = depth.leiCode;
+  if (depth.taxId !== undefined) patch.taxId = depth.taxId;
+  if (depth.legalFormNative !== undefined) patch.legalFormNative = depth.legalFormNative;
+  if (depth.legalFormStandardized !== undefined)
+    patch.legalFormStandardized = depth.legalFormStandardized;
+  if (depth.incorporationDate !== undefined) patch.incorporationDate = depth.incorporationDate;
+  if (depth.legalStatus !== undefined) patch.legalStatus = depth.legalStatus;
+  if (depth.regulatoryStatus !== undefined) patch.regulatoryStatus = depth.regulatoryStatus;
+  if (depth.primaryRegulator !== undefined) patch.primaryRegulator = depth.primaryRegulator;
+  if (depth.regulatoryLicenseNumber !== undefined)
+    patch.regulatoryLicenseNumber = depth.regulatoryLicenseNumber;
+  if (depth.registeredAddress !== undefined) patch.registeredAddress = depth.registeredAddress;
+  if (depth.hqCountry !== undefined) patch.hqCountry = depth.hqCountry;
+  if (depth.corporateEmail !== undefined) patch.corporateEmail = depth.corporateEmail;
+  if (depth.corporatePhone !== undefined) patch.corporatePhone = depth.corporatePhone;
+  if (depth.primaryRole !== undefined) patch.primaryRole = depth.primaryRole;
+  if (depth.shareCapital !== undefined) patch.shareCapital = depth.shareCapital;
+  return patch;
+}
 
 export type RegisterImportOutcome =
   | "merged_registry" // registryId already in corpus — idempotent merge/skip
@@ -171,6 +232,7 @@ export class RegisterImporter {
         hqCity: row.city || null,
         website: row.website || null,
         verificationNote: row.note ?? null,
+        ...depthPatch(row.depth),
       });
     } else {
       const patch: Partial<typeof organizations.$inferInsert> = {};
@@ -182,6 +244,13 @@ export class RegisterImporter {
       }
       if (org.website === null && row.website) {
         patch.website = row.website;
+      }
+      // Depth fields FILL NULLs only — an earlier register's value wins.
+      const orgRecord = org as unknown as Record<string, unknown>;
+      for (const [key, value] of Object.entries(depthPatch(row.depth))) {
+        if (orgRecord[key] === null || orgRecord[key] === undefined) {
+          (patch as Record<string, unknown>)[key] = value;
+        }
       }
       if (Object.keys(patch).length > 0) {
         await db.update(organizations).set(patch).where(eq(organizations.entityId, entityId));
@@ -255,6 +324,7 @@ export class RegisterImporter {
         hqCity: row.city || null,
         website: row.website || null,
         verificationNote: row.note ?? null,
+        ...depthPatch(row.depth),
       });
       for (const tag of new Set(row.tags)) {
         tagValues.push({ entityId, tag });

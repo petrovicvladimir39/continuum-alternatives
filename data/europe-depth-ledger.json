@@ -1,0 +1,20 @@
+{
+  "totalCapUsd": 20,
+  "perCountryCapUsd": 0.45,
+  "spent": {
+    "DE": 0.460293
+  },
+  "completed": [
+    "DE"
+  ],
+  "before": {
+    "DE": {
+      "entities": 1122,
+      "facts": 2,
+      "takenAt": "2026-08-03T23:37:40.662Z"
+    }
+  },
+  "backlog": {
+    "DE": "53 unextracted documents (last 14d) at sub-budget stop"
+  }
+}

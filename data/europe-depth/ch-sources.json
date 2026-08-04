@@ -1,0 +1,596 @@
+{
+  "country": "CH",
+  "sources": [
+    {
+      "name": "Zefix — Central Business Name Index (Federal Commercial Registry)",
+      "url": "https://www.zefix.admin.ch/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Central index of all Swiss commercial-register entities. Public REST API confirmed live at /ZefixPublicREST/ (Swagger UI loads); also catalogued on i14y.admin.ch and opendata.swiss. Per-entity queries free; systematic bulk replication restricted by cantonal ToS."
+    },
+    {
+      "name": "Zefix Public REST API",
+      "url": "https://www.zefix.admin.ch/ZefixPublicREST/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (Swagger UI responds). Machine route for company lookups by name/UID, legal seat, legal form, and daily SOGC register mutations. The primary deterministic ingest route for CH."
+    },
+    {
+      "name": "LINDAS Linked Data Service — Zefix dataset (SPARQL)",
+      "url": "https://register.ld.admin.ch/.well-known/dataset/foj-zefix",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Found via search: Zefix published as linked data on the federal LINDAS platform (SPARQL endpoint lindas.admin.ch). Not fetched directly; catalog entry confirmed in search results."
+    },
+    {
+      "name": "UID Register (Federal Statistical Office enterprise ID register)",
+      "url": "https://www.uid.admin.ch/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public search with advanced filters (legal form, canton, status). BFS also offers a UID web service for registered users; public web search confirmed, API terms need registration."
+    },
+    {
+      "name": "Cantonal commercial register offices (e.g. Handelsregisteramt Kanton Zürich)",
+      "url": "https://www.zh.ch/de/wirtschaft-arbeit/handelsregister.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Cantonal registers hold the authoritative excerpts/documents; Zefix federates the index. Listed for document-level retrieval; access varies by canton."
+    },
+    {
+      "name": "opendata.swiss (federal open data portal, DCAT/CKAN)",
+      "url": "https://opendata.swiss/en/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Real portal; hosts the Zefix dataset entry among others. Our fetcher got HTTP 403 (bot protection) but the portal and its DCAT catalog API are well documented; verify with proper user agent."
+    },
+    {
+      "name": "FINMA — authorised institutions, persons and products (all licensee lists)",
+      "url": "https://www.finma.ch/en/finma-public/authorised-institutions-individuals-and-products/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "URL corrected via search (old …persons-and-products path 404s). FINMA publishes downloadable Excel/PDF lists of all authorised banks, securities firms, fund management companies, managers of collective assets, insurers, and fintech licensees. Core tier-2 source; hint said partially harvested already."
+    },
+    {
+      "name": "FINMA — list of fund management companies, managers of collective assets & fund representatives",
+      "url": "https://www.finma.ch/en/~/media/finma/dokumente/bewilligungstraeger/pdf/flvervt.pdf",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search (direct FINMA media asset). The AIFM-equivalent register for Switzerland (CISA licensees): fund managers, ManCos, representatives of foreign funds. Excel variant available from the lists page."
+    },
+    {
+      "name": "FINMA — authorised banks and securities firms list",
+      "url": "https://www.finma.ch/en/~/media/finma/dokumente/bewilligungstraeger/pdf/beh.pdf",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search (direct FINMA media asset, name/city/foreign-control columns). Companion Excel on the lists page."
+    },
+    {
+      "name": "FINMA — SRO member search (AMLA-supervised financial intermediaries)",
+      "url": "https://www.finma.ch/en/authorisation/self-regulatory-organisations-sros/sro-member-search/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "URL verified via search. Searchable register of all financial intermediaries supervised via SROs (VQF, PolyReg etc.) — captures independent asset managers, trustees, payment/credit providers below FINMA direct licensing. Search requires 5+ characters (no full dump)."
+    },
+    {
+      "name": "FINMA — FinTech licence list (Art. 1b BA)",
+      "url": "https://www.finma.ch/en/finma-public/authorised-institutions-individuals-and-products/",
+      "side": "entities",
+      "category": "crypto-fintech-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Confirmed in search results as one of the downloadable FINMA lists. Switzerland has no MiCA register (non-EU); the FINMA fintech licence + SRO membership + DLT trading facility authorisations are the crypto licensee equivalents."
+    },
+    {
+      "name": "Swiss National Bank data portal",
+      "url": "https://data.snb.ch/en",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Portal exists but served a browser-not-supported page to our fetcher. data.snb.ch offers a documented REST API (JSON/CSV) for banking statistics, interest rates, balance sheets. API route real but needs a modern UA; mark for adapter testing."
+    },
+    {
+      "name": "OAK BV — Occupational Pension Supervisory Commission",
+      "url": "https://www.oak-bv.admin.ch/en/",
+      "side": "entities",
+      "category": "pension-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Publishes the annual financial-situation report on all Swiss pension funds (coverage ratios, investment strategy aggregates), directives, and media releases. Aggregate LP-side intelligence; no per-fund public register with holdings."
+    },
+    {
+      "name": "FAOA/RAB — Federal Audit Oversight Authority public register",
+      "url": "https://register.rab-asr.ch/",
+      "side": "entities",
+      "category": "audit-oversight",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Register app loads (authority name confirmed; Angular-style app). Public register of all licensed audit firms and auditors — the deterministic source for the fund-auditor slice of the service graph."
+    },
+    {
+      "name": "Swiss Emissions Trading Registry (BAFU)",
+      "url": "https://www.emissionsregistry.admin.ch/crweb/public/welcome.action",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED welcome page (official Swiss ETS registry, linked to EU ETS since 2020). Whether a public account-holder/participant list is downloadable was not confirmed — needs a deeper pass on the public reports section."
+    },
+    {
+      "name": "eSHAB / SOGC — Swiss Official Gazette of Commerce",
+      "url": "https://www.shab.ch/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (JS app 'eSHAB'). Machine route confirmed: shab.ch/api/v1/… endpoints exist (e.g. /api/v1/archive/{id}/pdf), used by third parties incl. Moneyhouse. Carries commercial-register mutations, bankruptcies, debt-enforcement and liquidation notices — the CH insolvency signal source."
+    },
+    {
+      "name": "Amtsblattportal (cantonal official gazettes platform)",
+      "url": "https://www.amtsblattportal.ch/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Same TAB publication platform as eSHAB, hosting cantonal official gazettes; API pattern shared with shab.ch. Not deeply fetched — verify tenant-specific API endpoints."
+    },
+    {
+      "name": "Bundesblatt / Fedlex (Federal Gazette & law platform)",
+      "url": "https://www.fedlex.admin.ch/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "NOT FETCHED this session but Fedlex is the official federal publication platform with a documented SPARQL/linked-data endpoint. Secondary for entity work; primary for regulatory-change signals."
+    },
+    {
+      "name": "Swiss Federal Supreme Court decisions database (BGer)",
+      "url": "https://www.bger.ch/",
+      "side": "entities",
+      "category": "court-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT FETCHED. Public full-text decision search (insolvency, financial-market litigation). No structured API; HTML is parseable. Cantonal court publication varies."
+    },
+    {
+      "name": "SIX Swiss Exchange — list of equity issuers",
+      "url": "https://www.six-group.com/en/market-data/shares/companies.html",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Page verified but the issuer table renders client-side (nav-only to our fetcher). SIX statistics subpages offer CSV exports (e.g. closings, listed securities); the ad hoc news service and IFZ data need separate adapters. Treat as JS-rendered index with downloadable statistics files."
+    },
+    {
+      "name": "SIX Exchange Regulation — official notices & ad hoc disclosures",
+      "url": "https://www.ser-ag.com/en/resources/notifications-market-participants/official-notices.html",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. SER publishes issuer official notices, sanctions decisions, and ad hoc disclosure feeds — the disclosure-signal route for listed Swiss issuers. Verify feed format in adapter work."
+    },
+    {
+      "name": "BX Swiss — complete instrument list",
+      "url": "https://www.bxswiss.com/instruments",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. 12,693 instruments with explicit 'Complete instrument list (csv)' and 'Changes (45 days)' downloads. Clean deterministic source for the second Swiss exchange."
+    },
+    {
+      "name": "Swiss Fund Data (SIX)",
+      "url": "https://www.swissfunddata.ch/sfdpub/en/funds",
+      "side": "entities",
+      "category": "fund-database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Database of all funds authorised for distribution in Switzerland, with provider search and market statistics. CAUTION: ToS explicitly prohibit systematic extraction/commercial exploitation — use for reference/verification only; the underlying authorisation facts come from FINMA lists instead."
+    },
+    {
+      "name": "SECA — Swiss Private Equity & Corporate Finance Association member directory",
+      "url": "https://www.seca.ch/en/find-members/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "URL verified via search (old /Members/… path 404s). Member search covering GPs, corporate finance advisors, banks, law firms. Hint says already harvested — this is the current canonical URL."
+    },
+    {
+      "name": "AMAS — Asset Management Association Switzerland member directory",
+      "url": "https://www.am-switzerland.ch/en",
+      "side": "entities",
+      "category": "asset-management-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED homepage; a 'Member directory' link exists under About AMAS. Covers the institutional asset-management layer incl. private-markets managers."
+    },
+    {
+      "name": "Swiss Bankers Association — member institutions",
+      "url": "https://www.swissbanking.ch/en/bankers-association/membership/members",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "URL verified via search (~263-300 member institutions incl. banks, securities firms, FMIs, bank auditors). Direct fetch of an older URL 404'd; use this current path."
+    },
+    {
+      "name": "ABPS — Association of Swiss Private Banks member list",
+      "url": "https://www.abps.ch/en/membres/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "URL surfaced in search results; not fetched. Small, high-value list of private banks (wealth/LP side)."
+    },
+    {
+      "name": "VSKB — Association of Swiss Cantonal Banks",
+      "url": "https://www.vskb.ch/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. 24 cantonal banks (major real-estate lenders and regional LPs); member list is public on the site per general knowledge — verify in adapter pass."
+    },
+    {
+      "name": "SVV — Swiss Insurance Association",
+      "url": "https://www.svv.ch/en",
+      "side": "entities",
+      "category": "insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. ~70 members representing 95%+ of Swiss premiums; publishes 'Facts and figures' industry data. Member directory exists but detailed list not confirmed on homepage."
+    },
+    {
+      "name": "ASIP — Swiss Pension Fund Association",
+      "url": "https://www.asip.ch/",
+      "side": "entities",
+      "category": "pension-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED homepage (Schweizerischer Pensionskassenverband) but NO public member directory found on the site. LP-side coverage must come from OAK BV aggregates + cantonal BVG supervisory authorities instead."
+    },
+    {
+      "name": "VQF — Financial Services Standards Association (largest SRO)",
+      "url": "https://www.vqf.ch/en/",
+      "side": "entities",
+      "category": "sro-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Site real (verified via search; direct member-directory URL 404s). Member lookup routes through the FINMA SRO member search. Captures para-banking intermediaries: asset managers, trustees, credit providers."
+    },
+    {
+      "name": "SIFEM — Swiss Investment Fund for Emerging Markets (DFI) portfolio",
+      "url": "https://sifem.ch/",
+      "side": "entities",
+      "category": "development-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Swiss DFI with a public Portfolio Explorer (sifem.ch/portfolio/): 107 funds & financial intermediaries, $1.14bn commitments. Direct LP-commitment data — rare and valuable."
+    },
+    {
+      "name": "Switzerland Global Enterprise (S-GE) — investment & export promotion",
+      "url": "https://www.s-ge.com/en",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official investment-promotion agency; publishes market analyses and success stories (FDI signals). No entity register as such."
+    },
+    {
+      "name": "simap.ch — Swiss public procurement platform",
+      "url": "https://www.simap.ch/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Confederation + cantons + communes tender platform, redesigned July 2024 with archive. Manual search and saved-search subscriptions; no public API mentioned on page. Infrastructure/EPC deal signals."
+    },
+    {
+      "name": "SAV/FSA — Swiss Bar Association attorney registry",
+      "url": "https://www.sav-fsa.ch/en/anwaltsregister",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "URL verified via search (canton-by-canton attorney registry; the /anwaltssuche.html path 404s). For the law-firm slice of the service graph; per-canton browsing, no bulk export."
+    },
+    {
+      "name": "EXPERTsuisse — association of audit, tax and fiduciary experts",
+      "url": "https://www.expertsuisse.ch/",
+      "side": "entities",
+      "category": "professional-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Membership directory of audit/fiduciary firms complements the FAOA register. Verify directory URL in adapter pass."
+    },
+    {
+      "name": "RICS — find a firm/member directory (Switzerland filter)",
+      "url": "https://www.rics.org/find-a-member",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Global RICS directory filterable to Switzerland for accredited valuers. Swiss-specific alternative: SIV (Schweizer Immobilienschätzer-Verband) — neither verified this session."
+    },
+    {
+      "name": "SVIT — Swiss Real Estate Association",
+      "url": "https://www.svit.ch/",
+      "side": "entities",
+      "category": "real-estate-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Property-management and brokerage member firms for the real-assets service layer. Verify member directory route."
+    },
+    {
+      "name": "Crypto Valley Association — member directory",
+      "url": "https://cryptovalley.swiss/",
+      "side": "entities",
+      "category": "crypto-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Zug crypto/tokenization ecosystem membership — maps the tokenized-RWA and digital-asset entity cluster. Verify directory depth."
+    },
+    {
+      "name": "finews.com (English edition)",
+      "url": "https://www.finews.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.finews.com/news/english-news?format=feed&type=rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING FEED (fetched, current items Aug 2026: UBS/CS integration, SNB results, personnel moves). Best English-language Swiss finance signal feed."
+    },
+    {
+      "name": "finews.ch (German edition)",
+      "url": "https://www.finews.ch/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site real; the German edition's RSS route (/service/finews-rss) 404'd. Joomla ?format=feed pattern likely works per section but was NOT verified — harvest via section pages or test the pattern."
+    },
+    {
+      "name": "Inside Paradeplatz",
+      "url": "https://insideparadeplatz.ch/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://insideparadeplatz.ch/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING FEED (fetched; hourly updates, Zurich banking scoops). High-signal for personnel and bank scandals; editorial tone — use for signals, never entity origination."
+    },
+    {
+      "name": "Handelszeitung",
+      "url": "https://www.handelszeitung.ch/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Leading German-language business weekly. /rss.xml 404'd and no feed URL found in searches — likely no public RSS since the Ringier relaunch. Scrape section pages or use newsletter."
+    },
+    {
+      "name": "NZZ — Wirtschaft",
+      "url": "https://www.nzz.ch/wirtschaft",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.nzz.ch/wirtschaft.rss",
+      "accessMethod": "rss",
+      "verdict": "Feed URL confirmed by RSS directories but our fetch returned HTTP 402 — NZZ meters access. Headlines+links likely available to normal RSS readers; full text paywalled. Respect headline+link-only doctrine."
+    },
+    {
+      "name": "Finanz und Wirtschaft (fuw.ch)",
+      "url": "https://www.fuw.ch/",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Core Swiss markets daily. /feed entered a redirect loop for our fetcher; no working feed confirmed. Largely paywalled — headline monitoring via section pages."
+    },
+    {
+      "name": "cash.ch",
+      "url": "https://www.cash.ch/",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Free Swiss markets news portal (Ringier). Guessed feed /rss/news 404'd; no feed URL verified. Section HTML is parseable."
+    },
+    {
+      "name": "Le Temps — Économie",
+      "url": "https://www.letemps.ch/economie",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Leading French-language daily. /rss returned 403 to our fetcher (bot protection); Le Temps historically offers per-section RSS — retest with proper UA. Paywalled full text."
+    },
+    {
+      "name": "L'Agefi (agefi.com) — Swiss French financial daily",
+      "url": "https://www.agefi.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The Romandie finance daily (Geneva asset-management coverage). RSS feeds exist per third-party directories but exact URLs not verified this session."
+    },
+    {
+      "name": "SWI swissinfo.ch — business",
+      "url": "https://www.swissinfo.ch/eng/business/",
+      "side": "news",
+      "category": "business-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Public-service international outlet, 10 languages. /eng/rss returned HTTP 410 (feeds discontinued/moved); a business feed is referenced by directories but current URL unverified."
+    },
+    {
+      "name": "Startupticker.ch",
+      "url": "https://www.startupticker.ch/en/news",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "THE Swiss startup/VC news channel (Innosuisse-backed; publishes the annual Swiss Venture Capital Report with SECA). About page claims an RSS feed but /en/rss, /en/rss-feeds and ?rss=true all failed — harvest the news archive HTML; it is cleanly structured with category tags (Financing, Exit)."
+    },
+    {
+      "name": "MoneyToday.ch",
+      "url": "https://www.moneytoday.ch/",
+      "side": "news",
+      "category": "fintech-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.moneytoday.ch/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING FEED (fetched, ~20 current items). Swiss fintech/banking innovation coverage in German."
+    },
+    {
+      "name": "Fintech News Switzerland",
+      "url": "https://fintechnews.ch/",
+      "side": "news",
+      "category": "fintech-media",
+      "tier": "signals_press",
+      "rssUrl": "https://fintechnews.ch/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING FEED (fetched, current to Jul 31 2026). Fintech/digital-asset ecosystem signals."
+    },
+    {
+      "name": "Crypto Valley Journal (CVJ.ch)",
+      "url": "https://cryptovalleyjournal.com/",
+      "side": "news",
+      "category": "crypto-media",
+      "tier": "signals_press",
+      "rssUrl": "https://cryptovalleyjournal.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING FEED (cvj.ch/en/feed 301s here; fetched, current items). Swiss crypto/tokenization coverage from Zug."
+    },
+    {
+      "name": "Investrends.ch",
+      "url": "https://investrends.ch/",
+      "side": "news",
+      "category": "fund-industry-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Swiss fund-industry news (German). Both /feed/ and /rss 404'd; no feed verified. Site itself not deeply fetched — verify existence and structure in adapter pass."
+    },
+    {
+      "name": "Immoday.ch",
+      "url": "https://www.immoday.ch/",
+      "side": "news",
+      "category": "real-estate-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Swiss indirect-real-estate-investment news portal (funds, REITs-equivalent vehicles). Guessed feed URL 404'd; site not deeply verified this session."
+    },
+    {
+      "name": "FINMA news & press releases",
+      "url": "https://www.finma.ch/en/rss/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "rssUrl": "https://www.finma.ch/en/rss/",
+      "accessMethod": "rss",
+      "verdict": "FINMA RSS page confirmed via search (per-category feeds for press releases, enforcement, guidance). Individual feed URLs enumerated on that page — enforcement actions are high-value distressed/compliance signals."
+    },
+    {
+      "name": "Swiss National Bank — press releases & RSS",
+      "url": "https://www.snb.ch/en/news-publications/media-releases",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "rssUrl": "https://www.snb.ch/public/en/rss/news",
+      "accessMethod": "rss",
+      "verdict": "RSS service confirmed via search (SNB documents RSS 1.0 feeds incl. a dedicated press-release feed at snb.ch/en/services-events/digital-services/rss-calendar-feeds); feed URL taken from search result, not fetched directly."
+    },
+    {
+      "name": "Federal administration news portal (admin.ch media releases — SIF, SECO, FDF)",
+      "url": "https://www.admin.ch/gov/en/start/documentation/media-releases.html",
+      "side": "news",
+      "category": "government-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Central media-release stream for finance ministry (FDF), SIF (financial-market policy) and SECO (insolvency law, sanctions). news.admin.ch historically offers per-office RSS — verify exact feed URLs in adapter pass."
+    },
+    {
+      "name": "SIX Group — media releases",
+      "url": "https://www.six-group.com/en/newsroom/media-releases.html",
+      "side": "news",
+      "category": "exchange-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED. Exchange-operator news plus listing/delisting and index changes. Check for RSS in newsroom; ad hoc issuer news flows via the separate SIX ad hoc news service."
+    },
+    {
+      "name": "Bilanz",
+      "url": "https://www.bilanz.ch/",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Swiss business magazine (rich-list, company features; same Ringier stable as Handelszeitung). No RSS verified; monthly cadence makes it a low-priority scrape."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Strong on Swiss GPs/LPs: Partners Group, LGT (Liechtenstein-adjacent), Unigestion, Capital Dynamics and the large pension-fund LP base; fund performance and fundraising for Swiss-domiciled and Swiss-managed vehicles.",
+      "publicSourcesTheyUse": "FINMA licensee lists (fund management companies, managers of collective assets), OAK BV pension-system reports and pension funds' own annual reports, SECA membership/reports, fund annual reports — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Swiss PE/VC deal and company coverage, valuations, service-provider mapping (law firms, banks on deals).",
+      "publicSourcesTheyUse": "Zefix/SOGC register mutations (capital increases, new entities), SIX/SER issuer disclosures, press releases from firms and startupticker-style media — Zefix REST API and shab.ch API give us the same primary feed at $0."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Swiss startup/scaleup ecosystem mapping (works with local ecosystem partners; Swiss startup data also surfaced through swiss.tech and cantonal ecosystem portals).",
+      "publicSourcesTheyUse": "Startupticker.ch news and the annual Swiss Venture Capital Report (startupticker + SECA), commercial-register incorporations via Zefix, company self-reporting — the SVCR PDF and startupticker archive are public."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Swiss startup funding rounds; investor profiles; weak on institutional/LP layer.",
+      "publicSourcesTheyUse": "Press releases, startupticker/fintechnews items, self-reported profiles — we ingest the same press layer via the verified RSS feeds above."
+    },
+    {
+      "platform": "Moneyhouse (NZZ Group) — local leader",
+      "coverageNotes": "The dominant Swiss company-information platform: 600k+ companies, register excerpts, management, SOGC monitoring, credit checks. B2B API offering.",
+      "publicSourcesTheyUse": "Built almost entirely on public primary sources we can hit directly: Zefix/cantonal commercial registers and the SHAB API (search results confirm SHAB publications are retrieved via a Moneyhouse-operated API v2 arrangement). Do NOT scrape Moneyhouse; go to Zefix + shab.ch."
+    },
+    {
+      "platform": "CRIF Switzerland (incl. teledata heritage)",
+      "coverageNotes": "Credit risk, solvency and address data on Swiss companies; 30k+ business customers; strong on payment-behaviour data (proprietary).",
+      "publicSourcesTheyUse": "Zefix/SOGC register and gazette data plus debt-enforcement publications; proprietary payment experience pools are not replicable and not needed for our use case."
+    },
+    {
+      "platform": "Creditreform Switzerland",
+      "coverageNotes": "Largest creditor-protection association; unique angle: covers sole traders and individuals not in the commercial register.",
+      "publicSourcesTheyUse": "SOGC bankruptcy/debt-enforcement publications, commercial register, plus member-contributed ledger experience (proprietary)."
+    },
+    {
+      "platform": "Swiss Fund Data (SIX) — local official-adjacent",
+      "coverageNotes": "Authoritative fund reference data for CH-authorised funds, NAVs, documents; operated by SIX Financial Information.",
+      "publicSourcesTheyUse": "FINMA authorisation lists + fund providers' own filings. ToS ban systematic extraction — we use the FINMA source lists directly instead."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not found / does not exist for Switzerland: (1) public UBO/beneficial-ownership register — Switzerland has none (the new transparency register under the 2026 federal act will NOT be public); (2) national insolvency-practitioner roll — bankruptcy administration is run by cantonal Konkursämter, no central public register of practitioners; (3) MiCA licensee register — CH is not in the EU; the equivalents are FINMA fintech licences, DLT trading-facility authorisations and SRO membership (all catalogued above); (4) EU ETS national accounts for CH — Switzerland runs its own linked Emissions Trading Registry (catalogued) rather than an EU ETS national account; a downloadable public participant list was not confirmed; (5) open bulk download of the full commercial register — Zefix API is per-query; cantonal ToS prohibit systematic replication for competing registries; (6) working RSS feeds for Handelszeitung, cash.ch, fuw.ch, investrends.ch and immoday.ch — none found (404s/redirect loops); startupticker claims an RSS feed in its about page but no working feed URL could be located; swissinfo's old /eng/rss returns 410; (7) ASIP pension-association public member directory — not published; (8) a national register of pension funds with per-fund investment data — OAK BV publishes only aggregates; per-fund data lives in individual annual reports; (9) a Swiss litigation-funding or royalty-fund register — no such register exists; those entities surface only via Zefix + SECA + press."
+}

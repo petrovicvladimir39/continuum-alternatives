@@ -1,0 +1,678 @@
+{
+  "country": "PL",
+  "sources": [
+    {
+      "name": "KRS Open API (Ministry of Justice)",
+      "url": "https://api-krs.ms.gov.pl/api/krs/OdpisAktualny/0000028860?rejestr=P&format=json",
+      "side": "entities",
+      "category": "commercial register API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live: returned full JSON extract for ORLEN (KRS 0000028860) — name, NIP/REGON, boards, capital, PKD codes, filings history. No key needed, CORS open. Docs at https://prs.ms.gov.pl/krs/openApi. This is the backbone entity source for PL."
+    },
+    {
+      "name": "KRS search (Portal Rejestrów Sądowych)",
+      "url": "https://wyszukiwarka-krs.ms.gov.pl/",
+      "side": "entities",
+      "category": "commercial register search",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Official KRS search UI; Angular SPA (not plain-HTML parseable) but the Open API above covers machine access. Existence confirmed via Ministry of Justice pages; not fetch-verified directly."
+    },
+    {
+      "name": "GUS REGON API (BIR1.1/1.2)",
+      "url": "https://api.stat.gov.pl/Home/RegonApi",
+      "side": "entities",
+      "category": "statistical business register API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via official GUS API portal. Free SOAP service (BIR1.1, BIR1.2 with PKD 2025); lookup by NIP/REGON/KRS; USER_KEY issued free via regon_bir@stat.gov.pl. Complements KRS with statistical-register data incl. sole traders."
+    },
+    {
+      "name": "CEIDG API (sole-trader register)",
+      "url": "https://dane.biznes.gov.pl/",
+      "side": "entities",
+      "category": "sole-trader register API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Official REST API for CEIDG (individual entrepreneurs, incl. many small servicers/advisors). Requires free registration for API key. Not fetch-verified in this run — confirm endpoint docs at dane.biznes.gov.pl."
+    },
+    {
+      "name": "CRBR — Central Register of Beneficial Owners",
+      "url": "https://crbr.podatki.gov.pl/adcrbr/#/",
+      "side": "entities",
+      "category": "UBO register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Poland's UBO register is publicly searchable free of charge by NIP (an EU rarity — genuine differentiator for ownership graphs). SPA front end; the underlying JSON endpoints the SPA calls are observable. Not fetch-verified in this run."
+    },
+    {
+      "name": "KNF entity search (Wyszukiwarka podmiotów)",
+      "url": "https://www.knf.gov.pl/podmioty/wyszukiwarka_podmiotow",
+      "side": "entities",
+      "category": "financial regulator — all licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Cross-register search over KNF-supervised entities with option to include struck-off entities. Some registers (insurance intermediaries) live on separate subdomains (rpu.knf.gov.pl)."
+    },
+    {
+      "name": "KNF ZASI register (registered AIFMs)",
+      "url": "https://www.knf.gov.pl/dla_rynku/procesy_licencyjne/kapitalowy/zarzadzajacy_alternatywnymi_spolkami_inwestycyjnymi_ZASI/rejestr",
+      "side": "entities",
+      "category": "AIFM register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Public register of internal + external ASI managers (the sub-threshold AIFM population — hundreds of Polish VC/PE vehicles) with managed-ASI lists and change history. Confirmed via KNF pages; downloadable register files. Core source for category 1 coverage."
+    },
+    {
+      "name": "KNF TFI & investment funds register",
+      "url": "https://www.knf.gov.pl/podmioty/Podmioty_rynku_kapitalowego/Fundusze_Inwestycyjne/TFI_i_FI",
+      "side": "entities",
+      "category": "fund managers / funds register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Fund management companies (TFI) and investment funds incl. FIZ closed-end funds (the Polish alt-fund wrapper). Confirmed URL via KNF site structure; per-register pages, some as XLS."
+    },
+    {
+      "name": "KNF investment firms & brokers register",
+      "url": "https://www.knf.gov.pl/podmioty/Podmioty_rynku_kapitalowego/Firmy_inwestycyjne_i_Agenci_firm_inwestycyjnych",
+      "side": "entities",
+      "category": "investment firms register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Brokerage houses (domy maklerskie), agents, custodial banks. Confirmed via KNF site (historical-data subpage found in search); not individually fetch-verified."
+    },
+    {
+      "name": "KNF pension market register (PTE/OFE/PPK)",
+      "url": "https://www.knf.gov.pl/podmioty/Podmioty_rynku_emerytalnego",
+      "side": "entities",
+      "category": "pension regulator register (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Pension fund societies (PTE) and open pension funds (OFE) — the domestic institutional LP base. KNF is the integrated regulator (no separate pension authority). Standard KNF podmioty URL pattern; not individually fetch-verified."
+    },
+    {
+      "name": "KNF insurance market register",
+      "url": "https://www.knf.gov.pl/podmioty/Podmioty_rynku_ubezpieczeniowego",
+      "side": "entities",
+      "category": "insurance regulator register (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Insurers and reinsurers (LP-side allocators). Same KNF pattern; not individually fetch-verified. Insurance intermediaries in separate RPU register at https://rpu.knf.gov.pl/ (referenced from verified KNF search page)."
+    },
+    {
+      "name": "KNF loan institutions register",
+      "url": "https://www.knf.gov.pl/podmioty/Rejestr_instytucji_pozyczkowych",
+      "side": "entities",
+      "category": "non-bank lender register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Register of non-bank consumer-loan institutions (specialty finance / private-debt adjacents). URL follows KNF pattern; not fetch-verified — confirm exact path before adapter build."
+    },
+    {
+      "name": "NBP — National Bank of Poland (+ Web API)",
+      "url": "https://api.nbp.pl/",
+      "side": "entities",
+      "category": "central bank data API",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "api.nbp.pl is a well-documented open JSON/XML API for FX reference rates and gold prices (deterministic PLN→EUR conversion source). Main nbp.pl site is bot-gated (fetch hit a bot-detection page) — mark scraping there js-blocked; use the API."
+    },
+    {
+      "name": "UOKiK decisions database (merger control)",
+      "url": "https://decyzje.uokik.gov.pl/bp/dec_prez.nsf",
+      "side": "entities",
+      "category": "competition authority decisions",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live (Lotus-Notes-era frameset but functional). Concentration/merger clearance decisions — a high-quality deterministic deal-signal source for PE buyouts. Also see uokik.gov.pl press releases."
+    },
+    {
+      "name": "KOBiZE / Union Registry (EU ETS Polish accounts)",
+      "url": "https://rejestr.kobize.pl/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "KOBiZE administers the Polish part of the EU Union Registry (ETS account holders) — entity source for carbon/environmental alts (category 5). Existence confirmed via search; account-holder lists partially on kobize.pl; not fetch-verified."
+    },
+    {
+      "name": "KAS virtual-currency activity register (pre-MiCA VASP)",
+      "url": "https://www.slaskie.kas.gov.pl/izba-administracji-skarbowej-w-katowicach",
+      "side": "entities",
+      "category": "crypto/VASP register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Legacy VASP register kept by the Katowice tax administration chamber; being superseded by MiCA CASP licensing under KNF, for which NO Polish public register exists yet (as of mid-2026) — use ESMA's EU CASP register interim. URL not fetch-verified."
+    },
+    {
+      "name": "MSiG — Court & Commercial Gazette",
+      "url": "https://wyszukiwarka-msig.ms.gov.pl/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "Official search + full PDF issue downloads of Monitor Sądowy i Gospodarczy (KRS entries, financial-statement notices, some insolvency announcements). Confirmed via Ministry of Justice pages; searchable by KRS/NIP/text."
+    },
+    {
+      "name": "iMSiG.pl (MSiG/KRZ API, third-party)",
+      "url": "https://www.imsig.pl/inne/dokumentacja-api",
+      "side": "entities",
+      "category": "gazette/insolvency API",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Commercial-grade public API over MSiG announcements, KRS entries and KRZ insolvency data with documented endpoints (found directly in search). Third-party (MGBI) but built on official public data; check pricing/terms — free tier limited."
+    },
+    {
+      "name": "KRZ — National Register of Debtors",
+      "url": "https://krz.ms.gov.pl/",
+      "side": "entities",
+      "category": "insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Official register of insolvency & restructuring proceedings (the NPL/distressed signal source) incl. a restructuring-advisor search module. Confirmed live but it is a heavy SPA portal — machine access requires driving the SPA's internal endpoints; no official API found."
+    },
+    {
+      "name": "Orzeczenia (common courts rulings portal)",
+      "url": "https://orzeczenia.ms.gov.pl/",
+      "side": "entities",
+      "category": "court rulings",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Full-text search of common-court judgments — relevant for litigation-funding sourcing (category 5). Well-known official portal; not fetch-verified in this run."
+    },
+    {
+      "name": "GPW Main Market — list of companies + statistics",
+      "url": "https://www.gpw.pl/list-of-companies",
+      "side": "entities",
+      "category": "stock exchange issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (statistics page fetched: 403 listed companies, cap ~PLN 2.95tn as of 2026-08-03). Issuer list + daily/monthly stats downloads; no free bulk API. gpw.pl/aktualnosci for exchange news."
+    },
+    {
+      "name": "NewConnect — company list",
+      "url": "https://newconnect.pl/spolki",
+      "side": "entities",
+      "category": "stock exchange issuers (SME/alt market)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live: alphabetical issuer list with sector/region filters, plus authorized advisers list (service-graph entities). Rich source of small-cap and VC-exit entities."
+    },
+    {
+      "name": "GPW Catalyst — bond market",
+      "url": "https://gpwcatalyst.pl/",
+      "side": "entities",
+      "category": "bond market issuers/instruments",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live: corporate/municipal/cooperative/mortgage bond listings (297 corporate series shown), issuer documents and reports — the public window on Polish private-credit issuance."
+    },
+    {
+      "name": "KDPW + data portal",
+      "url": "https://www.kdpw.pl/",
+      "side": "entities",
+      "category": "CSD — ISIN/LEI/issuer data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. National depository; assigns ISIN/LEI/CFI codes and runs a data portal at data.kdpw.pl (issuer/instrument datasets, trade-repository stats). Check data.kdpw.pl licensing per dataset."
+    },
+    {
+      "name": "PAP ESPI/EBI source disclosures",
+      "url": "https://espiebi.pap.pl/",
+      "side": "entities",
+      "category": "issuer regulatory disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Source distribution of ESPI/EBI current reports (all GPW/NewConnect issuers) — confirmed via verified biznes.pap.pl navigation ('Źródłowe ESPI/EBI'); the espiebi.pap.pl page itself not separately fetched. Bankier's espi.xml RSS (verified) mirrors this stream."
+    },
+    {
+      "name": "PSIK — Polish PE/VC association members",
+      "url": "https://psik.org.pl/pl/czlonkowie",
+      "side": "entities",
+      "category": "PE/VC association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live: 49 fund members + 127 supporting members (banks/advisors/lawyers — service-graph gold). Funds sub-directory at /pl/czlonkowie/fundusze with per-firm profiles; also 'Dane i raporty' market statistics."
+    },
+    {
+      "name": "IZFiA — fund management chamber",
+      "url": "https://www.izfa.pl/",
+      "side": "entities",
+      "category": "fund industry association + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live: TFI member directory, monthly AUM statistics (shows PLN 78.5bn private-market funds, 951 active funds), annual market reports. Best public aggregate on Polish fund AUM."
+    },
+    {
+      "name": "ZBP — Polish Bank Association",
+      "url": "https://zbp.pl/",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Member banks list + sector reports. Well-known institution; URL not fetch-verified in this run."
+    },
+    {
+      "name": "PIU — Polish Insurance Chamber",
+      "url": "https://piu.org.pl/",
+      "side": "entities",
+      "category": "insurance association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Insurer members and market reports (LP-side landscape). Not fetch-verified in this run."
+    },
+    {
+      "name": "ZPL — Polish Leasing Association",
+      "url": "https://leasing.org.pl/",
+      "side": "entities",
+      "category": "leasing association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Leasing company members + quarterly market statistics (asset-backed lending adjacents). Not fetch-verified in this run."
+    },
+    {
+      "name": "PZF — Polish Factors Association",
+      "url": "https://faktoring.pl/",
+      "side": "entities",
+      "category": "factoring association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Factoring company members + turnover statistics (trade/supply-chain finance, category 2). Not fetch-verified in this run."
+    },
+    {
+      "name": "ZPF — Association of Financial Enterprises",
+      "url": "https://zpf.pl/",
+      "side": "entities",
+      "category": "financial/debt-collection association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Members span debt purchasers/collectors, loan institutions, servicers — key NPL-ecosystem directory. Not fetch-verified in this run."
+    },
+    {
+      "name": "PZFD — Polish Association of Developers",
+      "url": "https://pzfd.pl/",
+      "side": "entities",
+      "category": "real estate developers association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Developer member directory (real assets, category 3). Not fetch-verified in this run."
+    },
+    {
+      "name": "Startup Poland",
+      "url": "https://startuppoland.org/",
+      "side": "entities",
+      "category": "startup ecosystem association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Ecosystem reports (annual 'Polish Startups' report) and member base. Not fetch-verified in this run."
+    },
+    {
+      "name": "PFR Ventures — fund-of-funds portfolio",
+      "url": "https://pfrventures.pl/",
+      "side": "entities",
+      "category": "state fund-of-funds (LP) portfolio",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Largest domestic LP; publishes its portfolio of VC/PE funds and quarterly PL VC-market transaction reports (with Inovo). Site returned 403 to plain fetch (bot protection) — exists but needs browser-grade crawling."
+    },
+    {
+      "name": "BGK — national development bank",
+      "url": "https://www.bgk.pl/",
+      "side": "entities",
+      "category": "development bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State development bank: programs, guarantees, bond issuance, infrastructure funds (via PFR TFI). Not fetch-verified in this run."
+    },
+    {
+      "name": "PAIH — investment promotion agency",
+      "url": "https://www.paih.gov.pl/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "FDI project announcements and investor lists — signals for real-assets/greenfield. Not fetch-verified in this run."
+    },
+    {
+      "name": "ARP — Industrial Development Agency",
+      "url": "https://arp.pl/",
+      "side": "entities",
+      "category": "state restructuring/asset agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State agency for industrial restructuring and portfolio companies (distressed/state-asset angle). Not fetch-verified in this run."
+    },
+    {
+      "name": "Ministry of State Assets — supervised companies",
+      "url": "https://www.gov.pl/web/aktywa-panstwowe",
+      "side": "entities",
+      "category": "state-owned enterprise register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "List of state-treasury companies under ministry supervision (privatization/state-asset map). gov.pl pages are static-HTML friendly; specific list page not fetch-verified."
+    },
+    {
+      "name": "e-Zamówienia — public procurement portal",
+      "url": "https://ezamowienia.gov.pl/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Central procurement notices platform (infrastructure/EPC deal signals). Official; not fetch-verified — check its public API (the platform documents integration interfaces)."
+    },
+    {
+      "name": "dane.gov.pl — national open data portal",
+      "url": "https://dane.gov.pl/",
+      "side": "entities",
+      "category": "open data portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live (SPA 'Otwarte Dane'; REST API at api.dane.gov.pl). Hosts machine-readable datasets incl. the restructuring-advisor licence list (dataset 1512)."
+    },
+    {
+      "name": "Restructuring advisors licence list (Ministry of Justice)",
+      "url": "https://www.gov.pl/web/sprawiedliwosc/lista-doradcow-restrukturyzacyjnych",
+      "side": "entities",
+      "category": "insolvency practitioner roll",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Official list of licensed doradcy restrukturyzacyjni (insolvency practitioners) as downloadable file; machine-readable copy on dane.gov.pl (https://dane.gov.pl/pl/dataset/1512). Confirmed via search; KRZ portal also has an advisor search."
+    },
+    {
+      "name": "Krajowy Rejestr Adwokatów",
+      "url": "https://rejestradwokatow.pl/",
+      "side": "entities",
+      "category": "bar association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "National register of advocates (searchable) — service-graph law-firm mapping. Not fetch-verified in this run."
+    },
+    {
+      "name": "Rejestr radców prawnych (KIRP)",
+      "url": "https://rejestrradcow.pl/",
+      "side": "entities",
+      "category": "legal advisers directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "National register of attorneys-at-law (radcowie prawni). Not fetch-verified in this run."
+    },
+    {
+      "name": "RICS firms directory (Poland)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "valuer/surveyor directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Global RICS-regulated-firm search filterable to Poland (real-assets valuers). Not fetch-verified; also PFSRM (pfsrm.pl) federation of Polish property valuers and the government central register of rzeczoznawcy majątkowi."
+    },
+    {
+      "name": "Bankier.pl",
+      "url": "https://www.bankier.pl/",
+      "side": "news",
+      "category": "financial portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.bankier.pl/rss/wiadomosci.xml",
+      "verdict": "VERIFIED: /rss page fetched listing six feeds — wiadomosci.xml, gielda.xml, firma.xml, finanse.xml, waluty.xml, and espi.xml (company ESPI disclosures — high-value deterministic signal feed)."
+    },
+    {
+      "name": "Money.pl",
+      "url": "https://www.money.pl/",
+      "side": "news",
+      "category": "financial portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.money.pl/rss/",
+      "verdict": "VERIFIED: /rss/ returns a live RSS 2.0 feed (fetched 2026-08-04, 16 items). Poland's #1 general finance portal."
+    },
+    {
+      "name": "PAP Biznes",
+      "url": "https://biznes.pap.pl/",
+      "side": "news",
+      "category": "newswire",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://biznes.pap.pl/rss",
+      "verdict": "VERIFIED live: state newswire's business service with ESPI/EBI section and Market Insider; RSS link present in header (feed URL itself not content-verified). The closest thing to a Polish Bloomberg wire that is free."
+    },
+    {
+      "name": "Puls Biznesu",
+      "url": "https://www.pb.pl/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Leading business daily (deals, companies, markets). Fetch refused (bot protection); no working public RSS found — legacy feeds dead, content largely paywalled. Headline+link monitoring via crawler with browser fingerprint or licensing."
+    },
+    {
+      "name": "Parkiet",
+      "url": "https://www.parkiet.com/",
+      "side": "news",
+      "category": "capital markets daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "The capital-markets daily (GPW, funds, bonds). /rss returns 404; only dead third-party feeds found. Section pages are server-rendered and parseable; paywall on premium content."
+    },
+    {
+      "name": "Rzeczpospolita — Ekonomia",
+      "url": "https://www.rp.pl/ekonomia",
+      "side": "news",
+      "category": "national daily (business/legal)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major national daily with strong business+legal coverage. /rss returns 404 (feeds retired); paywalled. Same publisher as Parkiet (Gremi Media)."
+    },
+    {
+      "name": "Business Insider Polska",
+      "url": "https://businessinsider.com.pl/",
+      "side": "news",
+      "category": "business news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "High-volume business news (Onet/RAS Polska). Not fetch-verified; RSS availability unconfirmed."
+    },
+    {
+      "name": "Forsal.pl",
+      "url": "https://forsal.pl/",
+      "side": "news",
+      "category": "economics/markets (Dziennik Gazeta Prawna)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Macro + markets service of Infor/DGP group. Not fetch-verified; historical RSS endpoints unconfirmed."
+    },
+    {
+      "name": "300Gospodarka",
+      "url": "https://300gospodarka.pl/",
+      "side": "news",
+      "category": "economics news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Independent economics outlet (macro, energy, ESG). WordPress-based so /feed likely exists — not verified in this run."
+    },
+    {
+      "name": "MamStartup",
+      "url": "https://mamstartup.pl/",
+      "side": "news",
+      "category": "startup/VC media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://mamstartup.pl/feed/",
+      "verdict": "VERIFIED: live RSS 2.0 feed fetched (lastBuildDate 2026-08-03, 50+ items on VC rounds, AI, fintech). Primary Polish VC deal-flow media."
+    },
+    {
+      "name": "cashless.pl",
+      "url": "https://cashless.pl/",
+      "side": "news",
+      "category": "fintech/payments media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Leading fintech/payments outlet. /feed returned 404 — no standard feed path; site itself well-established (not root-fetch-verified this run)."
+    },
+    {
+      "name": "Fintek.pl",
+      "url": "https://fintek.pl/",
+      "side": "news",
+      "category": "fintech media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Fintech news portal. /feed/ returned 404; feed path unknown. Not root-fetch-verified."
+    },
+    {
+      "name": "StockWatch.pl",
+      "url": "https://www.stockwatch.pl/",
+      "side": "news",
+      "category": "equities/issuer analysis",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Issuer-level analysis and financial-report coverage for GPW/NewConnect. VERIFIED site exists (its 404 page fetched); /rss not found — no public feed located."
+    },
+    {
+      "name": "Obligacje.pl",
+      "url": "https://obligacje.pl/",
+      "side": "news",
+      "category": "corporate bond news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Dedicated Catalyst/corporate-bond news and issue database — the private-credit signal source. RSS path tried returned 404; site exists (404 page served). Some data behind registration."
+    },
+    {
+      "name": "Strefa Inwestorów / Comparic-type markets media",
+      "url": "https://strefainwestorow.pl/",
+      "side": "news",
+      "category": "markets media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Retail-investor markets media with issuer interviews and GPW coverage. Not fetch-verified; feed unknown."
+    },
+    {
+      "name": "Eurobuild CEE",
+      "url": "https://eurobuildcee.com/",
+      "side": "news",
+      "category": "real estate (CEE, EN/PL)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Long-running CEE commercial real estate magazine (transactions, funds, developers) in English and Polish. Not fetch-verified; feed unknown."
+    },
+    {
+      "name": "PropertyNews.pl",
+      "url": "https://www.propertynews.pl/",
+      "side": "news",
+      "category": "real estate news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "PTWP-group commercial property news (investment transactions, REIT debate). Not fetch-verified; feed unknown."
+    },
+    {
+      "name": "WNP.pl",
+      "url": "https://www.wnp.pl/",
+      "side": "news",
+      "category": "industry/energy portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Heavy-industry and energy business portal (PTWP) — infrastructure/energy-transition signals. Not fetch-verified; historically had per-section RSS."
+    },
+    {
+      "name": "Gramwzielone.pl",
+      "url": "https://www.gramwzielone.pl/",
+      "side": "news",
+      "category": "renewables media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Leading renewables/PV/wind news (energy-transition deal signals). Not fetch-verified; feed unknown."
+    },
+    {
+      "name": "WysokieNapiecie.pl",
+      "url": "https://wysokienapiecie.pl/",
+      "side": "news",
+      "category": "energy analysis",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Respected independent energy-sector analysis. /feed/ returned 403 to plain fetch (WAF) — a feed likely exists for real readers; needs UA-respectful crawler."
+    },
+    {
+      "name": "The Recursive",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "CEE startup media (EN)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "English-language CEE innovation/VC media covering Poland — useful cross-border dedupe partner for PL round coverage. Not fetch-verified; WordPress /feed likely."
+    },
+    {
+      "name": "KNF news & communications",
+      "url": "https://www.knf.gov.pl/aktualnosci",
+      "side": "news",
+      "category": "regulator press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Regulator sanctions, licensing decisions, warnings list changes — deterministic signals. knf.gov.pl fetches fine (verified on other pages); this exact path not fetched."
+    },
+    {
+      "name": "Ministry of Finance press (gov.pl)",
+      "url": "https://www.gov.pl/web/finanse/aktualnosci",
+      "side": "news",
+      "category": "ministry press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Fiscal, debt-issuance and regulatory announcements; gov.pl serves parseable HTML. Not individually fetch-verified."
+    },
+    {
+      "name": "GPW news",
+      "url": "https://www.gpw.pl/aktualnosci-gpw",
+      "side": "news",
+      "category": "exchange press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Listings, delistings (e.g. verified May-2026 NewConnect exclusions announcement surfaced in search), index changes. gpw.pl confirmed parseable via statistics page fetch."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Polish GPs, LPs (PTE pension societies, PFR), fund closes and performance where disclosed; strongest on institutional fund data, weak on sub-threshold ASI vehicles and local service graph.",
+      "publicSourcesTheyUse": "KNF registers (TFI/ZASI), annual reports of pension societies, PSIK/Invest Europe statistics, press releases — all of which we can ingest directly (KNF register pages, IZFiA stats, PSIK reports)."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "PL PE/VC deals, valuations (modeled), advisors on deals; good buyout coverage via advisor networks, patchy seed coverage outside Warsaw.",
+      "publicSourcesTheyUse": "Company press releases, KRS filings (capital increases as round evidence), UOKiK merger clearances, MSiG notices, news media — KRS Open API + UOKiK decisions DB + MSiG give us the same deterministic backbone at $0."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Startup/VC ecosystem mapping; runs the official Polish ecosystem instance in partnership with PFR (dealroom-powered database of Polish startups), so PL coverage is unusually good for a global platform.",
+      "publicSourcesTheyUse": "PFR/PFR Ventures data sharing, startup self-reporting, MamStartup/press round announcements, Crunchbase cross-feeds. We go direct to PFR Ventures portfolio + quarterly PFR/Inovo VC reports and MamStartup RSS."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow PL startup coverage; self-reported profiles, frequent gaps in amounts and dates.",
+      "publicSourcesTheyUse": "Self-reporting and English-language press; little registry grounding — our KRS/ZASI grounding is a direct differentiator."
+    },
+    {
+      "platform": "EMIS (ISI Emerging Markets)",
+      "coverageNotes": "CEE company financials, industry reports, news aggregation for Poland; strong financial-statement depth, sold to banks/advisors.",
+      "publicSourcesTheyUse": "KRS financial statements (eKRS repository of financial documents), GUS statistics, PAP wire — all public: the KRS financial-documents repository (ekrs.ms.gov.pl/rdf) is free."
+    },
+    {
+      "platform": "Notoria",
+      "coverageNotes": "Polish listed-company fundamentals and ownership data for GPW/NewConnect; the local standard for issuer financials.",
+      "publicSourcesTheyUse": "ESPI/EBI disclosures, issuer periodic reports, GPW/KDPW data — we ingest espiebi.pap.pl + Bankier espi.xml + GPW lists directly."
+    },
+    {
+      "platform": "MGBI",
+      "coverageNotes": "Local data provider over MSiG/KRZ: insolvency and restructuring datasets, debtor reports, annual bankruptcy report — effectively the commercial layer on the exact gazette/insolvency sources we target.",
+      "publicSourcesTheyUse": "MSiG announcements, KRZ proceedings, KRS — they also operate the imsig.pl API we cataloged; we can replicate from the official sources at $0."
+    },
+    {
+      "platform": "Rejestr.io / Transparent Data",
+      "coverageNotes": "Polish registry-graph providers (ownership/management connections, KRS change monitoring) with APIs; strong graph UX over KRS.",
+      "publicSourcesTheyUse": "KRS Open API, CRBR UBO register, MSiG — identical public inputs to ours; validates our KRS-graph approach."
+    },
+    {
+      "platform": "Krajowy Rejestr Długów (KRD) + BIG bureaus",
+      "coverageNotes": "Private debt-information bureaus (payment defaults) — adjacent to NPL sourcing but their bureau data is proprietary/consent-based, not public.",
+      "publicSourcesTheyUse": "Creditor-submitted data (not replicable); public overlap limited to KRZ/MSiG insolvency notices which we take directly."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not found: (1) a Polish public register of MiCA CASP licensees — as of mid-2026 KNF licenses CASPs but publishes no dedicated public CASP register; the ESMA EU-wide register is the authoritative interim source, and the legacy KAS virtual-currency register is being wound down. (2) Working official RSS feeds for the big three dailies — Puls Biznesu, Parkiet, Rzeczpospolita all returned 404 on standard feed paths and legacy feedsportal feeds are dead; their content is paywalled, so headline-level monitoring needs section-page crawling or licensing. (3) A bulk download/open API for KNF registers — e-rup.knf.gov.pl was unreachable (connection refused) and KNF offers only per-register HTML/XLSX pages plus the search UI. (4) A free bulk issuer API from GPW — only HTML lists and PDF/XLS statistics. (5) RSS at cashless.pl, fintek.pl, stockwatch.pl, obligacje.pl standard paths (all 404). (6) A public register of fund administrators as a distinct category — in Poland transfer-agent/fund-admin functions appear only inside KNF's 'entities keeping fund participant registers' pages, not as a standalone licensee list."
+}

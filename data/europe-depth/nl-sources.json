@@ -1,0 +1,641 @@
+{
+  "country": "NL",
+  "sources": [
+    {
+      "name": "KVK Handelsregister (Dutch Business Register) — search portal",
+      "url": "https://www.kvk.nl/zoeken/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "The national commercial register for all Dutch legal entities. Public search portal; machine route is the paid API (see next entry). Not bulk-downloadable for free."
+    },
+    {
+      "name": "KVK Developer Portal — Handelsregister APIs (Zoeken, Basisprofiel, Vestigingsprofiel, Mutatieservice)",
+      "url": "https://developers.kvk.nl/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch. Official APIs: search, basic company profile, establishment profile, mutation (change) service. Subscription-based (monthly fee + per-query fee); free test environment with fictitious data. This is the canonical machine route into the Dutch register."
+    },
+    {
+      "name": "KVK Financial Statements API (deposited annual accounts)",
+      "url": "https://developers.kvk.nl/apis",
+      "side": "entities",
+      "category": "company-financials",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED on the developer portal: a Financial Statements API exposes deposited annual accounts (jaarrekeningen) of Dutch companies. Key for portfolio-company and fund-vehicle financials."
+    },
+    {
+      "name": "AFM public registers (AIFMs, UCITS ManCos, investment firms, prospectuses, substantial holdings, short positions)",
+      "url": "https://www.afm.nl/en/sector/registers",
+      "side": "entities",
+      "category": "fund-managers-investment-firms",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Licence registers + notification registers + substantial-holdings and issued-capital registers, each separately searchable; daily e-mail update service for register changes. The AIFM register is the backbone of the NL GP universe. No single public bulk dump found — per-register harvesting required."
+    },
+    {
+      "name": "AFM register of crypto-asset service providers (MiCA CASPs)",
+      "url": "https://www.afm.nl/en/sector/registers/vergunningenregisters/cryptopartijen",
+      "side": "entities",
+      "category": "crypto-mica",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: lists all CASPs authorised or passported into NL under MiCA; includes former transitional-regime firms. Covers the tokenized-RWA/digital-asset corner of niche alts."
+    },
+    {
+      "name": "DNB public registers portal (banks, payment/e-money institutions, insurers, pension funds, trust offices)",
+      "url": "https://www.dnb.nl/en/public-register/",
+      "side": "entities",
+      "category": "regulator-registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "URL real but direct fetch returned HTTP 403 (bot protection) — harvest needs polite headers or manual download. Search results confirm register download files are refreshed every working day at 06:00."
+    },
+    {
+      "name": "DNB Register van pensioenfondsen (pension funds — the LP side)",
+      "url": "https://www.dnb.nl/openbaar-register/register-van-pensioenfondsen/",
+      "side": "entities",
+      "category": "pension-funds-lp",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: contains all active occupational, industry-wide, professional and general pension funds (APFs). Daily-updated downloads. Companion registers: premiepensioeninstellingen (PPIs). Site bot-blocks naive fetchers (403)."
+    },
+    {
+      "name": "DNB Register van verzekeraars (insurers) + herverzekeraars (reinsurers)",
+      "url": "https://www.dnb.nl/openbaar-register/register-van-verzekeraars/",
+      "side": "entities",
+      "category": "insurers-lp",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: all licensed (re)insurers incl. third-country inbound service notifications; downloads updated every working day. LP-side and ILS-relevant."
+    },
+    {
+      "name": "DNB Register van trustkantoren (trust offices / corporate service providers, Wtt)",
+      "url": "https://www.dnb.nl/openbaar-register/register-van-trustkantoren/",
+      "side": "entities",
+      "category": "fund-administration-service-graph",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: all licensed trust offices with permitted activities, restrictions and group membership. The NL trust/domiciliation sector is the fund-SPV service layer — directly feeds category 6."
+    },
+    {
+      "name": "DNB Statistics (statistiek.dnb.nl — investment funds, pensions, insurance, securitisation statistics)",
+      "url": "https://statistiek.dnb.nl/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Known-real DNB statistics portal with downloadable tables on Dutch investment funds, pension fund investments and securitisation vehicles; not fetched this session (main dnb.nl 403s bots), so access method unconfirmed."
+    },
+    {
+      "name": "Dutch Emissions Authority (NEa) — EU ETS registry administration NL",
+      "url": "https://www.emissionsauthority.nl/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. NEa administers the EU ETS Registry for NL and publishes annual emissions/participant data (stationary installations, aviation, maritime). Route into the carbon-credits corner of niche alts."
+    },
+    {
+      "name": "Officielebekendmakingen.nl — Staatscourant, Staatsblad (official gazettes)",
+      "url": "https://www.officielebekendmakingen.nl/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch. Exclusive electronic publication of the Staatscourant/Staatsblad since 2009. Machine access via KOOP SRU API: https://zoek.officielebekendmakingen.nl/sru/Search (documented at data.overheid.nl dataset 'officiele-bekendmakingen'). Free, no key."
+    },
+    {
+      "name": "KOOP SRU search service for official publications (data.overheid.nl)",
+      "url": "https://data.overheid.nl/dataset/officiele-bekendmakingen",
+      "side": "entities",
+      "category": "gazette-api",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via search: full official-publications corpus queryable via SRU/CQL with developer documentation (PUC/KOOP guides). The deterministic-parse route to gazette announcements."
+    },
+    {
+      "name": "Centraal Insolventieregister (CIR) — insolventies.rechtspraak.nl",
+      "url": "https://insolventies.rechtspraak.nl/",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live (page loads; JS search UI). Machine route: SOAP webservice at webservice.rechtspraak.nl/cir.asmx (open-source clients exist, e.g. StichtingOpenGeo/CentraalInsolventieregister on GitHub); credentials must be requested from the Raad voor de rechtspraak. Core NPL/distressed feed."
+    },
+    {
+      "name": "Rechtspraak Open Data — court rulings (ECLI index + documents)",
+      "url": "https://www.rechtspraak.nl/uitspraken/open-data",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via search: RESTful webservice, 500k+ full rulings and 2M+ metadata records in XML; two-step ECLI-index then document retrieval. Free. Feeds insolvency, restructuring (WHOA) and litigation-funding signals."
+    },
+    {
+      "name": "Euronext Amsterdam — listed equities/issuers list (Live Markets)",
+      "url": "https://live.euronext.com/en/markets/amsterdam/equities/list",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via search; live.euronext.com is a heavy JS application (Drupal/ajax POST endpoints), so harvest needs a headless browser or reverse-engineered POST calls. Free machine-readable issuer bulk export sits behind the paid Euronext Data Shop."
+    },
+    {
+      "name": "NPEX — Dutch SME securities exchange (issuer list)",
+      "url": "https://www.npex.nl/",
+      "side": "entities",
+      "category": "stock-exchange-sme",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. AFM/DNB-supervised SME exchange; 100+ financings, issuer pages with half-year and annual reports public. Good private-debt/mini-bond issuer signal."
+    },
+    {
+      "name": "NVP — Nederlandse Vereniging van Participatiemaatschappijen (PE/VC association) member directory",
+      "url": "https://nvp.nl/over/ledenoverzicht/leden/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (nvp.nl serves over http). Public ledenoverzicht of Dutch PE and VC firms — the canonical GP directory for NL. Note: site 301s https→http."
+    },
+    {
+      "name": "DUFAS — Dutch Fund and Asset Management Association member list",
+      "url": "https://dufas.nl/leden/",
+      "side": "entities",
+      "category": "asset-management-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: Leden page exists with member roster (APG, Goldman Sachs AM, Triodos etc.). Maps the ManCo/asset-manager layer incl. liquid alternatives."
+    },
+    {
+      "name": "Pensioenfederatie — Dutch Pension Federation (141 member pension funds)",
+      "url": "https://pensioenfederatie.nl/over-ons/",
+      "side": "entities",
+      "category": "pension-funds-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: federation of 141 pension funds with a members section under Over ons > Leden. Cross-check against the DNB pension register for the full LP map."
+    },
+    {
+      "name": "IVBN — association of institutional real estate investors (member list)",
+      "url": "https://ivbn.nl/ivbn-leden/",
+      "side": "entities",
+      "category": "real-estate-investors",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: branch association of institutional/professional real estate investors with an Onze leden page. Direct roster of NL real-asset LPs/GPs."
+    },
+    {
+      "name": "NVB — Dutch Banking Association",
+      "url": "https://www.nvb.nl/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED to exist via fetch (Nederlandse Vereniging van Banken), but the member-list page was not confirmed in the retrieved content — locate it on-site; DNB's bank register is the authoritative fallback."
+    },
+    {
+      "name": "Verbond van Verzekeraars — Dutch Association of Insurers (ledenlijst)",
+      "url": "https://www.verzekeraars.nl/over-het-verbond/leden-van-het-verbond",
+      "side": "entities",
+      "category": "insurers-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: 'Leden van het Verbond' page linked from the homepage. Insurer LP-side directory."
+    },
+    {
+      "name": "Leasing Nederland (formerly NVL) — equipment lease companies association",
+      "url": "https://leasing-nederland.nl/",
+      "side": "entities",
+      "category": "leasing-factoring",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: ~20 members covering ~95% of the NL equipment-leasing market, plus associated members (law firms, valuers). Asset-backed-lending corner of private debt. (Car leasing sits in the separate VNA.)"
+    },
+    {
+      "name": "Holland Quaestor — association of Dutch trust offices / corporate service providers",
+      "url": "https://www.hollandquaestor.nl/",
+      "side": "entities",
+      "category": "fund-administration-service-graph",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: branchevereniging of trust offices since 2012; homepage shows ~10-12 member logos but no searchable directory — pair with the DNB trustkantoren register for completeness."
+    },
+    {
+      "name": "FMO — Dutch entrepreneurial development bank (public investment database)",
+      "url": "https://www.fmo.nl/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: FMO publishes its investments ('See our investments' world map / project database). Large fund-of-funds LP into emerging-market PE/PD funds."
+    },
+    {
+      "name": "Invest-NL — national promotional investment institution (portfolio pages)",
+      "url": "https://www.invest-nl.nl/nl/impact/ons-portfolio",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: full public portfolio — 247 companies and funds, EUR 1,768m committed, per-company profiles. Direct feed of NL VC funds (as LP) and deep-tech/energy deals."
+    },
+    {
+      "name": "ROM Nederland — network of the 9 regional development agencies (BOM, Oost NL, InnovationQuarter, NOM, LIOF, Horizon, Impuls Zeeland, ROM InWest, ROM Utrecht Region)",
+      "url": "https://www.rom-nederland.nl/",
+      "side": "entities",
+      "category": "regional-development-investors",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: the nine ROMs invested EUR 240m in 384 companies in 2025; each ROM publishes its own portfolio on its site. Systematic regional VC/growth deal source."
+    },
+    {
+      "name": "NFIA — Invest in Holland (Netherlands Foreign Investment Agency)",
+      "url": "https://investinholland.com/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Known-real agency site publishing FDI results and sector data; not fetched this session — verify before wiring in."
+    },
+    {
+      "name": "RVO — Netherlands Enterprise Agency (schemes, Seed Capital funds, guarantee instruments)",
+      "url": "https://english.rvo.nl/",
+      "side": "entities",
+      "category": "state-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Known-real; RVO publishes lists of Seed Capital scheme VC funds and BMKB/GO guarantee users. Not fetched this session — verify the specific fund-list pages."
+    },
+    {
+      "name": "TenderNed — Dutch public procurement portal (open datasets + API)",
+      "url": "https://www.tenderned.nl/cms/nl/aanbesteden-in-cijfers/datasets-aanbestedingen",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch: XLSX datasets 2010-2026, JSON per year since 2016, XML API on request (functioneelbeheer@tenderned.nl), plus a TNS publication RSS/webservice. All notices public — infrastructure/concession deal signals."
+    },
+    {
+      "name": "NRVT — Nederlands Register Vastgoed Taxateurs (real estate valuers register)",
+      "url": "https://www.nrvt.nl/",
+      "side": "entities",
+      "category": "valuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: public 'Zoek een Register-Taxateur' search by person or company. The RICS-equivalent national valuer roll for the real-assets service graph."
+    },
+    {
+      "name": "NOvA — Dutch Bar Association lawyer search (zoekeenadvocaat)",
+      "url": "https://zoekeenadvocaat.advocatenorde.nl/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: all 18,000+ registered advocates searchable by name, location and practice area (incl. M&A, insolvency, funds). Do not bulk-harvest individuals — use for firm-level mapping only (project rule: no personal-data harvesting at scale)."
+    },
+    {
+      "name": "INSOLAD — association of insolvency law practitioners (member search)",
+      "url": "https://www.insolad.nl/leden-zoeken/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: public member search of insolvency/restructuring attorneys — the curator network behind NPL/distressed workflows."
+    },
+    {
+      "name": "CBS StatLine — Statistics Netherlands OData API",
+      "url": "https://www.cbs.nl/en-gb/our-services/open-data",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via search: fully public OData v4 API, no key, CORS-enabled; thousands of tables (bankruptcies, real estate prices, business demography). Official Python/R clients exist (cbsodata)."
+    },
+    {
+      "name": "ACM — Netherlands Authority for Consumers and Markets (merger decisions database)",
+      "url": "https://www.acm.nl/en",
+      "side": "entities",
+      "category": "competition-authority",
+      "tier": "tier2_regulator",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.acm.nl/en/rss",
+      "verdict": "VERIFIED via fetch: ACM confirmed, footer exposes an RSS service ('choose your topics and document types'). Concentration/merger-clearance decisions are public — a deterministic M&A deal signal. Exact per-topic feed URLs to be picked on the RSS page."
+    },
+    {
+      "name": "Techleap Finder — Dutch startup & investor database (Dealroom-powered)",
+      "url": "https://finder.techleap.nl/",
+      "side": "entities",
+      "category": "startup-database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403; the platform is real and publicly browsable in a browser but is a JS app powered by Dealroom. Treat as reference/market-map only — Dealroom-derived data is a competitor dataset (project rule: no scraping competitor platforms)."
+    },
+    {
+      "name": "data.overheid.nl — Dutch national open data portal (meta-catalog)",
+      "url": "https://data.overheid.nl/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED indirectly (multiple dataset pages fetched via search this session). CKAN-style catalog indexing rechtspraak, gazette, TenderNed and rijksoverheid datasets — use to discover further NL feeds."
+    },
+    {
+      "name": "NEPROM — association of Dutch property developers",
+      "url": "https://www.neprom.nl/",
+      "side": "entities",
+      "category": "real-estate-developers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Known-real developers' association with a member list; not fetched this session — verify the leden page before use."
+    },
+    {
+      "name": "Stichting MKB Financiering — non-bank SME finance association",
+      "url": "https://www.stichtingmkbfinanciering.nl/",
+      "side": "entities",
+      "category": "private-debt-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Known-real association of non-bank SME lenders (direct lending/crowdlending/factoring) with certified-financier register; not fetched this session — verify before use."
+    },
+    {
+      "name": "Het Financieele Dagblad (FD) — leading financial daily",
+      "url": "https://fd.nl/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://fd.nl/laatste-nieuws?rss=",
+      "verdict": "VERIFIED via search: RSS exists at fd.nl/?rss= and fd.nl/laatste-nieuws?rss= (plus per-section widget feeds e.g. /beurs). Feed terms say personal, non-commercial use — headline+link only, respect ToS. Articles paywalled."
+    },
+    {
+      "name": "Investment Officer NL (ex-Fondsnieuws) — asset & fund management trade press",
+      "url": "https://www.investmentofficer.nl/",
+      "side": "news",
+      "category": "fund-management-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.investmentofficer.nl/rss/laatste-nieuws",
+      "verdict": "VERIFIED via fetch of its RSS page: feed 'laatste nieuws' listed at /rss/laatste-nieuws. Core NL fund-industry signal (AIFM launches, mandates, people moves)."
+    },
+    {
+      "name": "Pensioen Pro — pension sector trade publication (FD Mediagroep)",
+      "url": "https://pensioenpro.nl/",
+      "side": "news",
+      "category": "pension-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: the trade source for Dutch pension funds and their (alternatives) allocations; ~15,500 professional readers. Paywalled; no public RSS URL confirmed."
+    },
+    {
+      "name": "Energeia — Dutch energy sector daily (FD Mediagroep)",
+      "url": "https://energeia.nl/laatste-nieuws",
+      "side": "news",
+      "category": "energy-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: daily coverage of the Dutch energy sector since 2000 — renewables/transition deal signals. Paywalled; RSS not confirmed."
+    },
+    {
+      "name": "NU.nl Economie — highest-reach general news, economy feed",
+      "url": "https://www.nu.nl/economie",
+      "side": "news",
+      "category": "general-business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.nu.nl/rss/Economie",
+      "verdict": "Feed URL is the long-documented one but our fetch tooling is blocked from nu.nl — verify from production IPs; mark honestly as unverified-by-fetch this session."
+    },
+    {
+      "name": "De Telegraaf DFT — financial section of largest daily",
+      "url": "https://www.telegraaf.nl/financieel",
+      "side": "news",
+      "category": "general-business-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real section; historical RSS at telegraaf.nl/rss not verified this session — confirm current feed URLs before wiring in."
+    },
+    {
+      "name": "MT/Sprout — entrepreneurship & scale-up media",
+      "url": "https://mtsprout.nl/",
+      "side": "news",
+      "category": "startup-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Site real; /feed returned 403 to our fetcher (bot protection) — likely a WordPress feed exists but unverified. Retry with browser-grade headers."
+    },
+    {
+      "name": "Quote — business magazine (Quote 500 rich list, deals, PE gossip)",
+      "url": "https://www.quotenet.nl/",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real (Hearst NL); domain blocked to our fetch tooling this session, RSS unconfirmed. Quote 500 list itself is a useful UHNW/family-office reference."
+    },
+    {
+      "name": "Silicon Canals — Amsterdam-based European startup/VC news",
+      "url": "https://siliconcanals.com/",
+      "side": "news",
+      "category": "startup-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://siliconcanals.com/feed/",
+      "verdict": "VERIFIED working feed (fetched). Note: fetched sample items skewed off-topic lifestyle/science content — monitor relevance; funding-round coverage is its historical core."
+    },
+    {
+      "name": "Follow the Money (FTM) — financial investigative journalism",
+      "url": "https://www.ftm.nl/",
+      "side": "news",
+      "category": "investigative-finance",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ftm.nl/feed",
+      "verdict": "VERIFIED working feed (fetched, items current to Aug 2026). Deep investigations into funds, real estate financialization, fraud — high-value risk signals."
+    },
+    {
+      "name": "Emerce — digital economy & tech business news",
+      "url": "https://www.emerce.nl/",
+      "side": "news",
+      "category": "tech-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.emerce.nl/feed",
+      "verdict": "VERIFIED working feed (fetched, hourly updates)."
+    },
+    {
+      "name": "IEX.nl — retail markets & AEX news",
+      "url": "https://www.iex.nl/",
+      "side": "news",
+      "category": "markets-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site real; legacy RSS URL (/rss/rssnieuws.aspx) returned 404 — current feed location unconfirmed. Secondary priority."
+    },
+    {
+      "name": "Banken.nl — banking sector portal",
+      "url": "https://www.banken.nl/",
+      "side": "news",
+      "category": "banking-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.banken.nl/rss/banken_rssfeed.xml",
+      "verdict": "VERIFIED via fetch: RSS feed URL published in the site footer. Bank strategy/NPL/lending coverage."
+    },
+    {
+      "name": "Consultancy.nl — professional services & M&A advisory news",
+      "url": "https://www.consultancy.nl/",
+      "side": "news",
+      "category": "professional-services-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site real with dedicated M&A news sections (/nieuws/vakgebied/fusies-overnames); /rss returned 404 — no feed found. Parse the news index."
+    },
+    {
+      "name": "Vastgoedmarkt — commercial real estate news & transactions",
+      "url": "https://www.vastgoedmarkt.nl/nieuws",
+      "side": "news",
+      "category": "real-estate-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: self-described no. 1 in commercial RE news and transactions. RSS not found; paywalled in part."
+    },
+    {
+      "name": "PropertyNL — real estate data & news",
+      "url": "https://propertynl.com/",
+      "side": "news",
+      "category": "real-estate-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: daily RE news + research/rankings. RSS not found; largely subscription."
+    },
+    {
+      "name": "Vastgoedjournaal — real estate news portal",
+      "url": "https://vastgoedjournaal.nl/",
+      "side": "news",
+      "category": "real-estate-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://vastgoedjournaal.nl/news/rss",
+      "verdict": "VERIFIED via fetch: RSS Feed link at /news/rss in the site footer. Free-access RE transactions/finance coverage."
+    },
+    {
+      "name": "BNR Nieuwsradio — business news radio (news site + podcast feeds)",
+      "url": "https://www.bnr.nl/",
+      "side": "news",
+      "category": "business-broadcast",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.omnycontent.com/d/playlist/8257a063-6be9-42fa-b892-acd4013b1255/52ce962c-348e-4072-959d-adc80089fc68/23074c8b-94ff-4fce-99b7-adc80089fc8d/podcast.rss",
+      "verdict": "VERIFIED via search: FD Mediagroep business radio; open podcast RSS confirmed for BNR Nieuws Vandaag (Zakendoen and Beurs also have open feeds). Website article RSS unconfirmed."
+    },
+    {
+      "name": "MenA.nl — M&A community news & deal database (Sijthoff Media)",
+      "url": "https://mena.nl/",
+      "side": "news",
+      "category": "ma-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: Benelux M&A news platform with public deal items (/deals) and 13k-subscriber newsletter; full deal database (Dealmaker.nl) is premium — treat premium layer as off-limits, parse free news only. No RSS found."
+    },
+    {
+      "name": "Brookz — SME acquisition marketplace & market reports",
+      "url": "https://www.brookz.nl/",
+      "side": "news",
+      "category": "sme-ma-marketplace",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: public business-for-sale listings, sector research, valuation barometer, Brookz 500. Lower-mid-market deal-flow signal."
+    },
+    {
+      "name": "AFM press & news RSS feeds",
+      "url": "https://www.afm.nl/nl-nl/contact/woordvoering-pers-en-media/rss-feeds",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.afm.nl/nl-nl/contact/woordvoering-pers-en-media/rss-feeds",
+      "verdict": "VERIFIED via search: AFM offers per-section RSS feeds plus a press-release alert service — pick the concrete per-topic feed URLs on this page. Enforcement/licensing news signals."
+    },
+    {
+      "name": "DNB news & press releases",
+      "url": "https://www.dnb.nl/en/general-news/",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real central-bank newsroom but dnb.nl returns 403 to non-browser fetchers — needs browser-grade headers. RSS availability unconfirmed."
+    },
+    {
+      "name": "Rijksoverheid news RSS (Ministry of Finance filterable)",
+      "url": "https://www.rijksoverheid.nl/service/rss",
+      "side": "news",
+      "category": "government-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://feeds.rijksoverheid.nl/nieuws.rss",
+      "verdict": "VERIFIED via search: central government news feed at feeds.rijksoverheid.nl/nieuws.rss; per-ministry feeds (incl. Financiën) subscribable from ministry pages. Policy/state-asset signals."
+    },
+    {
+      "name": "Euronext Amsterdam news & company press releases",
+      "url": "https://live.euronext.com/en/products/equities/company-news",
+      "side": "news",
+      "category": "exchange-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real disclosure channel for issuer press releases on Euronext Amsterdam; same JS-app constraint as the issuer list — needs headless harvesting. Not fetched this session."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Strong on NL institutional LPs (APG, PGGM, MN, pension funds' alternatives allocations) and pan-European GP/fund performance; weaker on lower-mid-market NL deals and the service graph.",
+      "publicSourcesTheyUse": "DNB pension fund register + pension funds' own annual reports (Dutch funds must publish detailed investment mixes), AFM AIFM register, fund annual accounts filed at KVK, manager press releases — all directly harvestable by us."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "Good NL PE/VC deal and valuation coverage, strong advisor league tables; US-centric bias, thin on NL private debt/NPL and real assets.",
+      "publicSourcesTheyUse": "Press releases and news (FD, Silicon Canals equivalents), KVK filings for cap-table/financials confirmation, ACM merger decisions, Euronext disclosures — we can go to KVK/ACM/Euronext directly."
+    },
+    {
+      "platform": "Dealroom.co (Amsterdam HQ — also a local provider)",
+      "coverageNotes": "The strongest NL startup/VC dataset; powers Techleap Finder and many Dutch government ecosystem reports; covers funding rounds, investor portfolios, ecosystem stats. Weak on non-VC alternatives (credit, real assets, LPs).",
+      "publicSourcesTheyUse": "KVK register data, funding press releases, startup/investor self-reporting, Techleap ecosystem partnership, news media — the public underlying layer (KVK + press) is directly accessible to us; do not scrape Dealroom or Finder."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow NL startup coverage; community-edited, patchy for funding amounts and anything non-tech.",
+      "publicSourcesTheyUse": "Press releases, company self-submissions, news crawling — nothing NL-specific we can't get from Silicon Canals/Emerce/MT-Sprout feeds + KVK."
+    },
+    {
+      "platform": "Company.info (FD Mediagroep)",
+      "coverageNotes": "The dominant local company-data provider: full Dutch register coverage, daily-updated, officially recognized KVK service provider, linked to FD news archive. B2B subscription; not an alternatives specialist but the data backbone many NL fintech/CDD tools resell.",
+      "publicSourcesTheyUse": "KVK Handelsregister (official service-provider contract), deposited annual accounts, Centraal Insolventieregister, FD/BNR news archive — the public originals (KVK API, CIR webservice, gazettes) are exactly the sources we harvest directly."
+    },
+    {
+      "platform": "Moody's Orbis / Bureau van Dijk (Dutch-origin)",
+      "coverageNotes": "Deep NL company financials and ownership chains (useful for OpCo/PropCo and SPV structures); expensive, no signals layer.",
+      "publicSourcesTheyUse": "KVK deposited annual accounts, EU business registers via BRIS, gazette announcements — all public originals available to us at source."
+    },
+    {
+      "platform": "Drimble / FaillissementsDossier.nl / Faillissementen.com (local insolvency aggregators)",
+      "coverageNotes": "Free/freemium daily NL insolvency trackers: bankruptcies, suspensions, curator contacts, court reports, per-municipality views. Prove the CIR is fully machine-harvestable; no analytics or alternatives framing.",
+      "publicSourcesTheyUse": "Centraal Insolventieregister SOAP webservice (webservice.rechtspraak.nl/cir.asmx), court bankruptcy reports, KVK data, local news — we should go to the CIR webservice directly for our NPL/distressed layer."
+    },
+    {
+      "platform": "Brookz / Dealsuite (local M&A marketplaces)",
+      "coverageNotes": "Lower-mid-market NL deal flow: businesses for sale, advisor network, sector multiples reports (Brookz Barometer, Dealsuite M&A Monitor). Marketplace model, not a data platform; reports are free PDFs.",
+      "publicSourcesTheyUse": "Self-listed sellers/advisors plus their own surveys; their free market reports are citable market-context sources; underlying deal data is proprietary — analysis only, no scraping."
+    },
+    {
+      "platform": "MenA.nl / Dealmaker.nl (Sijthoff Media)",
+      "coverageNotes": "NL/Benelux M&A community: deal news, league tables, advisor directory; Dealmaker.nl premium holds the structured deal database. Strong on advisor ecosystem (category 6 overlap).",
+      "publicSourcesTheyUse": "Deal press releases, advisor submissions, public news — the same press-release layer our signals pipeline ingests directly; premium database off-limits."
+    }
+  ],
+  "searchedButAbsent": "Searched for but could not confirm: (1) a free public BULK download of the AFM registers — only per-register search pages and a daily change-alert email service exist, so AIFM/investment-firm universes must be harvested per register; (2) a free machine-readable Euronext Amsterdam issuer export — the issuer list is a JS app and structured exports sit behind the paid Euronext Data Shop; (3) a public Dutch UBO register — closed to the general public since the Nov 2022 CJEU ruling (access restricted to authorities/obliged entities), consistent with the project's no-open-UBO assumption; (4) working RSS for Consultancy.nl (/rss = 404), IEX.nl (legacy .aspx feed = 404), Pensioen Pro, Energeia, Vastgoedmarkt and PropertyNL — none found; (5) MT/Sprout and Quote feeds — domains bot-blocked our fetcher (403/blocked), feeds unverified; (6) NU.nl RSS unverifiable from this tooling (domain blocked) though the documented feed URL is included; (7) an NVB banking-association public member list page — association confirmed but the list page was not located; (8) a searchable Holland Quaestor member directory — only homepage logos; (9) dnb.nl direct fetches — 403 bot protection across the site, though search results confirm register download files updated each working day; (10) a dedicated Dutch litigation-funder or royalty-fund register — none exists; such entities appear only via KVK/AFM generic registers and press.\""
+}

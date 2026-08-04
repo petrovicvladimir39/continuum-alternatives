@@ -36,6 +36,9 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const typeIndex = argv.indexOf("--type");
   const typeFilter = typeIndex >= 0 ? argv[typeIndex + 1] : undefined;
+  const countryIndex = argv.indexOf("--country");
+  const countryFilter =
+    countryIndex >= 0 ? argv[countryIndex + 1]?.toUpperCase() : undefined;
 
   const rows = await db
     .select({
@@ -48,12 +51,15 @@ async function main(): Promise<void> {
     .from(sources)
     .where(
       sql`${sources.active} = true AND ${sources.fetchMethod} IN ('rss','newsletter_rss','firecrawl_index','http_simple')
-          AND (${typeFilter ?? null}::text IS NULL OR ${sources.sourceType} = ${typeFilter ?? null})`,
+          AND (${typeFilter ?? null}::text IS NULL OR ${sources.sourceType} = ${typeFilter ?? null})
+          AND (${countryFilter ?? null}::text IS NULL OR ${sources.country} = ${countryFilter ?? null})`,
     );
 
   // Group by host so same-domain sources run consecutively, politely spaced.
   rows.sort((a, b) => hostOf(a.url).localeCompare(hostOf(b.url)) || a.name.localeCompare(b.name));
-  console.log(`fetch cycle: ${rows.length} active sources${typeFilter ? ` (type ${typeFilter})` : ""}`);
+  console.log(
+    `fetch cycle: ${rows.length} active sources${typeFilter ? ` (type ${typeFilter})` : ""}${countryFilter ? ` (country ${countryFilter})` : ""}`,
+  );
 
   let ok = 0;
   let failed = 0;

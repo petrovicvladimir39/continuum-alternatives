@@ -1,0 +1,681 @@
+{
+  "country": "IE",
+  "sources": [
+    {
+      "name": "CRO CORE — Companies Registration Office company search",
+      "url": "https://core.cro.ie/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "National commercial register front-end (companies, business names, LPs). Free basic search; documents paid. Not fetch-tested this session but confirmed as the canonical register via cro.ie."
+    },
+    {
+      "name": "CRO Open Data Portal",
+      "url": "https://opendata.cro.ie/",
+      "side": "entities",
+      "category": "commercial register — bulk/API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (fetched). CKAN portal with Company Records and Financial Statements datasets, bulk + API, CC-BY 4.0, updated daily. This is the primary machine route into the Irish register — implements EU Open Data Directive high-value datasets."
+    },
+    {
+      "name": "CRO Open Services (CORE REST API)",
+      "url": "https://cro.ie/services-and-help/access-to-cro-data/",
+      "side": "entities",
+      "category": "commercial register — developer API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "RESTful company/submission API documented on cro.ie (Access to CRO Data page, verified via search). services.cro.ie itself returns 403 to generic fetchers — keyed/registered access."
+    },
+    {
+      "name": "data.gov.ie — Company Records dataset",
+      "url": "https://data.gov.ie/dataset/companies",
+      "side": "entities",
+      "category": "commercial register — open data mirror",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "National open-data catalog entry for the CRO company dataset; confirmed via search. Useful as a stable catalog pointer alongside opendata.cro.ie."
+    },
+    {
+      "name": "RBO — Central Register of Beneficial Ownership",
+      "url": "https://rbo.gov.ie/",
+      "side": "entities",
+      "category": "beneficial ownership register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Exists, but general public access is restricted post-CJEU (legitimate-interest regime). Documented only — do NOT plan ingestion; constitution forbids assuming open UBO data."
+    },
+    {
+      "name": "Central Bank of Ireland Registers",
+      "url": "https://registers.centralbank.ie/",
+      "side": "entities",
+      "category": "financial regulator registers (banks, MiFID firms, AIFMs, ManCos, credit servicers, VASPs)",
+      "tier": "tier2_regulator",
+      "accessMethod": "robots-disallowed",
+      "verdict": "VERIFIED robots.txt: search pages, fund/firm data pages AND the Downloads page are disallowed for all bots including ClaudeBot. HARD RULE: document only, never harvest. Route around via ESMA/EBA registers below."
+    },
+    {
+      "name": "ESMA Registers portal (entities under AIFMD/UCITS/MiFID incl. all Irish AIFMs and ManCos)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU regulator register — fund managers & investment firms",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "ESMA's registers are the sanctioned machine route to the Irish AIFM/UCITS/firm population that CBI robots-blocks. Downloadable datasets; not fetch-tested this session."
+    },
+    {
+      "name": "ESMA MiCA interim register (CASPs, incl. Irish authorisations e.g. Coinbase Europe, Kraken Ireland)",
+      "url": "https://www.esma.europa.eu/esmas-activities/digital-finance-and-innovation/markets-crypto-assets-regulation-mica",
+      "side": "entities",
+      "category": "crypto/MiCA licensee register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: ESMA publishes the MiCA CASP register as CSV files updated roughly weekly until integrated into ESMA IT systems mid-2026. Preferred over the robots-blocked CBI VASP pages."
+    },
+    {
+      "name": "EBA credit institutions register (EUCLID)",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "EU banking register (Irish banks & branches)",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "EBA's payments/credit-institution register has documented API access; covers Irish licensees. Not fetch-tested this session — verify endpoint shape before build."
+    },
+    {
+      "name": "Pensions Authority — PRSA Providers & Products Register",
+      "url": "https://pensionsauthority.ie/",
+      "side": "entities",
+      "category": "pension regulator (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: register published as PDF (e.g. /wp-content/uploads/2025/08/...PRSA-Providers-and-Products-Register-August-2025-1.pdf). Occupational scheme data appears in annual reports/statistics rather than a searchable public scheme register."
+    },
+    {
+      "name": "Central Bank of Ireland Open Data Portal",
+      "url": "https://opendata.centralbank.ie/",
+      "side": "entities",
+      "category": "central bank statistics (funds, credit, markets)",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (fetched). CKAN portal, 39 datasets across financial corporations, markets, credit/banking — includes quarterly Irish-resident investment fund statistics. Statistics, not registers, so not robots-blocked."
+    },
+    {
+      "name": "IAASA — register of statutory auditors/audit firms",
+      "url": "https://iaasa.ie/",
+      "side": "entities",
+      "category": "audit regulator (service graph)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "IAASA is the Irish audit authority; publishes the public register of statutory auditors and recognised accountancy bodies. URL real; register route not fetch-verified this session."
+    },
+    {
+      "name": "Charities Regulator — public Register of Charities",
+      "url": "https://www.charitiesregulator.ie/en/information-for-the-public/search-the-charities-register",
+      "side": "entities",
+      "category": "foundation/endowment register (LP-adjacent)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 to bots this session. Register historically offers a downloadable extract — re-verify with a browser before ingestion planning."
+    },
+    {
+      "name": "Iris Oifigiúil — official gazette",
+      "url": "https://www.irisoifigiuil.ie/",
+      "side": "entities",
+      "category": "official gazette (receiverships, SI notices, appointments)",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via search: published Tuesdays/Fridays since 1922; PDFs online from 2002 with keyword-searchable archive at /archive/. Carries receiver appointments — key distressed signal."
+    },
+    {
+      "name": "CRO Gazette (weekly company notices: strike-offs, liquidations, name changes)",
+      "url": "https://cro.ie/publications/",
+      "side": "entities",
+      "category": "company gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "CRO publishes a weekly electronic gazette of statutory company notices. Exact landing path not fetch-verified this session — confirm under cro.ie publications."
+    },
+    {
+      "name": "ISI — Insolvency Service of Ireland public registers (bankruptcy, DRN, DSA, PIA, protective certificates)",
+      "url": "https://www.gov.ie/en/insolvency-service-of-ireland/services/insolvency-service-of-ireland-registers/",
+      "side": "entities",
+      "category": "personal insolvency registers",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED via search: statutory public registers exist but search is by exact first name + surname only — no browse or bulk. Suitable for lookups, not enumeration."
+    },
+    {
+      "name": "ISI — Register of Personal Insolvency Practitioners (PIPs)",
+      "url": "https://www.isi.gov.ie/",
+      "side": "entities",
+      "category": "insolvency-practitioner roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "ISI maintains the authorised PIP register (personal insolvency only — Ireland has no licensing register for corporate liquidators). Not fetch-verified this session."
+    },
+    {
+      "name": "Courts Service of Ireland — judgments & determinations",
+      "url": "https://www.courts.ie/judgments",
+      "side": "entities",
+      "category": "court decisions (insolvency, commercial)",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Written judgments of the superior courts published as a browsable index; Commercial Court and examinership/winding-up judgments are rich distressed-credit signals. Not fetch-tested this session."
+    },
+    {
+      "name": "Courts Service Online (CSOL) case search",
+      "url": "https://csol.ie/",
+      "side": "entities",
+      "category": "court register / case search",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Online courts portal; some functions require registration. Not fetch-verified — check terms before any automated use."
+    },
+    {
+      "name": "European e-Justice — Ireland insolvency register interconnection",
+      "url": "https://webgate.ec.europa.eu/e-justice/110/EN/bankruptcy_and_insolvency_registers?IRELAND=&member=1",
+      "side": "entities",
+      "category": "EU insolvency register gateway",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: EU-side documented route into Irish insolvency register data (IRI interconnection). Useful as harmonized fallback."
+    },
+    {
+      "name": "Euronext Dublin — listed equities (Main/ESM/GEM)",
+      "url": "https://live.euronext.com/en/markets/dublin/equities/list",
+      "side": "entities",
+      "category": "stock exchange issuer list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED via search as the live issuer list (~50 equity listings; also large debt/GEM listing venue). live.euronext.com is a JS app; export endpoints exist behind interaction — treat as JS-rendered."
+    },
+    {
+      "name": "Euronext — company news / regulatory announcements (Dublin issuers)",
+      "url": "https://live.euronext.com/en/products/equities/company-news",
+      "side": "entities",
+      "category": "issuer disclosure feed",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Issuer RNS-equivalent disclosures for Dublin listings. Same JS platform caveat; not fetch-tested."
+    },
+    {
+      "name": "IVCA — Irish Venture Capital & Private Equity Association member directory",
+      "url": "https://www.ivca.ie/about/full-members/",
+      "side": "entities",
+      "category": "PE/VC association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (fetched): 24 full members listed in plain HTML (Act, Atlantic Bridge, Melior, Molten, SOSV, Waterland...). Sibling pages /about/affiliate-members/ and /about/associate-members/ cover overseas firms and advisors."
+    },
+    {
+      "name": "Irish Funds — member directory",
+      "url": "https://www.irishfunds.ie/about/members/",
+      "side": "entities",
+      "category": "funds-industry association (admins, ManCos, depositaries, law firms)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via homepage fetch: members page at /about/members/. The single best map of the Irish fund-servicing ecosystem (category 6 service graph)."
+    },
+    {
+      "name": "BPFI — Banking & Payments Federation Ireland members",
+      "url": "https://bpfi.ie/",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Represents banks, fintechs and — via its FIBI/credit-servicing affiliates — the NPL-servicer community. Member list on site; not fetch-verified this session."
+    },
+    {
+      "name": "Insurance Ireland — member list",
+      "url": "https://www.insuranceireland.eu/",
+      "side": "entities",
+      "category": "insurance association (LP side, ILS-adjacent)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Industry body for (re)insurers incl. Dublin's cross-border reinsurance hub. Member list published; exact path not fetch-verified."
+    },
+    {
+      "name": "Aircraft Leasing Ireland (Ibec group)",
+      "url": "https://www.ibec.ie/connect-and-learn/industries/financial-services-and-professional/aircraft-leasing-ireland",
+      "side": "entities",
+      "category": "aviation-finance association (real assets)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Ireland hosts ~60% of world aircraft leasing — ALI is the sector body and member map. URL pattern from Ibec site structure; not fetch-verified this session."
+    },
+    {
+      "name": "IAIM — Irish Association of Investment Managers",
+      "url": "https://www.iaim.ie/",
+      "side": "entities",
+      "category": "asset-management association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Buy-side association with member list. Not fetch-verified this session."
+    },
+    {
+      "name": "IAPF — Irish Association of Pension Funds",
+      "url": "https://www.iapf.ie/",
+      "side": "entities",
+      "category": "pension-fund association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "LP-side association (schemes, trustees, advisors); publishes investment surveys. Not fetch-verified this session."
+    },
+    {
+      "name": "ISIF — Ireland Strategic Investment Fund portfolio",
+      "url": "https://www.isif.ie/portfolio",
+      "side": "entities",
+      "category": "sovereign fund / cornerstone LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (homepage fetch confirms /portfolio and /news). NTMA-managed sovereign fund; publishes its Irish investment portfolio incl. commitments to domestic PE/VC/credit funds — a public LP-commitment goldmine."
+    },
+    {
+      "name": "NTMA — National Treasury Management Agency",
+      "url": "https://www.ntma.ie/",
+      "side": "entities",
+      "category": "state treasury / debt issuer",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Parent of ISIF/NAMA(residual)/NewERA; publications and press index. Not fetch-verified this session."
+    },
+    {
+      "name": "NAMA — National Asset Management Agency (wind-down)",
+      "url": "https://www.nama.ie/",
+      "side": "entities",
+      "category": "state asset/NPL agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "CAUTION: RTÉ feed (verified) reports NAMA dissolved in 2026 after 16 years; residual functions revert to NTMA. Historical loan-sale data still valuable; treat as archival source."
+    },
+    {
+      "name": "SBCI — Strategic Banking Corporation of Ireland",
+      "url": "https://sbci.gov.ie/",
+      "side": "entities",
+      "category": "national promotional bank (on-lenders list)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State promotional bank; publishes its on-lending partners (banks + non-bank lenders) — a direct-lender discovery route. Not fetch-verified this session."
+    },
+    {
+      "name": "HBFI — Home Building Finance Ireland",
+      "url": "https://www.hbfi.ie/",
+      "side": "entities",
+      "category": "state RE-debt lender",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "State lender for residential development finance (real-estate debt). Not fetch-verified this session."
+    },
+    {
+      "name": "IDA Ireland",
+      "url": "https://www.idaireland.com/",
+      "side": "entities",
+      "category": "investment-promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "FDI agency; announcements index is a steady signal of inbound investment. Not fetch-verified this session."
+    },
+    {
+      "name": "Enterprise Ireland",
+      "url": "https://www.enterprise-ireland.com/",
+      "side": "entities",
+      "category": "state VC/development agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "One of Europe's most active seed investors by deal count; publishes Seed & Venture Capital scheme reports naming backed funds. Not fetch-verified this session."
+    },
+    {
+      "name": "eTenders — Irish public procurement portal",
+      "url": "https://www.etenders.gov.ie/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Central tender/award platform (all awards >€25k must publish). Machine route is the OGP open-data channel below."
+    },
+    {
+      "name": "OGP procurement open data (OCDS)",
+      "url": "https://www.gov.ie/en/office-of-government-procurement/collections/opendata/",
+      "side": "entities",
+      "category": "procurement open data / API",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via search: eTenders data published as open data with API (OCDS-registered publication, supplements TED below-threshold). CC licensing — check the non-commercial clause on the OpenTender mirror (opentender.eu/ie is CC BY-NC-SA)."
+    },
+    {
+      "name": "EPA — EU ETS Union Registry (Irish national administrator)",
+      "url": "https://www.epa.ie/our-services/licensing/climate-change/eu-emissions-trading-system-/union-registry/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via search: EPA administers Irish Union Registry accounts and ETS permitting (incl. ETS2 and maritime). Account-holder data itself lives in the EUTL."
+    },
+    {
+      "name": "EUTL — EU Transaction Log (Ireland accounts & installations)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry transaction data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "EU-level public view of Irish ETS account holders, installations, compliance and allocations. Not fetch-tested this session; long-standing stable public resource."
+    },
+    {
+      "name": "SCSI — Society of Chartered Surveyors Ireland (RICS-affiliated) member search",
+      "url": "https://scsi.ie/",
+      "side": "entities",
+      "category": "valuer/surveyor directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The Irish RICS-partnered body — find-a-surveyor directory covers accredited valuers (real-assets service graph). Not fetch-verified this session."
+    },
+    {
+      "name": "PSRA — Property Services Regulatory Authority licence register",
+      "url": "https://www.psr.ie/",
+      "side": "entities",
+      "category": "property-services licensee register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Site fetched but content truncated; PSRA licenses auctioneers/agents/property managers and publishes the licensee register. Re-verify register download route."
+    },
+    {
+      "name": "Law Society of Ireland — find a solicitor/firm",
+      "url": "https://www.lawsociety.ie/find-a-solicitor/",
+      "side": "entities",
+      "category": "bar/solicitor directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Solicitor and firm search (fund-formation and M&A law-firm mapping). lawsociety.ie confirmed live via its Gazette (search hit); search tool not fetch-tested."
+    },
+    {
+      "name": "The Bar of Ireland — Law Library member directory",
+      "url": "https://www.lawlibrary.ie/",
+      "side": "entities",
+      "category": "barrister directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Barrister directory incl. insolvency/commercial specialists. Not fetch-verified this session."
+    },
+    {
+      "name": "Property Price Register (PSRA)",
+      "url": "https://www.propertypriceregister.ie/",
+      "side": "entities",
+      "category": "real-estate transaction register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "All residential sale prices since 2010 as downloadable CSV — core real-assets dataset. Long-established; not fetch-tested this session."
+    },
+    {
+      "name": "Tailte Éireann (Land Registry / Registry of Deeds / Valuation)",
+      "url": "https://www.tailte.ie/",
+      "side": "entities",
+      "category": "land & valuation registry",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Merged land registration/valuation body; landdirect.ie search is paid per-folio, some open data on valuation. Not fetch-verified this session."
+    },
+    {
+      "name": "CRU — Commission for Regulation of Utilities licence registers",
+      "url": "https://www.cru.ie/",
+      "side": "entities",
+      "category": "energy regulator (infra/renewables entities)",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Publishes lists of electricity/gas generation and supply licensees — an entity route into renewables/energy-transition SPVs. Register format is PDF lists; not fetch-verified this session."
+    },
+    {
+      "name": "CSO — data.cso.ie (PxStat API)",
+      "url": "https://data.cso.ie/",
+      "side": "entities",
+      "category": "national statistics API (macro context)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Central Statistics Office open API (PxStat/JSON-stat) for macro, property, construction series. Well-known stable API; not fetch-tested this session."
+    },
+    {
+      "name": "RTÉ Business news",
+      "url": "https://www.rte.ie/news/business/",
+      "side": "news",
+      "category": "broadcaster business desk",
+      "tier": "signals_press",
+      "rssUrl": "https://www.rte.ie/feeds/rss/?index=/news/business/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (feed fetched, fresh to Aug 3 2026): banking results, PTSB/Bawag takeover, NAMA dissolution, insolvencies. Best free Irish business wire."
+    },
+    {
+      "name": "The Currency",
+      "url": "https://thecurrency.news/",
+      "side": "news",
+      "category": "business/finance intelligence (deals, courts, funds)",
+      "tier": "signals_press",
+      "rssUrl": "https://thecurrency.news/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (feed fetched): examinerships, NAMA post-mortem, corporate tax, deal analysis. Paywalled articles but feed gives headline+summary — ideal headline+link ingestion under our copyright rule."
+    },
+    {
+      "name": "Silicon Republic",
+      "url": "https://www.siliconrepublic.com/",
+      "side": "news",
+      "category": "tech/startup & VC funding news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.siliconrepublic.com/feed",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (feed fetched, current): funding announcements, tech expansion, science. Primary Irish startup-funding signal."
+    },
+    {
+      "name": "TechCentral.ie",
+      "url": "https://www.techcentral.ie/",
+      "side": "news",
+      "category": "IT/tech industry news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.techcentral.ie/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (feed fetched, current): Irish tech/data-centre/infrastructure coverage."
+    },
+    {
+      "name": "TheJournal.ie",
+      "url": "https://www.thejournal.ie/",
+      "side": "news",
+      "category": "general/business news (absorbed Fora.ie)",
+      "tier": "signals_press",
+      "rssUrl": "https://www.thejournal.ie/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (feed fetched, current). Business coverage folded in after Fora.ie closed; general-news noise ratio is high — filter by keywords."
+    },
+    {
+      "name": "Finance Dublin",
+      "url": "https://www.financedublin.com/",
+      "side": "news",
+      "category": "IFS trade publication (funds, aviation finance, capital markets)",
+      "tier": "signals_press",
+      "rssUrl": "https://www.financedublin.com/rss.php",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (site fetched; site states RSS at /rss.php). Covers funds monitor, aviation finance, M&A, tax — squarely our beat. Feed URL itself not separately fetched."
+    },
+    {
+      "name": "Irish Times — Business",
+      "url": "https://www.irishtimes.com/business/",
+      "side": "news",
+      "category": "national daily business desk",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Paper of record for Irish business. Legacy cmlink RSS feeds circulate (feedspot) but could not be verified; site blocks bot fetches. Treat as headline-only via licensed/manual routes."
+    },
+    {
+      "name": "Business Post",
+      "url": "https://www.businesspost.ie/",
+      "side": "news",
+      "category": "business weekly (deals, property, funds)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "/feed/ returns 403 to bots (tested). Strong PE/property/deals coverage, paywalled. No verified feed."
+    },
+    {
+      "name": "Irish Independent — Business",
+      "url": "https://www.independent.ie/business/",
+      "side": "news",
+      "category": "national daily business desk",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Mediahuis blocks bot fetches (tested — fetch refused). RSS endpoints not verifiable this session."
+    },
+    {
+      "name": "Irish Examiner — Business",
+      "url": "https://www.irishexaminer.com/business/",
+      "side": "news",
+      "category": "national daily business desk",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Two candidate RSS paths tested and 404'd. Business coverage real (Munster corporate base); feed route unresolved."
+    },
+    {
+      "name": "Business Plus",
+      "url": "https://businessplus.ie/",
+      "side": "news",
+      "category": "SME/business magazine",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Fetch refused at network level this session. WordPress site so /feed/ likely exists — unverified; re-test from a browser."
+    },
+    {
+      "name": "Irish Legal News",
+      "url": "https://www.irishlegal.com/",
+      "side": "news",
+      "category": "legal-sector daily (insolvency, appointments, funds counsel)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (fetched): daily legal news for IE/NI, 12k+ subscribers. No RSS found on page (email-first); /rss and /rss.xml 404. Browsable HTML index."
+    },
+    {
+      "name": "Irish Tech News",
+      "url": "https://irishtechnews.ie/",
+      "side": "news",
+      "category": "tech/startup blog",
+      "tier": "signals_press",
+      "rssUrl": "https://irishtechnews.ie/feed/",
+      "accessMethod": "rss",
+      "verdict": "WordPress publication; standard /feed/ assumed but NOT fetch-verified this session — confirm before wiring."
+    },
+    {
+      "name": "Central Bank of Ireland — news & press releases",
+      "url": "https://www.centralbank.ie/news",
+      "side": "news",
+      "category": "regulator press page",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Main centralbank.ie site (unlike registers subdomain) serves normal pages per search results. Enforcement actions, fund-sector speeches, statistics releases. Feed existence unverified."
+    },
+    {
+      "name": "Department of Finance — press releases (gov.ie)",
+      "url": "https://www.gov.ie/en/department-of-finance/press-releases/",
+      "side": "news",
+      "category": "finance-ministry press page",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "gov.ie publishes departmental press indexes; no RSS on gov.ie. Policy signals: funds-sector review, IREF/s110 tax changes."
+    },
+    {
+      "name": "Houses of the Oireachtas Open Data API",
+      "url": "https://api.oireachtas.ie/",
+      "side": "news",
+      "category": "parliament/legislation API (regulatory signals)",
+      "tier": "signals_press",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (fetched): 'Houses of the Oireachtas Open Data APIs' — bills, debates, questions. Machine route for legislative signals affecting alternatives (also serves as gazette-adjacent record)."
+    },
+    {
+      "name": "NTMA / ISIF news",
+      "url": "https://www.isif.ie/news",
+      "side": "news",
+      "category": "sovereign-fund press page",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (nav link from isif.ie fetch). Commitment announcements to Irish funds = public LP-commitment signals."
+    },
+    {
+      "name": "IDA Ireland — latest news",
+      "url": "https://www.idaireland.com/latest-news",
+      "side": "news",
+      "category": "FDI agency press page",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "FDI/expansion announcements. Path from site convention; not fetch-verified this session."
+    },
+    {
+      "name": "CEA — Corporate Enforcement Authority news",
+      "url": "https://cea.gov.ie/",
+      "side": "news",
+      "category": "corporate-enforcement press (director restrictions, insolvency enforcement)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Successor to ODCE; publishes enforcement outcomes relevant to distressed/insolvency graph. Not fetch-verified this session."
+    },
+    {
+      "name": "Wind Energy Ireland — news & members",
+      "url": "https://windenergyireland.com/",
+      "side": "news",
+      "category": "renewables sector body (energy-transition signals + member map)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Sector association for the largest Irish renewables class; member directory doubles as entity source. Not fetch-verified this session."
+    },
+    {
+      "name": "CIF — Construction Industry Federation news",
+      "url": "https://cif.ie/",
+      "side": "news",
+      "category": "construction/real-assets sector news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Construction sector body; development-pipeline signals. Not fetch-verified this session."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Deep coverage of Ireland as a fund domicile — Irish AIFMs, ICAVs, QIAIFs, fund administrators, plus Irish LPs (ISIF, pension schemes). Strong on fund-level terms and service-provider relationships; weaker on small domestic GPs and portfolio-company granularity.",
+      "publicSourcesTheyUse": "Central Bank authorisation lists (pre-robots era) and ESMA registers, CRO filings, ISIF published portfolio and annual reports, pension-scheme annual reports, Irish Funds publications, press releases — all reachable directly via ESMA registers, opendata.cro.ie, isif.ie/portfolio, pensionsauthority.ie."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Good Irish PE/VC deal coverage (buyouts, growth, VC rounds) and law-firm/advisor league tables; captures Enterprise Ireland co-investments unevenly.",
+      "publicSourcesTheyUse": "CRO filings (share allotments B5s reveal rounds), IVCA quarterly VentureP ulse-style reports, Enterprise Ireland Seed & Venture reports, Euronext Dublin disclosures, Irish Times/Silicon Republic/The Currency press — all public: opendata.cro.ie, ivca.ie, enterprise-ireland.com, live.euronext.com."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Irish startup ecosystem mapping (often in partnership with local ecosystem bodies); strong on rounds/valualready-public signals, thin on credit, real assets and the service graph.",
+      "publicSourcesTheyUse": "TechIreland's open startup database, press (Silicon Republic, TechCentral), accelerator/portfolio pages (NDRC, Dogpatch), CRO for incorporation data — direct routes: techireland.org, siliconrepublic.com/feed, opendata.cro.ie."
+    },
+    {
+      "platform": "Crunchbase / CB Insights",
+      "coverageNotes": "Broad but shallow Irish startup/funding coverage, self-reported profiles plus press scraping; frequent gaps on Irish-registered holding structures.",
+      "publicSourcesTheyUse": "Company self-submission, press releases, Silicon Republic and international tech media — the underlying public layer is the same press + CRO incorporations we ingest directly."
+    },
+    {
+      "platform": "CRIF Vision-net (vision-net.ie) — LOCAL",
+      "coverageNotes": "The dominant Irish company-information provider: full CRO mirror, credit scores, director networks, daily judgments/insolvency alerts. This is the local benchmark for the entities side.",
+      "publicSourcesTheyUse": "CRO bulk data and filings, Iris Oifigiúil (receiverships), CRO Gazette (strike-offs/liquidations), court judgments and registered judgments, ISI registers — every one available directly: opendata.cro.ie, irisoifigiuil.ie, courts.ie, gov.ie ISI registers."
+    },
+    {
+      "platform": "SoloCheck (solocheck.ie) — LOCAL",
+      "coverageNotes": "Consumer-grade Irish company reports and director searches; lighter than Vision-net but shows what a lean CRO-derived product looks like.",
+      "publicSourcesTheyUse": "CRO open data + document images, CRO Gazette notices — direct route: opendata.cro.ie."
+    },
+    {
+      "platform": "Kyckr — LOCAL-origin (registry aggregation)",
+      "coverageNotes": "Irish-founded KYB provider reselling live registry lookups across 120+ registers incl. CRO; relevant as proof the CRO Open Services API supports commercial real-time products.",
+      "publicSourcesTheyUse": "CRO Open Services API directly — the same keyed API route documented at cro.ie/services-and-help/access-to-cro-data/."
+    },
+    {
+      "platform": "TechIreland (techireland.org) — LOCAL",
+      "coverageNotes": "Non-profit open database of Irish startups/innovation (companies, funding, female-founder reports). Semi-open — closest local analogue to a public startup graph; partner data source for Dealroom.",
+      "publicSourcesTheyUse": "Community submissions, press announcements, Enterprise Ireland/IDA announcements — all public; we can ingest the same press layer (Silicon Republic, RTÉ, The Currency feeds verified above)."
+    },
+    {
+      "platform": "The Currency — LOCAL (editorial intelligence)",
+      "coverageNotes": "Not a database but the highest-signal Irish deals/courts/funds journalism; effectively the qualitative competitor for 'what's happening in Irish alternatives'.",
+      "publicSourcesTheyUse": "Court filings and hearings (Commercial Court), CRO documents, Iris Oifigiúil, interviews — underlying registers all in our catalog; their RSS feed (verified) is itself an ingestible headline signal."
+    }
+  ],
+  "searchedButAbsent": "Searched for but absent or unusable: (1) Fora.ie — defunct since 2020, folded into TheJournal.ie (its verified feed is the successor). (2) Any bulk/open download of Central Bank of Ireland registers — the Downloads page exists but robots.txt (fetched and verified) disallows ALL bots incl. ClaudeBot on search, data AND download pages; per hard rule this is documented-only, with ESMA/EBA registers as the machine route. (3) A corporate insolvency-practitioner licensing register — Ireland does not license liquidators/receivers; only ISI's personal-insolvency practitioner (PIP) register exists. (4) A litigation-funding register — third-party funding remains largely prohibited (limited 2023 arbitration carve-out), so no licensee register exists. (5) Public RBO beneficial-ownership access — restricted to legitimate-interest applicants post-CJEU. (6) Working RSS for Irish Times, Business Post, Irish Independent and Irish Examiner — all tested endpoints 403'd or 404'd; legacy feed URLs circulating on aggregators could not be verified. (7) gov.ie RSS — none exists; press indexes are HTML-only. (8) A standalone Irish MiCA register page usable by bots — CBI's version sits on the robots-blocked registers site; ESMA's weekly CSV interim register is the substitute. (9) An open occupational-pension-scheme register from the Pensions Authority — only the PRSA providers PDF and aggregate statistics are published."
+}

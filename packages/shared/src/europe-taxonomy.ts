@@ -359,14 +359,21 @@ const LICENCE_PATTERNS: { re: RegExp; c: EuropeClassification }[] = [
   // — venture / PE managers —
   { re: /venture capital|risikokapital|rizi[čc]n[iy].{0,3}kapital|eu ?veca|seed|kockázati/i, c: { l1: "pe_growth", l2: "venture_capital", role: "GP" } },
   { re: /private equity|beteiligungsgesellschaft|capital.?investissement/i, c: { l1: "pe_growth", role: "GP" } },
+  // — private debt managers (association/directory self-labels) —
+  { re: /private debt|private credit|direct lending|kreditfonds|debt fund/i, c: { l1: "private_debt", role: "GP" } },
+  // — liquid alternatives (BAI-style directory labels) —
+  { re: /liquide? alternatives/i, c: { l1: "liquid_alts", role: "ManCo" } },
   // — AIFM / ManCo / UCITS (liquid alts / fund management) —
   { re: /aifm|alternative investment fund manager|gestor.{0,4}fia|verwalter alternativer/i, c: { l1: "liquid_alts", role: "ManCo" } },
   { re: /ucits|oga[wv]|sicav|management compan|soci[eé]t[eé] de gestion|kapitalverwaltungsgesellschaft|fondsmaatschappij|t[aá]rsas[aá]g.{0,10}alapkezel|towarzystwo funduszy|sprá[vw]covsk|fondbolag|forvaltningsselskap|rahastoyhti/i, c: { l1: "liquid_alts", role: "ManCo" } },
   { re: /hedge fund|absolute return/i, c: { l1: "liquid_alts", role: "Fund Vehicle" } },
   // — real estate / infrastructure —
-  { re: /real estate fund|immobilienfond|fonds immobilier|nekretnin|nieruchomo[sś]|ingatlan/i, c: { l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" } },
+  { re: /real estate fund|immobilienfond|immobilien|fonds immobilier|nekretnin|nieruchomo[sś]|ingatlan/i, c: { l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" } },
   { re: /reit|real estate investment trust/i, c: { l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" } },
-  { re: /infrastructure fund/i, c: { l1: "real_assets", l2: "infrastructure", role: "Fund Vehicle" } },
+  { re: /infrastructure fund|infrastruktur/i, c: { l1: "real_assets", l2: "infrastructure", role: "Fund Vehicle" } },
+  // — generic directory service labels —
+  { re: /service provider|dienstleister/i, c: { l1: "service_graph", role: "Vendor" } },
+  { re: /institutional investor|investor \(lp\)|versorgungswerk|family office/i, c: { l1: "service_graph", role: "LP" } },
   // — crypto / MiCA —
   { re: /crypto.?asset|casp|mica|virtual asset|virtual currenc|digital asset/i, c: { l1: "niche_alts", l2: "digital_assets", role: "ManCo" } },
   // — litigation funding —

@@ -1,0 +1,701 @@
+{
+  "country": "DE",
+  "sources": [
+    {
+      "name": "Handelsregister (Gemeinsames Registerportal der Länder)",
+      "url": "https://www.handelsregister.de/rp_web/welcome.xhtml",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (fetch OK, portal warns of load spikes); free search since DiRUG 2022 incl. document retrieval, but NO official open API or bulk export — machine route is careful form-driven retrieval; structured XML register data only via the paid Registerdatenübermittlung channel. Yield: all ~5M+ German registered entities."
+    },
+    {
+      "name": "Unternehmensregister",
+      "url": "https://www.unternehmensregister.de/ureg/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live; central platform aggregating register entries, financial statements (Bilanz-Navigator), capital-market disclosures, BRIS-connected; no public bulk API found — per-company retrieval route. High yield for financial-statement provenance."
+    },
+    {
+      "name": "OffeneRegister.de (Open Knowledge Foundation Handelsregister dump)",
+      "url": "https://offeneregister.de/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Not re-fetched this session but well-known: full SQLite dump + API of ~5M Handelsregister records; snapshot is from 2019 so use only for backfill/ID seeding, never as current truth."
+    },
+    {
+      "name": "Transparenzregister (UBO register)",
+      "url": "https://www.transparenzregister.de/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Real register but public access is restricted post-2022 ECJ ruling (account + legitimate-interest fee per extract); listed for honesty — not a bulk machine route, consistent with project rule to never assume open UBO data."
+    },
+    {
+      "name": "Handelsregisterbekanntmachungen (register announcements)",
+      "url": "https://www.handelsregisterbekanntmachungen.de/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetch-verified this session; long-standing official announcement search (new registrations, changes, deletions) with date/court-filtered result pages — the standard machine route for daily incorporation/change signals (what startupdetector builds on)."
+    },
+    {
+      "name": "Bundesanzeiger (Federal Gazette)",
+      "url": "https://www.bundesanzeiger.de/pub/de/start",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live; publishes annual accounts, capital-market announcements, net short positions, company/court notices — but search is session-based with bot protection and full-text search restricted, so machine access needs careful session handling; highest-value filing gazette in DE."
+    },
+    {
+      "name": "Insolvenzbekanntmachungen.de (insolvency court announcements)",
+      "url": "https://neu.insolvenzbekanntmachungen.de/ap/",
+      "side": "entities",
+      "category": "insolvency-court",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live; official portal of all German insolvency courts with search; results deleted after short statutory windows so continuous polling is required — core NPL/distressed signal source."
+    },
+    {
+      "name": "BaFin company database (InstInfo — banks, AIFMs/KVGen, investment firms, payment/crypto licensees)",
+      "url": "https://portal.mvp.bafin.de/database/InstInfo/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch failed with header/WAF error (confirms known WAF issues); the authoritative register of every BaFin-licensed institution incl. KVGs/AIFMs — route is browser-grade client with session cookies; per-license-type enumeration possible once past WAF. Essential."
+    },
+    {
+      "name": "BaFin investment funds database (FondsInfo)",
+      "url": "https://portal.mvp.bafin.de/database/FondsInfo/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Not separately fetched; same MVP portal (same WAF caveat); registers German investment funds incl. Spezial-AIFs by KVG — the fund-level complement to InstInfo."
+    },
+    {
+      "name": "BaFin MiCA/crypto authorisation route (crypto custody + MiCA CASPs within BaFin registers)",
+      "url": "https://www.bafin.de/EN/PublikationenDaten/Datenbanken/datenbanken_node_en.html",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Databases overview page is the stable entry; MiCA CASP/crypto-custody licensees surface through the InstInfo database (same WAF); cross-check via ESMA's MiCA register for the DE subset."
+    },
+    {
+      "name": "Deutsche Bundesbank (statistics API + bank directories)",
+      "url": "https://www.bundesbank.de/",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Not re-verified this session but stable: open statistics web service (api.statistiken.bundesbank.de), downloadable bank sort-code (Bankleitzahlen) files and MFI lists — deterministic $0 route for the German banking universe."
+    },
+    {
+      "name": "BaFin pension/insurance supervision registers (Pensionskassen, Pensionsfonds, insurers via InstInfo)",
+      "url": "https://portal.mvp.bafin.de/database/InstInfo/sucheForm.do",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Germany has no separate pension regulator — the LP side (insurers, Pensionskassen, Pensionsfonds, Versorgungswerke are state-level) enumerates from InstInfo by institution type; same WAF caveat."
+    },
+    {
+      "name": "Deutsche Börse Cash Market — all tradable instruments (T7/Xetra CSV)",
+      "url": "https://www.cashmarket.deutsche-boerse.com/cash-de/Handel/Handelbare-Werte-Xetra",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified: page confirmed offering 'T7 (Xetra) Alle handelbaren Instrumente' CSV download — clean deterministic issuer/instrument feed."
+    },
+    {
+      "name": "Börse Frankfurt issuer/instrument directory",
+      "url": "https://www.boerse-frankfurt.de/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; Angular front end backed by an undocumented JSON API (api.boerse-frankfurt.de) — usable but fragile; prefer the Cash Market CSV above for lists."
+    },
+    {
+      "name": "EEX (European Energy Exchange) trading participants",
+      "url": "https://www.eex.com/en/markets/trading-participants",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; EEX publishes trading-participant lists and market data — relevant to energy/carbon alternatives; verify exact list URL before adapter work."
+    },
+    {
+      "name": "BVK — Bundesverband Beteiligungskapital member directory",
+      "url": "https://www.bvkap.de/der-bvk/mitglieder",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via homepage fetch (public Mitglieder section confirmed); the canonical German PE/VC GP directory plus industry statistics PDFs."
+    },
+    {
+      "name": "BAI — Bundesverband Alternative Investments member list",
+      "url": "https://www.bvai.de/ueber-uns/bai-mitglieder",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Member-list URL confirmed via search (direct guess-URL 404ed earlier — this is the right path); 200+ members across liquid/illiquid alternatives, placement agents, service providers — maps almost 1:1 onto the project taxonomy."
+    },
+    {
+      "name": "BKS — Bundesvereinigung Kreditankauf und Servicing member list (NPL)",
+      "url": "https://bks-ev.de/mitglieder/aktuelle-mitglieder/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via search (member page exists; apex domain, not www); the German NPL investor + servicer association — direct feed for Private Debt/NPL entity sourcing."
+    },
+    {
+      "name": "BVI — German Investment Funds Association member directory",
+      "url": "https://www.bvi.de/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; BVI publishes member lists (KVGs, custodians) and fund statistics — good for the ManCo/fund-admin service graph."
+    },
+    {
+      "name": "Startup-Verband (German Startups Association) members",
+      "url": "https://startupverband.de/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; membership skews startups/ecosystem rather than investors — secondary source for venture-studio/startup entities."
+    },
+    {
+      "name": "Bankenverband (Association of German Banks) member list",
+      "url": "https://bankenverband.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; private-bank member list published on site; overlaps Bundesbank/BaFin registers but adds classification signal."
+    },
+    {
+      "name": "BVR — cooperative banks association",
+      "url": "https://www.bvr.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; publishes the full list of ~670 Volksbanken/Raiffeisenbanken with annual figures — deterministic download historically available."
+    },
+    {
+      "name": "DSGV — savings banks association (Sparkassen directory)",
+      "url": "https://www.dsgv.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; Sparkassen ranking/directory published annually — LP-adjacent and lender-side coverage."
+    },
+    {
+      "name": "vdp — Association of German Pfandbrief Banks member list",
+      "url": "https://www.pfandbrief.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; member list of Pfandbrief issuers = the real-estate-debt lender universe; also publishes property-price indices."
+    },
+    {
+      "name": "BDL — Bundesverband Deutscher Leasing-Unternehmen",
+      "url": "https://bdl.leasingverband.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; leasing-company member directory — asset-backed/specialty-finance entity source; confirm exact domain before adapter."
+    },
+    {
+      "name": "Deutscher Factoring-Verband member list",
+      "url": "https://www.factoring.de/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; member list of German factoring houses — trade/supply-chain finance coverage."
+    },
+    {
+      "name": "GDV — German Insurance Association",
+      "url": "https://www.gdv.de/",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified (association, not regulator — categorized here for the LP side); member insurers list + statistics; insurers are Germany's largest alternatives LPs."
+    },
+    {
+      "name": "aba — Arbeitsgemeinschaft für betriebliche Altersversorgung (occupational pensions)",
+      "url": "https://www.aba-online.de/",
+      "side": "entities",
+      "category": "pension-insurance-regulator",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; occupational-pension association — route into Pensionskassen/CTA universe (LP side); member visibility partial."
+    },
+    {
+      "name": "ZIA — Zentraler Immobilien Ausschuss (real estate industry association)",
+      "url": "https://zia-deutschland.de/",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; umbrella association of German real estate (developers, managers, funds) with member list — Real Assets category sourcing."
+    },
+    {
+      "name": "VID — Verband Insolvenzverwalter und Sachwalter Deutschlands member directory",
+      "url": "https://www.vid.de/",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; searchable directory of German insolvency practitioners — service-graph + distressed coverage; complement with court appointment announcements."
+    },
+    {
+      "name": "Bundesweites Amtliches Anwaltsverzeichnis (official lawyer register, BRAK)",
+      "url": "https://www.rechtsanwaltsregister.org/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; official nationwide lawyer search maintained by BRAK — use for verifying law-firm entities, not bulk harvesting (no personal-data-at-scale per project law)."
+    },
+    {
+      "name": "RICS Germany — find a member / regulated firms",
+      "url": "https://www.rics.org/find-a-member",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; RICS global directory filters to Germany for accredited valuers/firms — Real Assets service graph; likely JS-heavy."
+    },
+    {
+      "name": "KfW Group",
+      "url": "https://www.kfw.de/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified this session; national promotional bank — press/reporting on fund commitments and programs; KfW is a major German VC/PE LP."
+    },
+    {
+      "name": "KfW Capital (fund-of-funds arm)",
+      "url": "https://www.kfw-capital.de/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; publishes its VC fund portfolio/commitments — direct public evidence of German fund closings and LP-GP edges."
+    },
+    {
+      "name": "Germany Trade & Invest (GTAI)",
+      "url": "https://www.gtai.de/",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; investment-promotion agency — sector reports and FDI signals; low entity yield, useful context feed."
+    },
+    {
+      "name": "BImA — Bundesanstalt für Immobilienaufgaben (federal real estate sales)",
+      "url": "https://www.bundesimmobilien.de/",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified; federal property agency publishes sale offers of state real estate — niche but genuine real-assets deal-flow signal (closest DE analog to a privatization agency)."
+    },
+    {
+      "name": "DEHSt — German Emissions Trading Authority (EU ETS national administrator)",
+      "url": "https://www.dehst.de/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified live; administers EU-ETS 1/2, nEHS, CBAM for Germany; publishes installation/allocation lists as downloads — the DE carbon-accounts route for Niche Alts."
+    },
+    {
+      "name": "Marktstammdatenregister (MaStR, Bundesnetzagentur energy master data)",
+      "url": "https://www.marktstammdatenregister.de/MaStR",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified live with public-data portal AND full bulk download (plus webservice API); every German generation unit + market participant — outstanding $0 deterministic source for renewables/energy-transition real assets."
+    },
+    {
+      "name": "Datenservice Öffentlicher Einkauf / oeffentlichevergabe.de (public procurement)",
+      "url": "https://oeffentlichevergabe.de/ui/en",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Verified: central federal/state/municipal notice service with documented open-data API in eForms-DE, OCDS and CSV (swagger at /documentation/swagger-ui/opendata/) — infrastructure/concession deal signals at $0."
+    },
+    {
+      "name": "GovData — German open data portal",
+      "url": "https://www.govdata.de/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Not re-verified this session; CKAN-based catalog with API — discovery layer for state-level registers and datasets rather than a primary source."
+    },
+    {
+      "name": "GLEIF LEI Golden Copy (DE subset)",
+      "url": "https://www.gleif.org/en/lei-data/gleif-golden-copy",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Not re-verified this session; free bulk files + API; filter country=DE for ~150k+ German LEIs with register IDs — best free entity-resolution spine linking Handelsregister numbers to financial entities."
+    },
+    {
+      "name": "Handelsblatt (Schlagzeilen feed)",
+      "url": "https://www.handelsblatt.com/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://feeds.cms.handelsblatt.com/schlagzeilen",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working (after 301 from old /contentexport path); Germany's leading business daily; headlines+links only, paywalled bodies — fits headline+link doctrine."
+    },
+    {
+      "name": "FAZ Wirtschaft",
+      "url": "https://www.faz.net/aktuell/wirtschaft/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.faz.net/rss/aktuell/wirtschaft/",
+      "accessMethod": "rss",
+      "verdict": "Feed URL is FAZ's documented pattern but direct fetch was bot-blocked from this environment — expect to need proper client headers; high-quality finance coverage."
+    },
+    {
+      "name": "manager magazin",
+      "url": "https://www.manager-magazin.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.manager-magazin.de/news/index.rss",
+      "accessMethod": "rss",
+      "verdict": "Feed URL confirmed by third-party listings but direct fetch bot-blocked here; strong on PE/M&A personalities and deals."
+    },
+    {
+      "name": "WirtschaftsWoche",
+      "url": "https://www.wiwo.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; same publisher stack as Handelsblatt so a feeds.cms-style RSS likely exists — hunt on site before adapter; weekly business magazine."
+    },
+    {
+      "name": "Capital",
+      "url": "https://www.capital.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.capital.de/rss",
+      "accessMethod": "rss",
+      "verdict": "RSS URL reported by feed directories, not fetch-verified here; business monthly with PE/family-office coverage."
+    },
+    {
+      "name": "Börsen-Zeitung",
+      "url": "https://www.boersen-zeitung.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live; THE German capital-markets daily (banking, funds, issuers); no RSS found on page — headline index parsing + paywall means headline/link only."
+    },
+    {
+      "name": "FINANCE Magazin",
+      "url": "https://www.finance-magazin.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch blocked from this environment and no RSS confirmed; core CFO/PE/M&A trade outlet with deal database — retry with browser-grade client; do not skip, high signal density for German mid-cap PE."
+    },
+    {
+      "name": "JUVE (legal market news)",
+      "url": "https://www.juve.de/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "rssUrl": "https://www.juve.de/feed/",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working with current items; deal + advisor coverage (who advised whom) — excellent for service-graph edges and transaction signals."
+    },
+    {
+      "name": "deutsche-startups.de",
+      "url": "https://www.deutsche-startups.de/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.deutsche-startups.de/feed/",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working, hourly updates; the highest-volume German VC/startup deal ticker."
+    },
+    {
+      "name": "Gründerszene (Business Insider DE)",
+      "url": "https://www.businessinsider.de/gruenderszene/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; startup/VC coverage now inside Business Insider DE, partly paywalled; RSS uncertain."
+    },
+    {
+      "name": "Startbase",
+      "url": "https://www.startbase.de/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live; startup news + ticker AND a registration-gated directory of startups/investors (Börse Stuttgart-backed); treat directory per ToS."
+    },
+    {
+      "name": "VentureCapital Magazin",
+      "url": "https://www.vc-magazin.de/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.vc-magazin.de/feed/",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working with current items; long-running German VC/PE trade magazine."
+    },
+    {
+      "name": "Finanz-Szene",
+      "url": "https://finanz-szene.de/",
+      "side": "news",
+      "category": "newsletter",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/feed returned HTTP 500 during check; premium daily newsletter on German banking/fintech — headline pages parseable, RSS unreliable."
+    },
+    {
+      "name": "FinanzBusiness",
+      "url": "https://finanzbusiness.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; banking/finance trade daily (JP/Politikens Hus) — verify RSS before adapter."
+    },
+    {
+      "name": "private banking magazin",
+      "url": "https://www.private-banking-magazin.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "/feed 404ed; site itself is live; wealth-management/family-office coverage (LP side) — parse section indexes."
+    },
+    {
+      "name": "DAS INVESTMENT",
+      "url": "https://www.dasinvestment.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "/feed 404ed; fund-industry outlet (same publisher as private banking magazin); index parsing route."
+    },
+    {
+      "name": "FONDS professionell",
+      "url": "https://www.fondsprofessionell.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; fund-distribution trade news DE/AT — registration-gated in parts."
+    },
+    {
+      "name": "portfolio institutionell",
+      "url": "https://www.portfolio-institutionell.de/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.portfolio-institutionell.de/feed/",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working with current items; THE German institutional-investor (LP) outlet — pension funds, Versorgungswerke, insurers and their alternatives allocations."
+    },
+    {
+      "name": "dpn — Deutsche Pensions- & Investmentnachrichten",
+      "url": "https://www.dpn-online.com/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; occupational-pension/LP investment news; check RSS on site."
+    },
+    {
+      "name": "Immobilien Zeitung",
+      "url": "https://www.iz.de/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; leading real-estate trade daily (deals, funds, developers), heavily paywalled — headline+link only."
+    },
+    {
+      "name": "pv magazine Deutschland",
+      "url": "https://www.pv-magazine.de/",
+      "side": "news",
+      "category": "sector-portal",
+      "tier": "signals_press",
+      "rssUrl": "https://www.pv-magazine.de/feed/",
+      "accessMethod": "rss",
+      "verdict": "RSS verified working, hourly; solar/storage sector — energy-transition real-assets signals incl. insolvencies and project financings."
+    },
+    {
+      "name": "PLATOW Brief",
+      "url": "https://www.platow.de/",
+      "side": "news",
+      "category": "newsletter",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; venerable paid capital-markets newsletter; public teaser headlines only — marginal machine yield, listed for completeness of the newsletter tier."
+    },
+    {
+      "name": "FinanzNachrichten.de RSS service (aggregator)",
+      "url": "https://www.finanznachrichten.de/service/rss.htm",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.finanznachrichten.de/service/rss.htm",
+      "accessMethod": "rss",
+      "verdict": "RSS index page confirmed via search; aggregates dpa-AFX/company news feeds by topic — useful volume, but as an aggregator apply dedup and honor per-source rights (headline+link only)."
+    },
+    {
+      "name": "tagesschau Wirtschaft",
+      "url": "https://www.tagesschau.de/wirtschaft/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.tagesschau.de/wirtschaft/index~rss2.xml",
+      "accessMethod": "rss",
+      "verdict": "Feed URL from prior knowledge, not fetch-verified this session; public-broadcaster economy feed, no paywall — low alternatives density but reliable macro/insolvency headlines."
+    },
+    {
+      "name": "BaFin news & publications (press)",
+      "url": "https://www.bafin.de/DE/PublikationenDaten/Aktuelles/aktuelles_node.html",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "rssUrl": "https://www.bafin.de/DE/Service/TopNavigation/RSS/rss_node.html",
+      "accessMethod": "rss",
+      "verdict": "RSS hub page verified to exist via search (multiple topic feeds selectable there); enforcement actions, license news, fund-industry measures — regulator signal layer."
+    },
+    {
+      "name": "Deutsche Bundesbank press & statistics releases",
+      "url": "https://www.bundesbank.de/de/presse",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "rssUrl": "https://www.bundesbank.de/de/startseite/rss/rss-feed-der-deutschen-bundesbank-613688",
+      "accessMethod": "rss",
+      "verdict": "RSS hub page confirmed via search; central-bank press + statistics releases."
+    },
+    {
+      "name": "Bundesfinanzministerium (BMF) press",
+      "url": "https://www.bundesfinanzministerium.de/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; finance-ministry releases (fund-location law, tax changes affecting fund structuring); check for RSS on site."
+    },
+    {
+      "name": "Deutsche Börse Group media releases",
+      "url": "https://www.deutsche-boerse.com/dbg-de/media/pressemitteilungen",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified this session; exchange-group press (listings, delistings, index changes); URL pattern stable historically."
+    },
+    {
+      "name": "EEX press releases",
+      "url": "https://www.eex.com/en/newsroom",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Not verified; energy/carbon exchange news — pairs with DEHSt for the carbon vertical."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Strong on German GPs/LPs, fund closings, AIFM landscape; weak on sub-institutional/mid-cap and the service graph.",
+      "publicSourcesTheyUse": "BaFin InstInfo/FondsInfo AIFM and fund registers; Bundesanzeiger fund/company filings; association statistics (BVK, BAI, Invest Europe) — all directly accessible above."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "Deep German deal/valuation coverage for PE/VC and M&A; advisor networks well mapped.",
+      "publicSourcesTheyUse": "Handelsregister filings and Handelsregisterbekanntmachungen (cap-table/UBO changes), Bundesanzeiger accounts, press (Handelsblatt/FINANCE/JUVE deal reports) — the same gazette+press stack we catalog."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "German startup/scaleup universe with government/eco-system partnerships; good funding-round recall, weaker on debt/real assets.",
+      "publicSourcesTheyUse": "Handelsregister new incorporations, startup press (deutsche-startups, Gründerszene, Startbase), association data (Startup-Verband) — all public routes listed."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow DE coverage, self-reported profiles plus press-sourced rounds.",
+      "publicSourcesTheyUse": "Press releases and startup media; little registry grounding — our registry-first approach out-depths it structurally."
+    },
+    {
+      "platform": "North Data (northdata.de, local)",
+      "coverageNotes": "The benchmark local player: company graph, financials, register-event timeline for all German entities; no alternatives-specific classification.",
+      "publicSourcesTheyUse": "Proves exactly which public sources are machine-usable at scale: Handelsregister + register announcements, Bundesanzeiger annual accounts, Insolvenzbekanntmachungen — go to these directly."
+    },
+    {
+      "platform": "startupdetector (local)",
+      "coverageNotes": "Weekly German startup funding/incorporation reports sold to VCs.",
+      "publicSourcesTheyUse": "Built almost entirely on Handelsregisterbekanntmachungen (new GmbH/UG registrations, capital increases) — confirms that announcement stream alone yields funding signals pre-press."
+    },
+    {
+      "platform": "Creditreform / FirmenWissen (local)",
+      "coverageNotes": "Credit data on the full German company universe; payment behavior is proprietary.",
+      "publicSourcesTheyUse": "Handelsregister, Bundesanzeiger financial statements, insolvency announcements — plus proprietary field data we don't need."
+    },
+    {
+      "platform": "Moody's / Bureau van Dijk (Dafne, Orbis)",
+      "coverageNotes": "Structured German financials + ownership; standard in corporate finance.",
+      "publicSourcesTheyUse": "Bundesanzeiger/Unternehmensregister accounts (largely via Creditreform sourcing) and register data — same public originals we ingest."
+    },
+    {
+      "platform": "Barkow Consulting (local)",
+      "coverageNotes": "German VC/banking market statistics frequently cited by press.",
+      "publicSourcesTheyUse": "Bundesbank statistics, Bundesanzeiger filings, KfW/association data — assembled from the public stack, showing the analysis layer is buildable at $0 data cost."
+    },
+    {
+      "platform": "FINANCE Deal-Datenbank / Majunke (deal-advisors.com, local)",
+      "coverageNotes": "German-speaking PE/M&A transaction lists and newsletters; strong mid-cap recall.",
+      "publicSourcesTheyUse": "Press releases, advisor submissions, JUVE/FINANCE reporting — signals-press tier, no registry moat."
+    }
+  ],
+  "searchedButAbsent": "Searched for but genuinely not found/confirmed: (1) any official open-data bulk API for the Handelsregister — free web search exists since 2022 but structured XML register data is only available via the paid Registerdatenübermittlung channel; the 2019 OffeneRegister dump is the only free bulk artifact. (2) A working RSS feed for FINANCE Magazin, Börsen-Zeitung, finanz-szene.de (/feed returned 500), private-banking-magazin and dasinvestment (/feed 404) — these must be index-parsed. (3) Direct fetch verification of BaFin's MVP portal (WAF/header error, consistent with known issues), manager-magazin and FAZ RSS (bot-blocked here though feed URLs are documented elsewhere), and finance-magazin.de entirely. (4) A dedicated public register of fund administrators separate from BaFin's InstInfo — none exists; fund-admin licensees only enumerate via BaFin institution-type filters. (5) A German national privatization agency in the CEE sense — closest analogs listed are BImA (federal real estate) and GTAI. (6) Börse Stuttgart/regional exchange issuer lists and INDat (insolvency trade press) were considered but not verified, so they were left out rather than padded in."
+}

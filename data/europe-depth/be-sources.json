@@ -1,0 +1,547 @@
+{
+  "country": "BE",
+  "sources": [
+    {
+      "name": "KBO/BCE Public Search (Crossroads Bank for Enterprises)",
+      "url": "https://kbopub.economie.fgov.be/kbopub/zoeknummerform.html",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Official FPS Economy public search over all registered entities (enterprise number, name, activity NACE, address); server-rendered HTML, parseable."
+    },
+    {
+      "name": "KBO/BCE Open Data — full + update downloads",
+      "url": "https://economie.fgov.be/en/themes/enterprises/crossroads-bank-enterprises/services-everyone/cbe-open-data",
+      "side": "entities",
+      "category": "commercial register bulk data",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED by fetch. Daily full-file and update-file CSV ZIPs of all active registered entities/establishments; free after registration; SFTP delivery available (kbo-bce-webservice@economie.fgov.be); cookbook PDF documents the schema. This is the backbone entity source for Belgium."
+    },
+    {
+      "name": "NBB Central Balance Sheet Office — Consult (annual accounts viewer)",
+      "url": "https://consult.cbso.nbb.be/",
+      "side": "entities",
+      "category": "annual accounts / financials",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist (SPA loads titled 'Consult'). Free public consultation of ~500k filed annual accounts per year; the app itself is a JS SPA — machine route is the CBSO REST API, not this UI."
+    },
+    {
+      "name": "NBB CBSO Webservices (REST API for filings)",
+      "url": "https://www.nbb.be/en/central-balance-sheet-office/consultation-data/web-services",
+      "side": "entities",
+      "category": "annual accounts API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Search-verified (page + technical guide PDF found). REST API exposing filed annual accounts in XBRL, JSON and PDF; API keys managed via CBSO Developer Portal. The deterministic route to Belgian company financials."
+    },
+    {
+      "name": "NBB.Stat — statistics from annual accounts",
+      "url": "https://www.nbb.be/en/central-balance-sheet-office/consultation/statistics-annual-accounts-nbbstat",
+      "side": "entities",
+      "category": "central bank statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Search-verified. Aggregated annual-accounts statistics via NBB.Stat (SDMX-style stats portal). Fetch of exact stats endpoints not attempted; page URL from official NBB site listing."
+    },
+    {
+      "name": "FSMA — UCITS & AIFM management companies lists",
+      "url": "https://www.fsma.be/en/management-companies-undertakings-collective-investments-transferable-securities-and-alternative",
+      "side": "entities",
+      "category": "fund manager register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL search-verified (appears in Google-indexed FSMA pages) but fsma.be resets all automated fetches (ECONNRESET) — crawl will need browser-grade fetching. Links to the official lists of Belgian and EEA-passported ManCos/AIFMs, mostly as PDFs."
+    },
+    {
+      "name": "FSMA — list of Belgian AIFMs (PDF)",
+      "url": "https://www.fsma.be/sites/default/files/media/files/replacement_files/AIFM_BE_NL.pdf",
+      "side": "entities",
+      "category": "AIFM register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "URL search-verified (indexed FSMA replacement_files PDF, 'Beheerders van alternatieve instellingen voor collectieve belegging naar Belgisch recht'). PDF list — parse with a deterministic PDF parser; fsma.be blocks our fetcher so freshness must be checked at crawl time."
+    },
+    {
+      "name": "FSMA — list of EEA AIFMs passported into Belgium (PDF)",
+      "url": "https://www.fsma.be/sites/default/files/media/files/replacement_files/AIFM_EEE_NL.pdf",
+      "side": "entities",
+      "category": "AIFM passport register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "URL search-verified (indexed FSMA PDF). Companion list of EEA AIFM passport notifications — maps which foreign GPs market into Belgium."
+    },
+    {
+      "name": "FSMA — authorized IORPs (pension funds) list",
+      "url": "https://www.fsma.be/en/node/22982",
+      "side": "entities",
+      "category": "pension fund register (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL search-verified ('Vergunde instellingen voor bedrijfspensioenvoorziening naar Belgisch recht'). 148 Belgian-law IORPs (€48.9bn assets end-2024) — the core Belgian LP register. fsma.be blocks automated fetch."
+    },
+    {
+      "name": "FSMA — Crypto-Asset Service Providers (MiCA CASP register)",
+      "url": "https://www.fsma.be/en/crypto-asset-service-provider-casp",
+      "side": "entities",
+      "category": "MiCA/crypto register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL search-verified. FSMA is Belgium's CASP licensing authority since MiCA (transition ended 1 Jul 2026); it maintains the authorized-CASP register plus a fraudulent-CASP warning list. Site blocks automated fetch."
+    },
+    {
+      "name": "NBB — search for a financial institution (all supervised lists)",
+      "url": "https://www.nbb.be/en/financial-supervision-and-resolution/cross-cutting-and-international-aspects/search/search-financial",
+      "side": "entities",
+      "category": "regulator register hub",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified official NBB page for searching lists of institutions authorised/supervised by NBB (banks, insurers, stockbroking firms, payment institutions). Exact page not fetched (guessed NBB subpaths 404 elsewhere, so verify path at crawl time)."
+    },
+    {
+      "name": "NBB — lists of credit institutions",
+      "url": "https://www.nbb.be/en/financial-oversight/prudential-supervision/areas-responsibility/credit-institutions/lists",
+      "side": "entities",
+      "category": "bank register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified (indexed NBB page 'Lists'). Official lists of Belgian credit institutions and EEA branches; NBB pages are server-rendered and generally parseable."
+    },
+    {
+      "name": "NBB — payment institutions & e-money institutions",
+      "url": "https://www.nbb.be/en/financial-oversight/prudential-supervision/areas-responsibility/payment-institutions-and-electroni-1",
+      "side": "entities",
+      "category": "payment/EMI register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified indexed NBB page. Rounds out the specialty-finance perimeter (payment/EMI licensees)."
+    },
+    {
+      "name": "Belgian Greenhouse Gas Registry (EU ETS national administrator)",
+      "url": "https://www.climateregistry.be/en/registry/registry.htm",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Federal Climate Change Department administers ~360 installation/aircraft accounts + 30 trading accounts in the Union Registry (CSEUR). Static, parseable site; account-holder detail lives in EU Union Registry public reports."
+    },
+    {
+      "name": "Belgisch Staatsblad / Moniteur belge (official gazette)",
+      "url": "https://www.ejustice.just.fgov.be/cgi/welcome.pl",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified official gazette portal (laws, decrees, notices). Old-school CGI pages, fully server-rendered and parseable; daily editions."
+    },
+    {
+      "name": "Staatsblad — Rechtspersonen annex (company deeds & publications)",
+      "url": "https://www.ejustice.just.fgov.be/cgi_tsv_pub/welcome.pl?language=nl",
+      "side": "entities",
+      "category": "company gazette publications",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. All acts of legal entities since 1 Jul 2003 (incorporations, mergers, director appointments/removals, dissolutions) — searchable by enterprise number; PDFs of deeds. Key event stream for Belgian entities."
+    },
+    {
+      "name": "RegSol — Central Register of Solvency (insolvency files)",
+      "url": "https://www.regsol.be/",
+      "side": "entities",
+      "category": "insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED by fetch. All bankruptcy and judicial-reorganisation files since 2017 for all enterprise courts. Consultation is free but gated: an interested party must request access to a file; no open bulk route. Pair with Statbel bankruptcy stats and Staatsblad publications for the machine-readable signal."
+    },
+    {
+      "name": "JUPORTAL — Belgian public case-law database",
+      "url": "https://juportal.be/",
+      "side": "entities",
+      "category": "court decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Official public database of Belgian case law (Cassation, Constitutional Court, Council of State etc.), ECLI-indexed; replaced Jure-Juridat in 2020."
+    },
+    {
+      "name": "Euronext Brussels — equities list",
+      "url": "https://live.euronext.com/en/markets/brussels/equities/list",
+      "side": "entities",
+      "category": "stock exchange issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED by fetch: page exists with filters (BEL20, regulated, Growth, Access, Expert market) but the issuer table is dynamically loaded — needs the underlying JSON endpoints or headless render. Covers listed GPs (Gimv, Sofina, Brederode, GBL) and REITs (SIR/GVV)."
+    },
+    {
+      "name": "Private Capital Belgium (formerly BVA) — member directory",
+      "url": "https://privatecapital.be/the-members/",
+      "side": "entities",
+      "category": "PE/VC association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist: bva.be/the-members/ 301-redirects here; our fetcher gets 403 (WAF). Association rebranded from BVA; ~42 fund members + ~43 associate members (service providers) per search evidence. The canonical Belgian GP roster."
+    },
+    {
+      "name": "Febelfin — member list (Excel download)",
+      "url": "https://febelfin.be/en/about-febelfin/members",
+      "side": "entities",
+      "category": "banking federation",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED by fetch. ~245 member institutions (banks, credit providers, asset managers, brokers, leasing companies) with a public .xlsx member list linked from the page — rare clean bulk association roster."
+    },
+    {
+      "name": "BEAMA — Belgian Asset Managers Association",
+      "url": "https://www.beama.be/en/",
+      "side": "entities",
+      "category": "asset management association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. ~100 members; publishes quarterly Belgian fund-sector statistics and monthly core figures — both an entity roster and a market-size series."
+    },
+    {
+      "name": "Assuralia — Belgian insurance federation",
+      "url": "https://www.assuralia.be/",
+      "side": "entities",
+      "category": "insurance association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Sector federation with studies/statistics per insurance branch; member list not shown on homepage — insurer roster better taken from NBB supervised lists."
+    },
+    {
+      "name": "PensioPlus — pension fund association",
+      "url": "https://pensioplus.be/",
+      "side": "entities",
+      "category": "pension association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Represents Belgian IORPs and sector pension organisers (2.66m members, €48.9bn AUM, 123% funding ratio); no public member list — use FSMA IORP register for the roster."
+    },
+    {
+      "name": "UPSI-BVS — real estate developers association",
+      "url": "https://www.upsi-bvs.be/",
+      "side": "entities",
+      "category": "real estate association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Professional association of Belgian property developers with public directory of working + supporting members (Befimmo, Atenor, Thomas & Piron visible) — feeds Real Assets coverage."
+    },
+    {
+      "name": "SFPIM/FPIM — federal investment company portfolio",
+      "url": "https://sfpim.be/en/wallet/",
+      "side": "entities",
+      "category": "sovereign/state investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified (indexed 'Investment portfolio (30/06/2025)' pages on sfpim.be). Federal holding with 130+ portfolio positions — a major Belgian LP/direct investor."
+    },
+    {
+      "name": "PMV — Flemish investment company",
+      "url": "https://www.pmv.eu/en/",
+      "side": "entities",
+      "category": "regional development investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Flemish public investment company (startups, scale-ups, SME loans, real estate, infrastructure, clean tech, life sciences); has a Portfolio section and publications."
+    },
+    {
+      "name": "Wallonie Entreprendre — Walloon investment company",
+      "url": "https://www.wallonie-entreprendre.be/",
+      "side": "entities",
+      "category": "regional development investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified (news pages fetched in SERPs; merger of SRIW/Sowalfin/Sogepa). Walloon public investor and fund-of-funds LP; homepage itself not fetched."
+    },
+    {
+      "name": "finance&invest.brussels — Brussels regional investment company",
+      "url": "https://www.finance.brussels/en/",
+      "side": "entities",
+      "category": "regional development investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Brussels regional investment company (ex-SRIB) with news/portfolio case studies; third leg of the regional public-capital triangle."
+    },
+    {
+      "name": "e-Procurement Belgium (BOSA / publicprocurement.be)",
+      "url": "https://www.publicprocurement.be",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified. Free federal platform where all Belgian public tenders publish (e-Notification since 2011, eForms metadata-driven); above-threshold notices forward to TED. Exact bulk/open-data endpoint to be confirmed at crawl time."
+    },
+    {
+      "name": "TED — Tenders Electronic Daily (Belgian notices)",
+      "url": "https://ted.europa.eu",
+      "side": "entities",
+      "category": "public procurement (EU layer)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Well-known EU publication portal; Belgian above-threshold notices flow here and are available via the public TED API / bulk XML — the clean machine route for BE procurement signals (EPC contractors, concessionaires, infra)."
+    },
+    {
+      "name": "IBR-IRE — public register of statutory auditors",
+      "url": "https://www.ibr-ire.be/nl/openbaar-register/belgi/bedrijfsrevisoren",
+      "side": "entities",
+      "category": "auditor register (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Searchable official register of bedrijfsrevisoren (auditors, firms, networks, third-country auditors) with individual register numbers — fund-auditor leg of the service graph."
+    },
+    {
+      "name": "ITAA — Institute for Tax Advisors and Accountants",
+      "url": "https://www.itaa.be",
+      "side": "entities",
+      "category": "accountant/tax advisor register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Only search-verified as the professional institute (via IFAC/Accountancy Europe references); the public member-search route was not verified — confirm before relying on it."
+    },
+    {
+      "name": "Advocaat.be — find-a-lawyer (Orde van Vlaamse Balies)",
+      "url": "https://www.advocaat.be/nl/zoek-een-advocaat",
+      "side": "entities",
+      "category": "bar directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Official public directory of Flemish-bar lawyers, filterable by practice area (insolvency, M&A, real estate) and location."
+    },
+    {
+      "name": "Avocats.be — French/German-speaking bars directory",
+      "url": "https://avocats.be/",
+      "side": "entities",
+      "category": "bar directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. OBFG site with 'Trouver votre avocat(e)' public search by bar, specialty; completes national lawyer coverage."
+    },
+    {
+      "name": "Statbel Open Data (bankruptcies, enterprise demography)",
+      "url": "https://statbel.fgov.be/en/open-data",
+      "side": "entities",
+      "category": "statistics office open data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED by fetch. CC BY 4.0 open datasets incl. weekly and monthly bankruptcy statistics and enterprise data — the machine-readable distress-signal series."
+    },
+    {
+      "name": "data.gov.be — Belgian national open data portal",
+      "url": "https://data.gov.be/en",
+      "side": "entities",
+      "category": "open-data portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. BOSA-run catalog indexing federal/regional datasets incl. the CBE/KBO open-data dataset entry and Statbel series; useful discovery index, DCAT metadata."
+    },
+    {
+      "name": "VBO-FEB — Federation of Belgian Enterprises",
+      "url": "https://www.vbo-feb.be/en/",
+      "side": "entities",
+      "category": "business federation",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Search-verified (sectoral-federations pages indexed, incl. Febelfin's entry). Umbrella federation whose sector-federation list is a map of the Belgian industry-association graph. Homepage not fetched directly."
+    },
+    {
+      "name": "De Tijd",
+      "url": "https://www.tijd.be",
+      "side": "news",
+      "category": "business daily (NL)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "The #1 Dutch-language business daily (Mediafin). Site actively blocks our fetcher; its RSS help article is gone (Mediafin zendesk closed), so no feed URL could be verified — plan on headless/partner access. Headline+link only per project copyright rules."
+    },
+    {
+      "name": "L'Echo",
+      "url": "https://www.lecho.be",
+      "side": "news",
+      "category": "business daily (FR)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.lecho.be/rss/top_stories.xml",
+      "verdict": "French-language business daily (Mediafin). Site blocks our fetcher; rssUrl is as reported by Feedspot's Belgium list and could NOT be independently fetched — verify from a residential/browser context."
+    },
+    {
+      "name": "Trends (Knack) — NL business magazine",
+      "url": "https://trends.knack.be",
+      "side": "news",
+      "category": "business magazine (NL)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://trends.knack.be/feed/",
+      "verdict": "VERIFIED: feed fetched and valid RSS 2.0 ('Trends.be'), ~50 items, hourly updates, covers Belgian corporates, funds, real estate, markets. Best working Dutch-language business feed found."
+    },
+    {
+      "name": "Trends-Tendances — FR business magazine",
+      "url": "https://trends.levif.be",
+      "side": "news",
+      "category": "business magazine (FR)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://trends.levif.be/feed/",
+      "verdict": "VERIFIED: feed fetched and valid RSS 2.0 ('Trends-Tendances'), 50 items, hourly; site also documents ~a dozen per-section feeds at /rss/."
+    },
+    {
+      "name": "La Libre — Economie",
+      "url": "https://www.lalibre.be/economie",
+      "side": "news",
+      "category": "general daily, economy desk (FR)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.lalibre.be/arc/outboundfeeds/rss/?outputType=xml",
+      "verdict": "VERIFIED: Arc outboundfeeds RSS fetched and valid ('Lalibre.be - Les derniers articles'); sitewide feed includes economy items; per-section Arc feeds likely exist with section parameters."
+    },
+    {
+      "name": "De Standaard — Economie",
+      "url": "https://www.standaard.be/economie",
+      "side": "news",
+      "category": "general daily, economy desk (NL)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Major Flemish daily with strong economy desk; standaard.be blocks our fetcher and no feed URL could be verified. Treat as headless-crawl candidate."
+    },
+    {
+      "name": "Le Soir — Économie",
+      "url": "https://www.lesoir.be",
+      "side": "news",
+      "category": "general daily, economy desk (FR)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Main Brussels French-language daily; lesoir.be blocks our fetcher; RSS URL unverified. Headless-crawl candidate."
+    },
+    {
+      "name": "De Morgen",
+      "url": "https://www.demorgen.be",
+      "side": "news",
+      "category": "general daily (NL)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.demorgen.be/in-het-nieuws/rss.xml",
+      "verdict": "DPG Media daily; rssUrl as reported by Feedspot, not independently fetched (DPG blocks bots). Secondary general-news signal only."
+    },
+    {
+      "name": "The Bulletin — Belgium in English",
+      "url": "https://www.thebulletin.be",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.thebulletin.be/rss.xml",
+      "verdict": "English-language Belgian news; site refuses our fetcher; rssUrl per Feedspot listing, unverified."
+    },
+    {
+      "name": "The Brussels Times",
+      "url": "https://www.brusselstimes.com",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED site exists (fetched HTML incl. business section); /feed returned HTML not XML, so no working feed URL confirmed."
+    },
+    {
+      "name": "Tech.eu (European/Belgian tech & VC)",
+      "url": "https://tech.eu",
+      "side": "news",
+      "category": "startup & VC media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://tech.eu/feed/",
+      "verdict": "VERIFIED: valid RSS 2.0 feed, hourly, funding rounds/M&A/fund closings across Europe incl. Belgium — good pan-European VC signal layer to filter for BE."
+    },
+    {
+      "name": "Bloovi — Flemish startup/scale-up media",
+      "url": "https://www.bloovi.be",
+      "side": "news",
+      "category": "startup media (NL)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED site exists (news section, Belgian Startup Awards, Flanders Tech 30); /rss returned 404 — no feed found, crawl the /nieuws index."
+    },
+    {
+      "name": "Made in (regional business news network)",
+      "url": "https://www.made-in.be/",
+      "side": "news",
+      "category": "regional business news (NL)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED by fetch. Seven Flemish regional editions covering startups, closures, sector news and entrepreneur profiles; no RSS found — server-rendered archive pages are parseable."
+    },
+    {
+      "name": "FSMA — news & warnings",
+      "url": "https://www.fsma.be/en/news",
+      "side": "news",
+      "category": "regulator press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "FSMA publishes news, sector overviews (e.g. annual IORP overview) and fraud/CASP warning lists; individual news URLs are search-indexed and real, but fsma.be resets automated fetches — needs browser-grade crawling."
+    },
+    {
+      "name": "National Bank of Belgium — press & publications",
+      "url": "https://www.nbb.be/en",
+      "side": "news",
+      "category": "central bank press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NBB domain verified via CBSO pages, but guessed press subpaths (/en/press, /en/press-room, /en/publications-and-research/press-releases) all 404 and /en/rss is dead — locate the current press-release index at crawl time before relying on it."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Global alternatives standard: Belgian GP/fund profiles, performance, and the Belgian LP universe (pension funds, insurers) for fundraising intelligence. Thin on Belgian mid-market service graph and niche alts.",
+      "publicSourcesTheyUse": "FSMA AIFM/ManCo lists, NBB supervised-institution lists, FSMA IORP register and annual IORP overviews, fund managers' own annual reports filed at NBB CBSO, press releases — all directly reachable via the tier1/tier2 sources cataloged here."
+    },
+    {
+      "platform": "PitchBook (Morningstar)",
+      "coverageNotes": "Belgian PE/VC deals, valuations, listed-holding data (Sofina, GBL, Gimv, Brederode). Strong deal history, weaker on gazette-level entity events.",
+      "publicSourcesTheyUse": "Euronext Brussels disclosures, company press releases, De Tijd/L'Echo coverage, KBO/CBE identifiers, Staatsblad incorporation/merger publications."
+    },
+    {
+      "platform": "Dealroom.co",
+      "coverageNotes": "Deepest Belgian startup/scale-up ecosystem coverage; partners with regional agencies for ecosystem dashboards. VC-centric; no private debt/real assets depth.",
+      "publicSourcesTheyUse": "KBO/CBE open data, Staatsblad publications, startup press (Bloovi, Made in, Tech.eu), accelerator/association lists (Private Capital Belgium), PMV/regional-investor portfolio pages."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Belgian startup/funding coverage, crowd-sourced plus press-parsed; weak entity hygiene versus registry-grade data.",
+      "publicSourcesTheyUse": "Press releases and startup media; no visible registry integration for Belgium — a gap we close by anchoring on KBO + CBSO."
+    },
+    {
+      "platform": "openthebox (Mediafin)",
+      "coverageNotes": "The strongest local benchmark: ownership graphs, directors, and financials across 3M+ Belgian entities with API and data feeds; owned by Mediafin (De Tijd/L'Echo). Company-data centric, not alternatives-taxonomy aware.",
+      "publicSourcesTheyUse": "Explicitly: KBO/CBE for status/directors, NBB CBSO annual accounts, Belgisch Staatsblad publications, UBO register (as obliged-entity access). All except UBO are directly open to us."
+    },
+    {
+      "platform": "Bizzy",
+      "coverageNotes": "Free/freemium Belgian company profiles with AI descriptions, real-time updates and sales-intelligence agent; consumer-grade UX, no alternatives focus.",
+      "publicSourcesTheyUse": "KBO/CBE, NBB annual accounts, Staatsblad, plus press/social/vacancy scraping — public underlying registers are the same tier1 set we catalog."
+    },
+    {
+      "platform": "Companyweb",
+      "coverageNotes": "Incumbent Belgian credit-information provider (scores, payment behavior, alerts) used widely by finance teams; strong on distress signals.",
+      "publicSourcesTheyUse": "KBO/CBE, NBB CBSO financials, RegSol/court insolvency data, Staatsblad publications — the distress layer maps to our tier3 sources."
+    },
+    {
+      "platform": "GraydonCreditsafe Belgium",
+      "coverageNotes": "Credit risk and compliance data on Belgian companies; proprietary payment-experience pool on top of registry data.",
+      "publicSourcesTheyUse": "KBO/CBE open data, NBB annual accounts, gazette publications, bankruptcy statistics (Statbel/RegSol-derived)."
+    },
+    {
+      "platform": "Trends Top (Roularta, trendstop.knack.be)",
+      "coverageNotes": "Directory/rankings of top Belgian companies with financials and sector tops; verified redirect trendstop.be → trendstop.knack.be. B2B prospecting oriented.",
+      "publicSourcesTheyUse": "NBB CBSO annual accounts and KBO identifiers, packaged into rankings."
+    },
+    {
+      "platform": "Moody's Bureau van Dijk — Bel-first",
+      "coverageNotes": "Comprehensive Belgian & Luxembourg financials/ownership product (BvD is Belgian-origin); the institutional standard for BE company financial screening.",
+      "publicSourcesTheyUse": "NBB CBSO filings (bulk), KBO/CBE registry, Staatsblad events — again fully public underneath."
+    },
+    {
+      "platform": "Staatsbladmonitor.be",
+      "coverageNotes": "Free Belgian monitoring service over gazette publications with company profiles, alerts and a free API tier (100 req/day) — verified by fetch. Proof that Staatsblad+KBO+CBSO can be productized cheaply.",
+      "publicSourcesTheyUse": "Belgisch Staatsblad Rechtspersonen annex, KBO/CBE, NBB annual accounts."
+    }
+  ],
+  "searchedButAbsent": "Searched for but not available/not verifiable: (1) UBO register — exists at FPS Finance but public access was cut after the Nov 2022 CJEU ruling; only obliged entities/authorities; do not plan on open UBO data (matches project rule). (2) No public register of NPL/credit servicers found yet (Credit Servicers Directive register at NBB expected but not located as a published list). (3) No Belgian litigation-funder register — litigation funding is unregulated in BE; coverage must come from press + KBO. (4) No standalone national insolvency-practitioner roll — curators appear per case in RegSol/Staatsblad, not as an open roster. (5) De Tijd RSS feed URLs — Mediafin help center is closed and tijd.be/lecho.be block fetchers; De Tijd feeds could not be confirmed. (6) De Standaard and Le Soir RSS URLs — sites block automated access, feeds unverified. (7) NBB RSS — nbb.be/en/rss returns 404; no working NBB feed found, and NBB press-page path could not be pinned down (three candidate paths 404). (8) FSMA machine access — every fsma.be fetch was reset (ECONNRESET); all FSMA URLs are search-index-verified only and its registers are largely PDFs, so plan a browser-grade fetcher there. (9) Belgian Leasing Association — sits inside Febelfin, no separate verified member directory. (10) RICS Belgium — no country-level public valuer directory; only the global rics.org find-a-member search. (11) Kanaal Z/Canal Z (business TV), Belga News Agency, and De Rijkste Belgen (wealth/holdings tracker) were identified as candidates but omitted because their URLs/feeds were not verified in this session. Web search budget hit its session cap near the end; all included sources rest on direct fetch verification or search-index corroboration as stated per-source."
+}
