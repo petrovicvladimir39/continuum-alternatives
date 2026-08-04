@@ -680,3 +680,99 @@ the per-country sub-budget. The backlog (197 docs across the four) is the
 single best use of the ~$8 reserve once all 38 countries have had their
 equal first pass — deliberately NOT spent early, so no country starves.
 
+## BG
+
+- entities: 261 → 261 (253 active)
+- classified: 7 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 7
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: venture_capital
+- field coverage (260 orgs): legal_name 0% · reg-no 95% · LEI 94% · VAT 0% · legal_form 0% · status 0% · address 0% · website 5% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 3%
+- geocode precision: city 228 · unlocated 210 · street 6 · rooftop 5
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 3 · tier4_exchange_corporate active 3 · signals_press active 12 · signals_press 6
+- ledger: BG $0.471 / $0.45 · cumulative $12.311 / $20.00
+
+## HR
+
+- entities: 244 → 248 (240 active)
+- classified: 3 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 1
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: npl, venture_capital
+- field coverage (242 orgs): legal_name 0% · reg-no 95% · LEI 95% · VAT 0% · legal_form 0% · status 0% · address 0% · website 5% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 5%
+- geocode precision: city 238 · unlocated 68
+- facts: proposed 4 · approved 1
+- sources in DB: tier4_exchange_corporate 5 · tier4_exchange_corporate active 1 · signals_press active 12 · signals_press 6
+- ledger: HR $0.472 / $0.45 · cumulative $12.311 / $20.00
+
+## RS
+
+- entities: 567 → 567 (558 active)
+- classified: 6 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 2
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 1
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 1
+    - Institutional Service Graph: 0
+- Level-3 strategies found: litigation_finance, natural_resources, npl, venture_capital
+- field coverage (562 orgs): legal_name 1% · reg-no 94% · LEI 1% · VAT 0% · legal_form 0% · status 0% · address 0% · website 2% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 2%
+- geocode precision: city 549 · unlocated 22
+- facts: proposed 9 · approved 635
+- sources in DB: tier2_regulator active 2 · tier4_exchange_corporate 3 · tier4_exchange_corporate active 3 · signals_press 7 · signals_press active 12
+- ledger: RS $0.483 / $0.45 · cumulative $12.311 / $20.00
+
+## SI
+
+- entities: 213 → 216 (212 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (213 orgs): legal_name 0% · reg-no 97% · LEI 96% · VAT 0% · legal_form 0% · status 0% · address 0% · website 3% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 2%
+- geocode precision: city 206 · unlocated 91 · rooftop 13 · street 6
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 1 · tier4_exchange_corporate active 1 · signals_press 5 · signals_press active 7
+- ledger: SI $0.470 / $0.45 · cumulative $12.311 / $20.00
+
+### BG / HR / RS / SI run notes (2026-08-04)
+
+- **BG**: 60 sources (39 entities / 21 news), 12 news active, **5 facts
+  PROPOSED from 4 relevant docs — the best conversion rate of the run so far**.
+  The Trade Register (portal.registryagency.bg) offers genuinely free public
+  access and is cataloged as the tier-1 route; FSC list URLs remain unstable
+  (ESMA covers BG). Backlog 37.
+- **HR**: 53 sources (33 entities / 20 news), 12 news active, 61 docs fetched
+  (second-largest fetch of the run), **4 facts PROPOSED**. HANFA prior harvest
+  stands; sudski registar open data + Narodne novine are the open tier-1/3
+  routes; e-Oglasna is the insolvency feed. Backlog 59.
+- **RS**: 60 sources (40 entities / 20 news), 12 news active, 46 docs.
+  Serbia enters this run with by far the deepest existing fact base in the
+  corpus (644 facts from the prior ALSU integration) — per the constitution
+  that source stays ONE source among many and was extended, not re-centered.
+  APR bulk downloads + NBS registers cataloged as the tier-1/2 routes.
+  0 relevant this cycle, backlog 43.
+- **SI**: 51 sources (35 entities / 16 news) — the honest floor for a small
+  market; only 7 news sources answered probes. AJPES ePRS + JOLP (free annual
+  reports) and eObjave (insolvency publications) are the open Slovenian
+  routes; ATVP still 403s (ESMA covers SI). NOTE recorded in the catalog: the
+  Uradni list gazette moved to PISRS on 1 Mar 2026 — monitoring must retarget.
+  Backlog 10.
+
