@@ -66,6 +66,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "dotenv": "^17.2.3",
+    "playwright": "^1.62.1",
     "sharp": "^0.35.3",
     "stripe": "^22.3.2",
     "svix": "^1.98.0",
