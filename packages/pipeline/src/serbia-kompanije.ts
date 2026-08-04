@@ -344,12 +344,30 @@ async function importCompany(c: Company): Promise<"created" | "merged" | "ambigu
   let outcome: "created" | "merged" | "ambiguous" = "merged";
   if (entityId === undefined) {
     const resolved = await resolveEntity({ name: c.name, country: "RS", kindHint: "organization" });
-    if (resolved.outcome === "ambiguous") {
+    // DEDUP LAW: deterministic keys rank above fuzzy name matching. A
+    // matični broj we have never seen PROVES this is a distinct legal
+    // entity, so a merely-ambiguous name must not block creation — it may
+    // only block when we hold no deterministic key at all.
+    if (resolved.outcome === "ambiguous" && c.maticniBroj === undefined) {
       return "ambiguous";
     }
-    if (resolved.outcome === "matched" && resolved.entityId !== undefined) {
+    if (
+      resolved.outcome === "matched" &&
+      resolved.entityId !== undefined &&
+      c.maticniBroj === undefined
+    ) {
       entityId = resolved.entityId;
-    } else {
+    } else if (resolved.outcome === "matched" && resolved.entityId !== undefined) {
+      // Name matches an existing row AND we hold a matični broj: only treat
+      // them as the same entity when that row carries no conflicting number.
+      const existing = await db.execute(sql`
+        SELECT registry_id FROM organizations WHERE entity_id = ${resolved.entityId}::uuid`);
+      const reg = (existing.rows[0] as { registry_id: string | null } | undefined)?.registry_id;
+      if (reg === null || reg === undefined || reg === c.maticniBroj) {
+        entityId = resolved.entityId;
+      }
+    }
+    if (entityId === undefined) {
       const created = await createEntity({
         kind: "organization",
         name: c.name,
@@ -452,10 +470,29 @@ async function crawl(): Promise<void> {
     const p = u.replace(`${BASE}/`, "");
     return !p.startsWith("okrug/") && !p.startsWith("mesto/") && !p.startsWith("delatnost") && p.length > 12;
   });
-  const state = existsSync(STATE_FILE)
-    ? (JSON.parse(readFileSync(STATE_FILE, "utf8")) as { done: string[] })
-    : { done: [] };
-  const doneSet = new Set(state.done);
+  // "Already done" is derived from the DATABASE, not a state file. Two
+  // concurrent runs each holding their own in-memory set clobbered the file
+  // and lost progress; the imported source_url is the authoritative record
+  // and is race-free.
+  const importedRows = await db.execute(sql`
+    SELECT DISTINCT category_fields->>'source_url' AS url
+    FROM organizations
+    WHERE category_fields->>'source' = 'kompanije.co.rs'
+      AND category_fields->>'source_url' IS NOT NULL`);
+  const doneSet = new Set(
+    (importedRows.rows as { url: string }[]).map((r) => r.url),
+  );
+  // Legacy state file, if present, only ADDS to the set (never replaces it).
+  if (existsSync(STATE_FILE)) {
+    try {
+      const legacy = JSON.parse(readFileSync(STATE_FILE, "utf8")) as { done: string[] };
+      for (const u of legacy.done) {
+        doneSet.add(u);
+      }
+    } catch {
+      /* ignore a corrupt legacy file */
+    }
+  }
   const todo = companyUrls.filter((u) => !doneSet.has(u));
   const slice = limit > 0 ? todo.slice(0, limit) : todo;
 
@@ -463,13 +500,26 @@ async function crawl(): Promise<void> {
     `kompanije crawl: ${companyUrls.length} company urls · ${doneSet.size} already done · processing ${slice.length}`,
   );
 
-  const browser = await chromium.launch({ headless: true });
+  let browser = await chromium.launch({ headless: true });
   const counts = { created: 0, merged: 0, ambiguous: 0, skipped: 0, failed: 0, ofInterest: 0 };
   const fields = { pib: 0, mb: 0, address: 0, website: 0, financials: 0, employees: 0, coords: 0 };
   let n = 0;
 
   for (const url of slice) {
-    const c = await scrapeCompany(browser, url);
+    // Chromium leaks across long runs; recycle it periodically so a
+    // multi-thousand-page crawl doesn't die of memory growth.
+    if (n > 0 && n % 150 === 0) {
+      await browser.close().catch(() => {});
+      browser = await chromium.launch({ headless: true });
+    }
+    let c: Company | null = null;
+    try {
+      c = await scrapeCompany(browser, url);
+    } catch {
+      // A browser-level failure: rebuild it and skip this row.
+      await browser.close().catch(() => {});
+      browser = await chromium.launch({ headless: true });
+    }
     n += 1;
     if (c === null) {
       counts.failed += 1;
@@ -491,6 +541,7 @@ async function crawl(): Promise<void> {
     doneSet.add(url);
     if (n % 25 === 0) {
       writeFileSync(STATE_FILE, JSON.stringify({ done: [...doneSet] }));
+
       console.log(
         `  ${n}/${slice.length} · created ${counts.created} merged ${counts.merged} · in-sector ${counts.ofInterest} · PIB ${fields.pib} · fin ${fields.financials}`,
       );
