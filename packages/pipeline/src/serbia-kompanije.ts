@@ -368,12 +368,32 @@ async function importCompany(c: Company): Promise<"created" | "merged" | "ambigu
       }
     }
     if (entityId === undefined) {
-      const created = await createEntity({
-        kind: "organization",
-        name: c.name,
-        country: "RS",
-        tags: ["kompanije_rs", "pilot_rs", "needs_verification"],
-      });
+      // createEntity picks a slug with a check-then-insert, which is not
+      // atomic: two Serbian companies whose names slugify identically (very
+      // common — "DRUŠTVO ZA …" variants) can collide and abort the run.
+      // Retry so a single bad row never kills a multi-thousand-page crawl.
+      // Retry with the SAME name — createEntity re-checks and takes the next
+      // free "-N" suffix. The name is never mutated: a registration number
+      // appended to a legal name would be corrupt data, not a fix.
+      let created: { id: string } | undefined;
+      for (let attempt = 0; attempt < 4 && created === undefined; attempt++) {
+        try {
+          created = await createEntity({
+            kind: "organization",
+            name: c.name,
+            country: "RS",
+            tags: ["kompanije_rs", "pilot_rs", "needs_verification"],
+          });
+        } catch (error) {
+          if (!String(error).includes("entities_slug_unique") || attempt === 3) {
+            return "skipped";
+          }
+          await sleep(150 * (attempt + 1));
+        }
+      }
+      if (created === undefined) {
+        return "skipped";
+      }
       await db.update(entities).set({ status: "provisional" }).where(eq(entities.id, created.id));
       await db.insert(organizations).values({ entityId: created.id });
       entityId = created.id;
