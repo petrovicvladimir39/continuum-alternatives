@@ -1183,3 +1183,86 @@ import because the register itself is the verification.
 
 Nothing in this run publishes an estimate. Empty fields mean the source did
 not state the value.
+
+---
+
+# ADDENDUM — extraction resumed, enrichment deepened (2026-08-04, session 2)
+
+The operator raised the Anthropic account limit, so extraction resumed.
+
+## Extraction — the $20 cap is now genuinely reached
+
+Order of spend was deliberate: **countries with ZERO extraction first**
+(evenness), then the largest backlogs using the ~$2 reserve the run spec set
+aside for exactly this purpose (`EUROPE_DEPTH_COUNTRY_CAP` now releases it,
+while the $20 TOTAL cap still binds absolutely).
+
+| Phase | Countries | Result |
+|---|---|---|
+| Zero-extraction catch-up | IS, XK, MT, CY, LI | 5 facts PROPOSED; LI backlog cleared to 0 |
+| Reserve on largest backlogs | HR, GR, CZ, DE | 5 facts PROPOSED; 9 of 44 docs relevant |
+
+**Ledger: $19.689 of $20.00.** Extraction is now cap-blocked, not
+API-blocked. Remaining backlog ≈ **1,000 documents**; finishing it costs
+roughly **$40–45** at the observed ~$0.04/document. That is an operator
+decision — raise `EUROPE_DEPTH_CAP` and re-run
+`europe-extract.ts --country CC`; the ledger is persistent and resumes
+per country.
+
+## Enrichment — two new deterministic, register-grade enrichers
+
+Both join on **LEI**, an exact global key (no fuzzy matching, no ambiguity
+risk), and both are **FILL-NULL only** — an existing register value always
+wins and nothing is ever overwritten or invented.
+
+- **`gleif-enrich.ts`** (`pnpm gleif:enrich`) — GLEIF LEI API, keyless, $0,
+  **100% match rate** on LEI-bearing orgs. Fills legal_name, legal_form_native,
+  legal_status, incorporation_date, founded_year, registered_address, hq_city,
+  hq_country, plus the national registration number where we hold none.
+- **`wikidata-enrich.ts`** (`pnpm wikidata:enrich`) — SPARQL on P1278.
+  Completed: 760 matches → 89 websites, 538 incorporation dates, 677 legal
+  forms, 733 hq_country. Crowd-sourced, so gap-fill only; never creates
+  entities. Financials deliberately NOT imported (not register-grade).
+
+### Field coverage, before → after (50,131 organizations)
+
+| Field | Before | After |
+|---|---|---|
+| legal_name | ~0% | **49%** |
+| legal_form_native | 27% | **49%** |
+| legal_status | 28% | **49%** |
+| incorporation_date | 0% | **48%** |
+| registered_address | 28% | **49%** |
+| hq_city | — | **76%** |
+| hq_country | — | **50%** |
+| registration number | 91% | 91% |
+| LEI | 48% | 43% (denominator grew) |
+
+**Still weak, and honestly so**: website 2% · corporate_email 0% ·
+corporate_phone 0% · logo 1%. Bulk company registers publish addresses and
+legal form but not contact details, and Wikidata's LEI coverage skews to
+listed companies. These fields fill from regulator licence registers that
+carry them (AFM, AMF PSAN already do) and from a website-verify pass — they
+will not be guessed.
+
+## Corpus
+
+50,131+ organizations and still growing — the uncapped Companies House sweep
+is running (a duplicate-slug crash was traced to two concurrent instances
+racing; now single-instance and idempotent). GLEIF enrichment is ~8,000 of
+21,366 through at the time of writing.
+
+## Competitor intelligence
+
+New: **`docs/COMPETITOR-DOSSIER.md`** — verified, citable primary-source
+findings. Preqin's own June 2025 coverage sheet (64,621 firms / 220,111 funds
+/ 795,060 deals), its FOIA + voluntary-GP-submission spine, its research
+headcount split (526 total, only **72 in EMEA**), a contradiction between its
+own coverage sheet and marketing page, and its whitepaper conceding ~75% of
+funds do not self-report. Plus Invest Europe's free European Data Cooperative
+as the association-grade CEE benchmark.
+
+The remaining providers (PitchBook, Dealroom, Crunchbase, CB Insights, With
+Intelligence, Orbis, EMIS, SeeNews, CompanyWall and the rest) are **named as
+not-yet-researched rather than guessed** — the session's web-search quota was
+exhausted at 200/200. First task of the next session.

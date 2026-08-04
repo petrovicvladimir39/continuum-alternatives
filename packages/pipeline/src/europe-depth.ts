@@ -27,7 +27,16 @@ const LEDGER_PATH = path.join(REPO_ROOT, "data", "europe-depth-ledger.json");
 const CATALOG_DIR = path.join(REPO_ROOT, "data", "europe-depth");
 
 export const TOTAL_CAP_USD = Number.parseFloat(process.env.EUROPE_DEPTH_CAP ?? "20");
-export const COUNTRY_CAP_USD = 0.45;
+/**
+ * Per-country sub-budget. The run spec set $0.45/country (~$18 across 38)
+ * with a ~$2 RESERVE so no country could starve the ledger. Once every
+ * country has had its equal first pass, that reserve is meant to be spent on
+ * the largest remaining backlogs — raise this via EUROPE_DEPTH_COUNTRY_CAP
+ * to release it. The $20 TOTAL cap still binds absolutely either way.
+ */
+export const COUNTRY_CAP_USD = Number.parseFloat(
+  process.env.EUROPE_DEPTH_COUNTRY_CAP ?? "0.45",
+);
 
 export type DepthLedger = {
   totalCapUsd: number;
