@@ -346,9 +346,150 @@ async function harvestFrPsan(): Promise<void> {
   );
 }
 
+// ── NL: DNB complete public register (daily CSV, all sub-registers) ─────────
+
+const DNB_CSV_URL = "https://www.dnb.nl/en-GB/registerdownloadcomplete/TheNetherlands/csv";
+
+/** Deelregister -> classification (null = stays honestly unclassified). */
+const DNB_REGISTERS: Record<string, { l1: string; l2?: string; role: string } | null> = {
+  Pensioenfondsen: { l1: "service_graph", role: "LP" },
+  "Premiepensioen instellingen": { l1: "service_graph", role: "LP" },
+  Trustkantoren: { l1: "service_graph", l2: "fund_administration", role: "Vendor" },
+  Verzekeraars: { l1: "service_graph", role: "LP" },
+  Herverzekeraars: { l1: "service_graph", role: "LP" },
+  "Actuariële organisaties": { l1: "service_graph", role: "Vendor" },
+  Banken: null, // ecosystem perimeter — imported, deliberately unclassified
+  Clearinginstellingen: { l1: "service_graph", l2: "asset_servicing", role: "Vendor" },
+};
+
+async function harvestNlDnb(): Promise<void> {
+  console.log(`nldnb: downloading ${DNB_CSV_URL}`);
+  const res = await fetch(DNB_CSV_URL, {
+    headers: { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ContinuumBot/1.0 (+https://continuumalternatives.com)" },
+  });
+  if (!res.ok) {
+    throw new Error(`DNB download failed: HTTP ${res.status}`);
+  }
+  const text = await res.text();
+  const lines = text.replace(/^﻿/, "").split(/\r?\n/);
+  const header = splitLine(lines[0] ?? "", ";").map((h) => h.replace(/"/g, ""));
+  const col = Object.fromEntries(header.map((h, i) => [h, i]));
+  const cell = (cells: string[], name: string) => (cells[col[name] ?? -1] ?? "").replace(/^"|"$/g, "").trim();
+
+  // One row per (register × entity × permission) — dedupe on Relatienummer,
+  // keeping the highest-priority Deelregister row per entity.
+  const priority = Object.keys(DNB_REGISTERS);
+  const best = new Map<string, { row: RegisterRow; register: string }>();
+  for (const line of lines.slice(1)) {
+    if (line.trim() === "") {
+      continue;
+    }
+    const cells = splitLine(line, ";");
+    const register = cell(cells, "Deelregister");
+    if (!(register in DNB_REGISTERS)) {
+      continue;
+    }
+    const rel = cell(cells, "Relatienummer");
+    const name = cell(cells, "StatutaireNaam");
+    if (rel === "" || name === "") {
+      continue;
+    }
+    const kvk = cell(cells, "KvK");
+    const landCode = cell(cells, "LandCodeVestiging");
+    // NL presence only: a KvK number or an NL establishment address.
+    if (kvk === "" && landCode !== "NL") {
+      continue;
+    }
+    const existing = best.get(rel);
+    if (existing !== undefined && priority.indexOf(existing.register) <= priority.indexOf(register)) {
+      continue;
+    }
+    if (best.size >= 3000 && existing === undefined) {
+      continue;
+    }
+    const lei = cell(cells, "LEI");
+    const street = cell(cells, "AdresVestiging");
+    const postal = cell(cells, "PostcodeVestiging");
+    const city = cell(cells, "PlaatsVestiging");
+    const inLiquidation = cell(cells, "Inliquidatie").toLowerCase() === "ja";
+    const cls = DNB_REGISTERS[register];
+    best.set(rel, {
+      register,
+      row: {
+        name,
+        country: "NL",
+        city: city || null,
+        registryId: lei !== "" ? lei : kvk !== "" ? `NLKVK:${kvk}` : `DNB:${rel}`,
+        tags: ["register_verified", "dnb"],
+        note: `DNB ${register} · ${cell(cells, "RegistratieType")} · ${cell(cells, "Wetsartikel").slice(0, 80)}`,
+        depth: {
+          legalName: name,
+          legalStatus: inLiquidation ? "liquidation" : "active",
+          regulatoryStatus: "regulated",
+          primaryRegulator: "De Nederlandsche Bank",
+          ...(lei !== "" ? { leiCode: lei } : {}),
+          registeredAddress: {
+            ...(street !== "" ? { street } : {}),
+            ...(city !== "" ? { city } : {}),
+            ...(postal !== "" ? { postal } : {}),
+            country: "NL",
+          },
+          hqCountry: "NL",
+          ...(cls != null ? { primaryRole: cls.role } : {}),
+        },
+      },
+    });
+  }
+  const byRegister = new Map<string, number>();
+  for (const { register } of best.values()) {
+    byRegister.set(register, (byRegister.get(register) ?? 0) + 1);
+  }
+  console.log(
+    `nldnb: ${best.size} unique entities (` +
+      [...byRegister.entries()].map(([k, v]) => `${k}:${v}`).join(" ") +
+      ")",
+  );
+
+  const importer = new RegisterImporter();
+  await importer.init();
+  for (const { row } of best.values()) {
+    await importer.importRow(row);
+  }
+  await importer.flush();
+  let classifications = 0;
+  for (const { row, register } of best.values()) {
+    const cls = DNB_REGISTERS[register];
+    if (cls === null || cls === undefined) {
+      continue;
+    }
+    const id = row.registryId == null ? undefined : importer.entityIdFor(row.registryId);
+    if (id === undefined) {
+      continue;
+    }
+    const inserted = await db
+      .insert(entityClassifications)
+      .values({
+        entityId: id,
+        assetClass: cls.l1,
+        strategy: "",
+        subClass: cls.l2 ?? null,
+        source: "register",
+        status: "proposed",
+        confidence: "0.90",
+      })
+      .onConflictDoNothing()
+      .returning({ e: entityClassifications.entityId });
+    classifications += inserted.length;
+  }
+  console.log(
+    `nldnb import: created ${importer.counts.created} · merged ${importer.counts.merged + importer.counts.merged_registry} · ambiguous skipped ${importer.counts.ambiguous} · classifications ${classifications}`,
+  );
+}
+
 const ADAPTERS: Record<string, () => Promise<void>> = {
   gbch: harvestGbCompaniesHouse,
   frpsan: harvestFrPsan,
+  nldnb: harvestNlDnb,
 };
 
 const isMain = process.argv[1]?.replace(/\\/g, "/").endsWith("europe-registers.ts") === true;

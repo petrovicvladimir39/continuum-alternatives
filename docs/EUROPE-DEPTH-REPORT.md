@@ -229,3 +229,40 @@ paid/ToS-locked APIs.
 - **Surprise**: SpainCap's Livewire app leaks its entire member graph through
   static profile links — the "JS shell" verdict from clean-100 is obsolete.
 
+## NL
+
+- entities: 3052 → 3540 (3465 active)
+- classified: 439 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 1
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 16
+    - Liquid Alternatives & Hedge Funds: 10
+    - Niche & Emerging Alternatives: 5
+    - Institutional Service Graph: 408
+- Level-3 strategies found: carbon_markets, commodities, infrastructure_economic, natural_resources, secondaries
+- field coverage (3535 orgs): legal_name 14% · reg-no 98% · LEI 33% · VAT 0% · legal_form 0% · status 14% · address 14% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: unlocated 3092 · city 750 · rooftop 89 · street 1
+- facts: proposed 3
+- sources in DB: signals_press active 12 · signals_press 7
+- ledger: NL $0.470 / $0.45 · cumulative $2.855 / $20.00
+
+### NL run notes (2026-08-04)
+
+- **Sources**: 64 cataloged (40 entities-side / 24 news-side; target 50 ✓).
+  12 news active (FD, Banken.nl, Vastgoedmarkt + crawl-index); Euronext
+  Amsterdam news js-blocked, Rijksoverheid RSS dead (documented).
+- **Harvest** (AFM 2,116-entity harvest from clean-100 stands): DNB complete
+  public register — the "bot-blocked" verdict from research fell to a plain
+  browser-grade user-agent; one 24MB daily CSV, 46,638 permission rows →
+  553 unique entities → 484 created ACTIVE with registered addresses, KvK/LEI
+  keys, liquidation status: ALL 147 Dutch pension funds (the LP register),
+  105 trust offices (fund-SPV service layer), 173 insurers, 105 banks
+  (imported deliberately UNCLASSIFIED — perimeter, never force-fit),
+  8 reinsurers, 5 PPIs. 408 register classifications proposed.
+- **Extraction**: $0.470 → backlog logged. 45 docs fetched.
+- **Top 3**: DNB complete CSV (best single regulator file in Europe so far —
+  one URL, every sub-register, daily), FD RSS, Vastgoedmarkt (RE deal flow).
+- **Surprise**: DNB's "export customized list" is actually a stable
+  whole-register download URL — no scraping needed at all.
+

@@ -6,14 +6,16 @@
     "GB": 0.468681,
     "FR": 0.524808,
     "IT": 0.470202,
-    "ES": 0.46031099999999997
+    "ES": 0.46031099999999997,
+    "NL": 0.470244
   },
   "completed": [
     "DE",
     "GB",
     "FR",
     "IT",
-    "ES"
+    "ES",
+    "NL"
   ],
   "before": {
     "DE": {
@@ -40,6 +42,11 @@
       "entities": 1287,
       "facts": 0,
       "takenAt": "2026-08-04T01:02:56.148Z"
+    },
+    "NL": {
+      "entities": 3052,
+      "facts": 1,
+      "takenAt": "2026-08-04T01:11:06.967Z"
     }
   },
   "backlog": {
@@ -47,6 +54,7 @@
     "GB": "45 unextracted documents (last 14d) at sub-budget stop",
     "FR": "47 unextracted documents (last 14d) at sub-budget stop",
     "IT": "37 unextracted documents (last 14d) at sub-budget stop",
-    "ES": "27 unextracted documents (last 14d) at sub-budget stop"
+    "ES": "27 unextracted documents (last 14d) at sub-budget stop",
+    "NL": "36 unextracted documents (last 14d) at sub-budget stop"
   }
 }
