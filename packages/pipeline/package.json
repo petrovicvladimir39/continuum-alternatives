@@ -42,7 +42,9 @@
     "events:harvest": "tsx src/events-harvest.ts",
     "ops:backup-check": "tsx src/ops-backup-check.ts",
     "fx:rates": "tsx src/fx-rates.ts",
-    "export:xlsx": "tsx src/europe-export-xlsx.ts"
+    "export:xlsx": "tsx src/europe-export-xlsx.ts",
+    "gleif:enrich": "tsx src/gleif-enrich.ts",
+    "wikidata:enrich": "tsx src/wikidata-enrich.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",

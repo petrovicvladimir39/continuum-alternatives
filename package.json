@@ -46,7 +46,9 @@
     "events:harvest": "pnpm --filter @continuum/pipeline events:harvest",
     "ops:backup-check": "pnpm --filter @continuum/pipeline ops:backup-check",
     "fx:rates": "pnpm --filter @continuum/pipeline fx:rates",
-    "export:xlsx": "pnpm --filter @continuum/pipeline export:xlsx"
+    "export:xlsx": "pnpm --filter @continuum/pipeline export:xlsx",
+    "gleif:enrich": "pnpm --filter @continuum/pipeline gleif:enrich",
+    "wikidata:enrich": "pnpm --filter @continuum/pipeline wikidata:enrich"
   },
   "devDependencies": {
     "eslint": "^9.0.0",
