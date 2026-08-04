@@ -266,3 +266,37 @@ paid/ToS-locked APIs.
 - **Surprise**: DNB's "export customized list" is actually a stable
   whole-register download URL — no scraping needed at all.
 
+## LU
+
+- entities: 3681 → 3683 (3671 active)
+- classified: 474 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 62
+    - Private Debt & Credit: 11
+    - Real Assets & Infrastructure: 391
+    - Liquid Alternatives & Hedge Funds: 8
+    - Niche & Emerging Alternatives: 9
+    - Institutional Service Graph: 0
+- Level-3 strategies found: carbon_markets, clo, commodities, crypto, infrastructure_economic, mezzanine, natural_resources, secondaries
+- field coverage (3681 orgs): legal_name 0% · reg-no 100% · LEI 27% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: unlocated 3225 · city 870 · rooftop 101 · street 19
+- facts: proposed 1
+- sources in DB: signals_press 8 · signals_press active 6
+- ledger: LU $0.449 / $0.45 · cumulative $3.304 / $20.00
+
+### LU run notes (2026-08-04)
+
+- **Sources**: 57 cataloged (40 entities-side / 17 news-side; target 50 ✓).
+  Only 6 news sources answered probes (Paperjam, Delano, Silicon Luxembourg,
+  + 4 crawl-index) — Luxembourg's media market is small; honest count, cap
+  not force-filled. CSSF RSS dead at probe.
+- **Harvest** (CSSF bulk files from prior runs stand — 2,183 entities, the
+  deepest per-capita register in the corpus): LPEA member directory is an
+  Elementor lazy-load grid — names never reach static HTML (js-blocked,
+  documented). LBR/RCS remains gated behind per-document retrieval.
+- **Extraction**: $0.449 → stopped cleanly at sub-budget; backlog logged.
+- **Top 3**: CSSF bulk files (standing), Paperjam RSS, Silicon Luxembourg RSS.
+- **Surprise**: for the EU's largest fund domicile, Luxembourg's press
+  ecosystem is the THINNEST of the six countries run so far — signals depth
+  here must come from RESA gazette + CSSF files, not media.
+
