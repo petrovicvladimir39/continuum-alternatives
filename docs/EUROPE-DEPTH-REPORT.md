@@ -579,3 +579,104 @@ paid/ToS-locked APIs.
   (honest zero) with a 55-doc backlog — CZ is the largest untapped extraction
   queue and the first candidate for the reserve budget.
 
+## GR
+
+- entities: 303 → 303 (285 active)
+- classified: 10 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 6
+    - Private Debt & Credit: 4
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: npl, venture_capital
+- field coverage (297 orgs): legal_name 0% · reg-no 92% · LEI 87% · VAT 0% · legal_form 0% · status 0% · address 0% · website 6% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 4%
+- geocode precision: city 263 · unlocated 147 · rooftop 12 · street 6
+- facts: proposed 5
+- sources in DB: tier4_exchange_corporate 1 · tier4_exchange_corporate active 6 · signals_press active 12 · signals_press 5
+- ledger: GR $0.494 / $0.45 · cumulative $10.415 / $20.00
+
+## RO
+
+- entities: 252 → 259 (226 active)
+- classified: 8 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 6
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: venture_capital
+- field coverage (230 orgs): legal_name 0% · reg-no 93% · LEI 73% · VAT 0% · legal_form 0% · status 0% · address 0% · website 7% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 6%
+- geocode precision: unlocated 186 · city 75 · street 41 · rooftop 11
+- facts: proposed 8
+- sources in DB: tier4_exchange_corporate 6 · tier4_exchange_corporate active 7 · signals_press active 12 · signals_press 7
+- ledger: RO $0.485 / $0.45 · cumulative $10.415 / $20.00
+
+## HU
+
+- entities: 1293 → 1294 (1232 active)
+- classified: 6 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 6
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 2
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: infrastructure_economic, venture_capital
+- field coverage (1291 orgs): legal_name 0% · reg-no 95% · LEI 93% · VAT 0% · legal_form 0% · status 0% · address 0% · website 2% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 1%
+- geocode precision: city 1191 · unlocated 431 · rooftop 254 · street 27
+- facts: proposed 1
+- sources in DB: tier4_exchange_corporate 7 · tier4_exchange_corporate active 3 · signals_press active 11 · signals_press 4
+- ledger: HU $0.467 / $0.45 · cumulative $10.415 / $20.00
+
+## SK
+
+- entities: 284 → 284 (245 active)
+- classified: 3 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 2
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 1
+- Level-3 strategies found: venture_capital
+- field coverage (280 orgs): legal_name 0% · reg-no 88% · LEI 68% · VAT 0% · legal_form 0% · status 0% · address 0% · website 3% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 1%
+- geocode precision: city 230 · unlocated 132
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 1 · signals_press 5 · signals_press active 12
+- ledger: SK $0.479 / $0.45 · cumulative $10.415 / $20.00
+
+### GR / RO / HU / SK run notes (2026-08-04)
+
+The CEE/SEE depth block — the launch coverage lead. All four show the same
+pattern: rich, genuinely open registers on the entities side, and a press
+layer that fetches heavily (54-56 docs each) but converts thinly per cycle,
+leaving the largest extraction backlogs of the run.
+
+- **GR**: 61 sources (37 entities / 24 news), 12 news active, 54 docs.
+  Diavgeia (the mandatory government-transparency API) is cataloged as the
+  standout open Greek route; HCMC stays geo/JS-blocked (ESMA covers GR).
+  0 relevant this cycle, backlog 59 — the largest queue in the run.
+- **RO**: 59 sources (37 entities / 22 news), 12 news active, 55 docs,
+  **4 facts PROPOSED** — the best CEE conversion this cycle. ASF prior
+  harvest stands (36); BNR's non-bank financial institution register and
+  data.gov.ro are the open routes; BPI (insolvency bulletin) cataloged as
+  the distressed feed. Backlog 50.
+- **HU**: 52 sources (35 entities / 17 news) — smallest catalog in this block,
+  honestly reported: Hungary's company register sells bulk access and the
+  Cégközlöny gazette 403s non-browser clients. e-Beszámoló (free financial
+  statements) is the open counterweight. 12 news active, 56 docs, backlog 46.
+- **SK**: 57 sources (35 entities / 22 news), 12 news active. NBS prior
+  harvest stands (the whole market in one JSON). RPO/ORSR + the Obchodný
+  vestník open-data gazette are cataloged as open tier-1/3 routes. Backlog 42.
+
+**Standing note on this block**: 197 documents fetched, 4 facts proposed at
+the per-country sub-budget. The backlog (197 docs across the four) is the
+single best use of the ~$8 reserve once all 38 countries have had their
+equal first pass — deliberately NOT spent early, so no country starves.
+
