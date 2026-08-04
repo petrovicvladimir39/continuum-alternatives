@@ -386,3 +386,101 @@ paid/ToS-locked APIs.
   known entities rather than a discovery sweep; recorded as such.
   $0.450 → 4 relevant of 10, 1 fact PROPOSED, backlog 45.
 
+## BE
+
+- entities: 1281 → 1281 (1280 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (1281 orgs): legal_name 0% · reg-no 100% · LEI 99% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 1257 · rooftop 610 · unlocated 218
+- facts: none
+- sources in DB: signals_press active 10
+- ledger: BE $0.465 / $0.45 · cumulative $6.615 / $20.00
+
+## AT
+
+- entities: 768 → 771 (718 active)
+- classified: 13 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 3
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 5
+    - Liquid Alternatives & Hedge Funds: 1
+    - Niche & Emerging Alternatives: 2
+    - Institutional Service Graph: 0
+- Level-3 strategies found: crypto, direct_lending, infrastructure_economic, npl, venture_capital
+- field coverage (767 orgs): legal_name 0% · reg-no 93% · LEI 91% · VAT 0% · legal_form 0% · status 0% · address 0% · website 1% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 1%
+- geocode precision: city 702 · unlocated 133 · rooftop 50 · street 1
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 9 · signals_press active 9 · signals_press 3
+- ledger: AT $0.466 / $0.45 · cumulative $6.615 / $20.00
+
+## DK
+
+- entities: 760 → 766 (703 active)
+- classified: 14 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 3
+    - Private Debt & Credit: 6
+    - Real Assets & Infrastructure: 3
+    - Liquid Alternatives & Hedge Funds: 2
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: clo, global_macro, infrastructure_economic, secondaries
+- field coverage (760 orgs): legal_name 0% · reg-no 93% · LEI 91% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: unlocated 375 · city 359 · rooftop 249
+- facts: proposed 2
+- sources in DB: signals_press 14 · signals_press active 9
+- ledger: DK $0.471 / $0.45 · cumulative $6.615 / $20.00
+
+## NO
+
+- entities: 955 → 955 (892 active)
+- classified: 1 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 1
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (955 orgs): legal_name 0% · reg-no 93% · LEI 63% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: unlocated 659 · city 397 · rooftop 68
+- facts: none
+- sources in DB: signals_press 9 · signals_press active 7
+- ledger: NO $0.476 / $0.45 · cumulative $6.615 / $20.00
+
+### BE / AT / DK / NO run notes (2026-08-04)
+
+- **BE**: 53 sources cataloged (38 entities / 15 news) — the smallest catalog
+  of the large-market group, honestly reported: Belgium's finance press is
+  thin and much of it (De Tijd, L'Echo) is hard-paywalled. 10 news active.
+  KBO/BCE open-data full-file download + NBB CBSO filings API are cataloged
+  as the tier-1 routes; FSMA resets automated connections (ECONNRESET) — the
+  AIFM/IORP lists are PDFs, deferred to a PDF-parse adapter. RegSol insolvency
+  is access-gated by design (interested-party only) — a principled skip.
+  $0.45 → 0 relevant of 11; Belgian generalist feeds carried no alternatives
+  signal this cycle (honest zero, not an error).
+- **AT**: 60 sources (42 entities / 18 news), 9 news active. FMA company
+  database still 403s to non-browser clients (unchanged since clean-100;
+  ESMA covers AT AIFMs). The Ediktsdatei (justiz.gv.at insolvency edicts) is
+  the genuinely open Austrian route and is cataloged as the top future
+  distressed adapter. invest.austria prior harvest stands. 2 facts PROPOSED.
+- **DK**: 65 sources (41 entities / 24 news), 9 news active — the CVR open
+  API (Virk) is the standout: genuinely open, full Danish company universe,
+  cataloged as a first-class future adapter. Finanstilsynet's SPA still hides
+  its XHR (documented; ESMA covers DK). 2 facts PROPOSED.
+- **NO**: 64 sources (43 entities / 21 news), 7 news active. Finanstilsynet
+  register harvest stands (468). data.brreg.no (Brønnøysund) open API +
+  konkursregisteret are cataloged as open bulk routes — Norway is, with
+  Estonia and Denmark, one of the three fully-open register markets in Europe.
+  0 relevant of 11 this cycle (honest zero).
+
