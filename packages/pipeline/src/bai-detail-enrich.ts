@@ -1,5 +1,5 @@
 import "./env";
-import { db, eq, isNull, and, organizations, entities, resolveEntity, sql } from "@continuum/db";
+import { and, db, eq, isNull, organizations, resolveEntity } from "@continuum/db";
 
 /**
  * EUROPE DEPTH RUN (DE Step 4) — website-derived deterministic enrichment

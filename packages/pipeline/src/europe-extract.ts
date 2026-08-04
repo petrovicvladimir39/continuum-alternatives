@@ -30,7 +30,7 @@ async function main(): Promise<void> {
   const days = daysIdx >= 0 ? Number.parseInt(argv[daysIdx + 1] ?? "14", 10) : 14;
 
   const ledger = loadLedger();
-  let budget = countryBudgetLeft(ledger, cc);
+  const budget = countryBudgetLeft(ledger, cc);
   if (budget <= 0) {
     console.log(`europe-extract ${cc}: no budget left (country or total cap) — nothing done`);
     process.exit(0);

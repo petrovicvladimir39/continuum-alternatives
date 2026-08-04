@@ -1072,3 +1072,114 @@ To resume: raise or wait out the key limit, then
 per country. The ledger is persistent, so per-country sub-budgets pick up
 exactly where they stopped.
 
+
+---
+
+# FINAL LEDGER — EUROPE DEPTH RUN (2026-08-04)
+
+## Corpus, before → after
+
+| Measure | Value |
+|---|---|
+| Entities total | **46,132** (43,313 active · 2,819 provisional/review-gated) |
+| Entities added this run | **~10,900** (register-grade activate immediately; directory rows provisional) |
+| Entities classified | 4,416 (4,329 classifications PROPOSED — review-gated, never auto-approved) |
+| Timeline facts | 765 (636 approved from prior runs · **129 PROPOSED**, incl. ~40 this run) |
+| Sources cataloged | **2,150+ across 38 countries** (docs/EUROPE-SOURCE-CATALOG.md) |
+| Sources in DB | 865 (443 active: 385 press + 56 directory/exchange + 2 regulator) |
+| Competitor observations | 325 across 150 platforms (docs/COMPETITOR-LANDSCAPE.md) |
+| Excel workbooks | 39 files · 45,658 rows · 64 columns each (exports/europe-depth/) |
+| Storage | 150 MB / 400 MB soft ceiling — **never hit the guard** |
+| LLM spend | **$15.78 of $20.00** ($4.22 unspent — halted by the operator key limit, not the cap) |
+
+## Field coverage across 45,815 organizations
+
+registration number **91%** · LEI **48%** · registered address **28%** ·
+legal form **27%** · legal status **28%** · website 2% · licence number <1% ·
+corporate email <1% · logo 1%
+
+Geocoding: 26,320 entities located — **3,061 rooftop · 253 street · 23,006
+city centroid** · 7,698 honestly unlocated (no city in source).
+
+The low website/email/licence percentages are real and expected: bulk company
+registers (Companies House, DNB) publish addresses and legal form but not
+contact details. Those fields fill from regulator licence registers and
+website-verify passes, which are the named follow-ups — they are NOT estimated.
+
+## Evenness check — where depth lags the median
+
+Every country received the identical five steps. Depth still varies because
+the underlying markets vary, and that is reported rather than smoothed:
+
+- **Register depth is uneven by law, not by effort.** Open-bulk markets (GB
+  13,310 · LU 3,683 · NL 3,540 · CH 2,707) sit far above fee/JS-gated ones
+  (ME 3 · AL 7 · BA 11 · MK 36). The gap tracks register accessibility
+  exactly: GB/NL/EE/NO/DK publish whole-universe files; DE/HU/IT/AT sell or
+  block theirs.
+- **Below the European median and why**: AL, ME, BA, MK, XK (no free bulk
+  register; sourcing plans cataloged, harvest requires per-entity retrieval) ·
+  GR, RO, BG, HR, SI, SK (registers open but not yet adapter-built — the
+  next-run queue) · IT, HU, AT (WAF/fee-gated; ESMA is the standing fallback).
+- **Press activation is genuinely even**: 8–12 active sources in every
+  country except the markets that do not have 12 (LI 5 · AL 6 · LU 6 · LT 7 ·
+  NO 7 · SI 7). Those are market facts, recorded as such.
+
+## Ten most productive sources, Europe-wide
+
+1. **Companies House bulk CSV (GB)** — 12,042 entities and counting, $0, no key
+2. **DNB complete register CSV (NL)** — 484 entities incl. all 147 pension funds
+3. **GLEIF LEI** (standing) — the 21,786-LEI backbone under everything
+4. **CSSF bulk files (LU)** — 3,683 entities, deepest per-capita coverage
+5. **UK Private Capital directory** — 375 GPs with true per-member countries
+6. **BAI member directory (DE)** — 316 in-scope firms with self-declared categories
+7. **CNAJMJ roll (FR)** — 199 insolvency-practitioner firms (service graph)
+8. **SpainCap member hrefs (ES)** — 316 members through a JS shell
+9. **ACRI (IT)** — 51 banking foundations, the Italian LP base
+10. **AMF PSAN CSV (FR)** — richest per-row depth: 9 schema fields per licensee
+
+## Principled skips (each with a reason)
+
+- **Central Bank of Ireland** — robots.txt expressly disallows bot harvesting
+  of all Search/Results/Data paths. Unharvested by intent.
+- **UK PSC (beneficial ownership)** — genuinely open, deliberately NOT ingested:
+  UBO handling is a legal-gated decision, not a scraping question.
+- **Belgian RegSol** — access restricted to interested parties by design.
+- **Competitor platforms** (Preqin, PitchBook, Dealroom, Crunchbase, CB
+  Insights, EMIS, Orbis…) — analyzed as a market map from public sources only;
+  never scraped, queried, or ingested.
+- **Registro Imprese startup section (IT)** — open, but startups sit outside
+  institutional scope; documented for later portfolio-company matching.
+- **Individual insolvency practitioners (FR)**, **LinkedIn URLs**, **person
+  data at scale** — consent doctrine.
+
+## Honest shortfalls against the 50-source target
+
+Six markets hold fewer than 50 real business-grade sources. Every source that
+exists was cataloged and the true number reported: **LI 32 · ME 41 · MK 42 ·
+IS 42 · XK 47 · AL 49**. No padding.
+
+## Extraction backlog — 1,119 documents
+
+HR 59 · GR 59 · CZ 55 · DE 53 · RO 50 · FR 47 · HU 46 · PL 45 · GB 45 ·
+RS 43 · XK 43 · SK 42 · FI 38 · IS 38 · IT 37 · BG 37 · NL 36 · MT 33 ·
+EE 29 · ES 27 · PT 26 · CH 26 · CY 24 · LV 23 · IE 22 · SE 21 · and 12 more.
+
+Halted by the **account-level Anthropic usage limit** (regains 2026-09-01),
+with $4.22 of the run budget unspent. Resume per country with
+`europe-extract.ts --country CC`; the ledger is persistent.
+
+---
+
+## 🔊 CLOSING NOTE — what is live and what is not
+
+**Press-extracted facts are PROPOSED and publicly invisible** until the
+operator completes Clerk setup and works the review queue. The same applies to
+all 4,329 machine-proposed classifications and every provisional entity from a
+directory source.
+
+**Tier 1–2 register entities are LIVE IMMEDIATELY** — Companies House, DNB,
+CSSF, GLEIF, AMF, FINMA and the other register-grade harvests activate on
+import because the register itself is the verification.
+
+Nothing in this run publishes an estimate. Empty fields mean the source did
+not state the value.
