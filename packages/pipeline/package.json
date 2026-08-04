@@ -41,7 +41,8 @@
     "events:import": "tsx src/events-import.ts",
     "events:harvest": "tsx src/events-harvest.ts",
     "ops:backup-check": "tsx src/ops-backup-check.ts",
-    "fx:rates": "tsx src/fx-rates.ts"
+    "fx:rates": "tsx src/fx-rates.ts",
+    "export:xlsx": "tsx src/europe-export-xlsx.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.3",
@@ -49,6 +50,7 @@
     "@continuum/shared": "workspace:*",
     "@mendable/firecrawl-js": "^4.30.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "exceljs": "^4.4.0",
     "fast-xml-parser": "^5.10.1",
     "inngest": "^3.0.0",
     "langfuse": "^3.38.20",
@@ -63,6 +65,7 @@
     "sharp": "^0.35.3",
     "stripe": "^22.3.2",
     "svix": "^1.98.0",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "@types/node": "^22.0.0"
   }
 }

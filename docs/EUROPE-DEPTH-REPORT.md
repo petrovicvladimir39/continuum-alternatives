@@ -300,3 +300,37 @@ paid/ToS-locked APIs.
   ecosystem is the THINNEST of the six countries run so far — signals depth
   here must come from RESA gazette + CSSF files, not media.
 
+## CH
+
+- entities: 2705 → 2707 (2406 active)
+- classified: 8 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 1
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 5
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 2
+- Level-3 strategies found: none yet
+- field coverage (2704 orgs): legal_name 0% · reg-no 71% · LEI 71% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 2285 · rooftop 800 · unlocated 662 · street 2
+- facts: proposed 2
+- sources in DB: signals_press 7 · signals_press active 11
+- ledger: CH $0.485 / $0.45 · cumulative $3.789 / $20.00
+
+### CH run notes (2026-08-04)
+
+- **Sources**: 60 cataloged (39 entities-side / 21 news-side; target 50 ✓).
+  11 news active; fuw.ch + Le Temps js-blocked, FINMA RSS dead (documented).
+- **Harvest** (FINMA XLSX lists from clean-100 stand — 487 entities): Zefix
+  Public REST returns **HTTP 401** on both `/firm/search.json` and
+  `/legalForm` — the "open API" verdict from research is wrong for anonymous
+  clients; it needs an operator account. Documented as an operator step
+  alongside FCA (GB) and OpenCorporates. SHAB/SOGC gazette API remains the
+  best unauthenticated CH route (cataloged, adapter deferred).
+- **Extraction**: $0.450 → 12 processed, 1 relevant, 2 facts PROPOSED,
+  backlog 26. Swiss generalist feeds carry a low alternatives hit rate;
+  finews/AWP specialist feeds are the ones worth the budget next pass.
+- **Surprise**: Switzerland's register is federally indexed but API-gated,
+  while its *gazette* (SHAB) is openly queryable — the inverse of Germany.
+
