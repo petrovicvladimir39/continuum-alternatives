@@ -31,7 +31,15 @@
     "LT": 0.45810300000000004,
     "LV": 0.47072100000000006,
     "EE": 0.46899899999999994,
-    "BA": 0.480426
+    "BA": 0.480426,
+    "MK": 0.4920150000000001,
+    "AL": 0.476034,
+    "ME": 0.45378000000000007,
+    "XK": 0.164709,
+    "IS": 0,
+    "MT": 0,
+    "CY": 0,
+    "LI": 0
   },
   "completed": [
     "DE",
@@ -63,7 +71,15 @@
     "LT",
     "LV",
     "EE",
-    "BA"
+    "BA",
+    "MK",
+    "AL",
+    "ME",
+    "XK",
+    "IS",
+    "MT",
+    "CY",
+    "LI"
   ],
   "before": {
     "DE": {
@@ -215,6 +231,46 @@
       "entities": 9,
       "facts": 0,
       "takenAt": "2026-08-04T09:03:04.295Z"
+    },
+    "MK": {
+      "entities": 36,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:11:44.861Z"
+    },
+    "AL": {
+      "entities": 7,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:13:10.547Z"
+    },
+    "ME": {
+      "entities": 3,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:14:03.569Z"
+    },
+    "XK": {
+      "entities": 0,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:15:22.474Z"
+    },
+    "IS": {
+      "entities": 274,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:18:31.194Z"
+    },
+    "MT": {
+      "entities": 874,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:20:28.789Z"
+    },
+    "CY": {
+      "entities": 381,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:22:06.147Z"
+    },
+    "LI": {
+      "entities": 1124,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:23:21.612Z"
     }
   },
   "backlog": {
@@ -246,6 +302,14 @@
     "LT": "5 unextracted documents (last 14d) at sub-budget stop",
     "LV": "23 unextracted documents (last 14d) at sub-budget stop",
     "EE": "29 unextracted documents (last 14d) at sub-budget stop",
-    "BA": "13 unextracted documents (last 14d) at sub-budget stop"
+    "BA": "13 unextracted documents (last 14d) at sub-budget stop",
+    "MK": "6 unextracted documents (last 14d) at sub-budget stop",
+    "AL": "3 unextracted documents (last 14d) at sub-budget stop",
+    "ME": "13 unextracted documents (last 14d) at sub-budget stop",
+    "XK": "43 unextracted documents (last 14d) at sub-budget stop",
+    "IS": "38 unextracted documents (last 14d) at sub-budget stop",
+    "MT": "33 unextracted documents (last 14d) at sub-budget stop",
+    "CY": "24 unextracted documents (last 14d) at sub-budget stop",
+    "LI": "9 unextracted documents (last 14d) at sub-budget stop"
   }
 }

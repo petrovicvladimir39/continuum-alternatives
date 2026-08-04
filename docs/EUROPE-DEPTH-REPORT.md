@@ -872,3 +872,203 @@ equal first pass — deliberately NOT spent early, so no country starves.
   both banking agencies, and both exchanges (SASE/BLSE). 8 news active,
   **5 facts PROPOSED from 1 relevant doc**. Backlog 13.
 
+## MK
+
+- entities: 36 → 36 (36 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (36 orgs): legal_name 0% · reg-no 97% · LEI 97% · VAT 0% · legal_form 0% · status 0% · address 0% · website 3% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 3%
+- geocode precision: city 36 · unlocated 25
+- facts: none
+- sources in DB: tier4_exchange_corporate 1 · signals_press active 9
+- ledger: MK $0.492 / $0.45 · cumulative $15.776 / $20.00
+
+## AL
+
+- entities: 7 → 7 (6 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (7 orgs): legal_name 0% · reg-no 43% · LEI 43% · VAT 0% · legal_form 0% · status 0% · address 0% · website 43% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 43%
+- geocode precision: city 6 · unlocated 4
+- facts: none
+- sources in DB: tier4_exchange_corporate 1 · tier4_exchange_corporate active 1 · signals_press 2 · signals_press active 6
+- ledger: AL $0.476 / $0.45 · cumulative $15.776 / $20.00
+
+## ME
+
+- entities: 3 → 3 (2 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (3 orgs): legal_name 0% · reg-no 33% · LEI 33% · VAT 0% · legal_form 0% · status 0% · address 0% · website 67% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 33%
+- geocode precision: city 2 · unlocated 2
+- facts: none
+- sources in DB: tier4_exchange_corporate active 1 · signals_press 2 · signals_press active 10
+- ledger: ME $0.454 / $0.45 · cumulative $15.776 / $20.00
+
+## XK
+
+- entities: 0 → 0 (0 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (0 orgs): legal_name 0% · reg-no 0% · LEI 0% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: 
+- facts: none
+- sources in DB: signals_press 3 · signals_press active 12
+- ledger: XK $0.165 / $0.45 · cumulative $15.776 / $20.00
+
+## IS
+
+- entities: 274 → 274 (274 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (274 orgs): legal_name 0% · reg-no 100% · LEI 96% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 257 · unlocated 62 · street 4
+- facts: none
+- sources in DB: signals_press active 11
+- ledger: IS $0.000 / $0.45 · cumulative $15.776 / $20.00
+
+## MT
+
+- entities: 874 → 874 (874 active)
+- classified: 1 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 1
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (874 orgs): legal_name 0% · reg-no 100% · LEI 99% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 805 · unlocated 496 · street 64 · rooftop 6
+- facts: none
+- sources in DB: signals_press active 10
+- ledger: MT $0.000 / $0.45 · cumulative $15.776 / $20.00
+
+## CY
+
+- entities: 381 → 381 (381 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (381 orgs): legal_name 0% · reg-no 100% · LEI 96% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 358 · unlocated 226 · street 3
+- facts: none
+- sources in DB: signals_press 1 · signals_press active 8
+- ledger: CY $0.000 / $0.45 · cumulative $15.776 / $20.00
+
+## LI
+
+- entities: 1124 → 1124 (1124 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (1124 orgs): legal_name 0% · reg-no 100% · LEI 100% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 1061 · rooftop 185 · unlocated 130
+- facts: none
+- sources in DB: signals_press 2 · signals_press active 5
+- ledger: LI $0.000 / $0.45 · cumulative $15.776 / $20.00
+
+### MK / AL / ME / XK / IS / MT / CY / LI run notes (2026-08-04) — micro-markets
+
+The honesty block. Every one of these countries got the identical five-step
+treatment; where the market genuinely holds fewer sources, the true number is
+reported and the shortfall named.
+
+- **MK** 42 sources (30 entities / 12 news), 9 news active. The MSE RSS trio
+  (news / SEInet disclosures / reports) is the single best machine feed in the
+  market; CRM company register is JS-rendered with paid bulk (documented).
+- **AL** 49 sources (35 / 14), 6 news active — 6 of 14 news candidates were
+  js-blocked, the worst press-accessibility ratio in the run. QKB + AMF
+  Albania registers cataloged.
+- **ME** 41 sources (24 / 17), 10 news active. Corpus entered with 3 entities.
+- **XK** 47 sources (31 / 16), **12 news active and 46 documents fetched —
+  more than most mid-size markets**, from a corpus of ZERO entities. CBK's
+  licensee registers (banks, insurers, pensions, MFIs) are the sourcing plan;
+  Kosovo has no stock exchange, recorded honestly rather than left blank.
+- **IS** 42 sources (30 / 12), 11 news active, 36 docs. The pension-fund
+  layer (Landssamtök lífeyrissjóða members) is unusually large relative to
+  the economy — a real LP pocket.
+- **MT** 50 sources (38 / 12), 10 news active. MFSA's register stays 403+JS
+  (unchanged); GLEIF already carries 874 MT entities, so the gap is
+  attributes, not names.
+- **CY** 62 sources (48 / 14) — the largest micro-market catalog, 8 news
+  active. CySEC per-category Excel downloads + the data.gov.cy registry
+  dataset are the routes; Debtwire is the strongest third-party on CY NPLs.
+- **LI** 32 sources (25 / 7) — **the honest floor of the entire run**. Seven
+  news sources exist and all seven probed clean (0 blocked). No stock
+  exchange. LAFV fund lists + FMA's TVTG/blockchain-act register are the
+  distinctive routes; corpus already holds 1,124 LI entities from GLEIF.
+
+## ⚠ EXTRACTION HALTED — operator action required
+
+Partway through the micro-market block the Anthropic API key returned:
+
+> `You have reached your specified API usage limits. You will regain access
+> on 2026-09-01 at 00:00 UTC.`
+
+This is an **account-level spend limit on the operator's key**, NOT the run's
+$20 budget — the run ledger stopped at **$15.78 of $20.00**, with ~$4.22
+unspent. Consequences, recorded honestly:
+
+- XK, IS, MT, CY, LI got **zero extraction** (their fetch, catalog, activation
+  and reporting steps all completed normally).
+- 104 documents were marked `error` purely by this limit. Those markers were
+  CLEARED, so the documents re-enter the queue untouched when access returns —
+  the backlog figure below is real, not inflated by false failures.
+- **Total extraction backlog: 1,119 documents across all 38 countries.**
+  Largest queues: HR 59 · GR 59 · CZ 55 · DE 53 · RO 50 · FR 47 · HU 46 ·
+  PL 45 · GB 45 · RS 43 · XK 43 · SK 42.
+
+To resume: raise or wait out the key limit, then
+`pnpm --filter @continuum/pipeline exec tsx src/europe-extract.ts --country CC`
+per country. The ledger is persistent, so per-country sub-budgets pick up
+exactly where they stopped.
+
