@@ -368,6 +368,50 @@ const ADAPTERS: AssocAdapter[] = [
     },
   },
   {
+    key: "spaincap",
+    assoc: "SpainCap (ex-ASCRI)",
+    country: "ES",
+    fetch: async () => {
+      // Livewire app, but member-profile hrefs are server-rendered. Names
+      // derive from slugs (title-cased) — existing corpus rows merge via
+      // normalized matching; new rows carry needs_verification per doctrine.
+      const cats: { slug: string; category: string }[] = [
+        { slug: "gestor", category: "private equity / venture capital fund manager (gestora)" },
+        { slug: "inversor", category: "institutional investor (LP)" },
+        { slug: "asesor", category: "advisor / service provider" },
+      ];
+      const out: AssocMember[] = [];
+      const seen = new Set<string>();
+      for (const { slug, category } of cats) {
+        for (let page = 1; page <= 20; page++) {
+          const url = `https://www.spaincap.org/quienes-somos/organizacion/socios/${slug}${page > 1 ? `?page=${page}` : ""}`;
+          const html = await fetchText(url);
+          const re = new RegExp(`/socios/${slug}/([a-z0-9-]+)`, "g");
+          let added = 0;
+          let m: RegExpExecArray | null;
+          while ((m = re.exec(html)) !== null) {
+            const memberSlug = m[1] ?? "";
+            if (memberSlug === "" || seen.has(memberSlug)) {
+              continue;
+            }
+            seen.add(memberSlug);
+            const name = memberSlug
+              .split("-")
+              .map((w) => (w.length > 0 ? w[0]?.toUpperCase() + w.slice(1) : w))
+              .join(" ");
+            out.push({ name, category });
+            added += 1;
+          }
+          if (added === 0) {
+            break;
+          }
+          await sleep(1200);
+        }
+      }
+      return out;
+    },
+  },
+  {
     key: "acri",
     assoc: "ACRI (fondazioni di origine bancaria)",
     country: "IT",

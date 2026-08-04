@@ -193,3 +193,39 @@ paid/ToS-locked APIs.
   bulk-ingested (startups out of institutional scope per standing doctrine);
   documented for portfolio-company matching later.
 
+## ES
+
+- entities: 1287 → 1444 (1230 active)
+- classified: 176 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 74
+    - Private Debt & Credit: 1
+    - Real Assets & Infrastructure: 11
+    - Liquid Alternatives & Hedge Funds: 1
+    - Niche & Emerging Alternatives: 1
+    - Institutional Service Graph: 88
+- Level-3 strategies found: carbon_markets, global_macro, infrastructure_economic, secondaries
+- field coverage (1439 orgs): legal_name 0% · reg-no 85% · LEI 64% · VAT 0% · legal_form 0% · status 0% · address 0% · website 4% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: unlocated 1055 · city 834 · rooftop 1 · street 1
+- facts: proposed 3
+- sources in DB: signals_press 9 · signals_press active 12
+- ledger: ES $0.460 / $0.45 · cumulative $2.384 / $20.00
+
+### ES run notes (2026-08-04)
+
+- **Sources**: 65 cataloged (43 entities-side / 22 news-side; target 50 ✓).
+  12 news active (Expansión, Cinco Días, El Confidencial, Vozpópuli + 2
+  crawl-index); elEconomista + CNMV RSS dead at probe (documented).
+- **Harvest** (CNMV SGIIC/SGEIC prior harvest stands): SpainCap directory —
+  Livewire JS shell in clean-100, now harvestable via server-rendered member
+  hrefs: 316 members across gestor/inversor/asesor → 153 created provisional
+  + 166 classifications (GP/LP/Advisor by category), 150 ambiguous skipped.
+  CNMV listado id=18 (ECR vehicles) no longer server-renders (documented);
+  BORME open-data API cataloged as the standing tier-3 route.
+- **Extraction**: $0.460 → 2 facts PROPOSED (details in ledger), backlog
+  logged.
+- **Top 3**: SpainCap hrefs (the JS-shell workaround), Expansión RSS,
+  BORME API (future).
+- **Surprise**: SpainCap's Livewire app leaks its entire member graph through
+  static profile links — the "JS shell" verdict from clean-100 is obsolete.
+
