@@ -153,3 +153,43 @@ paid/ToS-locked APIs.
   transition means the MiCA-agréé CASP list (separate AMF register) is the
   live crypto register going forward.
 
+## IT
+
+- entities: 939 → 994 (767 active)
+- classified: 80 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 3
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 24
+    - Liquid Alternatives & Hedge Funds: 1
+    - Niche & Emerging Alternatives: 1
+    - Institutional Service Graph: 51
+- Level-3 strategies found: carbon_markets, infrastructure_economic, secondaries
+- field coverage (985 orgs): legal_name 0% · reg-no 78% · LEI 76% · VAT 0% · legal_form 0% · status 0% · address 0% · website 5% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 680 · unlocated 529 · rooftop 151 · street 6
+- facts: proposed 4
+- sources in DB: signals_press active 12 · signals_press 14
+- ledger: IT $0.470 / $0.45 · cumulative $1.924 / $20.00
+
+### IT run notes (2026-08-04)
+
+- **Sources**: 66 cataloged (36 entities-side / 30 news-side; target 50 ✓).
+  12 news active incl. BeBeez (THE Italian PE/private-debt/NPL specialist),
+  Il Sole Finanza, MF, Teleborsa; 5 dead/blocked documented (CONSOB Informa
+  js-blocked, Banca d'Italia RSS dead at probe, Monitorimmobiliare js-blocked).
+- **Harvest**: Italy stays the hardest register market — CONSOB Radware
+  challenge unchanged, OAM VASP register 403, COVIP albo 403 (all documented;
+  ESMA central register covers IT AIFMs from the prior run). ACRI banking
+  foundations: 88 names → 51 created provisional + 51 LP classifications
+  (37 ambiguous skipped) — the domestic LP base now mapped. Italian Tech
+  Alliance skipped: Wix logo-grid, names only in image filenames (too lossy —
+  same doctrine as ROPEA/LT-VCA in clean-100).
+- **Extraction**: $0.470 → 12 processed, 4 relevant, 2 facts PROPOSED,
+  backlog 37.
+- **Top 3**: BeBeez RSS (specialist density), ACRI page (51 LPs in one page),
+  Teleborsa RSS (volume).
+- **Surprise**: Registro Imprese's innovative-startup section is the ONE
+  genuinely open Italian register slice (CSV downloads) — deliberately not
+  bulk-ingested (startups out of institutional scope per standing doctrine);
+  documented for portfolio-company matching later.
+

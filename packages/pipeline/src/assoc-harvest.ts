@@ -368,6 +368,19 @@ const ADAPTERS: AssocAdapter[] = [
     },
   },
   {
+    key: "acri",
+    assoc: "ACRI (fondazioni di origine bancaria)",
+    country: "IT",
+    fetch: async () => {
+      // Italy's 80+ banking foundations — the classic domestic LP base.
+      const html = await fetchText("https://www.acri.it/contatti-fondazioni/");
+      return collect(html, />((?:Fondazione|Istituto Banco)[^<]{3,80})</g).map((r) => ({
+        name: r.name,
+        category: "fondazione di origine bancaria — institutional investor (LP)",
+      }));
+    },
+  },
+  {
     key: "cnajmj",
     assoc: "CNAJMJ (French insolvency practitioners' order)",
     country: "FR",
