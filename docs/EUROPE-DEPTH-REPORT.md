@@ -106,3 +106,50 @@ paid/ToS-locked APIs.
   UBO data (PSC bulk snapshot) — recorded for the legal-gated future decision,
   NOT ingested (constitution UBO rule).
 
+## FR
+
+- entities: 1398 → 1628 (1422 active)
+- classified: 274 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 6
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 23
+    - Liquid Alternatives & Hedge Funds: 4
+    - Niche & Emerging Alternatives: 40
+    - Institutional Service Graph: 199
+- Level-3 strategies found: carbon_markets, clo, crypto, infrastructure_economic, insolvency_practitioner, litigation_finance, secondaries
+- field coverage (1625 orgs): legal_name 2% · reg-no 88% · LEI 82% · VAT 2% · legal_form 0% · status 2% · address 0% · website 17% · licence 2% · share_capital 0% · email 0%
+- logo coverage: 15%
+- geocode precision: city 886 · unlocated 825 · rooftop 227 · street 13
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 118 · tier4_exchange_corporate active 8 · signals_press active 10 · signals_press 10
+- ledger: FR $0.525 / $0.45 · cumulative $1.454 / $20.00
+
+### FR run notes (2026-08-04)
+
+- **Sources**: 70 cataloged (44 entities-side / 26 news-side; target 50 ✓).
+  10 news newly active incl. 4 crawl-index (Les Echos Capital Finance, CFNEWS
+  IMMO, H24, Décideurs); 6 js-blocked documented (La Tribune, Business Immo,
+  Le Monde Éco, Bpifrance media). France's open-data spine (BODACC API, BALO
+  API, INPI RNE, Sirene API, data.gouv) cataloged as the standing tier-1/3
+  machine routes — BODACC procédures-collectives feed is the top future
+  distressed-signals adapter.
+- **Harvest** (AMF SGP register from prior runs stands — extended, not
+  re-cataloged): AMF PSAN/CASP whitelist → 36 active licensees, 32 created
+  ACTIVE with email/phone/VAT (deterministically derived from SIREN)/LEI/
+  licence numbers; 319 MiCA-radiated rows skipped mechanically; 34 digital-
+  assets classifications. CNAJMJ insolvency-practitioner roll → 206 firm-form
+  entities (199 created + classified service_graph/insolvency_practitioner);
+  INDIVIDUAL practitioners excluded by the consent doctrine filter.
+- **Enrichment**: geocode + locations seeded in the shared passes (227 rooftop
+  FR rows from earlier GLEIF address work); logo coverage 15%.
+- **Extraction**: $0.525 (the last accepted doc overshot the $0.45 line —
+  stop-check is pre-call; documented), 11 processed → 6 relevant → 3 facts
+  PROPOSED (incl. Adagia/Schwind buyout via firm newsroom), backlog 47.
+  Anti-fabrication guard dropped 1 non-verbatim excerpt.
+- **Top 3**: AMF PSAN CSV (richest per-row depth of any source yet: 9 schema
+  fields/row), CNAJMJ (199 service-graph entities in one page), CFNEWS RSS.
+- **Surprise**: France Invest's directory is no longer login-walled at the
+  listing level — future member-page adapter candidate; and the PSAN→MiCA
+  transition means the MiCA-agréé CASP list (separate AMF register) is the
+  live crypto register going forward.
+
