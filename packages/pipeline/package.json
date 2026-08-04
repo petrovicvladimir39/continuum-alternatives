@@ -52,6 +52,7 @@
     "@continuum/shared": "workspace:*",
     "@mendable/firecrawl-js": "^4.30.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "cheerio": "^1.2.0",
     "exceljs": "^4.4.0",
     "fast-xml-parser": "^5.10.1",
     "inngest": "^3.0.0",
@@ -63,11 +64,11 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
     "dotenv": "^17.2.3",
     "sharp": "^0.35.3",
     "stripe": "^22.3.2",
     "svix": "^1.98.0",
-    "tsx": "^4.20.6",
-    "@types/node": "^22.0.0"
+    "tsx": "^4.20.6"
   }
 }

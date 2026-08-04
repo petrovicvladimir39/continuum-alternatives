@@ -119,7 +119,7 @@ function listField(value: unknown): string {
   return Array.isArray(value) ? value.join(", ") : String(value);
 }
 
-async function exportCountry(cc: string): Promise<{ entities: number; file: string }> {
+async function exportCountry(cc: string, outFile?: string): Promise<{ entities: number; file: string }> {
   const country = cc.toUpperCase();
   const result = await db.execute(sql`
     SELECT
@@ -356,8 +356,8 @@ async function exportCountry(cc: string): Promise<{ entities: number; file: stri
     column: "record_status 'provisional' + proposed facts/classifications are REVIEW-GATED, not published.",
   });
 
-  mkdirSync(OUT_DIR, { recursive: true });
-  const file = path.join(OUT_DIR, `${country}-entities.xlsx`);
+  const file = outFile ?? path.join(OUT_DIR, `${country}-entities.xlsx`);
+  mkdirSync(path.dirname(file), { recursive: true });
   await wb.xlsx.writeFile(file);
   return { entities: rows.length, file };
 }
@@ -380,9 +380,11 @@ async function main(): Promise<void> {
     }
     countries = [cc];
   }
+  const outIdx = argv.indexOf("--out");
+  const outFile = outIdx >= 0 ? path.resolve(REPO_ROOT, argv[outIdx + 1] ?? "") : undefined;
   let grand = 0;
   for (const cc of countries) {
-    const { entities, file } = await exportCountry(cc);
+    const { entities, file } = await exportCountry(cc, countries.length === 1 ? outFile : undefined);
     grand += entities;
     console.log(`  ${cc.toUpperCase()}  ${entities} entities → ${path.basename(file)}`);
   }
