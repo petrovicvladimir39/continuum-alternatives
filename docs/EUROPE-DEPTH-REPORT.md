@@ -484,3 +484,98 @@ paid/ToS-locked APIs.
   Estonia and Denmark, one of the three fully-open register markets in Europe.
   0 relevant of 11 this cycle (honest zero).
 
+## IE
+
+- entities: 882 → 889 (878 active)
+- classified: 42 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 6
+    - Real Assets & Infrastructure: 23
+    - Liquid Alternatives & Hedge Funds: 9
+    - Niche & Emerging Alternatives: 4
+    - Institutional Service Graph: 0
+- Level-3 strategies found: clo, commodities, compute_infrastructure, crypto, global_macro, ils_cat_bonds, infrastructure_economic, quant
+- field coverage (882 orgs): legal_name 0% · reg-no 100% · LEI 94% · VAT 0% · legal_form 0% · status 0% · address 0% · website 1% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 726 · unlocated 409 · rooftop 31 · street 22
+- facts: proposed 10
+- sources in DB: signals_press active 11 · signals_press 7
+- ledger: IE $0.462 / $0.45 · cumulative $8.490 / $20.00
+
+## FI
+
+- entities: 870 → 870 (783 active)
+- classified: 2 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 1
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 1
+- Level-3 strategies found: none yet
+- field coverage (869 orgs): legal_name 0% · reg-no 90% · LEI 72% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 607 · unlocated 375 · rooftop 12 · street 4
+- facts: none
+- sources in DB: signals_press active 12 · signals_press 5
+- ledger: FI $0.478 / $0.45 · cumulative $8.490 / $20.00
+
+## PT
+
+- entities: 777 → 778 (776 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (777 orgs): legal_name 0% · reg-no 100% · LEI 96% · VAT 0% · legal_form 0% · status 0% · address 0% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 741 · unlocated 431 · rooftop 13 · street 3
+- facts: none
+- sources in DB: signals_press active 11 · signals_press 5
+- ledger: PT $0.459 / $0.45 · cumulative $8.490 / $20.00
+
+## CZ
+
+- entities: 809 → 809 (741 active)
+- classified: 53 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 22
+    - Private Debt & Credit: 5
+    - Real Assets & Infrastructure: 27
+    - Liquid Alternatives & Hedge Funds: 2
+    - Niche & Emerging Alternatives: 1
+    - Institutional Service Graph: 0
+- Level-3 strategies found: crypto, direct_lending, distressed_debt, infrastructure_economic, mezzanine, natural_resources, npl, secondaries, venture_capital, venture_debt
+- field coverage (796 orgs): legal_name 0% · reg-no 90% · LEI 90% · VAT 0% · legal_form 0% · status 0% · address 0% · website 4% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 4%
+- geocode precision: city 544 · unlocated 366
+- facts: proposed 5
+- sources in DB: tier4_exchange_corporate 11 · tier4_exchange_corporate active 6 · signals_press active 12 · signals_press 9
+- ledger: CZ $0.475 / $0.45 · cumulative $8.490 / $20.00
+
+### IE / FI / PT / CZ run notes (2026-08-04)
+
+- **IE**: 69 sources (48 entities / 21 news), 11 news active, 33 docs.
+  **11 facts PROPOSED from a single relevant document** — the run's best
+  single-document yield (an Irish funds-industry piece naming many managers).
+  Central Bank of Ireland remains a POLICY SKIP: its robots.txt expressly
+  disallows bot harvesting of all Search/Results/Data paths, so it stays
+  unharvested by intent, not by inability (unchanged doctrine). CRO open
+  services + Iris Oifigiúil cataloged as the alternative tier-1/3 routes.
+- **FI**: 58 sources (39 entities / 19 news), 12 news active, 40 docs.
+  FIN-FSA prior harvest stands (140). The PRH/YTJ open-data API
+  (avoindata.prh.fi — no auth, includes a digital-financial-statements API)
+  is cataloged as one of the strongest untapped tier-1 routes in Europe.
+- **PT**: 54 sources (36 entities / 18 news), 11 news active, 35 docs.
+  CMVM's portal stays JS-opaque (ESMA covers PT). The dre.pt gazette API is
+  the open Portuguese route. 1 fact PROPOSED.
+- **CZ**: 62 sources (38 entities / 24 news), 12 news active, **57 docs — the
+  largest single-country fetch of the run**. ARES open JSON + the ISIR
+  insolvency API are cataloged as genuinely open tier-1/3 routes (ČNB JERRS
+  still carries no fund-manager list, unchanged). 0 relevant this cycle
+  (honest zero) with a 55-doc backlog — CZ is the largest untapped extraction
+  queue and the first candidate for the reserve budget.
+

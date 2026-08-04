@@ -15,7 +15,11 @@
     "BE": 0.464652,
     "AT": 0.46595400000000003,
     "DK": 0.471012,
-    "NO": 0.47623799999999994
+    "NO": 0.47623799999999994,
+    "IE": 0.46186499999999997,
+    "FI": 0.478443,
+    "PT": 0.45888599999999996,
+    "CZ": 0.47523899999999997
   },
   "completed": [
     "DE",
@@ -31,7 +35,11 @@
     "BE",
     "AT",
     "DK",
-    "NO"
+    "NO",
+    "IE",
+    "FI",
+    "PT",
+    "CZ"
   ],
   "before": {
     "DE": {
@@ -103,6 +111,26 @@
       "entities": 955,
       "facts": 0,
       "takenAt": "2026-08-04T08:04:59.503Z"
+    },
+    "IE": {
+      "entities": 882,
+      "facts": 0,
+      "takenAt": "2026-08-04T08:11:17.284Z"
+    },
+    "FI": {
+      "entities": 870,
+      "facts": 0,
+      "takenAt": "2026-08-04T08:13:14.907Z"
+    },
+    "PT": {
+      "entities": 777,
+      "facts": 0,
+      "takenAt": "2026-08-04T08:15:37.047Z"
+    },
+    "CZ": {
+      "entities": 809,
+      "facts": 5,
+      "takenAt": "2026-08-04T08:17:35.017Z"
     }
   },
   "backlog": {
@@ -118,6 +146,10 @@
     "BE": "13 unextracted documents (last 14d) at sub-budget stop",
     "AT": "11 unextracted documents (last 14d) at sub-budget stop",
     "DK": "13 unextracted documents (last 14d) at sub-budget stop",
-    "NO": "8 unextracted documents (last 14d) at sub-budget stop"
+    "NO": "8 unextracted documents (last 14d) at sub-budget stop",
+    "IE": "22 unextracted documents (last 14d) at sub-budget stop",
+    "FI": "38 unextracted documents (last 14d) at sub-budget stop",
+    "PT": "26 unextracted documents (last 14d) at sub-budget stop",
+    "CZ": "55 unextracted documents (last 14d) at sub-budget stop"
   }
 }
