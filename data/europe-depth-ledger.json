@@ -27,7 +27,11 @@
     "BG": 0.4713509999999999,
     "HR": 0.47187599999999996,
     "RS": 0.483375,
-    "SI": 0.46980900000000003
+    "SI": 0.46980900000000003,
+    "LT": 0.45810300000000004,
+    "LV": 0.47072100000000006,
+    "EE": 0.46899899999999994,
+    "BA": 0.480426
   },
   "completed": [
     "DE",
@@ -55,7 +59,11 @@
     "BG",
     "HR",
     "RS",
-    "SI"
+    "SI",
+    "LT",
+    "LV",
+    "EE",
+    "BA"
   ],
   "before": {
     "DE": {
@@ -187,6 +195,26 @@
       "entities": 213,
       "facts": 0,
       "takenAt": "2026-08-04T08:51:36.481Z"
+    },
+    "LT": {
+      "entities": 927,
+      "facts": 0,
+      "takenAt": "2026-08-04T08:58:43.786Z"
+    },
+    "LV": {
+      "entities": 274,
+      "facts": 1,
+      "takenAt": "2026-08-04T08:59:49.921Z"
+    },
+    "EE": {
+      "entities": 293,
+      "facts": 4,
+      "takenAt": "2026-08-04T09:01:16.414Z"
+    },
+    "BA": {
+      "entities": 9,
+      "facts": 0,
+      "takenAt": "2026-08-04T09:03:04.295Z"
     }
   },
   "backlog": {
@@ -214,6 +242,10 @@
     "BG": "37 unextracted documents (last 14d) at sub-budget stop",
     "HR": "59 unextracted documents (last 14d) at sub-budget stop",
     "RS": "43 unextracted documents (last 14d) at sub-budget stop",
-    "SI": "10 unextracted documents (last 14d) at sub-budget stop"
+    "SI": "10 unextracted documents (last 14d) at sub-budget stop",
+    "LT": "5 unextracted documents (last 14d) at sub-budget stop",
+    "LV": "23 unextracted documents (last 14d) at sub-budget stop",
+    "EE": "29 unextracted documents (last 14d) at sub-budget stop",
+    "BA": "13 unextracted documents (last 14d) at sub-budget stop"
   }
 }

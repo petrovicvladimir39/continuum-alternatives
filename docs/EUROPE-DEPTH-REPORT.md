@@ -776,3 +776,99 @@ equal first pass — deliberately NOT spent early, so no country starves.
   Uradni list gazette moved to PISRS on 1 Mar 2026 — monitoring must retarget.
   Backlog 10.
 
+## LT
+
+- entities: 927 → 927 (925 active)
+- classified: 49 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 9
+    - Private Debt & Credit: 2
+    - Real Assets & Infrastructure: 33
+    - Liquid Alternatives & Hedge Funds: 5
+    - Niche & Emerging Alternatives: 2
+    - Institutional Service Graph: 0
+- Level-3 strategies found: carbon_markets, clo, commodities, infrastructure_economic, mezzanine, natural_resources, secondaries, venture_capital
+- field coverage (926 orgs): legal_name 0% · reg-no 13% · LEI 9% · VAT 0% · legal_form 0% · status 0% · address 0% · website 1% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 1%
+- geocode precision: unlocated 896 · city 92 · rooftop 4
+- facts: none
+- sources in DB: tier4_exchange_corporate 4 · tier4_exchange_corporate active 1 · signals_press active 7 · signals_press 8
+- ledger: LT $0.458 / $0.45 · cumulative $14.189 / $20.00
+
+## LV
+
+- entities: 274 → 275 (273 active)
+- classified: 2 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 2
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: venture_capital
+- field coverage (273 orgs): legal_name 0% · reg-no 41% · LEI 27% · VAT 0% · legal_form 0% · status 0% · address 0% · website 1% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 1%
+- geocode precision: unlocated 242 · city 78 · rooftop 5
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 1 · tier4_exchange_corporate active 1 · signals_press 4 · signals_press active 9
+- ledger: LV $0.471 / $0.45 · cumulative $14.189 / $20.00
+
+## EE
+
+- entities: 293 → 295 (240 active)
+- classified: 6 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 6
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 1
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: infrastructure_economic, venture_capital
+- field coverage (283 orgs): legal_name 0% · reg-no 29% · LEI 28% · VAT 0% · legal_form 0% · status 0% · address 0% · website 5% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 5%
+- geocode precision: unlocated 240 · city 86 · rooftop 5
+- facts: proposed 7
+- sources in DB: tier4_exchange_corporate 6 · tier4_exchange_corporate active 4 · signals_press 2 · signals_press active 10
+- ledger: EE $0.469 / $0.45 · cumulative $14.189 / $20.00
+
+## BA
+
+- entities: 9 → 11 (8 active)
+- classified: 0 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 0
+    - Private Debt & Credit: 0
+    - Real Assets & Infrastructure: 0
+    - Liquid Alternatives & Hedge Funds: 0
+    - Niche & Emerging Alternatives: 0
+    - Institutional Service Graph: 0
+- Level-3 strategies found: none yet
+- field coverage (9 orgs): legal_name 0% · reg-no 78% · LEI 78% · VAT 0% · legal_form 0% · status 0% · address 0% · website 11% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 11%
+- geocode precision: unlocated 10 · city 8
+- facts: proposed 1
+- sources in DB: tier4_exchange_corporate active 1 · signals_press 1 · signals_press active 8
+- ledger: BA $0.480 / $0.45 · cumulative $14.189 / $20.00
+
+### LT / LV / EE / BA run notes (2026-08-04)
+
+- **LT**: 54 sources (39 entities / 15 news), 7 news active — every seeded
+  source probed clean (0 dead/blocked, the only country in the run with a
+  perfect probe rate). Bank of Lithuania prior harvest stands; Registrų
+  centras open data is the tier-1 route. 0 relevant this cycle, backlog 5
+  (the smallest queue in the run — LT is effectively caught up).
+- **LV**: 51 sources (36 entities / 15 news), 9 news active, **5 facts
+  PROPOSED from 2 relevant docs**. Latvijas Banka prior harvest stands (194);
+  the Uzņēmumu reģistrs bulk data on data.gov.lv and the open insolvency
+  register are the tier-1/3 routes. Backlog 23.
+- **EE**: 55 sources (38 entities / 17 news), 10 news active, 2 facts
+  PROPOSED. Finantsinspektsioon prior harvest stands (148). Estonia's
+  e-Business Register open bulk (avaandmed.ariregister.rik.ee) + MTR
+  (activity licences incl. crypto) + Ametlikud Teadaanded are cataloged —
+  with NO and DK, one of Europe's three fully-open register markets.
+  Backlog 29.
+- **BA**: 55 sources (41 entities / 14 news) for a market that entered this
+  run with **9 entities total** — the thinnest corpus coverage in Europe and
+  now the best-documented sourcing plan: bizreg.pravosudje.ba plus the two
+  entity-level registers (FBiH/RS) and Brčko, both securities commissions,
+  both banking agencies, and both exchanges (SASE/BLSE). 8 news active,
+  **5 facts PROPOSED from 1 relevant doc**. Backlog 13.
+
