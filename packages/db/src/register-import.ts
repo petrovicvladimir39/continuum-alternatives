@@ -117,6 +117,15 @@ export class RegisterImporter {
   private usedSlugs = new Set<string>();
   private pending: PendingRow[] = [];
   private initialized = false;
+  /**
+   * In-memory mirror of resolve.ts step 2 (ALIAS-EXACT): alias_normalized ->
+   * entityIds. Loaded once so uncapped register sweeps (tens of thousands of
+   * rows) don't pay a DB round trip per row for the common exact-hit case.
+   * Semantics are identical to the DB path — exactly one hit merges, more than
+   * one is ambiguous — and misses still fall through to the full resolver
+   * (which re-checks exact, then pg_trgm fuzzy).
+   */
+  private aliasIndex = new Map<string, string[]>();
 
   counts: Record<RegisterImportOutcome, number> = {
     merged_registry: 0,
@@ -141,7 +150,31 @@ export class RegisterImporter {
     for (const row of slugRows) {
       this.usedSlugs.add(row.slug);
     }
+    const aliasRows = await db
+      .select({ entityId: aliases.entityId, normalized: aliases.aliasNormalized })
+      .from(aliases);
+    for (const row of aliasRows) {
+      if (row.entityId === null) {
+        continue;
+      }
+      const list = this.aliasIndex.get(row.normalized);
+      if (list === undefined) {
+        this.aliasIndex.set(row.normalized, [row.entityId]);
+      } else if (!list.includes(row.entityId)) {
+        list.push(row.entityId);
+      }
+    }
     this.initialized = true;
+  }
+
+  /** Register an alias for a row created during this run. */
+  private indexAlias(normalized: string, entityId: string): void {
+    const list = this.aliasIndex.get(normalized);
+    if (list === undefined) {
+      this.aliasIndex.set(normalized, [entityId]);
+    } else if (!list.includes(entityId)) {
+      list.push(entityId);
+    }
   }
 
   /** entityId for a registryId already seen (existing corpus or created this run). */
@@ -173,7 +206,24 @@ export class RegisterImporter {
     // 2. Name resolution against the corpus (alias-exact then pg_trgm fuzzy).
     //    registryId deliberately NOT passed — step 1 already covered it from
     //    the preloaded map, saving one query per row at register scale.
-    const resolved = await resolveEntity({ name, country, kindHint: "organization" });
+    //    ALIAS-EXACT is served from the in-memory index first (same rules as
+    //    resolve.ts step 2); only misses pay for the full resolver.
+    const indexHits = this.aliasIndex.get(normalizeAlias(name));
+    if (indexHits !== undefined && indexHits.length > 1) {
+      this.counts.ambiguous += 1;
+      this.ambiguousRows.push(`${name} (${country}) ~ ${indexHits.length} alias-exact matches`);
+      return { outcome: "ambiguous" };
+    }
+    const resolved =
+      indexHits !== undefined && indexHits.length === 1 && indexHits[0] !== undefined
+        ? ({
+            outcome: "matched",
+            entityId: indexHits[0],
+            via: "alias",
+            confidence: 0.98,
+            candidates: [],
+          } as const)
+        : await resolveEntity({ name, country, kindHint: "organization" });
 
     if (resolved.outcome === "matched" && resolved.entityId !== undefined) {
       const orgRows = await db
@@ -331,9 +381,11 @@ export class RegisterImporter {
       }
       const normalized = normalizeAlias(row.name);
       aliasValues.push({ entityId, alias: row.name, aliasNormalized: normalized });
+      this.indexAlias(normalized, entityId);
       const core = companyNameCore(row.name);
       if (core !== normalized) {
         aliasValues.push({ entityId, alias: row.name, aliasNormalized: core });
+        this.indexAlias(core, entityId);
       }
       if (row.registryId) {
         this.registryMap.set(row.registryId, entityId);

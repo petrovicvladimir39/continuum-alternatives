@@ -3,7 +3,7 @@ import { createInterface } from "node:readline";
 import { createReadStream, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { db, entityClassifications, RegisterImporter, type RegisterRow } from "@continuum/db";
+import { db, entityClassifications, RegisterImporter, sql, type RegisterRow } from "@continuum/db";
 import { splitLine } from "./registers";
 
 /**
@@ -11,44 +11,71 @@ import { splitLine } from "./registers";
  * for the run's national-register harvesters. Doctrine identical to
  * registers-harvest.ts: RegisterImporter dedup law, register rows ACTIVATE,
  * every schema field the source exposes is captured (RegisterRow.depth),
- * mechanical relevance filters only, 3,000-row cap per source.
+ * mechanical relevance filters only. NO ROW CAPS (operator directive
+ * 2026-08-04) — the storage guard is the only bound, and every adapter is
+ * idempotent so an interrupted sweep resumes on re-run.
  *
  *   pnpm --filter @continuum/pipeline exec tsx src/europe-registers.ts --register gbch
  *
  * gbch — Companies House Free Company Data (monthly bulk CSV, ~5.7M rows).
  *   Extract first:  data/europe-depth/downloads/ch-bulk/*.csv
- *   Mechanical SIC-code buckets (UK SIC 2007), per-bucket caps totalling
- *   3,000. 64205 (financial holdcos) deliberately EXCLUDED: six-figure count
- *   of shelf/holding vehicles, no alternatives signal — recorded honestly.
+ *   Mechanical SIC-code buckets (UK SIC 2007), every match taken (~43.8k).
+ *   64205 (financial holdcos) deliberately EXCLUDED: six-figure count of
+ *   shelf/holding vehicles, no alternatives signal — recorded honestly.
+ * frpsan — AMF PSAN/CASP whitelist (data.gouv CSV), all active licensees.
+ * nldnb — DNB complete public register (daily CSV), ALL sub-registers.
  */
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
 type SicBucket = {
   sic: string;
-  cap: number;
   l1: string;
   l2?: string;
   l3?: string;
   role?: string;
 };
 
-// Priority-ordered buckets; caps sum to 3,000.
+/**
+ * UNCAPPED (operator directive 2026-08-04: "don't cap on entities allowed to
+ * be drawn into database, include as many as you can find"). Every ACTIVE
+ * company whose SIC falls in an alternatives-relevant bucket is taken —
+ * ~43,800 rows in the 2026-08 file. The ONLY bound is the storage guard
+ * (400 MB soft ceiling, checked every STORAGE_CHECK_EVERY rows), which stops
+ * the run cleanly and reports the remainder. Runs are idempotent: a re-run
+ * short-circuits known registryIds, so an interrupted sweep simply resumes.
+ */
 const GB_SIC_BUCKETS: SicBucket[] = [
-  { sic: "64303", cap: 600, l1: "pe_growth", l2: "venture_capital", role: "GP" }, // venture & development capital
-  { sic: "66300", cap: 600, l1: "liquid_alts", role: "ManCo" }, // fund management
-  { sic: "64301", cap: 200, l1: "liquid_alts", role: "Fund Vehicle" }, // investment trusts
-  { sic: "64302", cap: 150, l1: "liquid_alts", role: "Fund Vehicle" }, // unit trusts
-  { sic: "64304", cap: 150, l1: "liquid_alts", role: "Fund Vehicle" }, // OEICs
-  { sic: "64305", cap: 150, l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" }, // property unit trusts
-  { sic: "64306", cap: 150, l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" }, // REITs
-  { sic: "82911", cap: 300, l1: "private_debt", l2: "npl", role: "Servicer" }, // collection agencies
-  { sic: "64921", cap: 200, l1: "private_debt", l2: "direct_lending", role: "GP" }, // non-deposit credit
-  { sic: "64922", cap: 100, l1: "private_debt", l2: "asset_backed_lending", l3: "real_estate_debt", role: "GP" }, // mortgage finance
-  { sic: "64991", cap: 100, l1: "liquid_alts", role: "ManCo" }, // security dealing on own account
-  { sic: "66110", cap: 100, l1: "service_graph", role: "Vendor" }, // administration of financial markets
-  { sic: "66190", cap: 200, l1: "service_graph", role: "Vendor" }, // auxiliary to financial intermediation
+  { sic: "64303", l1: "pe_growth", l2: "venture_capital", role: "GP" }, // venture & development capital
+  { sic: "66300", l1: "liquid_alts", role: "ManCo" }, // fund management
+  { sic: "64301", l1: "liquid_alts", role: "Fund Vehicle" }, // investment trusts
+  { sic: "64302", l1: "liquid_alts", role: "Fund Vehicle" }, // unit trusts
+  { sic: "64304", l1: "liquid_alts", role: "Fund Vehicle" }, // OEICs
+  { sic: "64305", l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" }, // property unit trusts
+  { sic: "64306", l1: "real_assets", l2: "private_real_estate", role: "Fund Vehicle" }, // REITs
+  { sic: "82911", l1: "private_debt", l2: "npl", role: "Servicer" }, // collection agencies
+  { sic: "64921", l1: "private_debt", l2: "direct_lending", role: "GP" }, // non-deposit credit
+  { sic: "64922", l1: "private_debt", l2: "asset_backed_lending", l3: "real_estate_debt", role: "GP" }, // mortgage finance
+  { sic: "64991", l1: "liquid_alts", role: "ManCo" }, // security dealing on own account
+  { sic: "66110", l1: "service_graph", role: "Vendor" }, // administration of financial markets
+  { sic: "66190", l1: "service_graph", role: "Vendor" }, // auxiliary to financial intermediation
 ];
+
+const STORAGE_CHECK_EVERY = 500;
+const SOFT_CEILING_MB = 400;
+
+/** True when the DB is at/over the soft ceiling — callers stop cleanly. */
+async function atStorageCeiling(): Promise<boolean> {
+  const rows = await db.execute(
+    sql`select pg_database_size(current_database())::bigint as bytes`,
+  );
+  const mb = Number((rows.rows[0] as { bytes: string }).bytes) / (1024 * 1024);
+  if (mb >= SOFT_CEILING_MB) {
+    console.error(`STORAGE GUARD: ${mb.toFixed(1)} MB >= ${SOFT_CEILING_MB} MB — stopping cleanly`);
+    return true;
+  }
+  return false;
+}
 
 const GB_LEGAL_FORM_STD: [RegExp, string][] = [
   [/limited liability partnership/i, "partnership"],
@@ -80,7 +107,7 @@ async function harvestGbCompaniesHouse(): Promise<void> {
     process.exit(1);
   }
   const file = path.join(dir, csv);
-  console.log(`gbch: streaming ${csv} (SIC buckets, caps total 3000)`);
+  console.log(`gbch: streaming ${csv} (SIC buckets, UNCAPPED)`);
 
   const taken = new Map<string, number>();
   const picked: { row: RegisterRow; bucket: SicBucket }[] = [];
@@ -95,9 +122,6 @@ async function harvestGbCompaniesHouse(): Promise<void> {
       header = splitLine(line, ",").map((h) => h.trim());
       col = Object.fromEntries(header.map((h, i) => [h, i]));
       continue;
-    }
-    if (picked.length >= 3000) {
-      break;
     }
     const cells = splitLine(line, ",");
     const status = cells[col["CompanyStatus"] ?? -1] ?? "";
@@ -115,9 +139,6 @@ async function harvestGbCompaniesHouse(): Promise<void> {
       continue;
     }
     const already = taken.get(bucket.sic) ?? 0;
-    if (already >= bucket.cap) {
-      continue;
-    }
     const name = cells[col["CompanyName"] ?? -1] ?? "";
     const number = cells[col["CompanyNumber"] ?? -1] ?? "";
     if (name === "" || number === "") {
@@ -169,35 +190,28 @@ async function harvestGbCompaniesHouse(): Promise<void> {
 
   const importer = new RegisterImporter();
   await importer.init();
-  let classifications = 0;
-  for (const { row, bucket } of picked) {
-    const result = await importer.importRow(row);
-    if (
-      (result.outcome === "created" || result.outcome === "merged" || result.outcome === "merged_registry") &&
-      result.entityId !== undefined
-    ) {
-      await db
-        .insert(entityClassifications)
-        .values({
-          entityId: result.entityId,
-          assetClass: bucket.l1,
-          strategy: bucket.l3 ?? "",
-          subClass: bucket.l2 ?? null,
-          source: "register",
-          status: "proposed",
-          confidence: "0.90",
-        })
-        .onConflictDoNothing();
-      classifications += 1;
+  let processed = 0;
+  let stopped = false;
+  for (const { row } of picked) {
+    if (processed % STORAGE_CHECK_EVERY === 0 && processed > 0) {
+      await importer.flush();
+      if (await atStorageCeiling()) {
+        stopped = true;
+        break;
+      }
+      console.log(
+        `  gbch progress ${processed}/${picked.length} · created ${importer.counts.created} · ambiguous ${importer.counts.ambiguous}`,
+      );
     }
+    await importer.importRow(row);
+    processed += 1;
   }
   await importer.flush();
-  // flush() assigns ids for batched creates — the classification pass above
-  // only reaches rows resolved before flush; run a reconcile for the rest.
-  const missing = picked.filter(({ row }) => row.registryId !== undefined);
-  let reconciled = 0;
-  for (const { row, bucket } of missing) {
-    const id = row.registryId === null || row.registryId === undefined ? undefined : importer.entityIdFor(row.registryId);
+  // Classifications are stamped after flush(), when every created row has an
+  // id in the importer's registry map.
+  let classifications = 0;
+  for (const { row, bucket } of picked.slice(0, processed)) {
+    const id = row.registryId == null ? undefined : importer.entityIdFor(row.registryId);
     if (id === undefined) {
       continue;
     }
@@ -214,10 +228,10 @@ async function harvestGbCompaniesHouse(): Promise<void> {
       })
       .onConflictDoNothing()
       .returning({ e: entityClassifications.entityId });
-    reconciled += inserted.length;
+    classifications += inserted.length;
   }
   console.log(
-    `gbch import: created ${importer.counts.created} · merged ${importer.counts.merged + importer.counts.merged_registry} · ambiguous skipped ${importer.counts.ambiguous} · invalid ${importer.counts.skipped} · classifications ${classifications}+${reconciled}`,
+    `gbch import: processed ${processed}/${picked.length}${stopped ? " (STOPPED at storage ceiling)" : ""} · created ${importer.counts.created} · merged ${importer.counts.merged + importer.counts.merged_registry} · ambiguous skipped ${importer.counts.ambiguous} · invalid ${importer.counts.skipped} · classifications ${classifications}`,
   );
   if (importer.ambiguousRows.length > 0) {
     console.log(`ambiguous sample: ${importer.ambiguousRows.slice(0, 5).join(" | ")}`);
@@ -350,7 +364,11 @@ async function harvestFrPsan(): Promise<void> {
 
 const DNB_CSV_URL = "https://www.dnb.nl/en-GB/registerdownloadcomplete/TheNetherlands/csv";
 
-/** Deelregister -> classification (null = stays honestly unclassified). */
+/**
+ * Deelregister -> classification (null = imported but left honestly
+ * UNCLASSIFIED rather than force-fit). ALL sub-registers are taken — the
+ * whole DNB-supervised universe, per the no-cap directive.
+ */
 const DNB_REGISTERS: Record<string, { l1: string; l2?: string; role: string } | null> = {
   Pensioenfondsen: { l1: "service_graph", role: "LP" },
   "Premiepensioen instellingen": { l1: "service_graph", role: "LP" },
@@ -358,8 +376,15 @@ const DNB_REGISTERS: Record<string, { l1: string; l2?: string; role: string } | 
   Verzekeraars: { l1: "service_graph", role: "LP" },
   Herverzekeraars: { l1: "service_graph", role: "LP" },
   "Actuariële organisaties": { l1: "service_graph", role: "Vendor" },
-  Banken: null, // ecosystem perimeter — imported, deliberately unclassified
   Clearinginstellingen: { l1: "service_graph", l2: "asset_servicing", role: "Vendor" },
+  Afwikkelondernemingen: { l1: "service_graph", l2: "asset_servicing", role: "Vendor" },
+  Betaalinstellingen: { l1: "service_graph", l2: "technology", role: "Vendor" },
+  Elektronischgeldinstellingen: { l1: "service_graph", l2: "technology", role: "Vendor" },
+  Rekeninginformatiedienstverleners: { l1: "service_graph", l2: "technology", role: "Vendor" },
+  Wisselinstellingen: { l1: "service_graph", l2: "technology", role: "Vendor" },
+  Banken: null, // ecosystem perimeter — imported, deliberately unclassified
+  Depositogarantiestelsel: null, // deposit-guarantee membership, not a role
+  "Gedekte obligaties": null, // covered-bond programmes, issuer-level only
 };
 
 async function harvestNlDnb(): Promise<void> {
@@ -402,9 +427,6 @@ async function harvestNlDnb(): Promise<void> {
     }
     const existing = best.get(rel);
     if (existing !== undefined && priority.indexOf(existing.register) <= priority.indexOf(register)) {
-      continue;
-    }
-    if (best.size >= 3000 && existing === undefined) {
       continue;
     }
     const lei = cell(cells, "LEI");
@@ -452,8 +474,17 @@ async function harvestNlDnb(): Promise<void> {
 
   const importer = new RegisterImporter();
   await importer.init();
+  let done = 0;
   for (const { row } of best.values()) {
+    if (done % STORAGE_CHECK_EVERY === 0 && done > 0) {
+      await importer.flush();
+      if (await atStorageCeiling()) {
+        break;
+      }
+      console.log(`  nldnb progress ${done}/${best.size} · created ${importer.counts.created}`);
+    }
     await importer.importRow(row);
+    done += 1;
   }
   await importer.flush();
   let classifications = 0;

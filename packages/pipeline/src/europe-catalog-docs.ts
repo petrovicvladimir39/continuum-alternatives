@@ -58,6 +58,10 @@ function main(): void {
     "sources per country; true counts reported honestly, never padded. Access",
     "methods recorded as probed; blocked routes are documented, not hidden.",
     "",
+    "This file is the HARVEST PLAN — sources the pipeline ingests. The",
+    "competitor / intelligence-provider market map lives separately in",
+    "`docs/COMPETITOR-LANDSCAPE.md`; the two are deliberately not mixed.",
+    "",
   ];
   for (const file of files) {
     const cat = JSON.parse(readFileSync(path.join(CATALOG_DIR, file), "utf8")) as CountryCatalog;
@@ -86,13 +90,9 @@ function main(): void {
     }
     lines.push("");
     if (cat.competitorAnalysis !== undefined && cat.competitorAnalysis.length > 0) {
-      lines.push(`### ${cc} — competitor / provider landscape (market map only; never scraped)`);
-      lines.push("");
-      for (const comp of cat.competitorAnalysis) {
-        lines.push(
-          `- **${comp.platform}** — ${comp.coverageNotes.slice(0, 300)} _Public sources they draw on:_ ${comp.publicSourcesTheyUse.slice(0, 300)}`,
-        );
-      }
+      lines.push(
+        `_${cc} competitor / intelligence-provider landscape (${cat.competitorAnalysis.length} providers): see_ **docs/COMPETITOR-LANDSCAPE.md**.`,
+      );
       lines.push("");
     }
     if (cat.searchedButAbsent !== undefined && cat.searchedButAbsent !== "") {
