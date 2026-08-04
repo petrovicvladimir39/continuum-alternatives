@@ -2,19 +2,34 @@
   "totalCapUsd": 20,
   "perCountryCapUsd": 0.45,
   "spent": {
-    "DE": 0.460293
+    "DE": 0.460293,
+    "GB": 0.468681,
+    "FR": 0.524808
   },
   "completed": [
-    "DE"
+    "DE",
+    "GB"
   ],
   "before": {
     "DE": {
       "entities": 1122,
       "facts": 2,
       "takenAt": "2026-08-03T23:37:40.662Z"
+    },
+    "GB": {
+      "entities": 903,
+      "facts": 0,
+      "takenAt": "2026-08-04T00:04:41.654Z"
+    },
+    "FR": {
+      "entities": 1398,
+      "facts": 0,
+      "takenAt": "2026-08-04T00:11:25.077Z"
     }
   },
   "backlog": {
-    "DE": "53 unextracted documents (last 14d) at sub-budget stop"
+    "DE": "53 unextracted documents (last 14d) at sub-budget stop",
+    "GB": "45 unextracted documents (last 14d) at sub-budget stop",
+    "FR": "47 unextracted documents (last 14d) at sub-budget stop"
   }
 }

@@ -1,0 +1,337 @@
+{
+  "country": "LI",
+  "sources": [
+    {
+      "name": "Handelsregister des Fürstentums Liechtenstein (Amt für Justiz)",
+      "url": "https://www.handelsregister.li/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Official public search of the commercial register: name search with filters (entity type, deleted firms, historical names), free partial extracts on screen, certified full extracts against fee. No API, no bulk download, no open-data route found. The legacy Öffentlichkeitsregister domain oera.li is unreachable (connection reset, twice) — handelsregister.li is the current portal. Foundations: only registered foundations appear; deposited (hinterlegte) foundations are not publicly searchable."
+    },
+    {
+      "name": "FMA Liechtenstein — Register of licensees",
+      "url": "https://register.fma-li.li/",
+      "side": "entities",
+      "category": "financial regulator register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED live but is a JavaScript app (fetch returns title 'FMA-Register' only). The single most important entity source for LI alternatives: covers banks and investment firms, UCITS ManCos and AIFMs, IUs/IUAs, insurance undertakings and intermediaries, pension schemes (Vorsorgeeinrichtungen — the domestic LP side), payment/e-money institutions, crypto-asset service providers under MiCAR (successor regime to the TVTG registrations), plus trustees, auditors and patent lawyers. Needs headless-browser or network-endpoint reverse-engineering (respecting ToS); no documented public API found."
+    },
+    {
+      "name": "FMA Liechtenstein (supervisory authority — sector pages, publications, warnings, statistics)",
+      "url": "https://www.fma-li.li/en/",
+      "side": "entities",
+      "category": "financial regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Server-rendered site with newsroom (press releases, licensing news, MiCaR registration notices, clone-firm warnings — latest items July 2026) and publications/statistics. No RSS feed URL confirmed (guessed feed paths returned 404); categorized news listings are parseable. FMA is Liechtenstein's only financial supervisor — there is no central bank."
+    },
+    {
+      "name": "eAmtsblatt — Elektronisches Amtsblatt der Landesverwaltung",
+      "url": "https://apps.llv.li/Amtsblatt",
+      "side": "entities",
+      "category": "official gazette + insolvency notices",
+      "tier": "tier3_gazette",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED live (amtsblatt.llv.li 302-redirects here). The official electronic gazette: commercial-register publications, creditor calls in liquidations, insolvency orders, court edicts and auctions, and awarded public-procurement contracts. Search by keyword/date/category/publisher; 'Kundmachungen abonnieren' offers RSS-style subscription feeds configured per category inside the app (feed URL is generated in-app, so none recorded here). This is the practical insolvency/liquidation signal source for LI — the Landgericht itself publishes edicts through it."
+    },
+    {
+      "name": "LILEX — Landesgesetzblatt / consolidated law database (gesetze.li)",
+      "url": "https://www.gesetze.li/",
+      "side": "entities",
+      "category": "legal gazette / legislation",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Official consolidated law database maintained by the government legal service; chronological Landesgesetzblatt (LGBl) access, full-text search, point-in-time versions back to 2010, and stable persistent URLs of the form www.gesetze.li/konso/[LGBl-Nr]. No documented API, but URL structure is deterministic and parseable."
+    },
+    {
+      "name": "Gerichtsentscheidungen der Fürstlichen Gerichte (court decisions database)",
+      "url": "https://www.gerichtsentscheidungen.li/",
+      "side": "entities",
+      "category": "court decisions register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Free searchable database of selected decisions of the Liechtenstein courts (Landgericht, Obergericht, Oberster Gerichtshof, StGH/VGH). Useful for litigation-funding and distressed/insolvency research; explicitly 'selected' decisions, not complete."
+    },
+    {
+      "name": "Fürstliche Gerichte / Landgericht (Princely Courts)",
+      "url": "https://www.gerichte.li/",
+      "side": "entities",
+      "category": "courts / insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live. Court structure, hearing schedules and auctions. Insolvency proceedings themselves are published as edicts via the eAmtsblatt, not on this site; insolvency administrators (Masseverwalter) are appointed case-by-case — no public roll exists."
+    },
+    {
+      "name": "LAFV — Liechtensteinischer Anlagefondsverband (fund association, full fund database)",
+      "url": "https://www.lafv.li/",
+      "side": "entities",
+      "category": "fund association + fund register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live — the standout LI source. Official publication organ of the Liechtenstein fund industry: full fund list with per-fund data and documents at lafv.li/de/fonds, fund statistics, bulk downloads (/de/fonds/download), and a DOCUMENTED API at https://www.lafv.li/de/fonds/schnittstellen-api. Effectively a machine-readable register of the entire LI fund universe (UCITS + AIFs). Newsletter 'LAFVaktuell'; no RSS."
+    },
+    {
+      "name": "Liechtensteinischer Bankenverband (Bankers Association)",
+      "url": "https://www.bankenverband.li/",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Member and associated-member lists (all LI banks — the custodian/depositary population), LBV news and member news, publications. Newsletter only, no RSS found."
+    },
+    {
+      "name": "Liechtensteinischer Versicherungsverband (LVV — Insurance Association)",
+      "url": "https://www.lvv.li/",
+      "side": "entities",
+      "category": "insurance association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live (reached via versicherungsverband.li). Umbrella body of the LI insurance industry; member list at /mitglieder/, location statistics, current-topics news. Relevant to the ILS/captive-adjacent insurer population; no RSS."
+    },
+    {
+      "name": "VuVL — Verein unabhängiger Vermögensverwalter in Liechtenstein (independent asset managers)",
+      "url": "https://www.vuvl.li/",
+      "side": "entities",
+      "category": "asset management association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Central interest group of licensed asset-management companies; active/passive member pages plus press releases. Complements the FMA register for the wealth/asset-manager population."
+    },
+    {
+      "name": "Liechtensteinische Treuhandkammer (THK — Chamber of Professional Trustees)",
+      "url": "https://www.thk.li/",
+      "side": "entities",
+      "category": "trustee/fiduciary chamber",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site exists but returned HTTP 403 to automated fetch (bot-blocked). The trustee profession (central to LI foundation/SPV structures) is licensed by the FMA, so the authoritative machine route is the FMA register; THK is the professional chamber."
+    },
+    {
+      "name": "WPV — Liechtensteinische Wirtschaftsprüfer-Vereinigung (auditors association)",
+      "url": "https://www.wpv.li/",
+      "side": "entities",
+      "category": "auditors association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Mandatory-membership body for all LI auditors/audit firms (the fund-auditor population); links through to the FMA auditor register search as the authoritative roll."
+    },
+    {
+      "name": "Liechtensteinische Rechtsanwaltskammer (Bar Association)",
+      "url": "https://www.rak.li/",
+      "side": "entities",
+      "category": "bar association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live (lirak.li 301-redirects to rak.li). Public lawyer search filterable by practice area (tax, IP, corporate etc.) — the law-firm side of the service graph. No notarial profession exists in LI."
+    },
+    {
+      "name": "LIHK — Liechtensteinische Industrie- und Handelskammer (Chamber of Commerce and Industry)",
+      "url": "https://www.lihk.li/",
+      "side": "entities",
+      "category": "chamber of commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Member directory at /mitgliedsunternehmen/ (industrial and financial corporates incl. VP Bank, Hilti), news archive at /newsarchiv/, newsletter. Doubles as de-facto business-location promotion body."
+    },
+    {
+      "name": "Wirtschaftskammer Liechtenstein (trades/SME chamber)",
+      "url": "https://www.wirtschaftskammer.li/",
+      "side": "entities",
+      "category": "business chamber / trade directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Represents ~25 sector associations / ~1,000 members; public Gewerbeverzeichnis (trade directory) in main navigation; news section."
+    },
+    {
+      "name": "digital-liechtenstein.li (Digital Liechtenstein initiative)",
+      "url": "https://digital-liechtenstein.li/",
+      "side": "entities",
+      "category": "fintech/blockchain ecosystem network",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Location initiative under government/princely-house patronage with 60+ member organisations (LGT, LLB, Bitcoin Suisse, Hilti, University of Liechtenstein) — a useful map of the fintech/blockchain ecosystem; publishes news and events."
+    },
+    {
+      "name": "EAS — Einlagensicherungs- und Anlegerentschädigungs-Stiftung (deposit guarantee & investor compensation scheme)",
+      "url": "https://www.eas-liechtenstein.li/",
+      "side": "entities",
+      "category": "deposit guarantee scheme (participant list)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Statutory protection scheme; 'Teilnehmer' section lists participating banks/investment firms — an independent cross-check of the licensed bank population."
+    },
+    {
+      "name": "Liechtenstein Finance e.V. (financial-centre promotion)",
+      "url": "https://www.finance.li/",
+      "side": "entities",
+      "category": "financial-centre promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live at finance.li (note: liechtenstein-finance.li currently serves a broken TLS certificate). Sector pages for all 11 financial-centre segments (banking, trusts, funds, insurance, foundations, auditing, blockchain/token services), news and publications. Promotion body, not a register — context and sector framing, not entity rolls."
+    },
+    {
+      "name": "Amt für Statistik — Statistikportal Liechtenstein",
+      "url": "https://www.statistikportal.li/",
+      "side": "entities",
+      "category": "national statistics office",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists but returned HTTP 403 to automated fetch (bot protection; llv.li administration pages likewise 403). Publishes banking statistics, employment, company counts and financial-centre indicators — manual/whitelisted access needed; no open-data API confirmed."
+    },
+    {
+      "name": "SIX Swiss Exchange (venue for Liechtenstein issuers — LLB, VP Bank)",
+      "url": "https://www.six-group.com/",
+      "side": "entities",
+      "category": "stock exchange (foreign venue)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Liechtenstein has NO domestic stock exchange — documented honestly. The two listed LI issuers, Liechtensteinische Landesbank (LLB) and VP Bank, trade on SIX Swiss Exchange; issuer/instrument data available via SIX web (not fetched this session). Corporate disclosures also on the issuers' own IR pages."
+    },
+    {
+      "name": "GLEIF LEI database (Liechtenstein entities)",
+      "url": "https://api.gleif.org/",
+      "side": "entities",
+      "category": "LEI / entity reference data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Free, unrestricted REST API and bulk golden-copy files; filter legal-address country=LI to enumerate LEI-holding LI entities (funds, banks, SPVs, foundations) with registry-linked reference data. Not fetched this session but a well-known open API — a strong deterministic seed/cross-check source given the Handelsregister has no bulk route."
+    },
+    {
+      "name": "TED — Tenders Electronic Daily (EEA procurement notices for Liechtenstein)",
+      "url": "https://ted.europa.eu/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "LI is in the EEA, so above-threshold public tenders are published on TED (country filter LIE); TED offers a documented public API and bulk downloads. Domestic below-threshold notices and contract awards appear in the eAmtsblatt (see that entry). No separate national e-procurement portal found."
+    },
+    {
+      "name": "EU ETS Union Registry — Liechtenstein section (national administrator: Amt für Umwelt)",
+      "url": "https://union-registry.ec.europa.eu/",
+      "side": "entities",
+      "category": "carbon/emissions registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Liechtenstein participates in the EU ETS via the EEA; its accounts sit in the Union Registry with the Amt für Umwelt as national administrator (llv.li pages 403-block automated access). No separate national carbon-registry portal exists. Not fetched this session — recorded from established fact; EUTL public data covers LI accounts."
+    },
+    {
+      "name": "Liechtenstein-Institut (research institute)",
+      "url": "https://www.liechtenstein-institut.li/",
+      "side": "entities",
+      "category": "economic research institute",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Independent research institute (economics, law, politics) with a publications archive and news archive — background research on the LI financial centre. No RSS found."
+    },
+    {
+      "name": "Liechtensteiner Vaterland",
+      "url": "https://www.vaterland.li/",
+      "side": "news",
+      "category": "daily newspaper (business section)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live. The country's daily (Vaduzer Medienhaus) with a dedicated Wirtschaft section at /liechtenstein/wirtschaft/. Freemium paywall ('Abo' items). No RSS found — /rss returns 404; scraping headlines would need the HTML listing pages within robots/ToS limits."
+    },
+    {
+      "name": "Wirtschaft Regional",
+      "url": "https://www.wirtschaftregional.li/",
+      "side": "news",
+      "category": "business weekly",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live. THE dedicated business paper for Liechtenstein and the Rhine valley (weekly, Fridays; Vaduzer Medienhaus / Vaterland group): company news, interviews, studies. Partial paywall; no RSS found (/rss 404)."
+    },
+    {
+      "name": "lie:zeit online (incl. wirtschafts:zeit)",
+      "url": "https://lie-zeit.li/",
+      "side": "news",
+      "category": "news magazine (business section)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://lie-zeit.li/feed/",
+      "verdict": "VERIFIED live with WORKING RSS 2.0 feed (validated 2026-08-03; well-formed, categorized items incl. business/politics). The only confirmed working RSS among LI news outlets — best free machine route into LI news signals."
+    },
+    {
+      "name": "1FLTV — Liechtenstein television",
+      "url": "https://www.1fl.li/",
+      "side": "news",
+      "category": "broadcast news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live. National TV broadcaster with '1FL News'; general rather than business-focused coverage; /feed/ returns 404, no RSS found. Secondary signal source."
+    },
+    {
+      "name": "Regierung des Fürstentums Liechtenstein — Medienportal (government press releases)",
+      "url": "https://www.regierung.li/",
+      "side": "news",
+      "category": "government press releases",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Medienmitteilungen under the Medienportal section (current items dated July–Aug 2026: sanctions, cyberattack on the beneficial-owner directory, government business). No RSS visible; listing pages are server-rendered and parseable."
+    },
+    {
+      "name": "Startupticker.ch (Swiss/LI startup news)",
+      "url": "https://www.startupticker.ch/",
+      "side": "news",
+      "category": "startup media (cross-border)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this session — included with caveat: Swiss startup news service that routinely covers Liechtenstein startups and venture financings (LI has no domestic startup medium). Verify feed availability before ingestion."
+    },
+    {
+      "name": "Crypto Valley Journal (cvj.ch)",
+      "url": "https://cvj.ch/",
+      "side": "news",
+      "category": "crypto/fintech media (cross-border)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this session — included with caveat: Swiss crypto media that regularly covers the Liechtenstein blockchain/TVTG/MiCaR scene and LI-licensed providers. Cross-border source, not LI-domiciled; verify feed before ingestion."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Thin Liechtenstein coverage: a handful of LI-domiciled AIFs/AIFMs and service providers; LI usually folded into DACH/Europe aggregates. No LI-specific depth on foundations/trust structures.",
+      "publicSourcesTheyUse": "FMA register of licensees (register.fma-li.li), LAFV fund list/API, fund prospectuses/annual reports — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook / Morningstar",
+      "coverageNotes": "Sparse LI deal and company coverage (occasional VP Bank/LLB corporate actions, rare LI startup rounds). Morningstar carries LI-domiciled UCITS/AIF fund data.",
+      "publicSourcesTheyUse": "LAFV fund data (public API), SIX Swiss Exchange disclosures for LLB/VP Bank, press releases, Handelsregister extracts."
+    },
+    {
+      "platform": "Moody's Orbis (Bureau van Dijk) / Dun & Bradstreet",
+      "coverageNotes": "Firmographic records for LI legal entities incl. foundations and Anstalten; strongest commercial coverage of the LI register but resold at high cost.",
+      "publicSourcesTheyUse": "Handelsregister.li extracts (paid certified extracts), eAmtsblatt commercial-register publications, GLEIF LEI data — the gazette + LEI routes are free to us."
+    },
+    {
+      "platform": "North Data",
+      "coverageNotes": "DACH-focused register intelligence; Liechtenstein coverage limited/unclear (its core is German-style register publications). Not a meaningful LI moat.",
+      "publicSourcesTheyUse": "Official gazette publications (for LI that would be the eAmtsblatt) and register indices — both directly accessible."
+    },
+    {
+      "platform": "OpenCorporates",
+      "coverageNotes": "Liechtenstein is effectively absent/limited — the Handelsregister has no open-data licence or bulk route, which blocks their model. Confirms the gap we can fill via gazette-driven ingestion.",
+      "publicSourcesTheyUse": "Where covered, national registers; for LI no open route exists — the workaround is eAmtsblatt publications + GLEIF."
+    },
+    {
+      "platform": "Bloomberg / LSEG Refinitiv",
+      "coverageNotes": "Cover the two listed LI banks (LLB, VP Bank) and LI-domiciled fund NAVs/ISINs; no private-market or foundation depth.",
+      "publicSourcesTheyUse": "SIX Swiss Exchange market data, LAFV fund data/API, issuer IR pages, FMA announcements."
+    },
+    {
+      "platform": "fundinfo (FE fundinfo)",
+      "coverageNotes": "Distributes documents/NAVs for LI funds (KIDs, prospectuses) — overlaps directly with the LI fund universe.",
+      "publicSourcesTheyUse": "Fund documents supplied by LI ManCos; the same universe is publicly enumerable via the LAFV fund list + API, which is LI's official fund publication organ."
+    },
+    {
+      "platform": "Dealroom / Crunchbase",
+      "coverageNotes": "A few dozen LI startups/scaleups (fintech/blockchain skew); patchy, self-reported, often mis-geocoded to CH.",
+      "publicSourcesTheyUse": "Self-reported profiles, press (Vaterland, startupticker), Digital Liechtenstein ecosystem lists — all reachable directly."
+    }
+  ],
+  "searchedButAbsent": "Liechtenstein is a micro-market (~40k people); 32 genuine sources were cataloged and the 50 target is NOT reachable without padding. Searched for and confirmed ABSENT or dead: (1) Central bank — none exists; LI is in a currency union with Switzerland (CHF, SNB); monetary/banking statistics come via FMA and Amt für Statistik. (2) Domestic stock exchange — none; the two listed LI issuers (LLB, VP Bank) trade on SIX Swiss Exchange (cataloged). (3) National PE/VC association — none; GPs organize via LAFV, VuVL or the Swiss SECA. (4) Development bank, privatization agency, sovereign wealth fund — none exist. (5) Standalone investment-promotion agency with company data — none; the function sits with LIHK/Liechtenstein Marketing/Amt für Volkswirtschaft. (6) Public UBO access — the beneficial-owner directory (Verzeichnis wirtschaftlich berechtigter Personen) is access-restricted, and per Aug-2026 press it just suffered an unauthorized-access incident; do not assume access. (7) Insolvency-practitioner roll — none; Masseverwalter are appointed case-by-case by the Landgericht; track via eAmtsblatt edicts. (8) RICS/valuer directory for LI — none found (Swiss RICS bodies cover the region). (9) Notaries — profession does not exist in LI. (10) Handelsregister open data/bulk/API — none exists; oera.li (legacy register domain) is unreachable (ECONNRESET twice); workarounds are eAmtsblatt publications + GLEIF LEI API. (11) Liechtensteiner Volksblatt — CEASED publication (2023); volksblatt.li now serves an expired TLS certificate. (12) Radio Liechtenstein — shut down after the 2024 funding referendum; site is a 'Sendeschluss' archive. (13) Crypto Country Association (CCA) — cca.li no longer resolves in DNS; apparently defunct. (14) National carbon-registry portal — none; LI participates in the EU ETS via the EEA Union Registry (cataloged). (15) RSS feeds — hunted on vaterland.li, wirtschaftregional.li, 1fl.li, fma-li.li, bankenverband.li: none found (all 404 on standard feed paths or newsletter-only); the ONLY confirmed working news RSS is lie-zeit.li/feed/ (validated), plus the eAmtsblatt's in-app category subscription feeds. (16) statistikportal.li and llv.li administration pages return HTTP 403 to automated clients; thk.li likewise 403; liechtenstein-finance.li serves a mismatched TLS cert (use finance.li). NOTE: this session's WebSearch budget was exhausted (200/200) before this task started, so discovery relied on direct URL verification via fetch (24 URLs checked) plus the task hints; a follow-up pass with live web search could confirm the two cross-border media feeds and probe FMA/LAFV endpoint details, but is unlikely to surface additional domestic institutions — the ones above are the market."
+}

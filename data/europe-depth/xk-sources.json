@@ -1,0 +1,485 @@
+{
+  "country": "XK",
+  "sources": [
+    {
+      "name": "ARBK — Kosovo Business Registration Agency (Agjencia e Regjistrimit të Bizneseve)",
+      "url": "https://arbk.rks-gov.net/",
+      "side": "entities",
+      "category": "Commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Canonical national commercial register with free open search by business name/ID (owners, activities, capital). Verified live, but the site is a JavaScript SPA (server returns a ~6KB shell) — needs a headless browser; no documented public API or bulk download. The national open-data portal that historically carried registry dumps (opendata.rks-gov.net) was unreachable at check time."
+    },
+    {
+      "name": "CBK/BQK — Central Bank of Kosovo, Licensed Financial Institutions registers",
+      "url": "https://bqk-kos.org/mbikeqyrja-financiare/institucionet-financiare-te-licencuara/?lang=en",
+      "side": "entities",
+      "category": "Financial regulator — unified licensee registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Kosovo's unified financial regulator (no separate securities commission exists). Register sections verified for banks, microfinance institutions (MFIs), non-bank financial institutions (IFJB), insurers, insurance intermediaries, pension funds and confirmed actuaries. WordPress HTML, parseable with a normal browser UA (blocks some bot UAs with 403 — use browser user-agent)."
+    },
+    {
+      "name": "CBK — Pension funds supervision register",
+      "url": "https://bqk-kos.org/mbikeqyrja-financiare/fondet-pensionale/?lang=en",
+      "side": "entities",
+      "category": "Pension regulator (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "CBK is also the pension regulator; page verified. Kosovo has only two supplementary pension vehicles beyond Trusti — thin but complete LP-regulator coverage."
+    },
+    {
+      "name": "CBK — Statistics (monthly financial system data, time series)",
+      "url": "https://bqk-kos.org/statistikat/?lang=en",
+      "side": "entities",
+      "category": "Financial system statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified. Monthly statistics bulletin, financial-system time series, credit registry publications and NPL/late-payment data — downloadable series; the market-sizing backbone for the private-debt side."
+    },
+    {
+      "name": "ERO/ZRRE — Energy Regulatory Office licensee lists",
+      "url": "https://www.ero-ks.org/",
+      "side": "entities",
+      "category": "Energy regulator (renewables/infrastructure licensees)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (title 'Ballina | ZRRE'). Licenses generators, suppliers and renewable-energy projects — the register route for energy-transition real assets. License lists published mainly as HTML/PDF; structure not deeply verified."
+    },
+    {
+      "name": "KPMM — Independent Commission for Mines and Minerals",
+      "url": "https://kosovo-mining.org/",
+      "side": "entities",
+      "category": "Mining/resources regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Mining licenses and exploration permits — relevant for real-assets sourcing (Trepça ecosystem, quarries, minerals)."
+    },
+    {
+      "name": "ARKEP — Regulatory Authority for Electronic and Postal Communications",
+      "url": "https://www.arkep-rks.org/",
+      "side": "entities",
+      "category": "Telecom regulator (digital infrastructure)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Responds 200 but page structure could not be confirmed (no title extracted). Authorization register for telecom/fiber operators — the digital-infrastructure entity route. Needs manual inspection."
+    },
+    {
+      "name": "FSDK — Deposit Insurance Fund of Kosovo",
+      "url": "https://fsdk.org/",
+      "side": "entities",
+      "category": "Deposit insurance — member bank list",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes member (insured) banks — a clean cross-check list for the banking sector."
+    },
+    {
+      "name": "Gazeta Zyrtare e Republikës së Kosovës — Official Gazette",
+      "url": "https://gzk.rks-gov.net/",
+      "side": "entities",
+      "category": "Official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified: authoritative gazette with search (title/keyword/full-text) in 5 languages (sq/en/sr/tr/bs). ASP.NET postback-driven navigation — content retrieval needs a headless browser or the mobile app's backend; not simple parseable HTML."
+    },
+    {
+      "name": "Kosovo Judiciary portal (Gjyqësori i Kosovës) — incl. Commercial Court decisions",
+      "url": "https://www.gjyqesori-rks.org/",
+      "side": "entities",
+      "category": "Court decisions / insolvency route",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Cloudflare challenge blocks automated fetch. This is the insolvency route: Kosovo has no standalone insolvency register — bankruptcy/liquidation cases run through the Commercial Court (est. 2022) and decisions are published on this portal. Headless browser required."
+    },
+    {
+      "name": "Ministry of Justice — Bankruptcy Administrators roll (Administratorët Falimentues)",
+      "url": "https://md.rks-gov.net/sherbimet-per-qytetaret/administratoret-falimentues/",
+      "side": "entities",
+      "category": "Insolvency-practitioner roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified: dedicated Ministry of Justice page for licensed bankruptcy administrators (the insolvency-practitioner roll). Ministry also publishes decisions on notaries and other liberal professions as PDFs."
+    },
+    {
+      "name": "e-Prokurimi — Kosovo public e-procurement platform",
+      "url": "https://e-prokurimi.rks-gov.net/",
+      "side": "entities",
+      "category": "Public procurement portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified: official portal (KRPP-managed, sq/sr/en) with public tender information; interactive search is an ASP.NET app with login for participation. For machine access prefer the OCDS portal below."
+    },
+    {
+      "name": "OCDS KRPP — Open Contracting Data Standard portal (procurement open data)",
+      "url": "https://ocdskrpp.rks-gov.net/",
+      "side": "entities",
+      "category": "Procurement open data / API",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Verified live and explicitly advertises an OCDS API menu for bulk publication of Kosovo procurement data. The best machine route to contract awards (revenue signals for service-graph and infrastructure entities)."
+    },
+    {
+      "name": "KRPP — Public Procurement Regulatory Commission",
+      "url": "https://krpp.rks-gov.net/",
+      "side": "entities",
+      "category": "Procurement regulator",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Rules, notices, blacklists and operator information complementing the OCDS data."
+    },
+    {
+      "name": "KIESA — Kosovo Investment and Enterprise Support Agency",
+      "url": "https://kiesa.rks-gov.net/",
+      "side": "entities",
+      "category": "Investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (curl; WebFetch fails on malformed response headers). Investment guides, SEZ/incentive information, investor announcements."
+    },
+    {
+      "name": "PAK/AKP — Privatization Agency of Kosovo",
+      "url": "https://www.pak-ks.org/",
+      "side": "entities",
+      "category": "Privatization agency — asset sales & liquidations",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (title 'Agjencia Kosovare e Privatizimit'). Publishes privatization waves, asset sale tenders and liquidation notices of socially-owned enterprises — the single richest special-situations/distressed deal-flow source in Kosovo."
+    },
+    {
+      "name": "KCGF — Kosovo Credit Guarantee Fund (Fondi Kosovar për Garanci Kreditore)",
+      "url": "https://fondikgk.org/",
+      "side": "entities",
+      "category": "Credit guarantee fund / DFI-adjacent",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified: independent guarantee institution (est. 2016); publishes registered partner banks/MFIs/NBFIs, annual and impact reports, newsletters — sq/en/sr. Maps the SME-credit ecosystem."
+    },
+    {
+      "name": "Kosovo Banking Association (Shoqata e Bankave të Kosovës)",
+      "url": "https://bankassoc-kos.com/",
+      "side": "entities",
+      "category": "Banking association — member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member bank directory plus sector publications and positions."
+    },
+    {
+      "name": "AMIK — Association of Microfinance Institutions of Kosovo",
+      "url": "https://amik.org/",
+      "side": "entities",
+      "category": "Microfinance/NBFI association — member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member MFIs/NBFIs — a key private-debt-side directory in a market where microfinance is a major credit channel."
+    },
+    {
+      "name": "Kosovo Chamber of Commerce (Oda Ekonomike e Kosovës)",
+      "url": "https://www.oek-kcc.org/",
+      "side": "entities",
+      "category": "Chamber of commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Corporate membership, sector groupings and business announcements."
+    },
+    {
+      "name": "AmCham Kosovo — American Chamber of Commerce",
+      "url": "https://amchamksv.org/",
+      "side": "entities",
+      "category": "Business chamber — member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member directory skews to the largest corporates, banks, law and advisory firms — useful for the institutional service graph."
+    },
+    {
+      "name": "STIKK — Kosovo ICT Association",
+      "url": "https://stikk.org/",
+      "side": "entities",
+      "category": "Tech/ICT association — member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member directory of ICT companies — the VC-adjacent tech ecosystem spine."
+    },
+    {
+      "name": "ICK — Innovation Centre Kosovo",
+      "url": "https://ickosovo.com/",
+      "side": "entities",
+      "category": "Startup incubator — portfolio/startup lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Incubated/accelerated startup lists and program announcements — primary local source for early-stage VC pipeline (also a Dealroom ecosystem data contributor)."
+    },
+    {
+      "name": "OAK — Kosovo Bar Association (Oda e Avokatëve të Kosovës)",
+      "url": "https://www.oak-ks.org/",
+      "side": "entities",
+      "category": "Bar association — lawyer directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Advocate directory — the route to mapping M&A/restructuring law capacity for the service graph."
+    },
+    {
+      "name": "ONK — Kosovo Chamber of Notaries (Oda e Noterëve)",
+      "url": "https://noteria-ks.org/",
+      "side": "entities",
+      "category": "Notary chamber directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Notary directory (transaction infrastructure for real-estate deals)."
+    },
+    {
+      "name": "Ministry of Finance, Labour and Transfers (MFPT)",
+      "url": "https://mf.rks-gov.net/",
+      "side": "entities",
+      "category": "Ministry of finance — state debt, POEs, appraiser licensing",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. State debt program, publicly-owned-enterprise reporting, tax policy; also the licensing authority for property appraisers (no clean online roll verified — see searchedButAbsent)."
+    },
+    {
+      "name": "ATK — Tax Administration of Kosovo",
+      "url": "https://www.atk-ks.org/",
+      "side": "entities",
+      "category": "Tax authority — taxpayer verification, debtor lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Taxpayer/fiscal-number verification and periodic tax-debtor publications — distress signal source."
+    },
+    {
+      "name": "ASK — Kosovo Agency of Statistics (askdata)",
+      "url": "https://ask.rks-gov.net/",
+      "side": "entities",
+      "category": "National statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified live (200). Enterprise statistics, construction permits, FDI and sector data via askdata cubes — market-sizing layer."
+    },
+    {
+      "name": "Kosovo Geoportal — Kosovo Cadastral Agency",
+      "url": "https://geoportal.rks-gov.net/",
+      "side": "entities",
+      "category": "Cadastre / land registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live (title 'Kosovo Geoportal'). Parcel/cadastre viewing is a JS map application; useful for real-assets verification, not bulk entity data."
+    },
+    {
+      "name": "Trusti — Kosovo Pension Savings Trust (FKPK)",
+      "url": "https://trusti.org/en/",
+      "side": "entities",
+      "category": "Institutional LP — sovereign pension fund",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Verified: the dominant institutional investor in Kosovo (mandatory second pillar). Publishes quarterly Schedule of Assets (full holdings), acquisition/sale records, unit prices and annual reports — an unusually transparent LP. No RSS."
+    },
+    {
+      "name": "EBRD — Projects database (Kosovo filter)",
+      "url": "https://www.ebrd.com/home/work-with-us/projects.html",
+      "side": "entities",
+      "category": "DFI project disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "URL verified live. Project summary documents filterable by country — primary record of DFI-backed private-sector deals in Kosovo (also the underlying source for much of Preqin/PitchBook's thin Kosovo coverage)."
+    },
+    {
+      "name": "BQK/CBK — News & press releases (regulator signal feed)",
+      "url": "https://bqk-kos.org/lajme-ngjarje/?lang=en",
+      "side": "news",
+      "category": "Regulator press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://bqk-kos.org/feed/?lang=en",
+      "verdict": "Verified: WordPress feed live. License grants/revocations, enforcement and financial-stability announcements — highest-authority signal source in the market."
+    },
+    {
+      "name": "Telegrafi (Biznes/Ekonomi)",
+      "url": "https://telegrafi.com/",
+      "side": "news",
+      "category": "General/business news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://telegrafi.com/feed/",
+      "verdict": "Verified: main feed live (category-specific /ekonomi/feed/ returns 404 — use main feed and filter). One of the highest-traffic Kosovo portals with a dedicated business section."
+    },
+    {
+      "name": "Kallxo (BIRN Kosovo)",
+      "url": "https://kallxo.com/",
+      "side": "news",
+      "category": "Investigative journalism",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://kallxo.com/feed/",
+      "verdict": "Verified feed. BIRN's investigative platform — procurement, corruption and corporate-governance investigations; strong distress/negative-signal source."
+    },
+    {
+      "name": "Buletini Ekonomik",
+      "url": "https://buletiniekonomik.com/",
+      "side": "news",
+      "category": "Dedicated economic/financial news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://buletiniekonomik.com/feed/",
+      "verdict": "Verified feed. Kosovo's dedicated economics outlet — banking, energy, procurement and company news; the closest thing to a financial daily."
+    },
+    {
+      "name": "Prishtina Insight (BIRN, English)",
+      "url": "https://prishtinainsight.com/",
+      "side": "news",
+      "category": "English-language news/analysis",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://prishtinainsight.com/feed/",
+      "verdict": "Verified feed. English-language BIRN outlet — economy and politics analysis; the main English signal source for Kosovo."
+    },
+    {
+      "name": "Gazeta Express",
+      "url": "https://www.gazetaexpress.com/",
+      "side": "news",
+      "category": "General news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.gazetaexpress.com/feed/",
+      "verdict": "Verified feed. High-traffic portal with economy coverage."
+    },
+    {
+      "name": "Ekonomia Online",
+      "url": "https://ekonomiaonline.com/",
+      "side": "news",
+      "category": "Economic news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://ekonomiaonline.com/feed/",
+      "verdict": "Verified feed. Economy-focused portal covering companies, banking and energy."
+    },
+    {
+      "name": "Klan Kosova",
+      "url": "https://klankosova.tv/",
+      "side": "news",
+      "category": "TV broadcaster news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://klankosova.tv/feed/",
+      "verdict": "Verified feed. Major broadcaster with business coverage."
+    },
+    {
+      "name": "Insajderi",
+      "url": "https://insajderi.org/",
+      "side": "news",
+      "category": "Investigative/news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://insajderi.org/feed/",
+      "verdict": "Verified feed. Investigative outlet — procurement and corporate wrongdoing signals."
+    },
+    {
+      "name": "Koha.net (Koha Ditore)",
+      "url": "https://www.koha.net/",
+      "side": "news",
+      "category": "Leading daily newspaper",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.koha.net/rss",
+      "verdict": "Verified feed. Kosovo's most established daily; economy section."
+    },
+    {
+      "name": "Indeksonline",
+      "url": "https://indeksonline.net/",
+      "side": "news",
+      "category": "General news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://indeksonline.net/rss",
+      "verdict": "Verified feed. High-volume portal with economy category."
+    },
+    {
+      "name": "Zëri",
+      "url": "https://zeri.info/",
+      "side": "news",
+      "category": "Daily news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://zeri.info/rss",
+      "verdict": "Verified feed. Established daily with economy coverage."
+    },
+    {
+      "name": "Reporteri",
+      "url": "https://reporteri.net/",
+      "side": "news",
+      "category": "News portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://reporteri.net/feed/",
+      "verdict": "Verified feed. General portal with business items."
+    },
+    {
+      "name": "Radio Evropa e Lirë (RFE/RL Kosovo)",
+      "url": "https://www.evropaelire.org/",
+      "side": "news",
+      "category": "Public-interest news (RFE/RL)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.evropaelire.org/api/zrqiteuuir",
+      "verdict": "Verified: RFE/RL API-format RSS feed live. Reliable coverage of economy, energy and rule-of-law — good provenance discipline."
+    },
+    {
+      "name": "KosovaPress",
+      "url": "https://kosovapress.com/",
+      "side": "news",
+      "category": "News agency (wire)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site live but /feed/ returns HTML, not XML — no working RSS found. Wire agency useful for official announcements; scrape via HTML index if used."
+    },
+    {
+      "name": "Kosovo 2.0",
+      "url": "https://kosovotwopointzero.com/",
+      "side": "news",
+      "category": "Long-form magazine (sq/en)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site live but /feed/ returns HTML — no working RSS found. Long-form context pieces on economy/society; low frequency, secondary priority."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Negligible Kosovo coverage — no domestic GP/LP universe to track; Kosovo appears only inside mandates of SEE-regional funds (e.g., EBRD-backed Western Balkans vehicles).",
+      "publicSourcesTheyUse": "DFI disclosures (EBRD project summary documents, IFC disclosures), GP press releases — all reachable directly via the EBRD projects database catalogued above."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Sparse: occasional Kosovo startup rounds and the rare regional PE deal touching Kosovo assets.",
+      "publicSourcesTheyUse": "Company/investor press releases, international tech media, self-reported profiles; local underlying signals are Telegrafi/Prishtina Insight-type coverage we ingest directly."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best startup-side coverage of Kosovo among globals, via Western Balkans ecosystem partnerships; tracks Kosovo startups, rounds and hubs.",
+      "publicSourcesTheyUse": "Ecosystem partners' data (Innovation Centre Kosovo, STIKK member lists), founder self-reporting, local startup news — ICK and STIKK are catalogued directly above."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Thin, self-reported Kosovo startup profiles; funding data patchy and often stale.",
+      "publicSourcesTheyUse": "Founder submissions and press releases; no registry integration for Kosovo."
+    },
+    {
+      "platform": "EMIS (ISI Emerging Markets)",
+      "coverageNotes": "Covers Kosovo company financials, macro and sector reports as part of its SEE package.",
+      "publicSourcesTheyUse": "ARBK registry data, ATK, ASK statistics, CBK statistics and local media — every one of these is catalogued directly above."
+    },
+    {
+      "platform": "SeeNews / SeeNext",
+      "coverageNotes": "SEE regional business newswire and company-data products include Kosovo corporate news and TOP-100-SEE style rankings.",
+      "publicSourcesTheyUse": "Local media monitoring, CBK data, company disclosures, ARBK — direct routes catalogued."
+    },
+    {
+      "platform": "The Recursive",
+      "coverageNotes": "SEE startup/VC media with genuine original reporting on Kosovo founders and rounds.",
+      "publicSourcesTheyUse": "Original interviews plus ecosystem sources (ICK, STIKK); complements rather than substitutes local feeds."
+    },
+    {
+      "platform": "Moody's Orbis (Bureau van Dijk)",
+      "coverageNotes": "Kosovo entities present with basic registry data and limited financials.",
+      "publicSourcesTheyUse": "Local information providers aggregating ARBK filings — ARBK is the direct route."
+    }
+  ],
+  "searchedButAbsent": "Searched (web search budget was exhausted early in session, so verification was done by direct URL probing in Albanian and English) and NOT found, stated honestly: (1) Stock exchange — Kosovo has NO stock exchange, no listed-issuer regime and no CSD for equities; tier4 exchange coverage is structurally empty. (2) Securities/markets regulator — none separate; CBK is the unified regulator; there is no investment-fund (UCITS/AIF) register because no domestic fund industry exists beyond the two CBK-supervised pension vehicles. (3) PE/VC association — no national association exists (no Kosovo chapter of Invest Europe or a regional PEVCA); early-stage ecosystem mapping must go through ICK/STIKK instead. (4) Insurance association of Kosovo — referenced in sector literature but no working public website found (shs-ks.org, oshsk.org both unreachable); CBK's insurer register substitutes fully. (5) Crypto/VASP register — Kosovo's crypto-asset legal framework is recent and CBK does not yet publish a licensee register; nothing MiCA-grade exists (Kosovo is not an EU member). (6) Carbon registry — none; Kosovo is not in the EU ETS. (7) Valuer/appraiser directory — no RICS Kosovo chapter; property-appraiser licensing sits with the Ministry of Finance but no clean online roll was verified. (8) Dedicated insolvency register — none; insolvency runs through the Commercial Court, with decisions on the Cloudflare-protected judiciary portal (catalogued as js-blocked). (9) National open-data portal (opendata.rks-gov.net) — unreachable at check time (connection failure), so historical ARBK bulk datasets could not be confirmed. (10) KOSTT (transmission operator) website — unreachable at check time. (11) Litigation-funding, royalty, ILS or tokenization entities/registries — none found; Niche & Emerging Alts is an honest zero for Kosovo. (12) Nacionale.com RSS — feed 404; outlet excluded rather than padded. Total genuine catalogued sources: 48 (32 entities-side, 16 news-side), below the 50 target because the market is small — every entry above was probed live this session."
+}

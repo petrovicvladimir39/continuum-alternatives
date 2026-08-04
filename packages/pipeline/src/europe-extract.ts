@@ -48,9 +48,27 @@ async function main(): Promise<void> {
       AND d.fetched_at > now() - make_interval(days => ${days})
     ORDER BY d.fetched_at DESC
   `);
-  const rows = candidates.rows as { id: string; title: string; source_name: string }[];
+  const fetched = candidates.rows as { id: string; title: string; source_name: string }[];
+  // Round-robin by source so one high-volume generalist feed cannot
+  // monopolize the sub-budget (DE lesson: tagesschau ate 3 slots on
+  // irrelevant items while specialist feeds waited).
+  const bySource = new Map<string, typeof fetched>();
+  for (const row of fetched) {
+    const list = bySource.get(row.source_name) ?? [];
+    list.push(row);
+    bySource.set(row.source_name, list);
+  }
+  const rows: typeof fetched = [];
+  for (let i = 0; rows.length < fetched.length; i++) {
+    for (const list of bySource.values()) {
+      const item = list[i];
+      if (item !== undefined) {
+        rows.push(item);
+      }
+    }
+  }
   console.log(
-    `europe-extract ${cc}: ${rows.length} candidates (last ${days}d) · budget $${budget.toFixed(3)}`,
+    `europe-extract ${cc}: ${rows.length} candidates (last ${days}d, ${bySource.size} sources round-robin) · budget $${budget.toFixed(3)}`,
   );
 
   let spent = 0;

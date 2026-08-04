@@ -1,0 +1,424 @@
+{
+  "country": "MK",
+  "sources": [
+    {
+      "name": "Central Registry of the Republic of North Macedonia (CRM)",
+      "url": "https://www.crm.com.mk/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Canonical trade/company register, annual accounts and holder of insolvency-status data. Site verified live but renders only via JavaScript (fetch returns header only). CRM sells a paid 'distribution of information' bulk service; no free open-data dump or public API was verifiable. Machine route requires the paid distribution channel or browser automation."
+    },
+    {
+      "name": "Securities and Exchange Commission (KHV / SEC)",
+      "url": "https://www.sec.gov.mk/",
+      "side": "entities",
+      "category": "securities-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Regulator of the capital market; publishes registers/analytics for investment funds, fund management companies, brokerage houses, the exchange, CSD and joint-stock companies. MK/AL/EN versions. No RSS found. This is the register of record for fund managers — key for the PE/liquid-alts side."
+    },
+    {
+      "name": "National Bank of the Republic of North Macedonia (NBRNM)",
+      "url": "https://www.nbrm.mk/",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.nbrm.mk/rss.rss",
+      "verdict": "Verified. Registers of banks, savings houses, payment/e-money institutions and payment system operators under Supervision > Registries; NBStat statistical web portal; press releases with working RSS at /rss.rss."
+    },
+    {
+      "name": "MAPAS — Agency for Supervision of Fully Funded Pension Insurance",
+      "url": "https://mapas.mk/",
+      "side": "entities",
+      "category": "pension-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified (MK root works; /en/ returned 403 to automated fetch). Register of pension companies and mandatory/voluntary pension funds at mapas.mk/subjekti-pod-supervizija/, MAPAS-STAT statistics portal (mapas.mk/mapastat/), live NAV figures. This is the domestic LP side — pension funds are the largest institutional asset pools in MK."
+    },
+    {
+      "name": "Insurance Supervision Agency (ASO/ISA)",
+      "url": "https://aso.mk/en/",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Registers of insurance undertakings, brokerage companies, agencies, brokers, agents and certified actuaries at aso.mk/en/registar/; market reports and statistics. Second pillar of the domestic LP side."
+    },
+    {
+      "name": "Public Revenue Office (UJP)",
+      "url": "https://www.ujp.gov.mk/",
+      "side": "entities",
+      "category": "tax-authority",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Taxpayer search by name/EDB/MB, tax-debtor publications, e-auctions of seized assets (distressed signal source). e-Tax portal is login-only but the public search and announcements are open."
+    },
+    {
+      "name": "Energy and Water Services Regulatory Commission (ERC)",
+      "url": "https://www.erc.org.mk/",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Real regulator (licenses electricity/gas producers, traders, renewables — key for the real-assets/energy-transition class) but the site returned HTTP 403 to automated fetch; needs browser automation or manual pull of licensee registers."
+    },
+    {
+      "name": "Official Gazette — Sluzhben vesnik na RSM",
+      "url": "https://www.slvesnik.com.mk/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "The official gazette (laws, company/insolvency notices). Verification failed on a TLS certificate error ('unable to verify the first certificate') — site likely live but misconfigured; scraper must tolerate the cert chain. Free issue search exists per prior knowledge; could not confirm this session."
+    },
+    {
+      "name": "CRM insolvency and liquidation announcements",
+      "url": "https://www.crm.com.mk/",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Bankruptcy/liquidation proceedings are opened via and published by the Central Registry (with the gazette). Same JS-rendered site as the company register; no separate standalone insolvency portal was verifiable. Treat as a CRM data-channel requirement."
+    },
+    {
+      "name": "Judiciary portal of North Macedonia (sud.mk)",
+      "url": "http://www.sud.mk/",
+      "side": "entities",
+      "category": "courts",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Courts portal with case-law/decision search (insolvency cases sit in the civil courts, Skopje 2 primarily). Connection refused (HTTPS) during verification — could not confirm current state; retry with browser automation."
+    },
+    {
+      "name": "Macedonian Stock Exchange (MSE)",
+      "url": "https://www.mse.mk/en",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.mse.mk/en/rss/news",
+      "verdict": "Verified. Official/Regular/Free market issuer lists, member (broker) list, market data, MBI10 index. Three working RSS feeds: /en/rss/news, /en/rss/seinet (all corporate disclosures — high value), /en/rss/reports. The single best machine feed in the market."
+    },
+    {
+      "name": "SEINet — MSE corporate disclosure system",
+      "url": "https://seinet.com.mk/",
+      "side": "entities",
+      "category": "issuer-disclosure",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified live but is a JS SPA (fetch returns only 'SEI Net'). Full-text issuer announcements. Practical machine route: consume via MSE's /en/rss/seinet RSS feed instead of scraping the SPA."
+    },
+    {
+      "name": "Central Securities Depository (CDHV)",
+      "url": "https://cdhv.mk/",
+      "side": "entities",
+      "category": "csd",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Member list, registry of JSC issuers, shareholders holding >5% stakes (ownership signal), monthly statistics on shares and takeovers, corporate-event notices. EN version available."
+    },
+    {
+      "name": "Ministry of Finance",
+      "url": "https://finance.gov.mk/?lang=en",
+      "side": "entities",
+      "category": "ministry-of-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Government securities auction calendar and prospectuses, public-debt data, fiscal counter, Open Finance portal link, active press-release section. Sovereign/rates context for the credit class."
+    },
+    {
+      "name": "Deposit Insurance Fund (FODSK)",
+      "url": "https://fodsk.org.mk/",
+      "side": "entities",
+      "category": "deposit-insurance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Member banks/savings houses list (/chlenki-na-fondot), annual financial reports, announcements. Useful cross-check register for the banking perimeter."
+    },
+    {
+      "name": "Development Bank of North Macedonia (DBNM/MBDP)",
+      "url": "https://www.mbdp.com.mk/en/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. State-owned DFI: credit lines (CEB/AFD EUR 50M each), portfolio/individual guarantees, export credit insurance, factoring. News at /en/Home/News, public calls at /en/News/JavniOglasi. Key domestic credit-side institution."
+    },
+    {
+      "name": "Invest North Macedonia (Agency for Foreign Investments and Export Promotion)",
+      "url": "https://investnorthmacedonia.gov.mk/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Real IPA (FDI pipeline, TIDZ free-zone investors) but returned HTTP 403 to automated fetch. Needs browser automation; FDI announcements also flow through MIA/press."
+    },
+    {
+      "name": "Fund for Innovation and Technology Development (FITR)",
+      "url": "https://fitr.mk/",
+      "side": "entities",
+      "category": "innovation-fund",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The state startup/innovation grant fund — primary public source of MK startup funding events (grantee lists per call). fitr.mk failed DNS resolution repeatedly during this session; institution still exists — re-verify domain (possible migration) before wiring an adapter."
+    },
+    {
+      "name": "Economic Chamber of North Macedonia",
+      "url": "https://www.mchamber.mk/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified (note: mchamber.mk, not mchamber.org.mk — old domain has a cert mismatch). 15 associations incl. banking and financial-services groupings, 38 sectoral groupings, news. MK/EN/AL. The de facto home of the banking and fund-industry associations (no standalone sites)."
+    },
+    {
+      "name": "Economic Chamber of North-West Macedonia (OEMVP)",
+      "url": "https://oemvp.org/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Albanian-community business chamber; publications, member info, news in AL/MK/EN. Complements mchamber for full corporate-network coverage."
+    },
+    {
+      "name": "AmCham North Macedonia",
+      "url": "https://amcham.mk/",
+      "side": "entities",
+      "category": "business-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 140+ member directory at /membership/members-list/, advocacy news, position papers. Good corporate-graph and service-provider (law firm/advisor) coverage."
+    },
+    {
+      "name": "MASIT — ICT Chamber of Commerce",
+      "url": "https://masit.org.mk/",
+      "side": "entities",
+      "category": "sector-chamber",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. ICT industry chamber; member list at /chlenki-na-masit/, news at /novosti/. Relevant to the VC/tech company universe."
+    },
+    {
+      "name": "Startup Macedonia",
+      "url": "https://startupmacedonia.mk/",
+      "side": "entities",
+      "category": "startup-ecosystem",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. National startup ecosystem association with a data platform (app.startupmacedonia.mk) holding startup and support-organization databases, ecosystem reports. The closest thing MK has to a VC-ecosystem directory — there is no PE/VC association."
+    },
+    {
+      "name": "Bar Association of RNM (AKRSM)",
+      "url": "https://mba.org.mk/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Register of active attorneys at /index.php/mk/imenik-advokati/imenik-aktivni-advokati, plus suspended/removed lists. Service-graph coverage for law firms."
+    },
+    {
+      "name": "Notary Chamber of RNM (NKRM)",
+      "url": "https://www.nkrm.org.mk/",
+      "side": "entities",
+      "category": "notary-chamber",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Directory of notaries by municipality at /index.php/pages/imenik-na-notari; annual reports. Notaries handle enforcement/pledge work relevant to credit."
+    },
+    {
+      "name": "Institute of Certified Auditors (IORRM)",
+      "url": "https://iorrm.org.mk/",
+      "side": "entities",
+      "category": "auditor-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Public registers at /registers: 205 certified auditors, 28 audit firms, 17 sole practitioners. Service-graph (fund auditor) coverage."
+    },
+    {
+      "name": "State Statistical Office (MakStat)",
+      "url": "https://www.stat.gov.mk/Default_en.aspx",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "Verified, with a caveat: stat.gov.mk is now the frozen old site (banner says unchanged since Apr 2025) redirecting users to the new www.stat.mk. MakStat is a PX-Web database (standard PX-Web JSON API), business-entity and structural business statistics, press releases with RSS on the old site. Wire the adapter against stat.mk."
+    },
+    {
+      "name": "Public Procurement Bureau e-procurement portal",
+      "url": "https://e-nabavki.gov.mk/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "The national e-procurement system (tender + award data = revenue signals for infra/EPC entities). Returned HTTP 403 to automated fetch; a JS application. Needs browser automation; check bjn.gov.mk (Bureau) for bulletins as an alternate route (unverified this session)."
+    },
+    {
+      "name": "Agency for Real Estate Cadastre",
+      "url": "https://www.katastar.gov.mk/",
+      "side": "entities",
+      "category": "cadastre",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real-asset ownership backbone (e-cadastre, OSSP geoportal). HTTPS connection refused during verification — could not confirm current state; known to require accounts for most extracts. Re-verify with browser."
+    },
+    {
+      "name": "National open data portal",
+      "url": "https://data.gov.mk/",
+      "side": "entities",
+      "category": "open-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Government open-data portal (CKAN-based historically; linked from Ministry of Finance). Connection refused during this session's check — flaky hosting; worth re-testing for any CRM/ministry datasets before paying for CRM distribution."
+    },
+    {
+      "name": "Kapital",
+      "url": "https://kapital.mk/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://kapital.mk/feed/",
+      "verdict": "Verified working RSS. The leading dedicated business/finance weekly+portal: corporate results, energy, capital markets, banking. Hourly updates, MK language. Top-priority signal source."
+    },
+    {
+      "name": "Faktor",
+      "url": "https://faktor.mk/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://faktor.mk/rss",
+      "verdict": "Verified working RSS (global feed plus per-category feeds: Economics, Finance, Analysis, Balkans). Strong economy/finance desk within a general portal."
+    },
+    {
+      "name": "BiznisInfo",
+      "url": "https://biznisinfo.mk/",
+      "side": "news",
+      "category": "business-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://biznisinfo.mk/feed/",
+      "verdict": "Verified working RSS, hourly updates. Macedonian business news: NBRM decisions, public debt, corporate results (e.g. OKTA), regional/global business."
+    },
+    {
+      "name": "Pari",
+      "url": "https://pari.com.mk/",
+      "side": "news",
+      "category": "financial-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Dedicated business/finance/investment-funds portal (bank results, stock exchange, pension and investment funds). WordPress — /feed/ almost certainly exists but was not directly verified; confirm before wiring."
+    },
+    {
+      "name": "SDK — Sakam Da Kazham",
+      "url": "https://sdk.mk/",
+      "side": "news",
+      "category": "news-investigative",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified WordPress news site (independent journalism, economy among topics). Standard /feed/ and /index.php/feed/ both returned 404 — feed disabled or nonstandard; scrape index or hunt category feeds."
+    },
+    {
+      "name": "MIA — Media Information Agency",
+      "url": "https://mia.mk/",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://mia.mk/feed/",
+      "verdict": "Verified working RSS. State news agency — official announcements, FDI/government economic news wire. Broad, but the economy section is a reliable primary wire."
+    },
+    {
+      "name": "IT.mk",
+      "url": "https://it.mk/",
+      "side": "news",
+      "category": "startup-tech-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://it.mk/feed/",
+      "verdict": "Verified working RSS, hourly. Largest MK tech community/media: local startup funding, FITR calls, regional (Balkan) startup and VC news. Best local startup-signal feed."
+    },
+    {
+      "name": "Ekonomija i Biznis",
+      "url": "https://ekonomijaibiznis.mk/",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Skopje economy/business monthly (print+digital): interviews, economy, business analysis. No RSS found on page — index scrape."
+    },
+    {
+      "name": "Lider",
+      "url": "https://lider.com.mk/",
+      "side": "news",
+      "category": "business-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Known business/economy portal; fetch returned only the site title (JS-rendered). Needs browser automation or feed discovery in-browser."
+    },
+    {
+      "name": "The Recursive",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "regional-startup-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://therecursive.com/feed/",
+      "verdict": "Verified working RSS (Ghost). CEE/SEE startup and VC media; MK coverage is sporadic (none in current feed window) but it is the main English-language outlet that covers MK rounds when they happen."
+    },
+    {
+      "name": "SeeNews",
+      "url": "https://seenews.com/",
+      "side": "news",
+      "category": "regional-business-wire",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Regional SEE business wire with regular North Macedonia corporate/M&A/energy coverage and the TOP 100 SEE ranking. Returned 403 to automated fetch; partially paywalled — headline-level monitoring only, respecting ToS."
+    },
+    {
+      "name": "Bloomberg Adria",
+      "url": "https://www.bloombergadria.com/",
+      "side": "news",
+      "category": "regional-financial-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Regional (Adria/Western Balkans) financial media with dedicated Macedonia coverage. Not fetch-verified this session (added on strong prior knowledge); verify feed availability before wiring. Honor its licensing — headline+link only."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Dealroom (+ Startup Macedonia data platform)",
+      "coverageNotes": "Best structured coverage of the MK startup/VC slice. Startup Macedonia's app.startupmacedonia.mk is a Dealroom-style ecosystem database (startups, support orgs, investors); Dealroom's global platform carries the same thin MK layer. Nothing on PE, credit, or real assets.",
+      "publicSourcesTheyUse": "Startup Macedonia community submissions, FITR grant-call results, IT.mk/The Recursive press, company self-reporting. Direct routes for us: FITR grantee lists, Startup Macedonia public pages, IT.mk RSS."
+    },
+    {
+      "platform": "Preqin / PitchBook",
+      "coverageNotes": "Near-zero dedicated MK coverage — a handful of regional funds (SEE-focused PE like Mid Europa-adjacent or EBRD-backed vehicles) tagged with North Macedonia as a geography. No local GP/LP depth; MK pension funds not profiled as LPs in any depth.",
+      "publicSourcesTheyUse": "Press releases, fund-manager self-reporting, EBRD/EIF/IFC project disclosures. Direct routes for us: EBRD/EIF project pages, MAPAS pension registers, SEC fund-manager register."
+    },
+    {
+      "platform": "EMIS (ISI Emerging Markets)",
+      "coverageNotes": "The deepest commercial company-financials coverage of MK: full-company financial statements, industry reports, news aggregation. Paywalled B2B product.",
+      "publicSourcesTheyUse": "CRM annual accounts (paid distribution), State Statistical Office data, MSE/SEINet disclosures, local press (Kapital, Faktor). All of these are directly accessible to us: CRM paid channel, stat.mk PX-Web API, MSE RSS trio."
+    },
+    {
+      "platform": "CompanyWall / Bonitet.mk / D&B partners (local credit bureaus)",
+      "coverageNotes": "Company credit reports, scoring and debtor flags for MK companies; sell repackaged registry data to local B2B users.",
+      "publicSourcesTheyUse": "CRM company register + annual accounts (bulk distribution contract), UJP tax-debtor lists, court/insolvency announcements, gazette notices. Direct routes for us: identical public/paid-registry channels — no need to touch their platforms."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Thin, self-reported MK startup profiles; funding data patchy and often missing FITR grants.",
+      "publicSourcesTheyUse": "Founder self-submission and press. Direct route for us: FITR + IT.mk + The Recursive give better primary coverage."
+    },
+    {
+      "platform": "SeeNews (data products) / TOP 100 SEE",
+      "coverageNotes": "Regional rankings and company intelligence including MK's largest companies by revenue; M&A and energy-deal newsflow.",
+      "publicSourcesTheyUse": "CRM/SSO financials, MSE disclosures, company reports, own reporting. Direct routes for us: same registries plus MSE /en/rss/seinet."
+    }
+  ],
+  "searchedButAbsent": "Session constraint disclosed honestly: the WebSearch budget was exhausted before this task started (200/200 used), so discovery relied on domain knowledge plus direct URL verification via fetch — every source above marked 'parseable-index', 'rss' or 'js-blocked' was fetch-verified this session; 'unknown' means the site failed verification (DNS/TLS/connection) and needs a re-check. Genuinely absent or not found for North Macedonia: (1) No national PE/VC association exists (no MK member association in Invest Europe; startup ecosystem is organized under Startup Macedonia instead). (2) No AIF/alternative-fund register — SEC publishes only licensed fund-management companies and open-end (UCITS-style) funds; MK has no AIFMD-equivalent public AIF register. (3) No crypto/MiCA/TVTG licensee register — MK is not an EU member, has no crypto licensing regime, and NBRM publishes only warnings, not licenses. (4) No national carbon registry — MK is outside the EU ETS; no domestic voluntary-carbon registry found. (5) Privatization agency — dissolved years ago; no successor register online. (6) No standalone banking association website verified — the banking association operates as an association within the Economic Chamber (mchamber.mk); same for the investment-fund industry grouping. (7) Chamber of certified appraisers/valuers — established by the Law on Appraisal, but no working public directory site could be verified without search; needs a browser session. (8) Register of insolvency trustees (stecajni upravnici) — maintained under the Ministry of Economy/CRM framework, but no standalone public roll was verifiable this session. (9) No REIT regime and no litigation-funding, royalty-fund, or ILS entities found. (10) Verification failures to re-run with a browser: slvesnik.com.mk (TLS misconfiguration), sud.mk and katastar.gov.mk and data.gov.mk (connection refused), fitr.mk (DNS failure — possible domain migration), erc.org.mk / e-nabavki.gov.mk / investnorthmacedonia.gov.mk / seenews.com (HTTP 403 to non-browser fetch). Count honesty: 41 real sources catalogued; padding to 50 was not possible for this market without inventing entries."
+}

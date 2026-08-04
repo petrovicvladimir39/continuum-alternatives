@@ -33,7 +33,23 @@ import { classifyFromLicence } from "@continuum/shared";
 
 const UA = "ContinuumBot/1.0 (data platform; hello@continuumalternatives.com)";
 
-type AssocMember = { name: string; website?: string | null; category?: string };
+type AssocMember = {
+  name: string;
+  website?: string | null;
+  category?: string;
+  /** Per-member country when the directory states it (overrides adapter country). */
+  country?: string;
+};
+
+const COUNTRY_NAME_TO_ISO: Record<string, string> = {
+  "united kingdom": "GB", ireland: "IE", france: "FR", germany: "DE", italy: "IT",
+  spain: "ES", netherlands: "NL", belgium: "BE", luxembourg: "LU", switzerland: "CH",
+  austria: "AT", sweden: "SE", norway: "NO", denmark: "DK", finland: "FI",
+  poland: "PL", portugal: "PT", czechia: "CZ", "czech republic": "CZ", greece: "GR",
+  romania: "RO", hungary: "HU", slovakia: "SK", bulgaria: "BG", croatia: "HR",
+  serbia: "RS", slovenia: "SI", lithuania: "LT", latvia: "LV", estonia: "EE",
+  iceland: "IS", malta: "MT", cyprus: "CY", liechtenstein: "LI",
+};
 
 type AssocAdapter = {
   key: string;
@@ -352,6 +368,61 @@ const ADAPTERS: AssocAdapter[] = [
     },
   },
   {
+    key: "cnajmj",
+    assoc: "CNAJMJ (French insolvency practitioners' order)",
+    country: "FR",
+    fetch: async () => {
+      // Official roll, fully server-rendered. CONSENT DOCTRINE: individual
+      // practitioners (Me/Maître …) are NEVER imported — only the
+      // professional-form FIRMS (SELARL/SELAS/SCP/…) which are organizations.
+      const html = await fetchText("https://www.cnajmj.fr/annuaire/");
+      const firmForm = /^(SELARL|SELASU?|SELAS|SELAFA|SCP|SAS|SASU|EURL|SARL|A\.?J\.?\s|AJILINK|MJ\s)/i;
+      return collect(html, /value="\d+"\s*>([^<]{4,90})</g)
+        .filter((r) => firmForm.test(r.name.trim()))
+        .map((r) => ({
+          name: r.name.trim(),
+          category: "insolvency practitioner (administrateur/mandataire judiciaire)",
+        }));
+    },
+  },
+  {
+    key: "ukpc",
+    assoc: "UK Private Capital (ex-BVCA)",
+    country: "GB",
+    fetch: async () => {
+      // 9 members/page, ?page=N; block carries name + a country sublabel —
+      // per-member country honored (cross-border members keep their own).
+      const out: AssocMember[] = [];
+      const seen = new Set<string>();
+      for (let page = 1; page <= 90; page++) {
+        const url = `https://www.ukprivatecapital.co.uk/membership/member-directory.html?page=${page}`;
+        const html = await fetchText(url);
+        let added = 0;
+        for (const block of html.split('member-directory-list-item-details-name').slice(1)) {
+          const nameM = />\s*([^<>]{3,120}?)\s*<\/a>/.exec(block);
+          if (nameM === null) {
+            continue;
+          }
+          const name = decodeEntities(nameM[1] ?? "");
+          if (name.length < 3 || seen.has(name.toLowerCase())) {
+            continue;
+          }
+          seen.add(name.toLowerCase());
+          const ctyM = /details-sublabel">\s*<p[^>]*>\s*([^<]{3,40}?)\s*<\/p>/.exec(block)
+            ?? /details-sublabel">\s*([^<]{3,40}?)\s*</.exec(block);
+          const iso = ctyM === null ? undefined : COUNTRY_NAME_TO_ISO[decodeEntities(ctyM[1] ?? "").toLowerCase()];
+          out.push({ name, ...(iso !== undefined ? { country: iso } : {}) });
+          added += 1;
+        }
+        if (added === 0) {
+          break;
+        }
+        await sleep(1200);
+      }
+      return out;
+    },
+  },
+  {
     key: "bks",
     assoc: "BKS (Bundesvereinigung Kreditankauf und Servicing)",
     country: "DE",
@@ -396,9 +467,10 @@ async function main(): Promise<void> {
     let classified = 0;
     const tag = `assoc_${adapter.key}`;
     for (const member of members) {
+      const memberCountry = member.country ?? adapter.country;
       const resolved = await resolveEntity({
         name: member.name,
-        country: adapter.country,
+        country: memberCountry,
         kindHint: "organization",
       });
       let entityId: string | undefined;
@@ -419,7 +491,7 @@ async function main(): Promise<void> {
         const entity = await createEntity({
           kind: "organization",
           name: member.name,
-          country: adapter.country,
+          country: memberCountry,
           tags: [tag, "needs_verification"],
         });
         await db.update(entities).set({ status: "provisional" }).where(eq(entities.id, entity.id));

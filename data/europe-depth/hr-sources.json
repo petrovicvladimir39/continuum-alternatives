@@ -1,0 +1,536 @@
+{
+  "country": "HR",
+  "sources": [
+    {
+      "name": "Sudski registar — public search",
+      "url": "https://sudreg.pravosudje.hr/registar/f?p=150",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public search of the Croatian court register: legal entities by name/MBS/OIB, status (active/deleted), legal form, court, and proceedings flags incl. bankruptcy, liquidation, restructuring. Core tier-1 source."
+    },
+    {
+      "name": "Sudski registar — open data REST API",
+      "url": "https://sudreg-data.gov.hr/",
+      "side": "entities",
+      "category": "commercial register bulk/API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "PARTIALLY VERIFIED. The known open-data API host for sudski registar (OAuth2 client-credentials REST API, full entity snapshots + deltas; dataset listed on data.gov.hr). Direct fetch hit a redirect loop (auth portal behavior); the older hint domain sudreg-podaci.gov.hr does NOT resolve — use sudreg-data.gov.hr and register for API credentials."
+    },
+    {
+      "name": "Fina RGFI — public disclosure of annual financial statements",
+      "url": "https://rgfi.fina.hr/JavnaObjava-web/jsp/prijavaKorisnika.jsp",
+      "side": "entities",
+      "category": "company financial statements",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Free public disclosure of all Croatian companies' annual financial statements since 2008; requires free registration/login; 50 documents/day download cap per user. The financials backbone for every local data provider."
+    },
+    {
+      "name": "Fina info.BIZ",
+      "url": "https://www.fina.hr/eng/business-information-and-analysis/info.biz",
+      "side": "entities",
+      "category": "company data service",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED as listed on Fina's services page. Fina's own paid company-information product built on RGFI; useful as a benchmark and for occasional purchased extracts, not a bulk route."
+    },
+    {
+      "name": "Fina — Registar koncesija (Concessions Registry)",
+      "url": "https://www.fina.hr/eng/public-services-business/registries/concessions-registry",
+      "side": "entities",
+      "category": "concessions register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED as listed on Fina's registries menu (not individually fetched). Concession holders — directly relevant to infrastructure/real-assets mapping (concessionaires)."
+    },
+    {
+      "name": "Fina — Registar zaloga (Register of Liens)",
+      "url": "https://www.fina.hr/eng/public-services-business/registries/register-of-liens",
+      "side": "entities",
+      "category": "liens/pledges register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED as listed on Fina's registries menu (not individually fetched). Pledges over movables/shares — a private-debt signal source (secured lending footprint)."
+    },
+    {
+      "name": "Portal otvorenih podataka (data.gov.hr)",
+      "url": "https://data.gov.hr/",
+      "side": "entities",
+      "category": "national open data portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED reachable (title 'Portal otvorenih podataka'; page is JS-rendered so content was thin). Standard CKAN-style portal hosting the sudski registar and Narodne novine datasets among others; use it to find the canonical bulk/API routes."
+    },
+    {
+      "name": "HANFA — Registri (all supervised entities incl. MiCA)",
+      "url": "https://www.hanfa.hr/registri/",
+      "side": "entities",
+      "category": "financial regulator registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Seven register categories: investment companies, investment funds (UCITS + AIF/AIFM), pension funds & payout companies, insurance market, leasing, factoring, and crypto-asset market (MiCA licensees). Searchable by OIB/LEI/keyword. This one page covers fund managers, AIFMs, the pension/insurance LP side, leasing/factoring AND the MiCA register — extend the existing harvest to the pension, insurance and crypto leaves."
+    },
+    {
+      "name": "HNB — List of credit institutions",
+      "url": "https://www.hnb.hr/en/core-functions/supervision/list-of-credit-institutions",
+      "side": "entities",
+      "category": "central bank register (banks)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Structured HTML tables: 19 authorised banks, housing savings bank, credit unions + HBOR, banks in bankruptcy (with dates), foreign branches. Clean deterministic parse."
+    },
+    {
+      "name": "HNB — Payment & e-money institution registers",
+      "url": "https://www.hnb.hr/en/core-functions/payment-system/licensing/payment-institutions",
+      "side": "entities",
+      "category": "central bank register (PI/EMI)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "PARTIALLY VERIFIED — URL taken from HNB homepage navigation (fetched homepage confirms the section covering payment institutions, small PIs, e-money institutions); the subpage itself was not fetched."
+    },
+    {
+      "name": "REGOS — Central Registry of Insured Persons",
+      "url": "https://regos.hr/",
+      "side": "entities",
+      "category": "pension system registry/statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Second-pillar pension registry: daily unit values for mandatory pension funds, membership (2.41m) and monthly contribution statistics — the quantitative side of the Croatian pension-LP universe (managers themselves are in HANFA registers)."
+    },
+    {
+      "name": "Narodne novine — official gazette (službeni + oglasni dio, ELI)",
+      "url": "https://narodne-novine.nn.hr/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Three sections (official, international, advertisements/oglasni dio — company announcements live here), ELI-structured URLs (e.g. /eli/sluzbeni/2024/122/pdf), and CSV/XLSX export from the search UI. A gazette dataset also exists on data.gov.hr."
+    },
+    {
+      "name": "e-Oglasna ploča sudova (court e-notice board)",
+      "url": "https://e-oglasna.pravosudje.hr/",
+      "side": "entities",
+      "category": "insolvency/court notices + IP rolls",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Ministry of Justice electronic notice board: Stečajevi (corporate bankruptcies), consumer bankruptcies, plus the registers of bankruptcy administrators (stečajni upravitelji) and commissioners — i.e. the insolvency-practitioner roll is here too. Search UI; no RSS/API advertised."
+    },
+    {
+      "name": "EOJN RH — public procurement portal",
+      "url": "https://eojn.hr/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. New national e-procurement platform (v1.17): notices, award decisions, contract registry, framework agreements, procurement plans, CPV/NUTS classified. Replaces legacy eojn.nn.hr; browsing is public, participation requires registration."
+    },
+    {
+      "name": "e-Predmet — court case status lookup",
+      "url": "https://e-predmet.pravosudje.hr/",
+      "side": "entities",
+      "category": "court case register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). Well-known public case-status service of Croatian courts; relevant for litigation-funding and distressed diligence. Verify before wiring in."
+    },
+    {
+      "name": "Uređena zemlja OSS — land registry & cadastre one-stop shop",
+      "url": "https://oss.uredjenazemlja.hr/",
+      "side": "entities",
+      "category": "land registry",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). The joint land-registry/cadastre portal (zemljišne knjige extracts) — relevant to real-assets diligence. Verify access terms before use."
+    },
+    {
+      "name": "Zagreb Stock Exchange — issuers & members lists",
+      "url": "https://zse.hr/en/list-of-issuers/178",
+      "side": "entities",
+      "category": "stock exchange lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via ZSE homepage navigation: List of issuers (/en/list-of-issuers/178) and List of Members (/en/list-of-members/146), plus financial reports and dividend sections. HTML lists, deterministic parse."
+    },
+    {
+      "name": "SKDD — Central Depository & Clearing Company",
+      "url": "https://www.skdd.hr/",
+      "side": "entities",
+      "category": "CSD / securities registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED reachable (site is JS-heavy; content thin on fetch). SKDD holds the dematerialized securities register and corporate-actions data; issuer lookups exist on the site but access method needs hands-on verification."
+    },
+    {
+      "name": "CVCA — Croatian Private Equity & Venture Capital Association",
+      "url": "https://www.cvca.hr/",
+      "side": "entities",
+      "category": "PE/VC association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED — the logo grid parsed fine this time. 18 regular members captured (Aymo Ventures, Black Peak, Blue Sea Capital, East Peak Invest, Enterprise Investors, Fil Rouge, Feelsgood, Green Art Equity, Inspire, Integral VP, InterCapital AM, Invenio, Invera, Morphosis, NVision, Orbit, Prosperus Invest, Vesna VC) + associate members (Forvis Mazars, RBI, VentureXchange). Members manage >€4.5bn."
+    },
+    {
+      "name": "HUB — Croatian Banking Association",
+      "url": "https://www.hub.hr/",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Member-bank list (~20 logos incl. Zagrebačka banka, PBZ, RBA) at /hr/member-banks-of-cba, plus HUB Analize research PDFs. No RSS found."
+    },
+    {
+      "name": "HUO — Croatian Insurance Bureau",
+      "url": "https://huo.hr/",
+      "side": "entities",
+      "category": "insurance association/statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 16 member insurers listed; monthly/quarterly/annual insurance-market statistics downloadable. The insurance-LP side complement to HANFA's register."
+    },
+    {
+      "name": "HGK — Digitalna komora (Chamber of Economy platform)",
+      "url": "https://digitalnakomora.hr/",
+      "side": "entities",
+      "category": "chamber company directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "PARTIALLY VERIFIED. Reachable but fully JS-rendered (only title retrievable). Known to host HGK's business-entity directory and sector associations (incl. leasing/factoring groupings). Needs a headless fetch."
+    },
+    {
+      "name": "HBOR — Croatian Bank for Reconstruction and Development",
+      "url": "https://www.hbor.hr/en/",
+      "side": "entities",
+      "category": "development bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National DFI: loans, export-credit insurance AND alternative-investment-fund activity (VC funds incl. AYMO Ventures, EIF cooperation) — an LP/fund-of-funds node for the Croatian VC map. Active news section (July 2026 items)."
+    },
+    {
+      "name": "HAMAG-BICRO — Agency for SMEs, Innovations and Investments",
+      "url": "https://hamagbicro.hr/",
+      "side": "entities",
+      "category": "SME/innovation agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "REAL but returned HTTP 403 to automated fetch (bot protection). Guarantees, ESIF financial instruments, seed/VC programs; co-anchor of the Croatian venture ecosystem. Needs browser-grade crawling."
+    },
+    {
+      "name": "CERP — Centre for Restructuring and Sale",
+      "url": "https://www.cerp.hr/",
+      "side": "entities",
+      "category": "privatization/state assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. State portfolio files downloadable (majority + minority holdings, updated regularly) plus a stream of share/asset sale tenders and auction results — direct deal-flow signal for special situations."
+    },
+    {
+      "name": "Invest Croatia — investment promotion",
+      "url": "https://investcroatia.gov.hr/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Run by the Ministry of Economy: investment guide, incentive programs, industrial-zone maps, investor news."
+    },
+    {
+      "name": "HROTE — energy market operator",
+      "url": "https://www.hrote.hr/",
+      "side": "entities",
+      "category": "energy registers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Registers of guarantees of origin (with auctions), market participants, privileged/incentivized RES producers, EKO balancing group — the entity layer for renewables/transition real assets."
+    },
+    {
+      "name": "EU ETS Union Registry / EUTL — Croatia accounts",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). Croatia's EU ETS accounts are in the Union Registry; the public EUTL transaction log at this EC URL is the machine-readable route for HR operator/aircraft accounts. Verify current URL — EC reshuffles clima paths."
+    },
+    {
+      "name": "HOK — Croatian Bar Association directory",
+      "url": "https://www.hok-cba.hr/imenik",
+      "side": "entities",
+      "category": "bar association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 'Imenici i upisnici': searchable directory of lawyers, law firms (odvjetnička društva), joint offices and foreign lawyers — the law-firm leaf of the service graph."
+    },
+    {
+      "name": "HJK — Croatian Chamber of Notaries",
+      "url": "https://www.hjk.hr/",
+      "side": "entities",
+      "category": "notary directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). Official chamber with a public notary directory; secondary priority for the service graph."
+    },
+    {
+      "name": "RICS — Find a Firm (Croatia filter)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "valuer directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). RICS's global regulated-firm directory is the practical route to RICS-accredited valuers active in Croatia; no Croatian national RICS register exists. Croatian court-appointed appraisers (sudski vještaci) sit in a Ministry of Justice register that was not verified this session."
+    },
+    {
+      "name": "DZS — Croatian Bureau of Statistics data portal",
+      "url": "https://podaci.dzs.hr/",
+      "side": "entities",
+      "category": "national statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. PC-Axis databases, STS short-term stats (stsbaza.dzs.hr), dashboards, public microdata, release calendar — macro/sector context layer."
+    },
+    {
+      "name": "CRANE — Croatian Business Angels Network",
+      "url": "https://www.crane.hr/",
+      "side": "entities",
+      "category": "angel network directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). Long-standing angel network; membership and portfolio pages are a niche-alts/VC sourcing lead. Verify before ingestion."
+    },
+    {
+      "name": "Poslovni dnevnik",
+      "url": "https://www.poslovni.hr/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.poslovni.hr/feed",
+      "accessMethod": "js-blocked",
+      "verdict": "REAL (leading business daily) but the fetcher was blocked at network level ('unable to fetch'); the /feed URL is the historically known WordPress feed and could NOT be verified this session. Needs browser-grade fetch or feed re-verification."
+    },
+    {
+      "name": "Lider",
+      "url": "https://lidermedia.hr/",
+      "side": "news",
+      "category": "business weekly",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED site (sections: Financije, Biznis i politika, Kripto, Tvrtke i tržišta, Nekretnine...). No RSS found — /feed and /rss both 404 and no rel=alternate tag; index parsing required."
+    },
+    {
+      "name": "Netokracija",
+      "url": "https://www.netokracija.com/",
+      "side": "news",
+      "category": "startup/tech media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.netokracija.com/feed",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS 2.0 feed, updated Aug 3 2026. The reference regional startup/VC publication."
+    },
+    {
+      "name": "Forbes Hrvatska",
+      "url": "https://forbes.dnevnik.hr/",
+      "side": "news",
+      "category": "business media",
+      "tier": "signals_press",
+      "rssUrl": "https://forbes.dnevnik.hr/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS (note: forbes.n1info.hr now 302-redirects to forbes.dnevnik.hr — use the new domain). Deal and corporate coverage incl. loans, appointments."
+    },
+    {
+      "name": "Index.hr",
+      "url": "https://www.index.hr/",
+      "side": "news",
+      "category": "general news portal",
+      "tier": "signals_press",
+      "rssUrl": "https://www.index.hr/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED general RSS works; the business-only feed (/rss/vijesti-novac) returned an EMPTY channel — use the general feed with keyword filtering."
+    },
+    {
+      "name": "tportal",
+      "url": "https://www.tportal.hr/",
+      "side": "news",
+      "category": "general news portal",
+      "tier": "signals_press",
+      "rssUrl": "https://www.tportal.hr/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working mixed-section RSS (20 items, hr-HR, current). Business items mixed in; filter needed."
+    },
+    {
+      "name": "SEEbiz",
+      "url": "https://www.seebiz.eu/",
+      "side": "news",
+      "category": "regional business portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "REAL regional (SEE) business portal but returned HTTP 403 to automated fetch; RSS could not be verified. Needs browser-grade fetch."
+    },
+    {
+      "name": "Bug.hr",
+      "url": "https://www.bug.hr/",
+      "side": "news",
+      "category": "tech media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.bug.hr/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS (30-min TTL, current items). Tech-sector context feed."
+    },
+    {
+      "name": "ICT Business",
+      "url": "https://www.ictbusiness.info/",
+      "side": "news",
+      "category": "ICT business media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "REAL ICT B2B portal; /rss returned HTTP 500 during this session so the feed could not be confirmed — retry, else parse index."
+    },
+    {
+      "name": "Croatia Week",
+      "url": "https://www.croatiaweek.com/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.croatiaweek.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS, current (Aug 2026). English-language Croatia coverage incl. business items."
+    },
+    {
+      "name": "Total Croatia News",
+      "url": "https://total-croatia-news.com/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "rssUrl": "https://total-croatia-news.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working WordPress RSS, hourly updates, full-content items. English-language, some business/industry coverage (e.g. Končar)."
+    },
+    {
+      "name": "Energetika-net",
+      "url": "https://www.energetika-net.com/",
+      "side": "news",
+      "category": "energy sector media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED Croatian energy-sector portal (energy economy, gas, renewables). No RSS found — newsletter only; parse index."
+    },
+    {
+      "name": "Jutarnji list — Novac",
+      "url": "https://novac.jutarnji.hr/",
+      "side": "news",
+      "category": "business section of daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "REAL (Hanza Media business vertical) but fetcher was blocked at network level. No feed verified; expect bot protection."
+    },
+    {
+      "name": "Večernji list — Biznis",
+      "url": "https://www.vecernji.hr/biznis",
+      "side": "news",
+      "category": "business section of daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched — budget spent on higher-priority sources). Major daily's business section; check for feed at /rss before use."
+    },
+    {
+      "name": "N1 Hrvatska — Biznis",
+      "url": "https://n1info.hr/biznis/",
+      "side": "news",
+      "category": "TV news portal business section",
+      "tier": "signals_press",
+      "rssUrl": "https://n1info.hr/feed/",
+      "accessMethod": "unknown",
+      "verdict": "REAL; the /feed/ URL returned a transient HTTP 502 with Retry-After during this session, so the feed is likely working WordPress but unconfirmed — retry."
+    },
+    {
+      "name": "HINA — national news agency",
+      "url": "https://www.hina.hr/",
+      "side": "news",
+      "category": "news agency",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). National wire; most content is subscription — treat as lead-discovery only, respect ToS."
+    },
+    {
+      "name": "HANFA — Vijesti (news) + RSS",
+      "url": "https://www.hanfa.hr/vijesti/",
+      "side": "news",
+      "category": "regulator press",
+      "tier": "signals_press",
+      "rssUrl": "https://www.hanfa.hr/rss/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS ('Press Releases'): supervisory measures, licensing/board decisions, monthly sector reports, enforcement — a high-signal regulatory feed for funds/insurance/pensions/crypto."
+    },
+    {
+      "name": "HNB — News & press releases",
+      "url": "https://www.hnb.hr/en/publicness/news",
+      "side": "news",
+      "category": "central bank press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "PARTIALLY VERIFIED — section URLs confirmed from the fetched HNB homepage (news + press-releases under /en/publicness/); e-mail subscription service at hnb.hr/e-mail-subscription; no classic RSS confirmed."
+    },
+    {
+      "name": "Ministarstvo financija — news & debt data",
+      "url": "https://mfin.gov.hr/",
+      "side": "news",
+      "category": "finance ministry press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Vijesti section, treasury-bill auction notices, bond final-terms announcements, public-debt and budget statistics — sovereign/rates context and issuance signals."
+    },
+    {
+      "name": "ZSE EHO — issuer disclosure RSS feeds",
+      "url": "https://eho.zse.hr/",
+      "side": "news",
+      "category": "exchange disclosure feeds",
+      "tier": "signals_press",
+      "rssUrl": "https://eho.zse.hr/feed/rss?variant=issuerNews",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — ZSE's RSS page lists four feeds: exchange news (https://zse.hr/rss?lang=en), issuer news (?variant=issuerNews), market/trading news (?variant=tradingNews), financial reports (?variant=financialReports). Issuer disclosures as structured feeds — prime signal source."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Thin-but-real Croatia coverage inside its CEE universe: AIFMs, PE/VC fund vehicles, some LP commitments (EIF/EBRD-backed funds). Weak on service graph, NPLs, and anything below institutional fund size.",
+      "publicSourcesTheyUse": "HANFA AIF/UCITS registers, CVCA membership, EIF/EBRD press releases, fund-manager websites and annual reports — all directly reachable by us (hanfa.hr/registri, cvca.hr)."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Croatian deal coverage driven by press and pan-EU filings; decent on VC rounds touching Croatian startups, weak on local mid-market PE, real assets, and credit.",
+      "publicSourcesTheyUse": "Press releases and media (Poslovni, Netokracija, Forbes HR), sudski registar company events, ZSE disclosures — we can go straight to sudreg API + eho.zse.hr feeds."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best global coverage of the Croatian startup/VC ecosystem (works with regional ecosystem orgs and publishes CEE reports); startup-only lens — no credit, real assets, or service graph.",
+      "publicSourcesTheyUse": "Self-reported startup profiles, Netokracija and regional tech media, CVCA/CRANE ecosystems, Crunchbase cross-referencing, HAMAG-BICRO program lists — the underlying registries (sudreg, Fina RGFI) are stronger primary routes."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Self-reported Croatian startup/investor profiles; patchy financials, no registry grounding.",
+      "publicSourcesTheyUse": "Self-submission + news scraping; nothing they have that sudski registar + RGFI + Netokracija don't give us directly."
+    },
+    {
+      "platform": "Poslovna.hr (Bisnode / Dun & Bradstreet SEE)",
+      "coverageNotes": "Deep local company-data coverage: financials, scores, ownership links for the full Croatian corporate register. No alternatives/fund lens at all.",
+      "publicSourcesTheyUse": "Fina RGFI financial statements, sudski registar, Narodne novine oglasni dio, court/insolvency notices (e-Oglasna) — every input is public and catalogued above."
+    },
+    {
+      "platform": "Fininfo.hr",
+      "coverageNotes": "Local company-information portal: financial statements, blocked-account status, insolvency flags for HR companies. Volume play, no investment-industry structuring.",
+      "publicSourcesTheyUse": "Fina RGFI, Fina blocked-accounts data, sudski registar, e-Oglasna bankruptcies — all direct-access public sources."
+    },
+    {
+      "platform": "CompanyWall Business (companywall.hr)",
+      "coverageNotes": "Regional (HR/RS/BA/ME/SI) company data and credit scores; strong on cross-border SEE entity linkage, nothing on funds/alternatives.",
+      "publicSourcesTheyUse": "Same public trio: sudski registar, Fina RGFI, official gazettes/insolvency boards across the region."
+    },
+    {
+      "platform": "Fina info.BIZ (incumbent state provider)",
+      "coverageNotes": "Fina's own commercial product over its RGFI monopoly data: financials, sector analytics, rankings. The benchmark for what 'complete Croatian financials' means.",
+      "publicSourcesTheyUse": "Fina's internal RGFI + payment-transactions data; the public free route to the same statements is RGFI javna objava (50 docs/day)."
+    }
+  ],
+  "searchedButAbsent": "Important honesty notes: (1) The session's WebSearch budget was already exhausted (200/200) before this task started, so discovery was done entirely by direct WebFetch verification of the known source landscape — a search-driven sweep for long-tail sources (municipal portals, niche sector media) was not possible. (2) sudreg-podaci.gov.hr from the hint does NOT resolve; the live open-data host is sudreg-data.gov.hr (fetch hit an auth-portal redirect loop; API requires OAuth2 credentials). (3) Privredni vjesnik: privredni.hr turned out to be an unrelated lifestyle site — the historic business weekly appears to have no verifiable current home; excluded rather than padded. (4) No public UBO register access assumed (Registar stvarnih vlasnika is restricted post-CJEU) — excluded per project rules. (5) No dedicated public register of NPL servicers/credit-purchasers was verified (the NPL secondary-market directive register should sit with HNB — needs a follow-up check); no litigation-funding registry exists in Croatia. (6) Lider has no discoverable RSS (feed 404s, no rel=alternate); Index.hr's business-only feed exists but returned an empty channel. (7) Not fetched this session (flagged unverified in-line): e-Predmet, land-registry OSS, HJK notaries, RICS firms directory, EUTL carbon accounts, CRANE, Večernji biznis, HINA, and the Ministry of Justice register of court-appointed appraisers (sudski vještaci)."
+}

@@ -1,0 +1,625 @@
+{
+  "country": "CZ",
+  "sources": [
+    {
+      "name": "ARES – Registr ekonomických subjektů (open REST API)",
+      "url": "https://ares.gov.cz/ekonomicke-subjekty",
+      "side": "entities",
+      "category": "national commercial register / master company registry",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Genuinely open JSON REST API, no key required (Swagger UI live at https://ares.gov.cz/swagger-ui/ — JS app, confirmed reachable). The canonical CZ master registry aggregating OR, RES, tax and trade-licence registers. Backbone source for all CZ entity resolution."
+    },
+    {
+      "name": "Veřejný rejstřík (Obchodní rejstřík) – justice.cz",
+      "url": "https://or.justice.cz/ias/ui/rejstrik",
+      "side": "entities",
+      "category": "commercial register incl. filings (sbírka listin)",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Publicly searchable without login (confirmed by fetch). Full extracts + document collection (financial statements, deeds). No API on this UI — machine route is ARES API + dataor bulk dumps."
+    },
+    {
+      "name": "dataor.justice.cz – commercial register open data (bulk XML)",
+      "url": "https://dataor.justice.cz/",
+      "side": "entities",
+      "category": "commercial register bulk/open-data route",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED reachable (page titled 'Opendata'; JS-rendered, content thin via fetch). Known Ministry of Justice bulk XML dumps of the commercial register by court/legal form/year — the free bulk companion to ARES."
+    },
+    {
+      "name": "ČSÚ – Registr ekonomických subjektů (RES) + open data",
+      "url": "https://csu.gov.cz/",
+      "side": "entities",
+      "category": "statistical business register / open data",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. csu.gov.cz confirms both 'Registr ekonomických subjektů' and 'Otevřená data' sections. RES data also flows into ARES; useful for NACE-coded population counts."
+    },
+    {
+      "name": "Evidence skutečných majitelů (UBO register)",
+      "url": "https://esm.justice.cz/ias/issm/rejstrik",
+      "side": "entities",
+      "category": "beneficial ownership register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED but RESTRICTED: as of 17 Dec 2025 the Ministry of Justice closed public access; only AML-obliged entities, authorities and the registered persons themselves get data (confirmed on-page). Do NOT plan on open UBO data — consistent with project law."
+    },
+    {
+      "name": "ČNB – Lists and registers of supervised financial market entities",
+      "url": "https://www.cnb.cz/en/supervision-financial-market/lists-registers/",
+      "side": "entities",
+      "category": "financial regulator registers (banks, funds, AIFMs, investment firms, insurers, pension companies, CASPs)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Hub page links the JERRS application (all licensed/registered entities incl. investment companies, ZISIF §15 managers, MiCA CASPs), prospectuses, and 'Web services WS JERRS'. This is the single regulator register for the whole LP+GP licensee universe (ČNB supervises banking, funds, insurance AND pensions)."
+    },
+    {
+      "name": "ČNB JERRS – search application",
+      "url": "https://apl.cnb.cz/apljerrsdad/JERRS.WEB07.INTRO_PAGE?p_lang=cz",
+      "side": "entities",
+      "category": "regulated-entity search UI",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL is the long-standing official JERRS app but our fetch got ECONNREFUSED (likely geo/WAF filtering of datacenter IPs). Treat UI as gated for automation; use WS JERRS or the CNB lists pages instead. Documented honestly, not re-verified."
+    },
+    {
+      "name": "ČNB WS JERRS – XML web services",
+      "url": "https://www.cnb.cz/en/supervision-financial-market/lists-registers/web-services-ws-jerrs/",
+      "side": "entities",
+      "category": "regulator register machine access",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. XML/SOAP services at https://aplc.cnb.cz/jerrsws/ws with WSDL/XSD; entity-by-role list service mirrors the public lists. GATED: requires a commercial certificate (I.CA/Postsignum/eIdentity) + signed application to jerrsws@cnb.cz. Feasible but an onboarding task, not anonymous open data."
+    },
+    {
+      "name": "ČNB ARAD – statistics time-series database",
+      "url": "https://www.cnb.cz/arad/",
+      "side": "entities",
+      "category": "central bank statistics (fund sector aggregates, bank balance sheets)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists (JS single-page app; fetch returned only shell). ARAD is the CNB time-series warehouse with CSV export; useful for market-size context on funds, pensions, insurance. Machine route not verified in this pass."
+    },
+    {
+      "name": "ERÚ – energy license holders register",
+      "url": "https://eru.gov.cz/o-drzitelich-licence",
+      "side": "entities",
+      "category": "energy regulator licensees (renewables/infra entity discovery)",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Searchable license-holder finder plus weekly-updated downloadable lists of license holders (electricity, gas, heat, renewables) — latest 31.07.2026 visible. Strong source for Real Assets/energy-transition SPV discovery."
+    },
+    {
+      "name": "OTE a.s. – electricity/gas market operator & emissions registry administrator",
+      "url": "https://www.ote-cr.cz/en/",
+      "side": "entities",
+      "category": "carbon / EU ETS national registry + power market data",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. OTE runs the CZ power/gas short-term markets and the 'Environmental certificates' agenda (CZ administrator of the Union Registry emissions accounts). Market statistics public; ETS account holder lists limited — verify depth before relying on it."
+    },
+    {
+      "name": "ISIR – Insolvenční rejstřík",
+      "url": "https://isir.justice.cz/isir/common/index.do",
+      "side": "entities",
+      "category": "insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED register with public lustration search and an 'Automatické sledování ins. rejstříku' service; ISIR has a long-standing public SOAP web service for change-feeds (the hint is correct), though the WS help link we tried 404'd — endpoint docs must be re-located. NEW: replacement register eISIR is live in testing at https://eisir.justice.cz (confirmed, 'ověřovací režim', no API docs published yet). Plan for migration."
+    },
+    {
+      "name": "Obchodní věstník (Commercial Bulletin)",
+      "url": "https://ov.ihned.cz/",
+      "side": "entities",
+      "category": "official gazette (liquidations, capital changes, insolvency notices, AGMs)",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official bulletin published every working day via the Public Administration Portal, operated by Economia. Last 6 months free; archive to 1992 paid. Key signal source for liquidations/conversions."
+    },
+    {
+      "name": "e-Sbírka – official collection of laws",
+      "url": "https://e-sbirka.gov.cz/",
+      "side": "entities",
+      "category": "official gazette / legislation",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED reachable at gov.cz domain (301 from e-sbirka.cz). Official consolidated law collection — regulatory-change monitoring, not entity data. API availability not verified."
+    },
+    {
+      "name": "Seznam insolvenčních správců (insolvency practitioner roll)",
+      "url": "https://isir.justice.cz/InsSpravci/public/seznamFiltr.do",
+      "side": "entities",
+      "category": "insolvency practitioner directory",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public MoJ list, 434 administrators, filterable by name/IČO/district, with HQ + branches — direct feed for the Private Debt service-graph (insolvency practitioners)."
+    },
+    {
+      "name": "Prague Stock Exchange (PSE / Burza cenných papírů Praha)",
+      "url": "https://www.pse.cz/en/",
+      "side": "entities",
+      "category": "stock exchange – issuers, members, markets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Prime/Standard/Free/Start markets, exchange member list, issuer guides, press center. Per-market issuer tables confirmed parseable (e.g. https://www.pse.cz/udaje-o-trhu/akcie/prime-market lists 12 Prime issuers in an HTML table). START market = SME/growth issuer discovery."
+    },
+    {
+      "name": "RM-SYSTÉM, česká burza cenných papírů",
+      "url": "https://www.rmsystem.cz/",
+      "side": "entities",
+      "category": "second stock exchange (retail-oriented)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Operating since 1993, listed-security price table on homepage incl. Czech issuers. Secondary but real for issuer coverage."
+    },
+    {
+      "name": "CDCP – Central Securities Depository Prague",
+      "url": "https://www.cdcp.cz/en/",
+      "side": "entities",
+      "category": "CSD – participants, LEI issuance, statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public participant list, statistics, LEI-provider role, DLT registry docs. No full public ISIN/issuer dump confirmed."
+    },
+    {
+      "name": "CVCA – Czech Private Equity & Venture Capital Association members",
+      "url": "https://www.cvca.cz/en/members",
+      "side": "entities",
+      "category": "PE/VC association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Full + associate member lists (GPs: Genesis, Enterprise Investors, Mid Europa…; advisors: law firms, Big 4, banks). Core GP + service-graph seed. (Task notes CVCA members already ingested.)"
+    },
+    {
+      "name": "AKAT ČR – Czech Capital Market Association",
+      "url": "https://www.akatcr.cz/",
+      "side": "entities",
+      "category": "asset management / fund industry association + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Member directory ('Členové asociace') + quarterly AuM statistics (CZK 2.33tn in funds). Maps the ManCo/fund-manager universe incl. liquid alts distributors."
+    },
+    {
+      "name": "ČBA – Czech Banking Association",
+      "url": "https://cbaonline.cz/",
+      "side": "entities",
+      "category": "banking association (lender/custodian side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Reachable; navigation confirmed (ČBA Monitor, news service) but page is JS-heavy and member list not verified in-fetch. Real association; treat scraping route as to-be-confirmed."
+    },
+    {
+      "name": "ČLFA – Czech Leasing and Finance Association",
+      "url": "https://www.clfa.cz/",
+      "side": "entities",
+      "category": "leasing/factoring/consumer-credit association + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Member company list + quarterly non-bank financing statistics (corporate financing CZK 8.57bn 2026 figure on homepage). Direct feed for specialty-finance/ABL entity discovery."
+    },
+    {
+      "name": "ČAP – Czech Insurance Association",
+      "url": "https://www.cap.cz/",
+      "side": "entities",
+      "category": "insurance association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch REJECTED by security gateway (supin.cz WAF). The association is real and publishes member lists + market statistics, but automated access is blocked — needs browser-grade crawling or manual snapshot. Documented honestly."
+    },
+    {
+      "name": "APS ČR – Association of Pension Companies",
+      "url": "https://www.apscr.cz/",
+      "side": "entities",
+      "category": "pension industry association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED at apscr.cz (old apfcr.cz DNS times out). Confirms 9 members = all Czech pension companies. Small but complete LP-side roster; pension companies also in ČNB JERRS."
+    },
+    {
+      "name": "NRB – Národní rozvojová banka (National Development Bank)",
+      "url": "https://www.nrb.cz/en/",
+      "side": "entities",
+      "category": "development bank / state LP (incl. NDIF IPO Fund 2025+)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Programs (guarantees, transformation loans) and the National Development Investment Fund's 'IPO Fund 2025+' equity vehicle confirmed on-page — a genuine domestic LP/fund-of-funds actor."
+    },
+    {
+      "name": "CzechInvest – Business & Investment Development Agency",
+      "url": "https://czechinvest.gov.cz/en",
+      "side": "entities",
+      "category": "investment promotion agency + startup programs",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (301 from czechinvest.org to gov.cz — update stored URLs). FDI news, startup programs (ESA BIC, Technology Incubation). Also now hosts czechstartups.gov.cz (301 from czechstartups.org confirmed) — startup ecosystem portal."
+    },
+    {
+      "name": "EGAP – Export Guarantee and Insurance Corporation",
+      "url": "https://www.egap.cz/en",
+      "side": "entities",
+      "category": "state export credit agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State export insurer; annual reports, country Risk Barometer, insured-volume stats. Institutional-graph node and trade-finance signal source."
+    },
+    {
+      "name": "ÚZSVM + nabidkamajetku.gov.cz – state asset administration & sales",
+      "url": "https://www.uzsvm.gov.cz/",
+      "side": "entities",
+      "category": "state property office / asset disposals & auctions",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (301 from uzsvm.cz to gov.cz). Press releases + property marketplace at nabidkamajetku.gov.cz (real estate, movables) — distressed/real-asset deal-flow signal."
+    },
+    {
+      "name": "NEN – Národní elektronický nástroj (public procurement)",
+      "url": "https://nen.nipez.cz/",
+      "side": "entities",
+      "category": "public procurement platform",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Official national e-procurement tool, but our fetch got ECONNREFUSED (likely WAF vs datacenter IPs). Use VVZ (below) and its open data as the machine route; NEN UI access unverified."
+    },
+    {
+      "name": "VVZ – Věstník veřejných zakázek (procurement bulletin)",
+      "url": "https://vvz.nipez.cz/",
+      "side": "entities",
+      "category": "public procurement bulletin + open data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED reachable (MMR-operated bulletin; page shell confirmed, content JS-rendered). MMR historically publishes procurement open-data dumps; concessions/PPP notices relevant to infra. Bulk route to be pinned down."
+    },
+    {
+      "name": "Registr smluv (state contract register)",
+      "url": "https://smlouvy.gov.cz/",
+      "side": "entities",
+      "category": "mandatory public-contract disclosure register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Statutory register (law 340/2015); confirmed 'Aplikační rozhraní ISRS' API section + open-data page. Every public-sector contract >CZK 50k is here — counterparty and infra-deal signal, genuinely open."
+    },
+    {
+      "name": "data.gov.cz – National open data catalog",
+      "url": "https://data.gov.cz/",
+      "side": "entities",
+      "category": "national open-data catalog (meta-source)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Národní katalog otevřených dat — the discovery layer for CZ open datasets (incl. justice, procurement, contract-register dumps). SPARQL/DCAT catalog access."
+    },
+    {
+      "name": "Hlídač státu",
+      "url": "https://www.hlidacstatu.cz/",
+      "side": "entities",
+      "category": "civic open-data aggregator (contracts, subsidies, companies, insolvency) with API",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "API confirmed to exist and be auth-gated: /api returns 401 without a token (free key on registration; swagger path we tried 404'd). Aggregates registr smluv, subsidies, insolvency, political links — useful cross-reference layer, not a primary register."
+    },
+    {
+      "name": "ČAK – Czech Bar Association attorney search",
+      "url": "https://vyhledavac.cak.cz/",
+      "side": "entities",
+      "category": "bar association directory (law-firm service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public search of attorneys/trainees by name, city, firm, practice area, language. Self-reported specializations (per ČAK disclaimer)."
+    },
+    {
+      "name": "KA ČR – Chamber of Auditors auditor register",
+      "url": "https://www.kacr.cz/",
+      "side": "entities",
+      "category": "auditor register (fund auditor service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public 'vyber-auditora' register search of licensed auditors/audit firms — feeds Liquid Alternatives / service-graph auditor nodes."
+    },
+    {
+      "name": "Seznam znalců – register of court experts incl. property valuers",
+      "url": "https://seznat.justice.cz/",
+      "side": "entities",
+      "category": "court expert / valuer register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via znalci.justice.cz which links the public searchable list (experts + expert institutes) at seznat.justice.cz. CZ equivalent of a valuer roll (RICS has no public CZ-specific directory; RICS 'Find a Surveyor' is global — noted in searchedButAbsent)."
+    },
+    {
+      "name": "ARTN – Association for Real Estate Market Development",
+      "url": "https://www.artn.cz/",
+      "side": "entities",
+      "category": "real estate market association + annual Trend Report",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Annual Trend Report archive 2002–2026 + member directory of RE market leaders — Real Assets ecosystem mapping and research source."
+    },
+    {
+      "name": "czechstartups.gov.cz – national startup ecosystem portal",
+      "url": "https://czechstartups.gov.cz/",
+      "side": "entities",
+      "category": "startup ecosystem portal (VC-side discovery)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED redirect target (301 from czechstartups.org). Now state-run (CzechInvest orbit). Content depth/database structure not verified in this pass."
+    },
+    {
+      "name": "Hospodářské noviny (HN.cz)",
+      "url": "https://www.hn.cz/",
+      "side": "news",
+      "category": "top business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.hn.cz/?m=rss",
+      "verdict": "VERIFIED working RSS ('Hospodářské noviny - vše', items dated today). Articles largely paywalled — headline+link ingestion only, per project law."
+    },
+    {
+      "name": "E15",
+      "url": "https://www.e15.cz/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.e15.cz/rss",
+      "verdict": "VERIFIED working RSS, 50+ items, business/economy heavy, current (Aug 2026 items incl. M&A: 'Apple potichu koupil českou firmu')."
+    },
+    {
+      "name": "CzechCrunch",
+      "url": "https://cc.cz/",
+      "side": "news",
+      "category": "startup/VC + business media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://cc.cz/feed/",
+      "verdict": "VERIFIED working RSS 2.0, hourly updates. The primary CZ startup/VC funding-round signal source."
+    },
+    {
+      "name": "Forbes Česko",
+      "url": "https://forbes.cz/",
+      "side": "news",
+      "category": "business magazine (deals, wealth, founders)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://forbes.cz/feed/",
+      "verdict": "VERIFIED working RSS 2.0, multiple daily updates."
+    },
+    {
+      "name": "Seznam Zprávy – Byznys",
+      "url": "https://www.seznamzpravy.cz/sekce/byznys",
+      "side": "news",
+      "category": "major online news – business section",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.seznamzpravy.cz/rss",
+      "verdict": "VERIFIED working RSS (main feed incl. Byznys items); no dedicated economy-only feed found."
+    },
+    {
+      "name": "České noviny (ČTK)",
+      "url": "https://www.ceskenoviny.cz/",
+      "side": "news",
+      "category": "national newswire (agency)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ceskenoviny.cz/sluzby/rss/",
+      "verdict": "VERIFIED — the /sluzby/rss/ URL itself serves the RSS ('České noviny - hlavní události'); economy items tagged with category 'e' inside the unified feed. ČTK wire = fastest official-ish signal."
+    },
+    {
+      "name": "Patria.cz",
+      "url": "https://www.patria.cz/",
+      "side": "news",
+      "category": "financial markets portal (ČSOB group)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.patria.cz/rss.html",
+      "verdict": "VERIFIED — rss.html serves feed content covering stocks/economy/FX/commodities (patria.cz/rss/all.xml 404s; use rss.html)."
+    },
+    {
+      "name": "Roklen24",
+      "url": "https://roklen24.cz/",
+      "side": "news",
+      "category": "financial/markets news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://roklen24.cz/feed/",
+      "verdict": "VERIFIED working RSS 2.0, hourly, markets/FX/macro focus."
+    },
+    {
+      "name": "Aktuálně.cz",
+      "url": "https://www.aktualne.cz/",
+      "side": "news",
+      "category": "general news (Economia) with business coverage",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.aktualne.cz/rss/",
+      "verdict": "VERIFIED working RSS 2.0 with pagination; no separate economy feed confirmed — filter by section."
+    },
+    {
+      "name": "Lupa.cz",
+      "url": "https://www.lupa.cz/",
+      "side": "news",
+      "category": "internet/tech business (startup-adjacent)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.lupa.cz/rss/clanky/",
+      "verdict": "VERIFIED working RSS with full metadata."
+    },
+    {
+      "name": "oEnergetice.cz",
+      "url": "https://oenergetice.cz/",
+      "side": "news",
+      "category": "energy sector news (Real Assets/transition signals)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://oenergetice.cz/feed",
+      "verdict": "VERIFIED working RSS 2.0 — nuclear, renewables, grid, storage; strong for energy-transition deal signals."
+    },
+    {
+      "name": "Hrot24",
+      "url": "https://www.hrot24.cz/",
+      "side": "news",
+      "category": "business weekly (Byznys, Český kapitál podcast)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED site (tydenikhrot.cz 302s here). No RSS link found on page — index scraping or newsletter; feed URL unconfirmed."
+    },
+    {
+      "name": "Ekonom",
+      "url": "https://www.ekonom.cz/",
+      "side": "news",
+      "category": "business weekly (Economia)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 33-year-old weekly, partially paywalled (predplatne.hn.cz). Headline-level ingestion only."
+    },
+    {
+      "name": "Deník N – ekonomika",
+      "url": "https://denikn.cz/",
+      "side": "news",
+      "category": "quality daily with economy desk",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://denikn.cz/minuta/feed/",
+      "verdict": "VERIFIED 'Minuta N' short-news RSS works; main-article feed not confirmed in this pass (WordPress stack, denikn.cz/feed likely but unverified). Paywalled long-form."
+    },
+    {
+      "name": "CIJ (cij.world) – CEE real estate news",
+      "url": "https://cij.world/country/czech-republic/",
+      "side": "news",
+      "category": "real estate/finance trade press (CEE, since 1995)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (cijeurope.com 301s to cij.world; dedicated Czech Republic country section confirmed). No RSS found — app/newsletter distribution."
+    },
+    {
+      "name": "Property Forum (property-forum.eu)",
+      "url": "https://www.property-forum.eu/",
+      "side": "news",
+      "category": "CEE real estate news & events",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. CEE coverage incl. Prague; no RSS visible — newsletter + index scraping."
+    },
+    {
+      "name": "Investiční web",
+      "url": "https://www.investicniweb.cz/",
+      "side": "news",
+      "category": "retail investing/markets news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 — bot-blocked at CDN level. Real site; needs browser-grade access. Not verified beyond block."
+    },
+    {
+      "name": "Peníze.cz",
+      "url": "https://www.penize.cz/",
+      "side": "news",
+      "category": "personal finance/markets portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 — bot-blocked. Real, long-established portal; RSS existence unconfirmed."
+    },
+    {
+      "name": "Kurzy.cz",
+      "url": "https://www.kurzy.cz/",
+      "side": "news",
+      "category": "markets data portal + business register mirror",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site reachable; its RSS index page (kurzy-rss.htm) rendered without concrete feed URLs in our fetch. Feeds likely exist but unverified — do not record a feed URL yet. Note: its rejstrik section is a commercial mirror of OR data; go to ARES directly instead."
+    },
+    {
+      "name": "iDNES.cz – Ekonomika",
+      "url": "https://www.idnes.cz/ekonomika",
+      "side": "news",
+      "category": "major daily – economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "RSS endpoint servis.idnes.cz/rss.aspx?c=ekonomikah could NOT be fetched from this environment (fetch blocked). Historically valid feed; verify from production crawler IPs before relying on it."
+    },
+    {
+      "name": "ČNB – press releases",
+      "url": "https://www.cnb.cz/cs/cnb-news/tiskove-zpravy/",
+      "side": "news",
+      "category": "central bank / regulator press (enforcement, licensing, policy)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cnb.cz/cs/obecne/rss/",
+      "verdict": "VERIFIED press archive with category/year filters and an RSS hub linked in footer (/cs/obecne/rss/ — hub page, pick per-category feed; the /en/rss/ guess 404s)."
+    },
+    {
+      "name": "Ministry of Finance (MF ČR) – press releases",
+      "url": "https://mf.gov.cz/cs/ministerstvo/media/tiskove-zpravy",
+      "side": "news",
+      "category": "finance ministry press (privatization, capital-market law, state funds)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://mf.gov.cz/cs/rss",
+      "verdict": "VERIFIED (mfcr.cz 308s to mf.gov.cz — update stored URLs). Press archive + on-page 'Novinky přes RSS' link at /cs/rss."
+    },
+    {
+      "name": "Prague Stock Exchange – news & press center",
+      "url": "https://www.pse.cz/en/news",
+      "side": "news",
+      "category": "exchange disclosures/announcements",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED News + Press Center sections on pse.cz (trading admissions, issuer announcements). No RSS confirmed; index parse."
+    },
+    {
+      "name": "CzechInvest – news",
+      "url": "https://czechinvest.gov.cz/en/news",
+      "side": "news",
+      "category": "FDI & startup ecosystem announcements",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "News stream confirmed on verified czechinvest.gov.cz homepage (e.g. Novo Nordisk EUR 320m investment item). Exact news-index URL assumed from site nav — confirm path when wiring the crawler."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (now part of BlackRock)",
+      "coverageNotes": "Thin-but-real CZ coverage: a handful of CZ-domiciled GPs (Genesis Capital, Jet Investment, ARX Equity, Enern etc.), CEE funds in fundraising, and CZ institutions as LPs. Weak below the top PE tier; near-zero on CZ niche alts and the service graph.",
+      "publicSourcesTheyUse": "CNB regulated-entity lists (fund manager licensing), CVCA membership and yearbook, fund annual reports filed to the commercial register (sbírka listin at or.justice.cz), press releases — all of which we can hit directly via ARES/dataor + CVCA + ČNB lists."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Better CZ deal coverage than Preqin on buyouts and growth (tracks Jet, Genesis, BHM, Sev.en, PPF, EC Investments deal activity); valuations largely modeled. Service-provider tagging (law firms, advisors) is decent but built from deal press.",
+      "publicSourcesTheyUse": "Deal press (HN, E15, CzechCrunch, CTK wire), commercial register filings for confirmations, PSE disclosures, CVCA. All directly accessible to us: the same RSS feeds plus ARES/OR filings."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strongest global platform for the CZ startup/VC layer; works with local ecosystem partners and powers regional startup reports. Good founder/round data, weak on PE, debt, real assets.",
+      "publicSourcesTheyUse": "czechstartups.gov.cz ecosystem data, CzechCrunch and Lupa coverage, ARES for firmographics, accelerator/VC portfolio pages. We can go straight to ARES + cc.cz/feed + CzechInvest programs."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow CZ startup coverage; funding rounds crowd-sourced + press-scraped; entity hygiene noticeably worse than Dealroom for CEE.",
+      "publicSourcesTheyUse": "Startup press (CzechCrunch, Forbes.cz), company self-submissions, ARES-derived registry data via aggregators. Direct route for us: same press RSS + ARES canonical records."
+    },
+    {
+      "platform": "CRIF – Czech Credit Bureau (Cribis)",
+      "coverageNotes": "LOCAL. The dominant CZ firmographic/credit-data provider: full company universe, financials from filed statements, payment/insolvency flags, ownership links. This is what CZ banks and NPL buyers actually use for counterparty data.",
+      "publicSourcesTheyUse": "ARES + obchodní rejstřík bulk data (dataor XML), sbírka listin financial statements, ISIR insolvency feed, Obchodní věstník, VVZ/registr smluv. Every underlying source is public and in our catalog — Cribis' moat is parsing scale, not exclusive access."
+    },
+    {
+      "platform": "Dun & Bradstreet Czech (ex-Bisnode)",
+      "coverageNotes": "LOCAL/global hybrid. Firmographics, scoring, ownership trees (incl. cross-border via D&B WorldBase). Used for KYC/AML and supplier risk; no alternatives-specific intelligence.",
+      "publicSourcesTheyUse": "Same public spine: ARES, OR + sbírka listin, ISIR, Obchodní věstník, plus proprietary trade-payment data (not public — we don't need it for entity mapping)."
+    },
+    {
+      "platform": "Merk.cz (Imper CZ)",
+      "coverageNotes": "LOCAL sales-intelligence layer over the CZ registry universe: firmographics, contacts, technographic/web signals, insolvency and turnover estimates. B2B-sales oriented, not investment-grade.",
+      "publicSourcesTheyUse": "ARES API, dataor dumps, ISIR, registr smluv, VVZ, company websites. All public and cataloged above."
+    },
+    {
+      "platform": "BizMachine",
+      "coverageNotes": "LOCAL Czech firmographic/predictive-signals provider (growth scoring, tech detection) used by banks/telcos for prospecting. No alternatives focus but demonstrates what is derivable from CZ open registries.",
+      "publicSourcesTheyUse": "ARES/RES, commercial register filings, procurement + contract-register open data, web crawling. Direct-source equivalents fully covered in our catalog."
+    },
+    {
+      "platform": "Hlídač státu",
+      "coverageNotes": "LOCAL civic-tech aggregator, free/open with API: contracts, subsidies, insolvency, sponsor/political links across CZ entities. Not a competitor commercially but the best proof-of-concept of CZ open-data fusion; useful as a cross-check layer.",
+      "publicSourcesTheyUse": "Registr smluv API, VVZ open data, ISIR, ARES, subsidy registers (DotInfo/CEDR) — all public; its own API is free-key gated (401 without token)."
+    }
+  ],
+  "searchedButAbsent": "Web SEARCH budget was exhausted at session start (200/200 used by the parent workflow), so all verification was done by direct URL fetching; local-language search-based discovery of long-tail sources was therefore narrower than intended. Searched/attempted but NOT confirmed: (1) a dedicated ČNB MiCA/CASP licensee page — the guessed URL 404'd; CASPs are licensed by ČNB and should appear in the JERRS lists, but the specific list route needs confirmation; (2) a standalone fund-administrator/depositary licensee list — exists only as roles inside ČNB JERRS, no separate public roll found; (3) RICS Czech Republic member directory — RICS has no public CZ-specific directory URL verified; only the global rics.org 'Find a Surveyor'; the Czech court-expert register (seznat.justice.cz) is the practical valuer roll; (4) ISIR web-service documentation — the WS help link 404'd and the new eISIR (eisir.justice.cz, in testing mode) publishes no API docs yet, so the exact SOAP endpoint must be re-located even though the service is known to exist; (5) Asociace developerů ČR — asociacedeveloperu.cz DNS did not resolve from this environment; (6) iRozhlas economy RSS — guessed feed URL 404'd; (7) Stavební fórum (stavebni-forum.cz) — connection refused; (8) ČAP insurance association — hard WAF block (supin.cz gateway); (9) kurzy.cz RSS index and Hlídač státu swagger — pages exist but yielded no concrete endpoints; (10) CNB ARAD and dataor.justice.cz are JS-shell pages whose bulk/export routes could not be inspected by fetch. NEN (nen.nipez.cz) and apl.cnb.cz JERRS UI refused connections — likely datacenter-IP filtering, so production crawler IPs should retest. Also deliberately absent: open UBO data (esm.justice.cz closed to the public on 2025-12-17 — confirmed on-site), and any Preqin/PitchBook/Dealroom/Crunchbase scraping (prohibited by project law; market-map analysis only)."
+}

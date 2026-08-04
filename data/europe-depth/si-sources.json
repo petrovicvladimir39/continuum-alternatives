@@ -1,0 +1,507 @@
+{
+  "country": "SI",
+  "sources": [
+    {
+      "name": "AJPES ePRS — Slovenian Business Register (Poslovni register Slovenije)",
+      "url": "https://www.ajpes.si/prs/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live this session. Form-based search of all registered entities (name, matična št., tax no., activity codes). Page references paid data ordering ('Naročite podatke iz PRS') and a 'Za razvijalce programske opreme' (for software developers) route — structured/bulk access exists but the developer-page deep URL I guessed 404'd, so exact endpoint unconfirmed."
+    },
+    {
+      "name": "AJPES JOLP — public annual reports database",
+      "url": "https://www.ajpes.si/jolp/",
+      "side": "entities",
+      "category": "company financials / annual reports",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Free public viewing of annual reports of companies, banks, insurers, institutions; ~150,000 documents, last 5 years; searchable by name/matična/tax number. Core financials source at $0."
+    },
+    {
+      "name": "AJPES eRTR — Register of transaction accounts",
+      "url": "https://www.ajpes.si/ertr",
+      "side": "entities",
+      "category": "bank accounts register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "eRTR confirmed as an AJPES product (listed in AJPES site navigation captured this session) but this exact URL was not fetch-verified. Useful for blocked-account/distress signals."
+    },
+    {
+      "name": "AJPES eRDL — Register of beneficial owners",
+      "url": "https://www.ajpes.si/",
+      "side": "entities",
+      "category": "UBO register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "eRDL confirmed in AJPES navigation. Public access is RESTRICTED post-CJEU (EU UBO ruling) — do not assume open access; include only for provenance mapping, not bulk collection."
+    },
+    {
+      "name": "OPSI — Slovenian national open data portal (podatki.gov.si)",
+      "url": "https://podatki.gov.si/",
+      "side": "entities",
+      "category": "open data portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live. National open-data portal, 14 subject areas incl. economy; 'OPSIapi' section referenced on homepage. AJPES dataset presence not confirmed in this fetch — check the API catalog directly."
+    },
+    {
+      "name": "Banka Slovenije (Bank of Slovenia)",
+      "url": "https://www.bsi.si/en/",
+      "side": "entities",
+      "category": "central bank / bank supervision",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live. Homepage confirms supervision, statistics, Central Credit Register reference and Media section; the concrete supervised-entity list pages (banks, payment institutions, MiCA CASPs — BS is a MiCA competent authority) were not reachable at the paths I tried (one 404). Lists exist deeper in the site; path needs mapping."
+    },
+    {
+      "name": "ATVP — Agencija za trg vrednostnih papirjev (Securities Market Agency) registers",
+      "url": "https://www.a-tvp.si/",
+      "side": "entities",
+      "category": "securities regulator (AIFMs, ManCos, investment firms)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 (WAF) confirmed this session — matches prior documentation. Machine route for SI AIFM/UCITS/investment-firm registers is the ESMA register instead."
+    },
+    {
+      "name": "ESMA registers (SI AIFMs, UCITS ManCos, investment firms, MiCA)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU regulator register covering Slovenia",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Not fetched this session; well-known open ESMA register portal with downloadable/API access. The practical workaround for ATVP's WAF — filter by SI home member state."
+    },
+    {
+      "name": "AZN — Agencija za zavarovalni nadzor (Insurance Supervision Agency)",
+      "url": "https://www.a-zn.si/",
+      "side": "entities",
+      "category": "insurance & pension-company regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Publishes register of supervised insurance subjects ('Seznam zavarovalnih subjektov') and register of agents/intermediaries; active press section (LP-side coverage: insurers + pension companies)."
+    },
+    {
+      "name": "Agencija za energijo (Energy Agency of Slovenia)",
+      "url": "https://www.agen-rs.si/",
+      "side": "entities",
+      "category": "energy regulator (infrastructure/renewables licensees)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED live; national energy regulator. Licence/participant registers not directly visible on homepage — eMonitor data portal and REMIT registration referenced; needs deeper mapping."
+    },
+    {
+      "name": "EUTL — EU ETS Union Registry transaction log (Slovenian accounts)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetched this session. Well-known public EUTL browser covering Slovenian ETS account holders/installations — the carbon-alts route for SI; verify current URL (EUTL moved within ec.europa.eu over time)."
+    },
+    {
+      "name": "Uradni list RS — Official Gazette",
+      "url": "https://www.uradni-list.si/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "VERIFIED live; free browsing + PDF issues. CRITICAL: page states gazette publication transferred to PISRS as of 1 Mar 2026 (print ended 28 Feb 2026) — new monitoring must target PISRS."
+    },
+    {
+      "name": "PISRS — Pravno-informacijski sistem RS (official gazette venue from Mar 2026)",
+      "url": "https://pisrs.si/",
+      "side": "entities",
+      "category": "official gazette / legal information system",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED exists (title-only fetch). Now the official publication venue for the gazette per Uradni list notice; open-data/API surface not confirmed in this session."
+    },
+    {
+      "name": "AJPES eObjave — insolvency & court publications",
+      "url": "https://www.ajpes.si/eObjave/",
+      "side": "entities",
+      "category": "insolvency / court announcements",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Official publication of insolvency-proceeding acts, insolvency-administrator lists, court register documents, notarial property-sale notices. The single most important distressed-signals register for SI; no RSS visible — category pages are the crawl route."
+    },
+    {
+      "name": "Sodstvo RS — courts portal (incl. eZK land registry access)",
+      "url": "https://www.sodisce.si/",
+      "side": "entities",
+      "category": "court registers / land registry",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Known official courts portal (case lookups, land-registry eZK entry point); insolvency publications themselves are on AJPES eObjave."
+    },
+    {
+      "name": "Ljubljana Stock Exchange (LJSE)",
+      "url": "https://ljse.si/en/",
+      "side": "entities",
+      "category": "stock exchange — issuers, members, statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. List of Issuers, List of Members + rankings, issuer announcements, price lists, trading reports and statistics. RSS option present in footer (exact feed URL not captured — resolve from footer link)."
+    },
+    {
+      "name": "SEOnet — LJSE official disclosure system",
+      "url": "https://seonet.ljse.si/",
+      "side": "entities",
+      "category": "issuer disclosures feed",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "rssUrl": "https://seonet.ljse.si/rss",
+      "verdict": "VERIFIED live with RSS icon linking to /rss. Searchable regulated announcements (NLB, Krka, SIJ etc.), advanced filtering by company/segment/type/date. Prime corporate-events signal source."
+    },
+    {
+      "name": "KDD — Central Securities Clearing Corporation",
+      "url": "https://www.kdd.si/",
+      "side": "entities",
+      "category": "CSD — securities registry, statistics, corporate notices",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Dematerialized-securities search, issuer/member lists, corporate-action notices, daily settlement statistics."
+    },
+    {
+      "name": "SDH — Slovenski državni holding (Slovenian Sovereign Holding)",
+      "url": "https://www.sdh.si/",
+      "side": "entities",
+      "category": "state-asset manager / privatizations",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. State portfolio (top-20 by book value: DARS, Krka, Petrol, NLB...), capital-asset sale process pages, sold-assets list, active news/tenders section — the privatization deal-flow source."
+    },
+    {
+      "name": "SID banka — Slovenian export and development bank",
+      "url": "https://www.sid.si/en",
+      "side": "entities",
+      "category": "development bank / fund of funds",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Promotional/development bank; equity financing programs, EU financial instruments and a Fund of Funds; active news section, annual reports. LP/DFI-side node."
+    },
+    {
+      "name": "Slovenski podjetniški sklad (Slovene Enterprise Fund, SPS)",
+      "url": "https://www.podjetniskisklad.si/",
+      "side": "entities",
+      "category": "national SME/VC co-investment fund",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Equity programs ('Kapital za rast'), publishes beneficiary lists ('Prejemniki sredstev'), annual reports; €892m active portfolio across 15,695 contracts. Key early-stage capital node."
+    },
+    {
+      "name": "SPIRIT Slovenija — investment promotion agency",
+      "url": "https://www.spiritslovenia.si/",
+      "side": "entities",
+      "category": "investment promotion / FDI agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED exists (title-only fetch returned 'Javna agencija SPIRIT Slovenija'); content depth (FDI news, programs) not confirmed in this session."
+    },
+    {
+      "name": "ZBS — Bank Association of Slovenia (incl. leasing companies)",
+      "url": "https://www.zbs-giz.si/",
+      "side": "entities",
+      "category": "banking + leasing association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Member directory at /clanice/ lists 13 banks/savings banks AND 15 leasing companies (ZBS doubles as the leasing directory); active press section."
+    },
+    {
+      "name": "SZZ — Slovensko zavarovalno združenje (Slovenian Insurance Association)",
+      "url": "https://www.zav-zdruzenje.si/",
+      "side": "entities",
+      "category": "insurance association — members + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Members list (Triglav, Sava, Generali, Allianz...), annual Statistical Insurance Bulletin (2026 edition interactive) — LP-side and insurance-sector mapping."
+    },
+    {
+      "name": "GZS — Chamber of Commerce and Industry of Slovenia",
+      "url": "https://www.gzs.si/",
+      "side": "entities",
+      "category": "chamber of commerce — sector associations & member directories",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Member directories by industry/region, sector associations (energy, construction, chemicals...), economic analysis and news."
+    },
+    {
+      "name": "Odvetniška zbornica Slovenije — Bar Association attorney directory",
+      "url": "https://www.odv-zb.si/",
+      "side": "entities",
+      "category": "bar association / law-firm directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Searchable 'Imenik odvetnikov' (attorney directory) — service-graph source for M&A/restructuring counsel."
+    },
+    {
+      "name": "Notarska zbornica Slovenije — Chamber of Notaries",
+      "url": "https://www.notar-z.si/",
+      "side": "entities",
+      "category": "notary directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. 'Poišči notarja' searchable directory by location/services; notaries execute SI corporate/RE transactions."
+    },
+    {
+      "name": "Slovenski inštitut za revizijo — registers of certified valuers and auditors",
+      "url": "https://www.si-revizija.si/",
+      "side": "entities",
+      "category": "valuer/appraiser + auditor registers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Maintains statutory registers of pooblaščeni ocenjevalci vrednosti (authorized valuers — the SI equivalent of a RICS roll) plus auditors, internal auditors, tax advisors."
+    },
+    {
+      "name": "Poslovni angeli Slovenije — Business Angels of Slovenia",
+      "url": "https://poslovniangeli.si/",
+      "side": "entities",
+      "category": "angel investor network + portfolio",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. The country's business-angel club; portfolio company logos (TAIA, Hooray Heroes...), news section. Partial substitute for the missing national VC association."
+    },
+    {
+      "name": "Startup Slovenia — national ecosystem hub & directory",
+      "url": "https://www.startup.si/",
+      "side": "entities",
+      "category": "startup/VC ecosystem directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Directory of startups, investors, mentors and support organizations plus ecosystem news/events — the VC-side entity seed list for SI."
+    },
+    {
+      "name": "Kapitalska družba (KAD) — state pension fund manager",
+      "url": "https://www.kapitalska-druzba.si/",
+      "side": "entities",
+      "category": "pension fund / LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Manages SODPZ occupational pension assets and state capital investments; annual reports, monthly reports, investment info — a core institutional LP node."
+    },
+    {
+      "name": "Modra zavarovalnica — supplementary pension insurer",
+      "url": "https://www.modra.si/",
+      "side": "entities",
+      "category": "pension insurer / LP",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Known largest supplementary-pension manager (KAD spin-off) — LP-side entity; verify URL before ingestion."
+    },
+    {
+      "name": "Portal javnih naročil (eNaročanje) — public procurement portal",
+      "url": "https://www.enarocanje.si/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED exists ('Portal javnih naročil' title confirmed); search/open-data capabilities not visible in the minimal fetch — known to be the official notice portal; also mirrored on EU TED."
+    },
+    {
+      "name": "e-Prostor / GURS — real-estate market records and open spatial data",
+      "url": "https://www.e-prostor.gov.si/",
+      "side": "entities",
+      "category": "real-estate transactions & cadastre",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED live. Evidenca trga nepremičnin (actual transaction prices) plus open cadastral/address/topographic data via WFS/WMS/WMTS/OGC OpenAPI without registration — the real-assets pricing backbone."
+    },
+    {
+      "name": "Borzen — renewables support-scheme operator",
+      "url": "https://www.borzen.si/",
+      "side": "entities",
+      "category": "renewable energy support registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Known official SI power-market operator running the RES/CHP support scheme (lists of supported producers) — energy-transition entity source; verify before ingestion."
+    },
+    {
+      "name": "Finance.si (Časnik Finance) — business daily",
+      "url": "https://www.finance.si/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.finance.si/rss",
+      "verdict": "Fetch refused this session (blocked host). Slovenia's only dedicated business daily — highest-value deals/companies signal. The /rss path is the historically documented feed but could NOT be verified; paywall applies to full articles."
+    },
+    {
+      "name": "Delo — national daily, business section",
+      "url": "https://www.delo.si/",
+      "side": "news",
+      "category": "national daily / business",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real, major daily; /rss redirected to napaka.delo.si (error host) this session, so no working feed URL found. Its capital-markets vertical Svet kapitala also redirects to the error page — appears discontinued standalone."
+    },
+    {
+      "name": "Dnevnik — national daily",
+      "url": "https://www.dnevnik.si/",
+      "side": "news",
+      "category": "national daily / business",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch failed (host refused) this session. Established national daily with business coverage; RSS endpoint unverified."
+    },
+    {
+      "name": "Večer — national daily (Maribor)",
+      "url": "https://vecer.com/",
+      "side": "news",
+      "category": "national daily / regional business",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Real, long-established daily covering Štajerska industry/economy; RSS unverified."
+    },
+    {
+      "name": "STA — Slovenian Press Agency (English service)",
+      "url": "https://english.sta.si/",
+      "side": "news",
+      "category": "national press agency",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 this session (bot-blocked). Real national wire agency; full service is subscription — headline-level monitoring only, respecting terms."
+    },
+    {
+      "name": "RTV Slovenija MMC — Gospodarstvo (economy news)",
+      "url": "https://www.rtvslo.si/gospodarstvo",
+      "side": "news",
+      "category": "public broadcaster / economy",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.rtvslo.si/feeds/04.xml",
+      "verdict": "VERIFIED: RSS directory at /rss confirmed live with dedicated Gospodarstvo feed 04.xml (plus all-news 00.xml, EU 16.xml). Free public-broadcaster coverage — most reliable open SI feed."
+    },
+    {
+      "name": "N1 Slovenija",
+      "url": "https://n1info.si/",
+      "side": "news",
+      "category": "news portal / economy",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://n1info.si/feed/",
+      "verdict": "VERIFIED: /feed/ fetched and confirmed valid RSS 2.0, updated same-day. General news with solid economy/politics coverage."
+    },
+    {
+      "name": "Necenzurirano — investigative journalism",
+      "url": "https://necenzurirano.si/",
+      "side": "news",
+      "category": "investigative / corporate-political",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://necenzurirano.si/rss/site.xml",
+      "verdict": "VERIFIED live; RSS at /rss/site.xml confirmed via footer. Investigations frequently cover SI corporate ownership, banks, state assets — high signal for entity events."
+    },
+    {
+      "name": "Bloomberg Adria — Slovenia edition",
+      "url": "https://si.bloombergadria.com/",
+      "side": "news",
+      "category": "business & markets media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Sections: Ekonomija, Posel, Finančni trgi, Tehnologija; regional Adria coverage. No RSS link visible on homepage; partial paywall."
+    },
+    {
+      "name": "The Slovenia Times — English business news",
+      "url": "https://www.sloveniatimes.com/",
+      "side": "news",
+      "category": "English-language business media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 this session (bot protection). Real English-language SI news outlet (STA-linked) — useful for English signals if access negotiated."
+    },
+    {
+      "name": "24ur.com (POP TV)",
+      "url": "https://www.24ur.com/",
+      "side": "news",
+      "category": "general news / economy",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Largest commercial news portal; economy coverage secondary. RSS unverified."
+    },
+    {
+      "name": "Siol.net — Posel danes (business)",
+      "url": "https://siol.net/posel-danes",
+      "side": "news",
+      "category": "news portal / business section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site is real (major TSmedia portal) but /rss returned 404 this session; business-section feed URL not found."
+    },
+    {
+      "name": "SeeNews — Southeast Europe corporate wire (Slovenia coverage)",
+      "url": "https://seenews.com/",
+      "side": "news",
+      "category": "regional corporate/deals wire",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Established SEE business-news provider with regular Slovenian corporate/deal items; mix of free and subscription content."
+    },
+    {
+      "name": "Banka Slovenije — press releases / media",
+      "url": "https://www.bsi.si/en/media",
+      "side": "news",
+      "category": "central-bank press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Media section with dated press releases confirmed from verified homepage; this exact path not fetched. Newsletter offered; RSS not confirmed."
+    },
+    {
+      "name": "Ministry of Finance (gov.si) — news",
+      "url": "https://www.gov.si/drzavni-organi/ministrstva/ministrstvo-za-finance/",
+      "side": "news",
+      "category": "finance-ministry press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session; standard gov.si ministry page pattern (real with high confidence). gov.si publishes news per ministry; RSS availability unverified."
+    },
+    {
+      "name": "AZN — press releases (Sporočila za javnost)",
+      "url": "https://www.a-zn.si/",
+      "side": "news",
+      "category": "insurance-regulator press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as part of the live AZN site: dated news through July 2026, press-release section and newsletter — regulatory signals for the insurance/pension LP side."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Covers European alternatives funds and LPs; Slovenia coverage is thin — a handful of SI-domiciled or SI-investing GPs/LPs, mostly via pan-CEE funds. Weak on local service graph, NPLs, and lower-mid-market.",
+      "publicSourcesTheyUse": "ESMA/national regulator registers (AIFM authorizations), fund annual reports (AJPES JOLP equivalents), LP annual reports (KAD, Modra, SID banka), press releases. We can go directly to ESMA registers, AJPES JOLP, KAD/Modra/SID publications."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Tracks Slovenian VC/PE deals and startups (historically e.g. Outfit7, Celtra, Zemanta exits); decent deal history, weak on registries, real assets and credit.",
+      "publicSourcesTheyUse": "Company press releases, startup media, LJSE/SEOnet disclosures, business-register filings. Direct routes for us: SEOnet RSS, AJPES ePRS/JOLP, Startup Slovenia news, Finance.si."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strong SI startup/scaleup coverage via ecosystem partnerships and CEE reports; startup-only lens — no credit, real assets, or institutional graph.",
+      "publicSourcesTheyUse": "Ecosystem directories (Startup Slovenia, accelerators, Slovene Enterprise Fund beneficiary lists), founder/press submissions. We can use startup.si directory and SPS 'Prejemniki sredstev' lists directly."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Crowd-sourced SI startup profiles; patchy funding data, no registry grounding.",
+      "publicSourcesTheyUse": "Press releases and self-reported profiles. Direct route: same press signals via RTV/N1/Finance RSS plus AJPES for ground truth."
+    },
+    {
+      "platform": "Bizi.si (TSmedia) — local",
+      "coverageNotes": "Full Slovenian company universe with financials, credit flags, blocked accounts (3,688 shown), receiverships (359), new companies — the local reference company-data product. No alternatives/fund lens.",
+      "publicSourcesTheyUse": "Visibly built on AJPES data: PRS register, JOLP financial statements, eRTR blocked accounts, eObjave insolvency. All of these are public and we ingest them directly from AJPES."
+    },
+    {
+      "platform": "GVIN (Dun & Bradstreet Slovenia) — local",
+      "coverageNotes": "Company intelligence, ownership networks, credit scores and news monitoring for SI corporates; enterprise product, no alternatives taxonomy.",
+      "publicSourcesTheyUse": "AJPES PRS/JOLP, court and gazette announcements (eObjave, Uradni list/PISRS), media monitoring. Direct public routes identical to ours."
+    },
+    {
+      "platform": "EBONITETE.SI / CompanyWall — local credit bureaus",
+      "coverageNotes": "Credit ratings and payment-default monitoring on SI companies; distress-signal oriented.",
+      "publicSourcesTheyUse": "AJPES financial statements, eRTR account blocks, eObjave insolvency filings, FURS tax-debtor lists — all reachable directly at source."
+    }
+  ],
+  "searchedButAbsent": "IMPORTANT CAVEAT: this session's WebSearch quota was exhausted (0 searches available), so discovery relied on the known Slovenian source landscape verified through ~30 direct URL fetches; a follow-up search pass could still surface additional niche portals (real-estate media, energy trade press, regional VC newsletters). Genuinely absent or blocked after checking: (1) No active national PE/VC association exists in Slovenia — no operating equivalent of Invest Europe at national level (the historical Slovenian venture-capital association is defunct); coverage is reconstructed from Business Angels of Slovenia, Startup Slovenia, Slovene Enterprise Fund and CEE-level directories. (2) No Slovenia-specific litigation-funding, royalties, ILS or tokenized-RWA registries or media were found — these niches have no dedicated SI sources. (3) No RICS Slovenia chapter directory — the statutory valuer roll lives at the Slovenian Institute of Auditors instead. (4) ATVP registers are machine-inaccessible (WAF 403 reconfirmed) — ESMA registers are the documented workaround. (5) Svet kapitala (Delo's capital-markets vertical) now redirects to Delo's error host — apparently discontinued as a standalone destination. (6) Delo, Dnevnik, Finance.si and Siol RSS endpoints could not be verified (blocked hosts, 404s, or error redirects) — rssUrl recorded only where the feed was actually confirmed (RTV, N1, Necenzurirano, SEOnet). (7) A 'Forbes Slovenia' edition could not be confirmed and was excluded rather than padded. (8) Note for gazette monitoring: Uradni list publication moved to PISRS on 1 Mar 2026 — pipelines must target PISRS going forward.\""
+}

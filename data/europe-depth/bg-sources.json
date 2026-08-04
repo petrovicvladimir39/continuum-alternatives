@@ -1,0 +1,595 @@
+{
+  "country": "BG",
+  "sources": [
+    {
+      "name": "Commercial Register and Register of Non-Profit Legal Entities (EPZEU portal, Registry Agency)",
+      "url": "https://portal.registryagency.bg",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Unified EPZEU portal covering the Commercial Register & NPLE Register, Property Registry, Central Register of Special Pledges, and the personal insolvency register. Free public search and free viewing of company deeds/filings (incl. annual financial statements and insolvency entries). No API or bulk mention on the portal itself — bulk route is via the national open data portal."
+    },
+    {
+      "name": "BULSTAT Register (Registry Agency)",
+      "url": "https://bulstat.registryagency.bg",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this session. Standard Registry Agency register of entities outside the Commercial Register (branches, freelancers, foreign entities, civil-law partnerships/DZZDs — relevant for SPVs). Public search exists; machine access unconfirmed."
+    },
+    {
+      "name": "Bulgarian National Open Data Portal — Commercial Register bulk datasets",
+      "url": "https://data.egov.bg",
+      "side": "entities",
+      "category": "open-data-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Fetch returned HTTP 403 (bot protection), so contents unverified this session. This is the official state open data portal and the documented home of periodic Commercial Register bulk extracts and other agency datasets; retry with a browser-grade crawler."
+    },
+    {
+      "name": "Property Registry (Imoten registar, via EPZEU)",
+      "url": "https://portal.registryagency.bg",
+      "side": "entities",
+      "category": "property-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as a listed service on the EPZEU portal homepage. Real-estate ownership/encumbrance lookups (fee-based for full deeds); relevant for real-assets diligence. Same portal as the Commercial Register."
+    },
+    {
+      "name": "Central Register of Special Pledges (CROZ, via EPZEU)",
+      "url": "https://portal.registryagency.bg",
+      "side": "entities",
+      "category": "collateral-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as a listed service on the EPZEU portal. Register of special (non-possessory) pledges — a strong private-debt/ABL signal source (who is lending against what collateral)."
+    },
+    {
+      "name": "Financial Supervision Commission (FSC) — registers and references hub",
+      "url": "https://www.fsc.bg/registri-i-spravki/",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (BG version; the /en/registers-and-references/ path 404s — URL instability confirmed). Lists registers for crypto-asset service providers (MiCA), crowdfunding providers, DRSPs, MTFs, tied agents, EU UCITS/ManCos, short selling, OTC derivatives, and insurance/pension items. FSC is the single regulator for investment firms, fund managers, insurers AND pension companies in Bulgaria."
+    },
+    {
+      "name": "FSC Unified/Electronic Information System (EIS)",
+      "url": "https://eis.fsc.bg",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist and carry FSC branding, but page content is JS-rendered and truncated for plain fetchers. This is the successor system for supervised-entity lookups (investment intermediaries, management companies, AIFM-equivalents, insurers, pension companies). Needs headless-browser crawling."
+    },
+    {
+      "name": "FSC Register of licensed crypto-asset service providers (MiCA)",
+      "url": "https://www.fsc.bg/en/",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: the FSC English homepage links a 'Register of licensed crypto-asset service providers' plus a register of persons under §5(3) of the Crypto Asset Markets Act. FSC is Bulgaria's MiCA competent authority; deep-link URLs are unstable, so crawl from the homepage/registers hub."
+    },
+    {
+      "name": "Bulgarian National Bank — Registers and Services",
+      "url": "https://www.bnb.bg/RegistersAndServices/index.htm",
+      "side": "entities",
+      "category": "central-bank-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Publishes registers of: credit institutions (EEA-licensed list), licensed payment institutions, e-money institutions, credit intermediaries, board-member suitability, and — critically for private debt — the Register of Financial Institutions under Art. 3a LCI (non-bank lenders, leasing, factoring companies). Lists are HTML/downloadable."
+    },
+    {
+      "name": "ESMA Registers (covers Bulgarian AIFMs, UCITS ManCos, investment firms)",
+      "url": "https://registers.esma.europa.eu",
+      "side": "entities",
+      "category": "eu-regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "NOT fetched this session but well-established. ESMA's register portal (with open JSON API) mirrors FSC-notified Bulgarian AIFMs, UCITS management companies and MiFID firms — the reliable machine route given FSC's documented URL instability."
+    },
+    {
+      "name": "EBA Credit Institutions Register (EUCLID)",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "eu-regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "NOT fetched this session but well-established. EBA's EUCLID register with API/download mirrors BNB-licensed credit and payment institutions — stable machine route for the Bulgarian banking perimeter."
+    },
+    {
+      "name": "National Revenue Agency (NRA) — public checks (VAT registration)",
+      "url": "https://nra.bg",
+      "side": "entities",
+      "category": "tax-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this session. NRA offers public VAT-registration checks useful for entity validation; no confirmed open API. Secondary priority."
+    },
+    {
+      "name": "State Gazette (Darzhaven Vestnik)",
+      "url": "https://dv.parliament.bg/DVWeb/index.faces",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: free public access to issues (current issue 70 of 4 Aug 2026 visible) with per-material views and a searchable database. Legacy JSF (.faces) app — parseable but crawl carefully. Carries statutory notices incl. fund/licensing and corporate items not in the CR."
+    },
+    {
+      "name": "Unified E-Justice Portal (EPEP)",
+      "url": "https://ecase.justice.bg",
+      "side": "entities",
+      "category": "courts",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: free public access to basic case information for all courts and download of anonymized court acts without registration; full files parties-only. Since July 2025 centralized digital filing. Useful for litigation-funding and distressed signals; corporate insolvency notices themselves publish in the Commercial Register."
+    },
+    {
+      "name": "Ministry of Justice — list of insolvency practitioners (sinditsi)",
+      "url": "https://justice.government.bg",
+      "side": "entities",
+      "category": "insolvency-practitioner-roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "UNVERIFIED: fetch failed on a TLS certificate-chain error. The MoJ maintains the statutory list of licensed insolvency practitioners; retry with relaxed TLS or from the ministry sitemap."
+    },
+    {
+      "name": "Register of Insolvency of Natural Persons (via EPZEU)",
+      "url": "https://portal.registryagency.bg",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as a listed register on the EPZEU portal homepage — the new personal-insolvency register under the 2025 regime. Complements corporate insolvency entries inside the Commercial Register."
+    },
+    {
+      "name": "Bulgarian Stock Exchange (BSE-Sofia) — issuers, members, news",
+      "url": "https://www.bse-sofia.bg/en/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: listed instruments per segment (Main, BEAM growth market, MTF International), 'Disclosure by Issuers', Members List, and Exchange News with fresh Jul–Aug 2026 items. No RSS URL visible on homepage; disclosure flow runs through X3News."
+    },
+    {
+      "name": "X3News — BSE official disclosure wire",
+      "url": "https://www.x3news.com",
+      "side": "entities",
+      "category": "issuer-disclosure-feed",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED via fetch: regulated announcements of Bulgarian public companies (MAR internal information, financial reports, GM notices) — 65,974 filings visible, current to 3 Aug 2026, with category filters, corporate-events calendar and an RSS link in the footer (feed URL to be extracted from the page)."
+    },
+    {
+      "name": "Central Depository AD (CSD Bulgaria)",
+      "url": "https://csd-bg.bg",
+      "side": "entities",
+      "category": "market-infrastructure",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: weekly bulletins with market statistics, on-exchange and OTC transaction references, registration/delisting records, plus the national LEI issuance portal — good for issuer/SPV identification."
+    },
+    {
+      "name": "BVCA — Bulgarian Private Equity and Venture Capital Association members",
+      "url": "https://bvca.bg/en/members/",
+      "side": "entities",
+      "category": "association-pe-vc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: contrary to the logo-grid hint, members are listed with names, descriptions AND website links — 17 full members (funds) + 13 associate members (service providers). Prime GP seed list."
+    },
+    {
+      "name": "Association of Banks in Bulgaria (ABB)",
+      "url": "https://abanksb.bg/en/",
+      "side": "entities",
+      "category": "association-banking",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: full and associate member lists, press releases, and a quarterly banking-sector bulletin."
+    },
+    {
+      "name": "BAUD — Bulgarian Association of Asset Management Companies",
+      "url": "https://baud.bg",
+      "side": "entities",
+      "category": "association-asset-management",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: 28 member management companies, 146 funds, EUR 2.16bn AUM (31 Dec 2025); members page at /members/. EFAMA member. Key liquid-alts/ManCo directory with fund statistics."
+    },
+    {
+      "name": "Association of Bulgarian Insurers (ABZ)",
+      "url": "https://www.abz.bg",
+      "side": "entities",
+      "category": "association-insurance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: 35 member insurers (>94% of market) categorized general/life/reinsurance, plus market statistics and news. LP-side and ILS-adjacent mapping."
+    },
+    {
+      "name": "Bulgarian Fintech Association",
+      "url": "https://fintechbulgaria.org",
+      "side": "entities",
+      "category": "association-fintech",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: founding/regular/associate member listings, sector reports, and news. Useful for specialty-finance and tokenized-RWA mapping."
+    },
+    {
+      "name": "BESCO — Bulgarian Entrepreneurial Association",
+      "url": "https://besco.bg",
+      "side": "entities",
+      "category": "association-startup",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: startup/investor/policy association with members section and news; connects the VC-side ecosystem."
+    },
+    {
+      "name": "Bulgarian Industrial Association (BIA / BSK)",
+      "url": "https://www.bia-bg.com",
+      "side": "entities",
+      "category": "association-business",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: analyses, position statements and newsletters ('Business Transmitter') on labor, energy and EU ETS topics; email subscription, no visible RSS."
+    },
+    {
+      "name": "NSNI — National Real Property Association professional registry",
+      "url": "https://www.nsni.bg",
+      "side": "entities",
+      "category": "association-real-estate",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: professional registry of real-estate agencies, brokers and agents plus market commentary — real-assets service-graph coverage."
+    },
+    {
+      "name": "Bulgarian Development Bank (BDB)",
+      "url": "https://bbr.bg/en",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (note: domain is bbr.bg — bdb.bg does not resolve). State development bank with lending, leasing, equity investments, guarantee fund and microfinancing subsidiaries; news section."
+    },
+    {
+      "name": "FMFIB — Fund Manager of Financial Instruments in Bulgaria (Fund of Funds)",
+      "url": "https://www.fmfib.bg/en",
+      "side": "entities",
+      "category": "state-fund-of-funds",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: state fund-of-funds channeling ~EUR 1bn through 11 instruments (equity: entrepreneurship/VC funds; debt: guarantees, microloans) via named financial intermediaries — an LP-side anchor and a route to Bulgarian GP mandates."
+    },
+    {
+      "name": "InvestBulgaria Agency",
+      "url": "https://investbg.government.bg",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch at root (the /en path 404s): FDI promotion agency with sector publications, certified-investor incentives and news."
+    },
+    {
+      "name": "Agency for Public Enterprises and Control (APPK) — privatization + public enterprises registers",
+      "url": "https://www.appk.government.bg",
+      "side": "entities",
+      "category": "privatization-state-assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: electronic register of public (state-owned) enterprises with financial reports, privatization-process register, current/archived tenders, and state property listings — state-asset and SOE mapping."
+    },
+    {
+      "name": "National Concession Register",
+      "url": "https://nkr.government.bg",
+      "side": "entities",
+      "category": "concessions",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: explicitly public and free centralized electronic system of all concessions with criteria-based search — core infrastructure/real-assets source (concessionaires)."
+    },
+    {
+      "name": "CAIS EOP — centralized public e-procurement platform",
+      "url": "https://app.eop.bg",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist (CAIS EOP branding) but it is a JS SPA that renders nothing for plain fetchers. Public tender access exists for browsers; use headless crawling or the procurement datasets republished on data.egov.bg / EU TED."
+    },
+    {
+      "name": "National Statistical Institute (NSI) — Infostat / SDMX",
+      "url": "https://www.nsi.bg/en/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch: business registers statistics, sector data, and machine routes — INFOSTAT database, datacatalog.nsi.bg, and an SDMX 2.1 dissemination database."
+    },
+    {
+      "name": "Chamber of Private Enforcement Agents (BCPEA) — register",
+      "url": "https://www.bcpea.org",
+      "side": "entities",
+      "category": "professional-roll-enforcement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: public register of private enforcement agents plus lookups on pending enforcement cases — distressed-debt service-graph coverage."
+    },
+    {
+      "name": "Chamber of Independent Appraisers in Bulgaria (CIAB/KNOB) — valuer register",
+      "url": "https://ciab.bg",
+      "side": "entities",
+      "category": "professional-roll-valuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "PARTIALLY verified: ciab-bg.com 301-redirects to ciab.bg, which then returned 403 to our fetcher (bot protection). The chamber maintains the statutory public register of certified valuers (the local RICS-equivalent roll); retry with browser-grade crawler."
+    },
+    {
+      "name": "Unified Register of Bulgarian Lawyers (Supreme Bar Council)",
+      "url": "https://bar-register.bg",
+      "side": "entities",
+      "category": "professional-roll-lawyers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (linked from vas.bg, the Supreme Bar Council, also verified): publicly searchable unified register of lawyers across all bar associations, no login required."
+    },
+    {
+      "name": "Executive Environment Agency (ExEA) — EU ETS national administrator",
+      "url": "https://eea.government.bg",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "UNVERIFIED: fetch failed on a TLS certificate-chain error. ExEA is Bulgaria's national administrator for the EU ETS Union Registry accounts; retry with relaxed TLS. Use the EU-level EUTL as the machine route."
+    },
+    {
+      "name": "EU Transaction Log (EUTL) — Bulgarian ETS accounts",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT fetched this session but well-established: the EUTL publicly lists all Bulgarian Union Registry account holders, installations and compliance data, with bulk extracts also mirrored by EEA Europe datasets. The reliable machine route for BG carbon accounts."
+    },
+    {
+      "name": "Capital.bg (Capital weekly / Capital Daily)",
+      "url": "https://www.capital.bg",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.capital.bg/rss/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED with a caveat: /rss/ 302-redirects bots to tollbit.capital.bg (Tollbit bot-monetization gate). Bulgaria's leading business/finance weekly (Economedia). Feed exists but automated access is gated — expect to negotiate Tollbit or use headline-level access; do not reproduce content wholesale."
+    },
+    {
+      "name": "Dnevnik.bg",
+      "url": "https://www.dnevnik.bg",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.dnevnik.bg/rss/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED with same caveat as Capital (same Economedia group): /rss/ 302s to tollbit.dnevnik.bg. Daily news with strong economy coverage."
+    },
+    {
+      "name": "Investor.bg",
+      "url": "https://www.investor.bg",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: financial/markets portal (BSE, banking, real estate, energy, M&A). RSS advertised in footer but /rss/ returned 404 — exact feed URL needs extraction from the live footer; site itself fetches cleanly."
+    },
+    {
+      "name": "The Recursive",
+      "url": "https://therecursive.com",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "rssUrl": "https://therecursive.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED: working RSS 2.0 feed with full items. The reference SEE/CEE startup-and-VC publication (funding rounds across Bulgaria and the region) — highest-signal VC source for BG."
+    },
+    {
+      "name": "SeeNews",
+      "url": "https://seenews.com",
+      "side": "news",
+      "category": "regional-business-wire",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 (bot protection) — site not inspected this session. Sofia-based Southeast Europe business newswire (deals, energy, banking) with partly paywalled content; retry with browser-grade crawler and respect ToS."
+    },
+    {
+      "name": "BTA — Bulgarian News Agency",
+      "url": "https://www.bta.bg/en",
+      "side": "news",
+      "category": "newswire",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: state newswire; economy section freely accessible in English; a 'Feeds' navigation section exists but concrete RSS URLs were not exposed in the fetched HTML — extract from the feeds page."
+    },
+    {
+      "name": "Novinite.com (Sofia News Agency)",
+      "url": "https://www.novinite.com",
+      "side": "news",
+      "category": "english-language-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "PARTIALLY verified: rss.php returned 404 and the root was not fetched this session. Long-running English-language Bulgarian news site with business section; re-probe for current feed paths."
+    },
+    {
+      "name": "3eNews (energy / economy / ecology)",
+      "url": "https://3e-news.net",
+      "side": "news",
+      "category": "energy-media",
+      "tier": "signals_press",
+      "rssUrl": "https://3e-news.net/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED: working RSS 2.0 feed, 20 fresh items (3 Aug 2026) covering electricity markets, CBAM, renewables and macro — the strongest BG energy-transition signal source."
+    },
+    {
+      "name": "Bloomberg TV Bulgaria",
+      "url": "https://www.bloombergtv.bg",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "rssUrl": "https://www.bloombergtv.bg/p/rss-listing",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED via fetch: Bulgarian-language markets/business broadcaster; RSS listing page confirmed at /p/rss-listing (per-category feed URLs enumerated there)."
+    },
+    {
+      "name": "Forbes Bulgaria",
+      "url": "https://forbesbulgaria.com",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "rssUrl": "https://forbesbulgaria.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED: working WordPress RSS feed, hourly updates, covering business, construction/real estate, tech and economy."
+    },
+    {
+      "name": "Profit.bg",
+      "url": "https://profit.bg",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: business/markets portal (Sportal Media Group); no RSS link visible — crawl section indexes."
+    },
+    {
+      "name": "Money.bg",
+      "url": "https://money.bg",
+      "side": "news",
+      "category": "business-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: business/finance/real-estate news portal; /rss returns HTML (no feed found) — treat as crawlable index."
+    },
+    {
+      "name": "Economic.bg",
+      "url": "https://www.economic.bg",
+      "side": "news",
+      "category": "business-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 (bot protection) — real, established business/economy outlet; retry with browser-grade crawler; feed path unconfirmed."
+    },
+    {
+      "name": "Banker.bg (Banker weekly)",
+      "url": "https://www.banker.bg",
+      "side": "news",
+      "category": "banking-finance-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned 403 (bot protection) — long-running Bulgarian financial weekly focused on banking; retry with browser-grade crawler."
+    },
+    {
+      "name": "Infostock.bg",
+      "url": "https://www.infostock.bg",
+      "side": "news",
+      "category": "markets-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: BSE-focused market news, SOFIX/BGBX40 data; /rss returned 404, no feed link found on homepage — crawl news indexes."
+    },
+    {
+      "name": "Manager.bg",
+      "url": "https://www.manager.bg",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: business/management monthly's news site; no RSS link visible."
+    },
+    {
+      "name": "Gradat.bg",
+      "url": "https://gradat.bg",
+      "side": "news",
+      "category": "real-estate-construction-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: the reference construction/real-estate/investment-projects media (GRADAT magazines, PDS.bg project database); /rss 404 — weekly newsletter instead; crawl section indexes."
+    },
+    {
+      "name": "DevStyler.io",
+      "url": "https://devstyler.io",
+      "side": "news",
+      "category": "tech-media",
+      "tier": "signals_press",
+      "rssUrl": "https://devstyler.io/feed/",
+      "accessMethod": "js-blocked",
+      "verdict": "Feed path returned 403 to our fetcher (bot protection); DevStyler is a real Bulgarian tech/IT-industry outlet on WordPress, so /feed/ very likely works for standard crawlers — retry with different user agent."
+    },
+    {
+      "name": "BNB Press Office",
+      "url": "https://www.bnb.bg/AboutUs/PressOffice/index.htm",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED via fetch: all BNB press releases plus ECB/EBA communications; page confirms an RSS subscription link and email distribution — extract the concrete feed URL from the page header."
+    },
+    {
+      "name": "FSC News",
+      "url": "https://www.fsc.bg/en/news/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "PARTIALLY verified: FSC site verified overall (homepage fetched); the news section is standard WordPress-style listing. Licensing decisions and enforcement — direct signal for new fund managers/CASPs. Exact URL may drift with FSC's known instability."
+    },
+    {
+      "name": "Ministry of Finance news",
+      "url": "https://www.minfin.bg",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch of /en/news returned 403 (bot protection). Real and authoritative for debt issuance, fiscal policy and euro-adoption; retry with browser-grade crawler."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Covers Bulgarian GPs/funds mainly as part of CEE fund universes (e.g., BVCA-member funds, EIF/EBRD-backed vehicles); thin below the fund level and weak on local service graph, NPL servicers and niche alts.",
+      "publicSourcesTheyUse": "FSC/ESMA fund and manager registers, EIF/EBRD/FMFIB program announcements, fund press releases, association member lists (BVCA) — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Good on Bulgarian VC deal flow (LAUNCHub, Eleven, Vitosha, BrightCap ecosystems) and M&A with advisor attribution; weaker on private debt, real assets and state-linked vehicles.",
+      "publicSourcesTheyUse": "Startup/VC press (The Recursive, Capital), company press releases, Commercial Register filings for confirmations, exchange disclosures (X3News) — we can ingest the same primary feeds."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Startup/scaleup mapping for SEE, often via ecosystem partnerships; strong logo-level company coverage, funding rounds crowd-plus-press sourced; little depth on funds' legal entities or LP side.",
+      "publicSourcesTheyUse": "The Recursive and regional startup media, BESCO/association lists, self-reported company data, Crunchbase-style cross-referencing — the media and association layers are directly available."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Self-reported Bulgarian company and round data; breadth without verification depth; no registry grounding.",
+      "publicSourcesTheyUse": "Press releases and self-submissions; verification against portal.registryagency.bg is the differentiator we hold."
+    },
+    {
+      "platform": "SeeNews (local, Sofia)",
+      "coverageNotes": "Regional SEE business newswire plus data products (TOP 100 SEE ranking, company profiles); strong deal/energy/banking reporting for Bulgaria; partly paywalled.",
+      "publicSourcesTheyUse": "National trade registers and annual financial statements, stock-exchange disclosures, own reporting — the CR annual accounts and BSE/X3News feeds are open to us directly."
+    },
+    {
+      "platform": "APIS (apis.bg, local)",
+      "coverageNotes": "Legal-information systems plus company-data product (Apis Register+) built on official registers; the standard tool of Bulgarian lawyers; entity data strong, no investment-intelligence layer.",
+      "publicSourcesTheyUse": "Commercial Register bulk data (data.egov.bg), State Gazette, court acts — all public and directly ingestible."
+    },
+    {
+      "platform": "Ciela Norma (local)",
+      "coverageNotes": "Competing legal/registers information provider (Ciela Info) with company dossiers and insolvency tracking; same registry substrate, legal-market oriented.",
+      "publicSourcesTheyUse": "Commercial Register, State Gazette, e-justice court acts — identical public substrate."
+    },
+    {
+      "platform": "Papagal.bg / Daxy (local free lookups)",
+      "coverageNotes": "Free web lookups over Commercial Register extracts (ownership, related-party graphs); popular with journalists; prove the CR bulk data is programmatically consumable, but offer no analytics or alternatives focus.",
+      "publicSourcesTheyUse": "Periodic Commercial Register bulk extracts from the national open data portal (data.egov.bg) — confirming that bulk route as our tier-1 pipeline."
+    }
+  ],
+  "searchedButAbsent": "Constraint disclosed: the session's WebSearch budget was already exhausted (200/200) before this task began, so discovery ran on direct URL verification (40+ fetches) plus prior knowledge; every unverified item is flagged in its verdict. Absent or dead despite targeted probing: Association of Collection Agencies in Bulgaria (ACABG) — acabg.bg no longer resolves (DNS dead), so no NPL-servicer directory beyond BNB's Art. 3a financial-institutions register; no standalone Bulgarian leasing or factoring association directory found (both populations are covered via the BNB Art. 3a register and ABB associate members); the pension-companies association (BADDPO) has no confirmed working site — pension-company data flows via FSC instead; FSC's legacy ERiK register endpoints (documented unstable) appear superseded by eis.fsc.bg, which is JS-rendered; no public API for the Commercial Register — bulk only via data.egov.bg (which 403s plain fetchers); no dedicated Bulgarian litigation-funding, royalties or ILS association exists; RICS has no separate Bulgarian directory (global RICS directory plus the CIAB valuer register are the routes); novinite.com and mediapool.bg RSS paths 404'd; investor.bg advertises RSS but the /rss/ path 404s (feed URL must be scraped from the live footer); Capital/Dnevnik feeds exist but are Tollbit-gated for bots."
+}

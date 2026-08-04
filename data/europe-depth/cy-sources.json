@@ -1,0 +1,615 @@
+{
+  "country": "CY",
+  "sources": [
+    {
+      "name": "Department of Registrar of Companies and Intellectual Property (DRCIP)",
+      "url": "https://www.companies.gov.cy/en/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Official registry portal: eSearch of business entities, eFiling, certified copies, registration statistics. No bulk/API on this site itself — bulk route is data.gov.cy (see separate entries)."
+    },
+    {
+      "name": "DRCOR public company eSearch",
+      "url": "https://efiling.drcor.mcit.gov.cy/DrcorPublic/SearchForm.aspx?sc=0",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Public search of all registered organisations by name/number, no login required, phonetic and partial-word matching. Classic ASP.NET app — scrapeable per-entity lookups."
+    },
+    {
+      "name": "data.gov.cy — Register of Companies, Business Names & Partnerships (full register)",
+      "url": "https://www.data.gov.cy/el/dataset/mitroo-eggegrammenon-etaireion-emporikon-eponymion-kai-synetairismon-stin-kypro",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Verified — the flagship CY source. Three CSVs covering the whole register (5 entity types): organisations catalog (name, number, type, status, registration date), registered-office addresses, and officials/directors. Monthly refresh, CC-BY 4.0. Deterministic $0 ingest of the entire Cyprus corporate universe."
+    },
+    {
+      "name": "data.gov.cy — Company registrations (new incorporations)",
+      "url": "https://www.data.gov.cy/el/dataset/eggrafes-etaireion-stin-kypro",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Verified in portal search results; CSV from DRCIP. New-incorporation flow useful as a signal stream."
+    },
+    {
+      "name": "data.gov.cy — Overseas (foreign) company registrations",
+      "url": "https://www.data.gov.cy/el/dataset/eggrafes-allodapon-etaireion-stin-kypro",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "Verified in portal search results; CSV. Foreign companies registered in Cyprus (branch/overseas registrations)."
+    },
+    {
+      "name": "data.gov.cy national open data portal",
+      "url": "https://www.data.gov.cy/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 1,900+ datasets from 95 public bodies; search path /el/search?f[0]=content_type:dataset.dataset. Hub for DRCIP, DLS and statistical datasets. Old CKAN API paths are dead (404) — new platform, HTML search."
+    },
+    {
+      "name": "CySEC — regulated entities hub",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 11 entity categories: Investment Firms, AIFMs, AIF, UCITS & ManCos, ASPs, Issuers, Crowdfunding SPs, MiCAR crypto entities, Regulated Markets, MTFs, PEPPs. Each category has its own register page."
+    },
+    {
+      "name": "CySEC — Cyprus Investment Firms (CIF) list",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/investment-firms/cypriot/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Verified including the Excel: page states 'CIF regulated entities list as of 04 May 2026' with 'Click here to download in Excel format'. Hundreds of firms with licence number/date, registration number, contacts, trade names, status notes."
+    },
+    {
+      "name": "CySEC — AIFM register",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/aifm/",
+      "side": "entities",
+      "category": "fund-manager-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified category page. Same register template as CIFs — probe each subpage for the Excel export (only the CIF Excel was directly confirmed this session)."
+    },
+    {
+      "name": "CySEC — AIF / RAIF / AIFLNP / EuVECA registers",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/aif/",
+      "side": "entities",
+      "category": "fund-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Four sub-registers (AIF, RAIF, AIFLNP, EuVECA & EuSEF) each behind its own page. The RAIF register is the key growth segment for CY alternatives."
+    },
+    {
+      "name": "CySEC — UCITS & Management Companies register",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/ucits/",
+      "side": "entities",
+      "category": "fund-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified category exists on the entities hub; per-page register in the standard CySEC list format."
+    },
+    {
+      "name": "CySEC — Administrative Service Providers (ASP) register",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/asp/",
+      "side": "entities",
+      "category": "service-provider-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified category. ASPs (fiduciary/corporate administrators) are the core of the Cyprus institutional service graph — regulated by CySEC, full licensee list."
+    },
+    {
+      "name": "CySEC — MiCAR CASP register (+ former CASPs)",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/Crypto-Assets-Entities-(MiCAR)/MiCAR-CASPs/",
+      "side": "entities",
+      "category": "crypto-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified URL structure from the MiCAR hub: active CASPs and Former-MiCAR-CASPs registers, plus a regulatory sandbox page. Covers MiCA-era crypto licensees (successor of the CBA register)."
+    },
+    {
+      "name": "CySEC — Crowdfunding Service Providers register",
+      "url": "https://www.cysec.gov.cy/en-GB/entities/CROWDFUNDING-SERVICE-PROVIDERS-(CSP)/",
+      "side": "entities",
+      "category": "crowdfunding-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified category on the entities hub (ECSP Regulation licensees)."
+    },
+    {
+      "name": "Central Bank of Cyprus — licensing & supervision registers",
+      "url": "https://www.centralbank.cy/en/licensing-supervision",
+      "side": "entities",
+      "category": "central-bank-registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists but returns HTTP 403 to automated fetchers (bot protection). Holds registers of credit institutions, payment/e-money institutions, and — critical for NPL coverage — credit-acquiring companies under the Sale of Credit Facilities Law. Needs a headless/browser fetch or manual pulls."
+    },
+    {
+      "name": "EBA EUCLID registers (CY credit + payment institutions)",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "central-bank-registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Standing EU-level machine-readable route around the blocked CBC site: EBA's credit-institution and payment-institution registers cover all CY licensees with JSON/CSV access. Not fetch-verified this session (known infrastructure)."
+    },
+    {
+      "name": "ESMA Registers portal (CY AIFMs, ManCos, firms, MiCA passports)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "fund-manager-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Verified portal loads (JS register app with downloadable datasets). EU-level cross-check and bulk route for CySEC-licensed AIFMs/UCITS ManCos/investment firms and MiCA entities."
+    },
+    {
+      "name": "Insurance Companies Control Service (Superintendent of Insurance)",
+      "url": "https://iccs.mof.gov.cy/",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Statutory keeper of the register of licensed insurance/reinsurance undertakings. Connection reset during verification; MoF sites are mid-migration to the (bot-blocked) gov.cy platform. Register exists; access route needs a browser session."
+    },
+    {
+      "name": "Registrar of Occupational Retirement Benefit Funds (IORP register)",
+      "url": "http://www.mlsi.gov.cy/mlsi/rorbf/rorbf.nsf/index_en/index_en",
+      "side": "entities",
+      "category": "pension-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "The LP-side pension regulator (occupational retirement funds). Site has a broken TLS certificate — verification failed; register exists in law. Use EIOPA route below as the machine-accessible fallback."
+    },
+    {
+      "name": "EIOPA Register of IORPs (covers Cyprus pension funds)",
+      "url": "https://www.eiopa.europa.eu/tools-and-data/registers_en",
+      "side": "entities",
+      "category": "pension-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "EIOPA publishes the EU-wide IORP register (spreadsheet) including all Cyprus occupational pension funds — the practical bulk route given the national registrar's broken site. Not fetch-verified this session (known infrastructure)."
+    },
+    {
+      "name": "CERA — Cyprus Energy Regulatory Authority electricity licensees",
+      "url": "https://www.cera.org.cy/en-gb/ilektrismos/details/katalogoi",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via CERA homepage: Electricity Licensees List published, plus market-participant share data. Maps renewable-energy SPVs and IPPs for Real Assets & Infrastructure coverage."
+    },
+    {
+      "name": "Department of Environment — EU ETS national administrator (Union Registry CY)",
+      "url": "https://www.moa.gov.cy/moa/environment/environmentnew.nsf/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Cyprus has no standalone carbon registry; ETS accounts sit in the EU Union Registry with the Department of Environment as national administrator. Gov sites bot-blocked; EUTL (EU Transaction Log) is the public data route for CY installations."
+    },
+    {
+      "name": "Cyprus Official Gazette (Government Printing Office)",
+      "url": "http://www.mof.gov.cy/mof/gpo/gpo.nsf/index_en/index_en",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "The Επίσημη Εφημερίδα is published digitally by the GPO, but the site presented an invalid TLS certificate on verification (both https and http). Real and official; needs cert-tolerant fetching or manual pulls. Statutory notices (liquidations, receiverships) publish here."
+    },
+    {
+      "name": "Department of Insolvency — registers hub",
+      "url": "https://www.insolvency.gov.cy/mitroa/",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Seven registers: court-ordered and voluntary liquidations, companies under receivership/administration, companies under examination, personal bankruptcies, debt-relief decrees, personal repayment plans. Formats per-register (probe each)."
+    },
+    {
+      "name": "Department of Insolvency — insolvency practitioners directory",
+      "url": "https://www.insolvency.gov.cy/simvouloi/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Register of licensed insolvency advisors (Σύμβουλοι Αφερεγγυότητας) — direct roll for the Private Debt & Credit service graph."
+    },
+    {
+      "name": "CyLaw — Cyprus legal database (Bar Association)",
+      "url": "https://www.cylaw.org/",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Free full-text court judgments (Supreme Court and lower courts, 1893–present) and consolidated legislation. The route to liquidation/receivership/insolvency case law."
+    },
+    {
+      "name": "Cyprus Stock Exchange — regulated market issuers",
+      "url": "https://www.cse.com.cy/en-GB/regulated-market/listing/",
+      "side": "entities",
+      "category": "stock-exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified via CSE homepage navigation. Full listing of regulated-market issuers in HTML tables."
+    },
+    {
+      "name": "Cyprus Stock Exchange — Emerging Companies Market (ECM) issuers",
+      "url": "https://www.cse.com.cy/en-GB/non-regulated-market/listing/",
+      "side": "entities",
+      "category": "stock-exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified path. The ECM hosts many funds and smaller issuers (including some AIF listings) — distinct list from the regulated market."
+    },
+    {
+      "name": "Cyprus Stock Exchange — members (brokerage firms)",
+      "url": "https://www.cse.com.cy/en-GB/regulated-market/members/",
+      "side": "entities",
+      "category": "exchange-members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified path (regulated + non-regulated member lists). Execution-broker layer of the service graph."
+    },
+    {
+      "name": "CSE OAM — officially appointed mechanism (issuer filings)",
+      "url": "https://publicoam.cse.com.cy/",
+      "side": "entities",
+      "category": "issuer-filings",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists ('XAK Public Pages') but is a JS single-page app — content not server-rendered. The storage point for regulated issuer disclosures; needs headless rendering or its underlying JSON endpoints mapped."
+    },
+    {
+      "name": "CIFA — Cyprus Investment Funds Association member directory",
+      "url": "https://cifacyprus.org/en/members",
+      "side": "entities",
+      "category": "fund-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified with member names: fund managers (ECM Fund Management, Eleon Capital...), Big-4 audit, law firms (Tornaritis...), administrators (IQ-EQ, Trident Trust, Vistra). Each entry links to the member site — a pre-mapped service-graph seed."
+    },
+    {
+      "name": "Cyprus Bar Association — advocates & law-firm registries",
+      "url": "https://www.cyprusbar.org/DepePage.aspx",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified three searchable registries: advocates (CypriotAdvocateMembersPage.aspx), registered European lawyers, and lawyers' companies/partnerships (DepePage.aspx)."
+    },
+    {
+      "name": "ICPAC — Institute of Certified Public Accountants of Cyprus",
+      "url": "https://www.icpac.org.cy/",
+      "side": "entities",
+      "category": "auditor-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Returns 403 to automated fetchers. ICPAC licenses statutory auditors, many ASPs and insolvency practitioners; has a find-a-member search behind the bot wall."
+    },
+    {
+      "name": "ETEK — Scientific & Technical Chamber member registers (incl. land valuers)",
+      "url": "https://etek.org.cy/el/mitrwa-melwn",
+      "side": "entities",
+      "category": "valuer-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified register URLs (member registers + firm catalogue at e-etek.org.cy/member_catalogue). ETEK's disciplines include Εκτίμηση Γης (land/property valuation) — the statutory valuer roll for real-asset work; RICS members overlap."
+    },
+    {
+      "name": "Association of Cyprus Banks (ACB)",
+      "url": "https://acb.com.cy/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. 8 member banks, sector statistics (EUR 26.9bn loans / 56.9bn deposits), annual publications and 'Banking Insight'."
+    },
+    {
+      "name": "Insurance Association of Cyprus (IAC)",
+      "url": "https://iac.org.cy/en/about-us/members",
+      "side": "entities",
+      "category": "insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Member companies page plus a /en/statistics section and annual reports — the LP-side insurance market map."
+    },
+    {
+      "name": "Cyprus Fiduciary Association (CYFA)",
+      "url": "https://www.cyfa.org.cy/",
+      "side": "entities",
+      "category": "fiduciary-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Representative body of regulated ASPs since 2011 with an 'Our Members' directory — fund-administration/corporate-services layer."
+    },
+    {
+      "name": "Invest Cyprus (CIPA — investment promotion agency)",
+      "url": "https://www.investcyprus.org.cy/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Returns 403 to automated fetchers. The national IPA; publishes sector pages (funds, fintech) and FDI news. Real, needs browser fetch."
+    },
+    {
+      "name": "KEDIPES — Cyprus Asset Management Company (state NPL workout entity)",
+      "url": "https://kedipes.com.cy/en/",
+      "side": "entities",
+      "category": "npl-asset-manager",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Publishes quarterly progress reports (cash inflows, restructurings, recoveries) and announcements — the single best public window into the Cyprus NPL market."
+    },
+    {
+      "name": "TechIsland — tech industry association",
+      "url": "https://thetechisland.org/",
+      "side": "entities",
+      "category": "tech-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Largest CY tech association (est. 2021); member showcase (Wargaming, Exness, JetBrains, Bolt), news and reports — VC-adjacent ecosystem map."
+    },
+    {
+      "name": "CYBAN — Cyprus Business Angels Network",
+      "url": "https://www.cyban.com.cy/",
+      "side": "entities",
+      "category": "angel-network",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. The only angel network in Cyprus (EBAN member); 12 named portfolio companies, member stats, news/events."
+    },
+    {
+      "name": "Research and Innovation Foundation (RIF/IdEK)",
+      "url": "https://www.research.org.cy/en/",
+      "side": "entities",
+      "category": "innovation-funding-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. National R&I funding authority; IRIS portal for calls (incl. Pre-Seed EUR 1m), active announcements. Grant awards signal early-stage dealflow."
+    },
+    {
+      "name": "eProcurement Cyprus (e-PPS)",
+      "url": "https://www.eprocurement.gov.cy/vega/actions/CommonHome.do",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Official public-procurement platform; tenders browsable without login (Recent Tenders, consultations, annual plans). No RSS found; TED is the EU-level structured mirror for above-threshold CY notices."
+    },
+    {
+      "name": "Department of Lands and Surveys (DLS) portal",
+      "url": "https://portal.dls.moi.gov.cy/en/",
+      "side": "entities",
+      "category": "land-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Sales price statistics, general valuation data, interactive geoportal, INSPIRE downloads, state-property auction notices, private cadastral surveyor listings — core real-assets data layer."
+    },
+    {
+      "name": "Cyprus Chamber of Commerce and Industry (CCCI/KEBE)",
+      "url": "https://ccci.org.cy/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Returns 403 to automated fetchers. Real; business directory and sector committees behind the bot wall."
+    },
+    {
+      "name": "CFA Society Cyprus",
+      "url": "https://cfa.org.cy/",
+      "side": "entities",
+      "category": "professional-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Existence verified via 301 redirect from cfacyprus.com; content not fetched this session. Small but genuine professional layer."
+    },
+    {
+      "name": "CYSTAT — Statistical Service of Cyprus",
+      "url": "https://www.cystat.gov.cy/",
+      "side": "entities",
+      "category": "national-statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Redirect loop hit during automated verification (gov-platform bot behavior). Real national statistics office; macro/sector series also mirrored on data.gov.cy and Eurostat."
+    },
+    {
+      "name": "Deputy Ministry of Shipping — Cyprus ship registry",
+      "url": "https://www.dms.gov.cy/",
+      "side": "entities",
+      "category": "ship-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Not fetch-verified this session (gov.cy platform pattern). Cyprus runs a top-tier EU ship registry — relevant for maritime/real-asset structures; access route to be probed with a browser."
+    },
+    {
+      "name": "Cyprus Mail",
+      "url": "https://cyprus-mail.com/",
+      "side": "news",
+      "category": "national-daily-english",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://cyprus-mail.com/feed/",
+      "verdict": "Verified working RSS (25 items, current). English-language daily with business coverage — the most machine-friendly CY news source found."
+    },
+    {
+      "name": "Politis",
+      "url": "https://politis.com.cy/",
+      "side": "news",
+      "category": "national-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://politis.com.cy/feed/",
+      "verdict": "Verified working WordPress RSS (current items). Greek-language daily with economy coverage."
+    },
+    {
+      "name": "Sigmalive",
+      "url": "https://www.sigmalive.com/",
+      "side": "news",
+      "category": "news-portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.sigmalive.com/rss",
+      "verdict": "Verified working RSS 2.0 feed incl. Οικονομία (economy) items. Major broadcaster portal."
+    },
+    {
+      "name": "Financial Mirror",
+      "url": "https://www.financialmirror.com/",
+      "side": "news",
+      "category": "business-financial-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.financialmirror.com/feed/",
+      "verdict": "Site and standard WordPress /feed/ both return 403 to our fetcher (bot protection). Leading English-language CY financial title — real; needs UA/browser-based fetching. rssUrl is the conventional WP feed to retry."
+    },
+    {
+      "name": "StockWatch",
+      "url": "https://www.stockwatch.com.cy/",
+      "side": "news",
+      "category": "markets-financial-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to automated fetchers. The reference CY markets/finance outlet (CSE data, banking, funds). Real; requires browser-grade fetching; RSS not confirmable this session."
+    },
+    {
+      "name": "InBusiness News (IMH/Reporter)",
+      "url": "https://inbusinessnews.reporter.com.cy/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Full business verticals (finance, real estate, energy, ICT); server-rendered listing pages; no RSS found (/rss is 404) — parse section indexes."
+    },
+    {
+      "name": "Cyprus Business News (CBN)",
+      "url": "https://cbn.com.cy/",
+      "side": "news",
+      "category": "business-news-english",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. English business coverage (companies, financial services, real estate). A /feed/ endpoint exists but returned an empty/null RSS channel — treat as broken; parse HTML."
+    },
+    {
+      "name": "GoldNews / GOLD magazine (IMH)",
+      "url": "https://www.goldnews.com.cy/",
+      "side": "news",
+      "category": "business-news-english",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. English business/finance coverage incl. professional services and real estate; no RSS found (/feed/ 404); parse section pages."
+    },
+    {
+      "name": "Kathimerini Cyprus (Οικονομική)",
+      "url": "https://www.kathimerini.com.cy/",
+      "side": "news",
+      "category": "national-daily-economy",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch refused at network level this session. Real title with strong economy section; needs browser-grade access."
+    },
+    {
+      "name": "Philenews (Ο Φιλελεύθερος)",
+      "url": "https://www.philenews.com/",
+      "side": "news",
+      "category": "national-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch refused at network level this session. Largest Greek-language CY daily, economy section (Οικονομία); retry with browser fetching."
+    },
+    {
+      "name": "Cyprus News Agency (CNA)",
+      "url": "https://www.cna.org.cy/",
+      "side": "news",
+      "category": "national-news-agency",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to automated fetchers. State news agency, economy wire; real, bot-walled."
+    },
+    {
+      "name": "CySEC announcements & press",
+      "url": "https://www.cysec.gov.cy/en-GB/public-info/announcements/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified. Chronological announcements with year filter and page-size controls up to 150 — cleanly scrapeable; no RSS offered. Licensing decisions, sanctions, withdrawals = high-value signals."
+    },
+    {
+      "name": "Central Bank of Cyprus press releases",
+      "url": "https://www.centralbank.cy/en/announcements",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "CBC site 403s automated fetchers throughout. Monetary/financial-stability and NPL statistics announcements; needs browser fetch."
+    },
+    {
+      "name": "CSE announcements (regulated + ECM)",
+      "url": "https://www.cse.com.cy/en-GB/regulated-market/announcements/",
+      "side": "news",
+      "category": "exchange-announcements",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified paths from CSE homepage (regulated-market and non-regulated-market announcement streams). Issuer corporate actions and fund listings; no RSS confirmed."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Covers Cyprus-domiciled AIFs/RAIFs, AIFMs and fund performance as part of European alternatives; Cyprus is a small but growing fund domicile in their data.",
+      "publicSourcesTheyUse": "CySEC entity registers and quarterly collective-investment statistics, CIFA publications, fund manager announcements — all directly accessible to us via cysec.gov.cy and cifacyprus.org."
+    },
+    {
+      "platform": "PitchBook / Crunchbase / Dealroom",
+      "coverageNotes": "Cyprus PE/VC deals, startup ecosystem and investor profiles; coverage skewed to tech (Exness, Wargaming orbit) and thin on funds/credit.",
+      "publicSourcesTheyUse": "Press releases and tech media, DRCOR registrar filings, TechIsland and RIF grant announcements, CYBAN portfolio disclosures — we go direct to data.gov.cy CSVs, research.org.cy, thetechisland.org, cyban.com.cy."
+    },
+    {
+      "platform": "With Intelligence",
+      "coverageNotes": "Cyprus ManCos and hedge/liquid-alt managers within their EU fund-manager datasets.",
+      "publicSourcesTheyUse": "CySEC CIF/AIFM/UCITS lists (Excel downloads) and fund press — direct route: cysec.gov.cy entity pages."
+    },
+    {
+      "platform": "Debtwire / ION Analytics",
+      "coverageNotes": "Strongest third-party coverage of the Cyprus NPL/distressed market (portfolio sales by Bank of Cyprus, Hellenic, KEDIPES; servicer moves by doValue/Altamira, APS, Themis).",
+      "publicSourcesTheyUse": "CBC NPL statistics, KEDIPES quarterly progress reports, bank investor-relations disclosures, StockWatch/Financial Mirror reporting — direct routes: kedipes.com.cy, centralbank.cy (browser-fetch), CSE OAM filings."
+    },
+    {
+      "platform": "OpenCorporates",
+      "coverageNotes": "Full Cyprus company universe republished.",
+      "publicSourcesTheyUse": "Exactly the DRCOR open-data CSVs on data.gov.cy (organisations/officials/addresses) — we ingest the same primary files at $0, no need to touch their platform."
+    },
+    {
+      "platform": "Moody's Orbis (Bureau van Dijk) / local credit bureaus (Artemis)",
+      "coverageNotes": "Cyprus company financials, ownership trees and credit data sold into compliance/KYC workflows.",
+      "publicSourcesTheyUse": "DRCOR registrar records and annual-return (HE32) financial filings, gazette insolvency notices — direct routes: DRCOR eSearch, data.gov.cy, insolvency.gov.cy registers, official gazette."
+    },
+    {
+      "platform": "Bloomberg / LSEG (Refinitiv)",
+      "coverageNotes": "CSE-listed issuers, prices and corporate actions; minimal alternatives depth for CY.",
+      "publicSourcesTheyUse": "CSE market data, OAM issuer filings, CySEC issuer register — direct routes: cse.com.cy listing/announcement pages and publicoam.cse.com.cy."
+    },
+    {
+      "platform": "StockWatch (local data provider)",
+      "coverageNotes": "Local benchmark for CY market data, bank/finance news and company coverage; operates a paid data service alongside the news site.",
+      "publicSourcesTheyUse": "CSE feeds and announcements, CySEC decisions, company disclosures, CBC statistics — all public and directly reachable by us."
+    },
+    {
+      "platform": "IMH group (InBusiness / GOLD rankings & directories)",
+      "coverageNotes": "Local company rankings, sector directories and awards content (e.g. IN Business Top companies) — reputational rather than registry-grade.",
+      "publicSourcesTheyUse": "Own reporting plus company submissions and registrar data; underlying public layer is DRCOR + CSE + CySEC, which we ingest directly."
+    }
+  ],
+  "searchedButAbsent": "Constraints first: the session's WebSearch budget was already exhausted (200/200) before this task started, so discovery ran on direct URL verification (~40 WebFetch probes, Greek and English paths) over the known Cyprus institutional set; anything listed js-blocked/unknown EXISTS but refused automated fetching. Searched and genuinely absent: (1) No dedicated national PE/VC association — Invest Europe has no Cyprus member association; CIFA (funds) and CYBAN (angels) fill the role. (2) No national development bank or promotional institution — the former Cyprus Development Bank was privatized long ago (cdbbank is commercial); early-stage public capital runs through the EIF-managed Cyprus Equity Fund and RIF grants. (3) No privatization agency — the Privatisation Unit was abolished in 2019; no portal exists. (4) No standalone national or voluntary carbon registry — only the EU Union Registry (Department of Environment as administrator; EUTL is the public data route). (5) No REIT register — Cyprus has no REIT regime. (6) No public UBO register access (post-2022 CJEU restriction, as expected). (7) No RSS anywhere on the official side — CySEC, CSE, CBC, eProcurement and CIFA offer none; on the press side only Cyprus Mail, Politis and Sigmalive have verified working feeds; CBN's feed exists but is empty; Financial Mirror/StockWatch feeds could not be confirmed through their bot walls. (8) No litigation-funding, royalty-fund or ILS-specific Cyprus registers or associations were found — those niches have no dedicated local infrastructure and are covered via CySEC AIF/RAIF registers. (9) Old CKAN API paths on data.gov.cy are dead — the new portal is HTML-search only, but the full company register remains downloadable as monthly CC-BY CSVs. (10) A Cyprus pension-funds association could not be verified this session and is omitted rather than guessed. Count honesty: 62 real sources catalogued; nothing padded."
+}

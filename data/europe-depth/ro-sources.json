@@ -1,0 +1,604 @@
+{
+  "country": "RO",
+  "sources": [
+    {
+      "name": "ONRC — Oficiul National al Registrului Comertului",
+      "url": "https://www.onrc.ro/index.php/ro/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "The national trade register. Fetch attempt returned a WAF access-denied page (support-ID block) from datacenter IP — real and authoritative, but automated access needs residential/browser routing or the data.gov.ro bulk route."
+    },
+    {
+      "name": "ONRC RECOM Online portal",
+      "url": "https://portal.onrc.ro/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "RECOM online company lookup; known to offer free basic search after account creation, paid certificates/extracts. DNS resolution failed from our fetcher this session — not verified live; treat as account-gated, not bulk."
+    },
+    {
+      "name": "data.gov.ro — ONRC bulk company datasets",
+      "url": "https://data.gov.ro/dataset?q=ONRC",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. 76 ONRC datasets incl. 'Firme inregistrate la Registrul Comertului' as dated CSV snapshots (Jul/Aug/Oct 2025 versions seen), plus status-code nomenclatures and authorized-activities CSVs. CC-BY-4.0 / OGL-ROU. This is the $0 deterministic backbone for RO companies."
+    },
+    {
+      "name": "data.gov.ro CKAN API",
+      "url": "https://data.gov.ro/api/3",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "National open-data portal runs CKAN; the portal itself confirms API access. Use for programmatic discovery/refresh of ONRC + SEAP dataset resources."
+    },
+    {
+      "name": "ANAF taxpayer web service (VAT/status by CUI)",
+      "url": "https://webservicesp.anaf.ro/PlatitorTvaRest/api/v8/ws/tva",
+      "side": "entities",
+      "category": "tax-registry",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via official doc (static.anaf.ro doc_WS_V8.txt): free public REST API, POST up to 100 CUIs/request, max 1 req/sec; returns VAT status, active/inactive, e-Invoice registration. Excellent deterministic enrichment for every RO entity."
+    },
+    {
+      "name": "Ministerul Finantelor — fiscal info & annual financial statements lookup",
+      "url": "https://mfinante.gov.ro/apps/infocodfiscal.html",
+      "side": "entities",
+      "category": "financial-statements",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Well-known free lookup of company fiscal data and annual balance-sheet summaries by CUI. Connection reset during verification (likely anti-bot) — real service, needs browser-grade fetching."
+    },
+    {
+      "name": "ASF — registers of authorized entities (hub)",
+      "url": "https://asfromania.ro/ro/a/1544/registre-entit%C4%83%C8%9Bi-autorizate",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Hub page linking registers across all three ASF sectors: insurance (RO insurers, EEA passporting, intermediaries, claims adjusters), capital markets, private pensions."
+    },
+    {
+      "name": "ASF — Registrul instrumentelor si investitiilor financiare (capital-markets register app)",
+      "url": "https://data.asfromania.ro/registru/",
+      "side": "entities",
+      "category": "regulator-register-funds",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "asfromania.ro/registru 302-redirects here (VERIFIED redirect); app itself returned 403 to our fetcher. Covers SAI/ManCos, AFIA (AIFMs), SSIF investment firms, funds. Project has already harvested ASF registers — extend to insurance/pension sections."
+    },
+    {
+      "name": "ASF — insurance sector registers",
+      "url": "https://asfromania.ro/ro/a/1544/registre-entit%C4%83%C8%9Bi-autorizate",
+      "side": "entities",
+      "category": "regulator-register-insurance",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED on hub: registers of RO insurers and principal intermediaries, EEA insurers/intermediaries, secondary intermediaries, claims-adjustment specialists. LP-side coverage for the insurance channel."
+    },
+    {
+      "name": "ASF — private pensions market register",
+      "url": "https://asfromania.ro/ro/a/1544/registre-entit%C4%83%C8%9Bi-autorizate",
+      "side": "entities",
+      "category": "regulator-register-pensions",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED on hub: register of private pension market entities (Pillar II/III administrators and funds) — the domestic institutional LP base."
+    },
+    {
+      "name": "BNR — Registre si liste (credit institutions, payment & e-money institutions)",
+      "url": "https://www.bnr.ro/Registre-BNR-717.aspx",
+      "side": "entities",
+      "category": "central-bank-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED structure: registers for credit institutions, IFN, payment institutions, e-money institutions under Reglementare si autorizare > Registre si liste. Pages are server-rendered ASPX — parseable."
+    },
+    {
+      "name": "BNR — Registrul IFN (non-bank financial institutions)",
+      "url": "https://www.bnr.ro/Registrele-BNR---Institutii-Financiare-Nebancare-2107.aspx",
+      "side": "entities",
+      "category": "central-bank-register-nbfi",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Register of IFNs (General/Special/Evidence registers) — direct lenders, leasing, factoring, consumer finance, i.e. the private-debt entity spine. Navigation confirmed; the hint says this register is open — detail page not re-verified this session."
+    },
+    {
+      "name": "BNR — exchange rates XML (Curs XML)",
+      "url": "https://www.bnr.ro/nbrfxrates.xml",
+      "side": "entities",
+      "category": "fx-rates",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "'Curs XML' link confirmed on BNR homepage; canonical daily RON reference-rate XML for deterministic currency conversion (store alongside ECB rates)."
+    },
+    {
+      "name": "Monitorul Oficial al Romaniei",
+      "url": "https://www.monitoruloficial.ro/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official gazette; e-Monitor gives free same-day + archive viewing; Partea IV carries company/professional notices; Partea VI procurement. Full-text search (Expert-Monitor) is a paid subscription."
+    },
+    {
+      "name": "BPI — Buletinul Procedurilor de Insolventa",
+      "url": "https://www.bpi.ro/",
+      "side": "entities",
+      "category": "insolvency-bulletin",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Official ONRC-published insolvency proceedings bulletin — the core distressed-debt signal source. Connection refused from datacenter IP this session; known model: free debtor summary search, paid subscription for full bulletin access."
+    },
+    {
+      "name": "Portal Just — Romanian courts portal",
+      "url": "https://portal.just.ro/",
+      "side": "entities",
+      "category": "court-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Public case-file (dosare) search by party across all courts; a public SOAP query service (portalquery.just.ro) is widely used by local data providers. Connection refused from our fetcher — needs alternate routing; not verified live this session."
+    },
+    {
+      "name": "Bursa de Valori Bucuresti (BVB) — listed shares / issuer list",
+      "url": "https://www.bvb.ro/FinancialInstruments/Markets/Shares",
+      "side": "entities",
+      "category": "exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Full issuer table (Premium/Standard/International/AeRO segments) with symbols, ISINs, prices; 'Descarcare rapida' spreadsheet export present. Paid real-time data via BVB data-sales for anything beyond."
+    },
+    {
+      "name": "Depozitarul Central (Romanian CSD)",
+      "url": "https://www.roclear.ro/",
+      "side": "entities",
+      "category": "csd",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. BVB-group CSD; publishes issuer/corporate-events statistics, settlement participant rankings, dividend payment data. Maintains shareholder registers (not public in full)."
+    },
+    {
+      "name": "Bursa Romana de Marfuri (BRM) — commodities exchange",
+      "url": "https://www.brm.ro/",
+      "side": "entities",
+      "category": "commodities-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Gas/power spot-forward-futures markets, PPA and Guarantees-of-Origin markets, CO2 emission-certificate trading ring, ROGAS indices, market bulletins — relevant to energy-transition and carbon alts."
+    },
+    {
+      "name": "AAF — Asociatia Administratorilor de Fonduri (member list)",
+      "url": "https://www.aaf.ro/membri/",
+      "side": "entities",
+      "category": "association-fund-managers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. ~28 members enumerated: local ManCos (BT AM, BRD AM, Erste AM, Raiffeisen AM, Patria...), the five former-SIF closed-end investors (Evergent, Lion Capital, Transilvania Investments, Infinity Capital, Muntenia Invest), Fondul Proprietatea, foreign distributors. Fund statistics portal at rapoarte.aaf.ro."
+    },
+    {
+      "name": "ROPEA — Romanian Private Equity & Venture Capital Association",
+      "url": "https://www.ropea.ro/",
+      "side": "entities",
+      "category": "association-pe-vc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to our fetcher (per hint: member logo grid). Real association, key GP roster for RO PE/VC. Retry via headless browser with standard UA, or cross-check membership via Invest Europe directory."
+    },
+    {
+      "name": "APAPR — private pension funds association",
+      "url": "https://apapr.ro/",
+      "side": "entities",
+      "category": "association-pensions",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live. Pillar II/III association; member administrators and market stats live in 'Utile'/news sections. Complements the ASF pensions register on the LP side."
+    },
+    {
+      "name": "UNSAR — insurers association (member list)",
+      "url": "https://www.unsar.ro/",
+      "side": "entities",
+      "category": "association-insurance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 23 member insurers (~90% of market): Allianz-Tiriac, Generali, NN, Groupama etc.; publishes market press/statistics."
+    },
+    {
+      "name": "ARB — Asociatia Romana a Bancilor",
+      "url": "https://www.arb.ro/",
+      "side": "entities",
+      "category": "association-banking",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Banking association with member bank list. Connection refused from datacenter IP this session — real organization, not verified live; BNR credit-institution register is the authoritative fallback."
+    },
+    {
+      "name": "ALCCR (formerly ALB Romania) — leasing & consumer credit association",
+      "url": "https://alccr.ro/",
+      "side": "entities",
+      "category": "association-leasing",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (alb-romania.ro 301-redirects to alccr.ro). Leasing/consumer-finance association with member logo carousel and Studies section — maps the NBFI/asset-backed lending ecosystem."
+    },
+    {
+      "name": "UNPIR — insolvency practitioners union (Tabloul UNPIR)",
+      "url": "https://www.unpir.ro/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to fetcher. Real statutory body; maintains the roll (Tabloul) of licensed insolvency practitioners — core service-graph entities for distressed. Retry with browser routing."
+    },
+    {
+      "name": "ANEVAR — authorized valuers association (Tabloul ANEVAR)",
+      "url": "https://www.anevar.ro/",
+      "side": "entities",
+      "category": "valuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to fetcher. Statutory valuers body with searchable roll of authorized valuers/valuation firms (real-assets service graph). Real; needs browser-grade access."
+    },
+    {
+      "name": "UNBR national lawyers table (ifep.ro)",
+      "url": "https://www.ifep.ro/justice/lawyers/lawyerspanel.aspx",
+      "side": "entities",
+      "category": "lawyers-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 'Tabloul national al avocatilor' — 40,042 lawyers, filterable by 41 bars, status, practice form (individual/SCA partnerships), curator roles; paginated ASPX, parseable. Law-firm entity extraction possible via practice-form filter."
+    },
+    {
+      "name": "SEAP/SICAP — e-licitatie.ro public procurement platform",
+      "url": "https://www.e-licitatie.ro/pub",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Confirmed reachable but renders as an Angular SPA (only 'SEAP' heading served to fetcher). Public notice/award search exists in-app; for bulk use the data.gov.ro exports instead."
+    },
+    {
+      "name": "data.gov.ro — SEAP procurement bulk datasets",
+      "url": "https://data.gov.ro/dataset?q=achizitii+publice",
+      "side": "entities",
+      "category": "procurement-open-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. 157 datasets; annual SEAP exports 2016-2026 ('Achizitii publice 2023/2024'...) in CSV/XLS/XLSX, CC-BY/OGL-ROU. Deterministic route to contract-award signals (EPC contractors, concessionaires)."
+    },
+    {
+      "name": "AMEPIP — state-owned enterprise monitoring agency",
+      "url": "https://amepip.gov.ro/",
+      "side": "entities",
+      "category": "state-assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Publishes SOE performance dashboards, KPI reports, board appointments and the aggregate annual corporate-governance report — the state-asset/privatization-adjacent entity map."
+    },
+    {
+      "name": "Exim Banca Romaneasca (state development/export bank)",
+      "url": "https://www.eximbank.ro/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State export-import and development bank: trade finance, export credit insurance, EU-fund co-financing, state guarantee programs. DFI node in the institutional graph."
+    },
+    {
+      "name": "InvestRomania — investment promotion agency",
+      "url": "https://investromania.gov.ro/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Government FDI promotion agency. Returned HTTP 503 during verification (transient) — real agency under the Economy Ministry; low data density, useful for FDI project signals."
+    },
+    {
+      "name": "ANPM — EU ETS national administration (Romania)",
+      "url": "http://www.anpm.ro/eu-ets",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "National environmental agency administering RO's EU ETS accounts/installation lists. DNS lookup failed for www.anpm.ro from our fetcher — not verified this session; prefer the EUTL for machine-readable RO account data."
+    },
+    {
+      "name": "EUTL — EU Transaction Log, Romanian accounts (Union Registry)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Canonical EU source for RO ETS operator accounts, installations, allocations, compliance. Not fetched this session (search budget) but a stable, well-known Commission service with downloadable data; filter registry=Romania."
+    },
+    {
+      "name": "ESMA registers — MiCA CASPs & AIFMD entities (RO slice)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "crypto-mica-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Romania's MiCA NCAs are ASF/BNR and no consolidated national CASP register page was found; the ESMA registers portal (open data/API) is the machine route for RO-authorized CASPs, AIFMs and passporting. Not fetched this session; canonical and known-stable."
+    },
+    {
+      "name": "RICS — find a surveyor/firm (Romania via international search)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "rics-valuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "PARTIALLY VERIFIED: directory live, covers 150+ countries via 'International Search'; Romania-specific result page not confirmed. Use for RICS-accredited valuers alongside ANEVAR (the statutory roll)."
+    },
+    {
+      "name": "BVB — issuer disclosures & market news",
+      "url": "https://www.bvb.ro/",
+      "side": "news",
+      "category": "exchange-news",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Issuer current reports/disclosures published per-instrument on bvb.ro (server-rendered, parseable); no public RSS found. Primary-source corporate signals for listed RO issuers incl. AeRO small caps."
+    },
+    {
+      "name": "BNR — press releases",
+      "url": "https://www.bnr.ro/Comunicate-de-presa-1104.aspx",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Press section confirmed from homepage (monetary policy, statistics, markets subcategories); no RSS advertised — scrape the ASPX index. Email newsletter exists."
+    },
+    {
+      "name": "ASF — press releases (Comunicate)",
+      "url": "https://asfromania.ro/ro/a/6/comunicate-de-presa",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Live press stream incl. board decisions and warnings (items dated Aug 2026 seen) — sanctions/authorizations signal source for funds, insurance, pensions."
+    },
+    {
+      "name": "Ministerul Finantelor — press/announcements",
+      "url": "https://mfinante.gov.ro/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Finance-ministry site is real and active but our fetches to mfinante apps were reset by anti-bot; exact press-page path not verified this session. Treat as needs-browser-routing."
+    },
+    {
+      "name": "Ziarul Financiar",
+      "url": "https://www.zf.ro/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.zf.ro/rss",
+      "verdict": "VERIFIED RSS 2.0, live (Aug 2026), 20 items spanning banking, energy, capital markets. The flagship RO financial daily; banking/insurance section confirmed separately."
+    },
+    {
+      "name": "Profit.ro",
+      "url": "https://www.profit.ro/",
+      "side": "news",
+      "category": "financial-markets-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.profit.ro/rss",
+      "verdict": "VERIFIED RSS, live (Aug 2026). Strong on banking, energy, M&A, capital markets."
+    },
+    {
+      "name": "Ziarul Bursa",
+      "url": "https://www.bursa.ro/",
+      "side": "news",
+      "category": "financial-markets-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.bursa.ro/piata-capital-bursa.xml",
+      "verdict": "VERIFIED RSS index at /rss with two feeds: titluri-bursa.xml (all headlines) and piata-capital-bursa.xml (capital markets). Oldest RO markets daily."
+    },
+    {
+      "name": "Economica.net",
+      "url": "https://www.economica.net/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.economica.net/rss",
+      "verdict": "VERIFIED RSS 2.0, hourly updates, live (Aug 2026)."
+    },
+    {
+      "name": "Economedia",
+      "url": "https://economedia.ro/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://economedia.ro/feed",
+      "verdict": "WordPress /feed exists but returned 403 to our fetcher (WAF). Real independent economics outlet; feed should work with standard browser UA — mark for retry."
+    },
+    {
+      "name": "CursDeGuvernare.ro",
+      "url": "https://cursdeguvernare.ro/",
+      "side": "news",
+      "category": "economic-policy-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://cursdeguvernare.ro/feed",
+      "verdict": "VERIFIED RSS, live (Aug 2026). Public-policy/macro journalism — good for regulatory and macro signals."
+    },
+    {
+      "name": "HotNews.ro",
+      "url": "https://hotnews.ro/",
+      "side": "news",
+      "category": "general-news-economy",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://hotnews.ro/feed",
+      "verdict": "VERIFIED RSS (WordPress), live (Aug 2026). General news with strong economy desk."
+    },
+    {
+      "name": "StartupCafe.ro",
+      "url": "https://www.startupcafe.ro/",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.startupcafe.ro/rss",
+      "verdict": "VERIFIED RSS 2.0, live. The main RO startup/SME/EU-funds outlet — VC deal-flow signals."
+    },
+    {
+      "name": "Romania-Insider.com",
+      "url": "https://www.romania-insider.com/",
+      "side": "news",
+      "category": "english-business-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.romania-insider.com/feed",
+      "verdict": "VERIFIED RSS at /feed (rss.xml is 404). English-language daily covering business, energy, real estate — useful for entity-name-clean English extraction."
+    },
+    {
+      "name": "Business Review (business-review.eu)",
+      "url": "https://business-review.eu/",
+      "side": "news",
+      "category": "english-business-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://business-review.eu/feed",
+      "verdict": "VERIFIED RSS, live (Aug 2026); recent items include private-equity transactions and fintech — high signal density for alternatives."
+    },
+    {
+      "name": "Financial Intelligence",
+      "url": "https://financialintelligence.ro/",
+      "side": "news",
+      "category": "financial-markets-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://financialintelligence.ro/feed/",
+      "verdict": "VERIFIED RSS, 20 items, live (Aug 2026). Capital-markets and energy focused."
+    },
+    {
+      "name": "Energynomics",
+      "url": "https://www.energynomics.ro/",
+      "side": "news",
+      "category": "energy-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.energynomics.ro/feed/",
+      "verdict": "VERIFIED RSS, live. Energy/oil/gas/renewables — energy-transition and infrastructure deal signals."
+    },
+    {
+      "name": "Juridice.ro",
+      "url": "https://www.juridice.ro/",
+      "side": "news",
+      "category": "legal-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.juridice.ro/feed",
+      "verdict": "VERIFIED RSS, hourly, live (Aug 2026). Legal-market news — law-firm mandates, insolvency practice, regulatory analysis for the service graph."
+    },
+    {
+      "name": "The Diplomat Bucharest",
+      "url": "https://www.thediplomat.ro/",
+      "side": "news",
+      "category": "english-business-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.thediplomat.ro/feed/",
+      "verdict": "VERIFIED RSS, live (Aug 2026). English business/energy/finance coverage."
+    },
+    {
+      "name": "Wall-Street.ro",
+      "url": "https://www.wall-street.ro/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site VERIFIED live; /rss returns 404 and no feed link in HTML — no working RSS found. Server-rendered listings are parseable."
+    },
+    {
+      "name": "G4Media.ro",
+      "url": "https://www.g4media.ro/",
+      "side": "news",
+      "category": "general-news-economy",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.g4media.ro/feed",
+      "verdict": "WordPress /feed returned 403 to our fetcher (WAF); real high-traffic outlet with economy desk — retry with browser UA."
+    },
+    {
+      "name": "Property Forum (property-forum.eu)",
+      "url": "https://www.property-forum.eu/news",
+      "side": "news",
+      "category": "real-estate-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED live with active Romania CRE coverage; /rss is 404 and no feed link visible — parse the news index. Key real-assets deal-signal source for CEE/RO."
+    },
+    {
+      "name": "SeeNews",
+      "url": "https://seenews.com/",
+      "side": "news",
+      "category": "regional-business-newswire",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to our fetcher. Real SEE-regional business newswire with substantial Romania coverage; free headlines + paid intelligence tiers. Respect ToS — headline+link use only."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Global alternatives database; Romania appears thinly — a handful of CEE-regional GPs/funds with RO exposure (PE, private debt, infra), LP profiles for regional pension/insurance investors. Weak below the fund level and on local NPL/servicer ecosystem.",
+      "publicSourcesTheyUse": "Regulator registers (ASF fund/AIFM lists), fund annual reports, GP press releases, association data (Invest Europe/ROPEA-adjacent stats) — all directly accessible to us via asfromania.ro registers, ROPEA, and issuer filings."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "RO deal coverage driven by press-sourced M&A/PE transactions and advisor league tables; decent on larger buyouts (e.g. former-SIF ecosystem, regional funds), sparse on local mid-market and service-graph entities.",
+      "publicSourcesTheyUse": "Business press (Ziarul Financiar, Profit.ro, Business Review), law-firm/advisor deal announcements, BVB disclosures — we catalog all of these with working RSS."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strongest global platform for RO startups/VC; cooperates with local ecosystem organizations and government-linked ecosystem reports. Good founder/round data; nothing on debt, real assets, or the institutional service graph.",
+      "publicSourcesTheyUse": "StartupCafe/Romania-Insider startup press, VC fund announcements, How to Web ecosystem reports, self-reported company data, ONRC-derived firmographics via local partners — the ONRC bulk CSVs on data.gov.ro are the direct route."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Self-reported + press-sourced RO startup/VC coverage; shallower than Dealroom locally, weak entity hygiene for RO legal names.",
+      "publicSourcesTheyUse": "Press releases, TechCrunch-style media, self-submissions; verifiable RO facts trace back to the same startup press we ingest directly."
+    },
+    {
+      "platform": "Termene.ro",
+      "coverageNotes": "Leading local company-intelligence SaaS: full RO firmographics, financials, litigation, insolvency alerts, UBO-adjacent links. The de-facto local benchmark for entity data depth.",
+      "publicSourcesTheyUse": "ONRC/RECOM data, Ministry of Finance annual financial statements, BPI insolvency bulletin, portal.just.ro court data (SOAP), Monitorul Oficial — every one of these is in our entities catalog for direct $0 ingestion."
+    },
+    {
+      "platform": "ListaFirme.ro",
+      "coverageNotes": "Veteran local company directory/credit-report vendor; broad firmographic + financials coverage, older UX, API offering.",
+      "publicSourcesTheyUse": "Same public spine: ONRC registrations, MF bilant data, BPI, court portal."
+    },
+    {
+      "platform": "RisCo.ro",
+      "coverageNotes": "Local credit-risk reports and monitoring (payment incidents, insolvency risk scores) on RO companies.",
+      "publicSourcesTheyUse": "ONRC, MF financial statements, BPI, portal.just.ro, plus BNR payment-incident data where public."
+    },
+    {
+      "platform": "KeysFin",
+      "coverageNotes": "Local financial-data and sector-study provider (now part of a regional group); strong on aggregated sector financials and market sizing studies frequently cited in RO business press.",
+      "publicSourcesTheyUse": "MF annual financial statements in bulk, ONRC data — both reachable directly (data.gov.ro ONRC CSVs + mfinante lookup)."
+    },
+    {
+      "platform": "Veridion",
+      "coverageNotes": "Romanian-founded global company-data API (web-scale firmographics via ML crawling); not RO-specific but proof of local data-engineering talent pool; sells B2B datasets, not an alternatives-intelligence product.",
+      "publicSourcesTheyUse": "Open web crawling + public registries; no unique public RO source we lack."
+    },
+    {
+      "platform": "Confidas.ro",
+      "coverageNotes": "Lightweight local company financials/risk lookup aimed at SMEs; simpler than Termene.",
+      "publicSourcesTheyUse": "MF financial statements, ONRC, BPI."
+    }
+  ],
+  "searchedButAbsent": "Web-search quota was already exhausted at session start (0 searches available), so discovery relied on domain knowledge verified by direct fetch; several verdicts are marked unverified accordingly. Things looked for and NOT found: (1) any official RSS feed from BNR, ASF, ONRC, or BVB — none advertised; regulator signals require page scraping; (2) an open/free bulk route for ONRC RECOM itself — RECOM stays account-gated/paid, the open slice is the data.gov.ro CSV snapshots; (3) a consolidated Romanian national MiCA/CASP register page at ASF or BNR — not found, ESMA registers are the machine route; (4) a public UBO (beneficial-ownership) access route — consistent with EU-wide restriction, correctly absent; (5) a dedicated NPL-servicer or debt-collection register — these entities live inside the BNR IFN register (recovery/collection IFNs) rather than a standalone roll; (6) working RSS for Wall-Street.ro and Property Forum — both confirmed absent after checking standard paths and HTML; (7) ROPEA member data — site 403s from datacenter IPs (known logo-grid page; needs browser routing or Invest Europe cross-reference); (8) portal.just.ro, bpi.ro, arb.ro, mfinante apps, anevar.ro, unpir.ro, g4media/economedia feeds all actively refuse datacenter traffic — a recurring RO pattern meaning the ingestion plan should assume residential/browser-grade fetching for Romanian .ro government and association sites; (9) SeeNews and Emerging Europe regional coverage was not independently verified (403); (10) no Romanian sovereign wealth/privatization successor list beyond AMEPIP was located this session."
+}

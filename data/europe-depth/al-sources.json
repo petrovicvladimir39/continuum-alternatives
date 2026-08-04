@@ -1,0 +1,491 @@
+{
+  "country": "AL",
+  "sources": [
+    {
+      "name": "QKB — Qendra Kombëtare e Biznesit (National Business Center) commercial register",
+      "url": "https://qkb.gov.al/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED LIVE (fetched 2026-08). Official commercial register: searchable subjects register, permits/licenses register. English toggle. No API or bulk-download route found on site; register search is an interactive web app — machine route needs browser-grade crawling. Cornerstone tier-1 source."
+    },
+    {
+      "name": "QKB — Regjistri i Pronarëve Përfitues (Beneficial Owners Register)",
+      "url": "https://qkb.gov.al/",
+      "side": "entities",
+      "category": "beneficial ownership register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED as a distinct register hosted under QKB (listed on homepage). Public access level and machine route not confirmed — EU-style UBO public access is restricted, expect gated search. Do not assume open UBO data."
+    },
+    {
+      "name": "e-Albania government services portal (company extracts)",
+      "url": "https://e-albania.al/",
+      "side": "entities",
+      "category": "gov services portal / registry extracts",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED LIVE. Central e-gov portal; company register extracts delivered as e-services but LOGIN REQUIRED (Albanian eID). Not a crawl target; useful as the official extract channel."
+    },
+    {
+      "name": "OpenCorporates Albania (AIS / Albanian Institute of Science)",
+      "url": "https://opencorporates.al/",
+      "side": "entities",
+      "category": "registry mirror with financials + concessions",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Civil-society mirror of the business register: ~38.8k active companies, shareholders/ownership, status, profit figures, concession agreements. Browsable/parseable HTML. Best practical machine route into Albanian company data; respect robots.txt. Not affiliated with opencorporates.com."
+    },
+    {
+      "name": "DPT — Drejtoria e Përgjithshme e Tatimeve (tax administration) open data",
+      "url": "https://www.tatime.gov.al/",
+      "side": "entities",
+      "category": "tax authority register / open data",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Has an 'Open Data' section plus statistics/reports; taxpayer-level register lists not confirmed on homepage. Secondary confirmation source for active-entity status."
+    },
+    {
+      "name": "ASHK — Agjencia Shtetërore e Kadastrës (State Cadastre)",
+      "url": "https://ashk.gov.al/",
+      "side": "entities",
+      "category": "property / cadastre register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Real agency; site returned 403 to non-browser fetcher. Property register relevant for real-assets vertical; public search depth unverified — check in browser."
+    },
+    {
+      "name": "INSTAT — Albanian Institute of Statistics (business registers statistics)",
+      "url": "https://www.instat.gov.al/",
+      "side": "entities",
+      "category": "statistics / business demography",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Real and authoritative (business register statistics, databases). Server refused connection from this fetcher at verification time (ECONNREFUSED) — likely geo/bot filtering; verify in browser."
+    },
+    {
+      "name": "AMF — Autoriteti i Mbikëqyrjes Financiare (Financial Supervisory Authority) licensed-entities registers",
+      "url": "https://amf.gov.al/",
+      "side": "entities",
+      "category": "securities/funds/pensions/insurance supervisor registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "THE cornerstone tier-2 source: AMF supervises investment funds, fund management companies, voluntary pension funds, insurers, brokers/exchange. Site returned HTTP 403 to non-browser clients — registers exist (public knowledge) but need browser-grade access; deep-link register pages also 403'd. Onboard via headless browser and verify robots."
+    },
+    {
+      "name": "Bank of Albania — licensed/supervised entities lists",
+      "url": "https://www.bankofalbania.org/",
+      "side": "entities",
+      "category": "central bank licensee registers (banks, NBFIs, SCAs, payment/e-money)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Real, authoritative licensee lists (banks, non-bank financial institutions incl. lenders relevant to private-credit, savings-credit societies, payment institutions). Site returned 403 to the fetcher (bot filtering) — needs browser-grade access. English version exists."
+    },
+    {
+      "name": "ASD — Agjencia e Sigurimit të Depozitave (Deposit Insurance Agency) member list",
+      "url": "https://asd.gov.al/",
+      "side": "entities",
+      "category": "deposit-insurance member banks & savings-credit societies",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. 'Bankat & SHKK' section lists scheme-member banks and savings-credit societies — clean cross-check list for the banking perimeter."
+    },
+    {
+      "name": "ERE — Enti Rregullator i Energjisë (Energy Regulator) license registries",
+      "url": "https://www.ere.gov.al/",
+      "side": "entities",
+      "category": "energy licensee registers (producers, traders, renewables)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Publishes Registry of Licenses, Registry of Authorizations, GO registry, plus tariff/board decisions. Key for renewables/infrastructure entity sourcing. English version available."
+    },
+    {
+      "name": "AKF — Agjencia Kombëtare e Falimentimit (National Bankruptcy Agency) registers",
+      "url": "https://akf.gov.al/",
+      "side": "entities",
+      "category": "insolvency registers (administrators + businesses in bankruptcy)",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE (falimentimi.gov.al 301-redirects here). Publishes: register of licensed bankruptcy administrators, register of businesses in bankruptcy proceedings, register of tax-administration-initiated bankruptcies. Direct feed for the distressed/NPL vertical AND the insolvency-practitioner roll."
+    },
+    {
+      "name": "Fletorja Zyrtare — QBZ (Qendra e Botimeve Zyrtare, Official Gazette)",
+      "url": "https://qbz.gov.al/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist (official publications centre); page content renders via JS — fetcher got only the shell. Gazette archive/PDF search needs browser-grade crawling."
+    },
+    {
+      "name": "Albanian courts portal (gjykata.gov.al)",
+      "url": "https://gjykata.gov.al/",
+      "side": "entities",
+      "category": "court register / decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Real judicial portal; returned HTTP 500 at verification time. Court-decision search availability unconfirmed this session — re-verify in browser."
+    },
+    {
+      "name": "ALSE — Bursa Shqiptare e Titujve (Albanian Securities Exchange)",
+      "url": "https://alse.al/",
+      "side": "entities",
+      "category": "stock exchange — listed securities + member/broker lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. The only operating Albanian exchange (private-capital, licensed by AMF). Lists members, physical brokers, listed securities (mostly government debt; equities extremely thin), fund/market data. English available. Honest caveat: very few corporate issuers."
+    },
+    {
+      "name": "ALREG — Albanian Securities Register (central securities registrar)",
+      "url": "https://alreg.al/",
+      "side": "entities",
+      "category": "securities registrar",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real AMF-licensed securities registrar (known from public record); URL NOT verified this session (search budget exhausted) — confirm domain before onboarding."
+    },
+    {
+      "name": "AAB — Shoqata Shqiptare e Bankave (Albanian Association of Banks)",
+      "url": "https://aab.al/",
+      "side": "entities",
+      "category": "banking association member directory + publications",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Member banks listed (BKT, Credins, Raiffeisen, OTP, Intesa, ProCredit, Tirana Bank, Union, FiBank, ABI, UBA); publishes annual reports, quarterly data, 'Bankieri' magazine — good signal + entity source. English available."
+    },
+    {
+      "name": "AIDA — Albanian Investment Development Agency",
+      "url": "https://aida.gov.al/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Strategic-investor status records, FDI info, sector guides, TEDA zones, open data section, news. English available."
+    },
+    {
+      "name": "AADF — Albanian-American Development Foundation",
+      "url": "https://www.aadf.org/",
+      "side": "entities",
+      "category": "development foundation / quasi-DFI investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. $153m committed, 86 active projects across entrepreneurship, tourism, education — a genuine local institutional investor. News hub present; no RSS link surfaced."
+    },
+    {
+      "name": "FSHZH — Albanian Development Fund",
+      "url": "https://www.albaniandf.org/",
+      "side": "entities",
+      "category": "national development fund (projects + tenders)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. 313 projects/15 programs, tender calls, funded by WB/EU/EBRD — infrastructure deal-flow signal source."
+    },
+    {
+      "name": "Albania Investment Council (EBRD/SECO-backed)",
+      "url": "https://www.investment.com.al/",
+      "side": "entities",
+      "category": "public-private investment-climate platform",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Publishes monitoring reports, economic outlook indicators, member association roster — useful for the institutional service graph and climate signals."
+    },
+    {
+      "name": "AIC — Albanian Investment Corporation",
+      "url": "https://aicorporation.al/",
+      "side": "entities",
+      "category": "state investment corporation",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real state-owned investment corporation (law 71/2019, manages state assets into investable projects). Site returned HTTP 429 at verification — exists but rate-limits; re-verify in browser."
+    },
+    {
+      "name": "APP — Agjencia e Prokurimit Publik (Public Procurement Agency)",
+      "url": "https://www.app.gov.al/",
+      "side": "entities",
+      "category": "public procurement portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Notices by year plus an explicit 'Open Data' export of published procedures — one of the few genuinely machine-friendly government routes. E-procurement system (SPE) linked."
+    },
+    {
+      "name": "Open Procurement Albania (AIS)",
+      "url": "https://openprocurement.al/",
+      "side": "entities",
+      "category": "procurement transparency database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Structured procurement data across local government, health, ADF, centralized purchasing, state enterprises, road authority — contractor-level entity signals."
+    },
+    {
+      "name": "Ndiqparate / Spending Data Albania (AIS)",
+      "url": "https://ndiqparate.al/",
+      "side": "entities",
+      "category": "treasury transactions + concessions/PPP database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE (open.data.al redirects here). Treasury payment records, concession/PPP contracts, risk-flagged tenders — strong for the concessionaire/real-assets vertical."
+    },
+    {
+      "name": "opendata.gov.al — government open data portal",
+      "url": "https://opendata.gov.al/",
+      "side": "entities",
+      "category": "open data portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists (title confirmed) but page is JS-rendered — dataset inventory unverified this session. Check for business-register datasets in browser."
+    },
+    {
+      "name": "CCIT — Chamber of Commerce and Industry Tirana",
+      "url": "https://www.cci.al/",
+      "side": "entities",
+      "category": "chamber of commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. No public member directory surfaced on homepage; services + events. English at /en/."
+    },
+    {
+      "name": "UCCIAL — Union of Chambers of Commerce and Industry of Albania",
+      "url": "https://uccial.al/",
+      "side": "entities",
+      "category": "chambers umbrella body",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real umbrella organization; URL NOT verified this session — confirm before onboarding."
+    },
+    {
+      "name": "IEKA — Instituti i Ekspertëve Kontabël të Autorizuar (statutory auditors institute)",
+      "url": "https://www.ieka.al/",
+      "side": "entities",
+      "category": "auditor register (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Real professional body maintaining the statutory-auditor register (service-graph vertical). Site returned 403 to the fetcher — browser-grade access needed."
+    },
+    {
+      "name": "DHKA — Dhoma Kombëtare e Avokatisë (National Chamber of Advocates)",
+      "url": "https://dhka.org.al/",
+      "side": "entities",
+      "category": "bar association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Bar association under law 55/2018; NO public searchable lawyer roll found on the site — directory access appears offline/on-request."
+    },
+    {
+      "name": "ATRAKO — Agency for the Treatment of Concessions",
+      "url": "https://www.atrako.gov.al/",
+      "side": "entities",
+      "category": "concessions/PPP agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real agency supporting concession/PPP procedures; URL NOT verified this session — confirm domain (may sit under Ministry of Finance pages)."
+    },
+    {
+      "name": "Ministry of Finance (Ministria e Financave) — debt, budget, privatization notices",
+      "url": "https://www.financa.gov.al/",
+      "side": "entities",
+      "category": "finance ministry (debt reports, privatization)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED LIVE. Debt reports, budget docs, notices; privatization notices not explicitly surfaced on homepage — Albania's remaining privatizations run through this ministry. English toggle."
+    },
+    {
+      "name": "EBRD — project summary documents (Albania)",
+      "url": "https://www.ebrd.com/work-with-us/project-finance/project-summary-documents.html",
+      "side": "entities",
+      "category": "DFI project disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Well-known filterable PSD database; EBRD is among the largest institutional investors in Albania (equity funds, direct debt, infra). Not re-verified this session but long-standing stable source."
+    },
+    {
+      "name": "IFC — project disclosures (Albania)",
+      "url": "https://disclosures.ifc.org/",
+      "side": "entities",
+      "category": "DFI project disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "IFC disclosure portal has structured search (JSON endpoints) filterable by country=Albania — investments incl. financial-sector and infra deals. Not re-verified this session; stable, well-known."
+    },
+    {
+      "name": "EIB — financed projects (Albania)",
+      "url": "https://www.eib.org/en/projects/all/index.htm",
+      "side": "entities",
+      "category": "DFI project database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "EIB project list filterable by country; Albania infra/energy deals. Not re-verified this session; stable, well-known."
+    },
+    {
+      "name": "Revista Monitor (monitor.al)",
+      "url": "https://www.monitor.al/",
+      "side": "news",
+      "category": "business/financial weekly — the flagship",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.monitor.al/feed/",
+      "verdict": "VERIFIED: RSS feed working, hourly updates, economy/banking/real-estate/energy coverage since 2000. The single best Albanian business-news signal source."
+    },
+    {
+      "name": "Tirana Times",
+      "url": "https://www.tiranatimes.com/",
+      "side": "news",
+      "category": "English-language weekly, business & economy section",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.tiranatimes.com/feed/",
+      "verdict": "VERIFIED: site live (Aug 2026 content) and WordPress RSS feed confirmed working. Dedicated Business & Economy section, FDI and property coverage."
+    },
+    {
+      "name": "Albanian Daily News",
+      "url": "https://albaniandailynews.com/",
+      "side": "news",
+      "category": "English-language daily, economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED LIVE (articles dated Aug 2026, dedicated Economy section). No RSS feed located this session — hunt feed URL in browser."
+    },
+    {
+      "name": "SCAN (scan-tv.com) — business TV/portal",
+      "url": "https://scan-tv.com/",
+      "side": "news",
+      "category": "business & financial news TV",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site live and business-focused, BUT /feed/ exists with ZERO items (last build Sep 2025) and homepage snapshot showed stale timestamps — feed misconfigured. Verify freshness in browser before onboarding."
+    },
+    {
+      "name": "bne IntelliNews — Albania section",
+      "url": "https://www.intellinews.com/albania/",
+      "side": "news",
+      "category": "regional emerging-markets financial news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED: dedicated Albania section with current business/macro items; mixed free/subscription. Good English-language macro-to-deal signal layer."
+    },
+    {
+      "name": "SeeNews — Albania coverage",
+      "url": "https://www.seenews.com/",
+      "side": "news",
+      "category": "SEE regional business newswire + company data",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Established SEE business wire covering Albania (incl. TOP 100 SEE ranking with Albanian companies); site returned 403 to fetcher. Largely subscription; some free news."
+    },
+    {
+      "name": "Reporter.al (BIRN Albania)",
+      "url": "https://www.reporter.al/",
+      "side": "news",
+      "category": "investigative journalism (concessions, PPPs, finance)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Real, active BIRN Albania outlet — strong on concession/PPP/procurement investigations. 403 to fetcher; likely WordPress /feed/ exists — confirm in browser."
+    },
+    {
+      "name": "Panorama (panorama.com.al)",
+      "url": "https://www.panorama.com.al/",
+      "side": "news",
+      "category": "top-circulation daily, economy section",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Major daily with economy coverage; both site and /feed/ returned 403 to the fetcher (Cloudflare-type filtering). Feed likely exists — verify in browser."
+    },
+    {
+      "name": "BalkanWeb / News24",
+      "url": "https://www.balkanweb.com/",
+      "side": "news",
+      "category": "major news portal, economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major Albanian portal (News24 TV group) with economy section; NOT verified this session — confirm liveness and feed in browser."
+    },
+    {
+      "name": "Euronews Albania",
+      "url": "https://euronews.al/",
+      "side": "news",
+      "category": "TV news portal, economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Significant outlet with business coverage; NOT verified this session (search budget exhausted) — confirm in browser."
+    },
+    {
+      "name": "Exit.al",
+      "url": "https://exit.al/",
+      "side": "news",
+      "category": "independent news/analysis (English+Albanian historically)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "403 to fetcher and publication status UNCERTAIN — Exit News went through closure/ownership changes after 2022. Verify current editorial status in browser before relying on it."
+    },
+    {
+      "name": "Bank of Albania — press releases & financial stability reports",
+      "url": "https://www.bankofalbania.org/Press/",
+      "side": "news",
+      "category": "central bank press page (NPL/credit signals)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Authoritative signal source: supervision decisions, financial stability reports (NPL ratios), licensing announcements. 403 to non-browser clients — same bot filtering as main site."
+    },
+    {
+      "name": "AMF — news/announcements page",
+      "url": "https://amf.gov.al/news.asp",
+      "side": "news",
+      "category": "financial supervisor press page (fund/pension/insurance signals)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Licensing decisions and market statistics announcements for funds/pensions/insurance; 403 to non-browser clients — browser-grade access required. URL pattern unverified (site blocked all fetches)."
+    },
+    {
+      "name": "CEE Legal Matters — Albania coverage",
+      "url": "https://ceelegalmatters.com/",
+      "side": "news",
+      "category": "legal-market/deal announcements (service graph signals)",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Free regional legal-market outlet reporting Albanian law-firm deal mandates (M&A, finance, energy) — feeds the Institutional Service Graph. Not re-verified this session; long-standing stable source."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "EMIS (ISI Emerging Markets)",
+      "coverageNotes": "Deepest commercial coverage of Albania among global providers: company financials, industry reports, news aggregation. Subscription-only.",
+      "publicSourcesTheyUse": "QKB commercial-register filings (annual financial statements), INSTAT statistics, Bank of Albania data, Monitor.al and other local press — all of which we can reach directly via qkb.gov.al, opencorporates.al, instat.gov.al, bankofalbania.org, monitor.al."
+    },
+    {
+      "platform": "SeeNews (incl. TOP 100 SEE)",
+      "coverageNotes": "Regional SEE wire with steady Albania business coverage and an annual company ranking that includes Albanian corporates.",
+      "publicSourcesTheyUse": "QKB/registry financials, INSTAT, Bank of Albania, ALSE announcements, local press — direct routes exist for every one."
+    },
+    {
+      "platform": "bne IntelliNews",
+      "coverageNotes": "Dedicated Albania country section: macro, banking, energy, occasional deal coverage. Partially free.",
+      "publicSourcesTheyUse": "Bank of Albania statistics/press, INSTAT, government ministries, local media (Monitor, Tirana Times) — all directly accessible."
+    },
+    {
+      "platform": "Preqin / PitchBook",
+      "coverageNotes": "Near-zero dedicated Albania coverage — no domestic GP ecosystem to track; a handful of SEE-regional funds (often EBRD-backed) with Albanian exposure appear tagged regionally.",
+      "publicSourcesTheyUse": "EBRD project summary documents, IFC disclosures, fund-manager websites, press releases — we go direct to ebrd.com PSDs and disclosures.ifc.org."
+    },
+    {
+      "platform": "Dealroom / Crunchbase",
+      "coverageNotes": "Thin Albanian startup coverage (small ecosystem: a few dozen active startups, accelerator cohorts). Dealroom has Western Balkans reports (with EU/EIT support).",
+      "publicSourcesTheyUse": "Self-reported founder profiles, accelerator/program lists (Uplift, EU-funded programs), AIDA announcements, local press — direct: aida.gov.al + local media."
+    },
+    {
+      "platform": "Debtwire / Reorg",
+      "coverageNotes": "Effectively no Albania coverage; SEE NPL commentary occasionally references Albania at market level only.",
+      "publicSourcesTheyUse": "Bank of Albania financial stability reports (NPL data), AKF bankruptcy registers — both directly accessible (bankofalbania.org, akf.gov.al), giving us an edge in this niche."
+    },
+    {
+      "platform": "OpenCorporates.com (global)",
+      "coverageNotes": "No meaningful Albania jurisdiction coverage; the local AIS-run opencorporates.al (unaffiliated) is the real open-register mirror.",
+      "publicSourcesTheyUse": "n/a for Albania — use opencorporates.al (AIS) and QKB directly."
+    },
+    {
+      "platform": "CEE Legal Matters",
+      "coverageNotes": "Covers the Albanian legal/deal market (firm mandates, energy and finance transactions) — more a signal publisher than a data platform.",
+      "publicSourcesTheyUse": "Law-firm press releases and self-reported deal announcements — we can ingest the same announcements from its free site."
+    }
+  ],
+  "searchedButAbsent": "IMPORTANT METHOD CAVEAT: this session's WebSearch budget was already exhausted (200/200) before the task began, so discovery relied on prior domain knowledge plus ~25 direct WebFetch verifications; a follow-up web-search pass is advisable to catch anything newly launched. Genuinely ABSENT or NOT FOUND for Albania: (1) PE/VC association — none exists; no Invest Europe national association, no Albanian fund-managers association; the GP ecosystem is essentially regional (SEE funds, EBRD/AADF vehicles). (2) Crypto/MiCA/VASP public licensee register — Albania's fintech law 66/2020 created a licensing framework under AMF, but no operational public register of licensed VASPs was located. (3) Carbon registry — Albania is outside the EU ETS; no national carbon registry exists. (4) Valuer directory — no public RICS-style or national online roll of licensed property valuers located (licensing is ministerial, lists not found online). (5) Public lawyer roll — DHKA (bar) site verified but exposes no searchable advocate directory. (6) Stock exchange depth — ALSE is live but lists mostly government securities with extremely few corporate issuers; the older state-backed Tirana Stock Exchange closed (~2017) without ever trading listed equities, so 'issuer list' coverage is honest but near-empty. (7) Insurers association (Shoqata e Siguruesve) — believed to exist but no working URL verified. (8) Startup Albania agency / dedicated startup-media portal — not verified. (9) QKB bulk/open-data or API — none found; only annual/monthly statistics. (10) Machine access blockers: amf.gov.al, bankofalbania.org, ieka.al, ashk.gov.al, qbz.gov.al and most major news sites (panorama, politiko, top-channel, seenews, reporter.al, exit.al, businessmag.al) return 403 to non-browser clients; instat.gov.al and fint.gov.al refused connections; gjykata.gov.al returned 500 — all need browser-grade crawling or re-verification. Total honest count is ~50 entries only if one pads; the genuine catalog above is 49 entries of which ~30 were live-verified this session."
+}

@@ -1,0 +1,577 @@
+{
+  "country": "SK",
+  "sources": [
+    {
+      "name": "Obchodný register SR (ORSR)",
+      "url": "https://www.orsr.sk/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Official Ministry of Justice commercial register; search by name/IČO/seat with per-entity extracts. No API on the site itself — bulk route is via the RPO API (statistics.sk) which mirrors ORSR records."
+    },
+    {
+      "name": "Register právnických osôb (RPO) open API — Štatistický úrad SR",
+      "url": "https://api.statistics.sk/rpo/v1/search",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch — live JSON API returning full entity records (name/address history, establishment/termination dates, source register incl. Obchodný register). The canonical machine route for the Slovak company universe. Per hints: already partially harvested; extend."
+    },
+    {
+      "name": "Register účtovných závierok (RÚZ) open API",
+      "url": "https://www.registeruz.sk/cruz-public/home/api",
+      "side": "entities",
+      "category": "financial-statements",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch. Ministry of Finance register of financial statements with full REST API: /api/uctovne-jednotky, /api/uctovne-zavierky, /api/vyrocne-spravy, incremental sync via zmenene-od. Gold source for financials of GPs, servicers, developers, portfolio companies."
+    },
+    {
+      "name": "data.slovensko.sk — national open data catalog",
+      "url": "https://data.slovensko.sk/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch (data.gov.sk now redirects here). National open data catalog hosting datasets from public registers. JS-heavy front end; dataset-level verification still needed per dataset."
+    },
+    {
+      "name": "Finančná správa SR — public lists (VAT payers, tax debtors, tax reliefs)",
+      "url": "https://www.financnasprava.sk/sk/elektronicke-sluzby/verejne-sluzby/zoznamy",
+      "side": "entities",
+      "category": "tax-registers",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Online + downloadable exports: VAT registrants, tax debtors, tax-reliability index, R&D/investment relief recipients. Published under CC0 / CC BY-NC-ND — genuine bulk downloads."
+    },
+    {
+      "name": "DATAcube — Štatistický úrad SR statistics database",
+      "url": "https://datacube.statistics.sk/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Exists (page title confirmed via fetch) but the app is JS-rendered so content could not be verified this session. ŠÚ SR also documents an open API for DATAcube — verify endpoint separately."
+    },
+    {
+      "name": "NBS — Register dohliadaných subjektov (subjekty.nbs.sk)",
+      "url": "https://subjekty.nbs.sk/",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Central bank register of ALL supervised financial entities across 9 categories: banks/payment/e-money, insurance, securities market, collective investment (ManCos/AIFMs/funds), pension savings (DSS/DDS), intermediaries, CRYPTO-ASSET market (MiCA licensees), loan servicers & non-bank lenders, FX dealers. Has 'Databáza na stiahnutie' (database download). Per hints: fully harvested — extend/refresh."
+    },
+    {
+      "name": "Úrad pre dohľad nad výkonom auditu (UDVA) — auditor registers",
+      "url": "https://www.udva.sk/",
+      "side": "entities",
+      "category": "audit-oversight",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Audit Oversight Authority publishing the register of statutory auditors and audit firms ('Zoznamy') — the fund-auditor leg of the Institutional Service Graph."
+    },
+    {
+      "name": "Obchodný vestník (Commercial Bulletin)",
+      "url": "https://obchodnyvestnik.justice.gov.sk/ObchodnyVestnik/Web/Zoznam.aspx",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch of the Ministry of Justice service page (old ov.justice.sk hostname no longer resolves — use this portal URL). Archive from 2004; page explicitly offers 'Sprístupnenie štruktúrovaných údajov' (structured data), matching the hint that the gazette has open data. Deed-of-record source for insolvencies, liquidations, capital changes."
+    },
+    {
+      "name": "REPLIK — register of pre-insolvency, liquidation and insolvency proceedings",
+      "url": "https://replik.justice.sk/ru-verejnost-web/",
+      "side": "entities",
+      "category": "insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — ru.justice.sk now 302-redirects here. Searchable by name/IČO/case number: proceedings, debtors, administrators, courts, and assets for sale from bankruptcy estates (distressed-deal signal). Statistics and early-warning tools included."
+    },
+    {
+      "name": "Register správcov (insolvency practitioners roll)",
+      "url": "https://obcan.justice.sk/infosud-registre/-/isu-registre/zoznam/spravca",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist via fetch, but the list renders via JS (server-side fetch shows 'Žiadne výsledky'). REPLIK's administrator search is the more machine-friendly route for the same population."
+    },
+    {
+      "name": "Register znalcov (court experts incl. real-estate valuers)",
+      "url": "https://obcan.justice.sk/infosud-registre/-/isu-registre/zoznam/znalec",
+      "side": "entities",
+      "category": "valuers",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist via fetch; JS-rendered search. This is the Slovak equivalent of a valuer directory (znalci in odbor stavebníctvo / oceňovanie nehnuteľností) — no public RICS Slovakia directory exists."
+    },
+    {
+      "name": "Slov-Lex — official legislation portal (Zbierka zákonov)",
+      "url": "https://www.slov-lex.sk/",
+      "side": "entities",
+      "category": "legislation",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Exists (fetch returned minimal JS shell). Official collection of laws; useful for regulatory-change signals. Machine route not verified this session."
+    },
+    {
+      "name": "Centrálny register zmlúv (CRZ) — central contract register",
+      "url": "https://www.crz.gov.sk/",
+      "side": "entities",
+      "category": "public-contracts",
+      "tier": "tier3_gazette",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.crz.gov.sk/data/static/rss.xml",
+      "verdict": "VERIFIED via fetch — 5.79m public contracts, RSS feed link confirmed on page, plus 'Sťahovanie údajov z CRZ' bulk download. Excellent for state-counterparty exposure of servicers, law firms, developers."
+    },
+    {
+      "name": "Úrad pre verejné obstarávanie (ÚVO) — procurement office & registers",
+      "url": "https://www.uvo.gov.sk/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Procurement bulletin (Vestník), list of economic operators, register of banned persons, references database, and a beneficial-owner register for bidders. Bulk open-data route not confirmed on homepage."
+    },
+    {
+      "name": "Register partnerov verejného sektora (RPVS) — beneficial owners of state contractors",
+      "url": "https://rpvs.gov.sk/rpvs",
+      "side": "entities",
+      "category": "beneficial-ownership",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Ministry of Justice register disclosing beneficial owners of companies doing business with the public sector — the one genuinely public UBO window in SK (general UBO data is access-restricted, per project law). Quick + advanced search; no public API documented."
+    },
+    {
+      "name": "Burza cenných papierov v Bratislave (BSSE)",
+      "url": "https://www.bsse.sk/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (note: use www — bare bsse.sk has a cert mismatch). Member list, TOP members, issuer guidance, SAX index, daily trading summaries and a Novinky news section. Per hints: issuer list route confirmed."
+    },
+    {
+      "name": "CDCP SR — Central Securities Depository",
+      "url": "https://www.cdcp.sk/",
+      "side": "entities",
+      "category": "securities-infrastructure",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Public lists: registered securities issues, issuer information, collateral rights register, monthly statistics — a second, independent issuer universe beyond BSSE."
+    },
+    {
+      "name": "LEI portál CDCP",
+      "url": "https://lei.cdcp.sk/",
+      "side": "entities",
+      "category": "identifiers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Referenced on the verified CDCP site as its LEI portal; not fetched directly this session. LEI-to-entity mapping for Slovak issuers (GLEIF bulk files are the global fallback)."
+    },
+    {
+      "name": "SLOVCA — Slovak Venture Capital & Private Equity Association",
+      "url": "https://www.slovca.sk/",
+      "side": "entities",
+      "category": "association-pe-vc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Member directory split into regular/associate/partner members — the canonical GP roster for SK. Per hints: already harvested."
+    },
+    {
+      "name": "Slovenská banková asociácia (SBA)",
+      "url": "https://www.sbaonline.sk/clenovia/",
+      "side": "entities",
+      "category": "association-banking",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — 24 members covering 99% of the sector, member roster at /clenovia/ plus a Novinky press section with payment statistics."
+    },
+    {
+      "name": "SLASPO — Slovak Insurance Association",
+      "url": "https://www.slaspo.sk/",
+      "side": "entities",
+      "category": "association-insurance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Member lists by category (regular, associated, special status) — the LP-side insurance roster."
+    },
+    {
+      "name": "SASS — Slovak Association of Asset Management Companies",
+      "url": "https://www.ass.sk/",
+      "side": "entities",
+      "category": "association-asset-management",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. 7 regular members (365.invest, Erste AM, Tatra AM...) + 18 associate members (BlackRock, Amundi, Franklin Templeton), plus fund-industry NAV/sales statistics and the Slovak Fund Index — both a directory and a data series."
+    },
+    {
+      "name": "ADSS — Association of Pension Fund Management Companies",
+      "url": "https://www.adss.sk/",
+      "side": "entities",
+      "category": "association-pensions",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Lists the five 2nd-pillar DSS managers (Allianz, Kooperativa, NN, UNIQA, VÚB Generali) managing 21bn+ EUR — the core institutional LP universe in SK."
+    },
+    {
+      "name": "Asociácia leasingových spoločností SR",
+      "url": "https://www.lizing.sk/",
+      "side": "entities",
+      "category": "association-leasing",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED — fetch failed on a TLS certificate mismatch (cert served for weby11.datacom.eu). Association is real (leasing/ABL roster + statistics) but the site's current state needs a browser check."
+    },
+    {
+      "name": "Slovenská advokátska komora (SAK) — bar association",
+      "url": "https://www.sak.sk/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch returned HTTP 429 (rate-limited), so exists but unverified this session. SAK maintains the searchable advocate/law-firm register — the fund-structuring law-firm leg of category 6."
+    },
+    {
+      "name": "NARKS — National Association of Real Estate Agencies",
+      "url": "https://www.narks.sk/",
+      "side": "entities",
+      "category": "association-real-estate",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Member directory (regular/subordinate/senior members) of real-estate agencies plus industry news — real-assets service-graph roster."
+    },
+    {
+      "name": "SARIO — Slovak Investment and Trade Development Agency",
+      "url": "https://www.sario.sk/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Sector analyses (automotive, ICT, BPO...), investor services, industrial property database, supported-project records — FDI signal source."
+    },
+    {
+      "name": "Slovak Investment Holding (SIH)",
+      "url": "https://www.sih.sk/",
+      "side": "entities",
+      "category": "development-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. National promotional fund-of-funds (NDF I/II); publicly lists 25+ portfolio companies (GymBeam, Vectary, GreenWay...) and works through financial intermediaries — a de facto LP/GP map of the Slovak VC ecosystem."
+    },
+    {
+      "name": "Slovenská záručná a rozvojová banka (SZRB)",
+      "url": "https://www.szrb.sk/",
+      "side": "entities",
+      "category": "development-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — still operating under the SZRB name; SME guarantee/development financing across agriculture, construction, environment, tourism."
+    },
+    {
+      "name": "EXIMBANKA SR",
+      "url": "https://www.eximbanka.sk/",
+      "side": "entities",
+      "category": "development-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Export-import bank; annual reports, country risk profiles, news section and newsletters — trade-finance side of private credit."
+    },
+    {
+      "name": "MH Manažment — state asset / privatization successor (ex-FNM SR)",
+      "url": "https://www.mhmanazment.sk/",
+      "side": "entities",
+      "category": "state-assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — confirms itself as successor to the dissolved National Property Fund; publishes shareholdings, FNM bond obligations, tenders and annual reports."
+    },
+    {
+      "name": "Slovak Business Agency (SBA)",
+      "url": "https://www.sbagency.sk/",
+      "side": "entities",
+      "category": "sme-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. State SME agency: micro-loans, venture capital initiatives, startup programs, business-environment research — early-stage ecosystem node."
+    },
+    {
+      "name": "EU ETS Union Registry public data (Slovak national accounts)",
+      "url": "https://union-registry-data.ec.europa.eu/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist via fetch ('Union Registry Public Website' — old ec.europa.eu/clima/ets redirects here). SK has no separate public national carbon-registry portal; EU ETS accounts/installations for Slovakia are browsed here (JS app). Relevant to category 5 carbon alts."
+    },
+    {
+      "name": "AmCham Slovakia",
+      "url": "https://www.amcham.sk/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Member logos public but the full searchable directory is login-gated — usable only for partial roster confirmation."
+    },
+    {
+      "name": "Hospodárske noviny (HNonline)",
+      "url": "https://hnonline.sk/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://hnonline.sk/rss",
+      "verdict": "The leading business daily. Site actively blocks our fetcher ('unable to fetch'), so the RSS URL is recorded from the hint but NOT verified this session — needs a browser/UA test."
+    },
+    {
+      "name": "Trend",
+      "url": "https://www.trend.sk/",
+      "side": "news",
+      "category": "business-weekly",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Premier business weekly (deals, banking, real estate). Fetch blocked; historical RSS at /rss could not be verified this session. Largely paywalled — headline+link discipline applies."
+    },
+    {
+      "name": "Denník N — Ekonomika (Denník E)",
+      "url": "https://dennikn.sk/ekonomika/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://dennikn.sk/ekonomika/feed/",
+      "verdict": "VERIFIED via fetch — working WordPress RSS with current (Aug 2026) economy items incl. Penta M&A coverage. High-quality deal/policy signal."
+    },
+    {
+      "name": "Forbes Slovensko",
+      "url": "https://www.forbes.sk/",
+      "side": "news",
+      "category": "business-magazine",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.forbes.sk/feed/",
+      "verdict": "VERIFIED via fetch — working RSS, current items include PE (Penta/Haščák interview) and a fund-license revocation story. Strong for founder/investor profiles."
+    },
+    {
+      "name": "Startitup",
+      "url": "https://www.startitup.sk/",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.startitup.sk/feed/",
+      "verdict": "VERIFIED via fetch — working RSS 2.0, 30+ items, hourly updates. Main startup/VC outlet; noisy (lifestyle mixed in), needs topic filtering."
+    },
+    {
+      "name": "TASR / Teraz.sk — Ekonomika",
+      "url": "https://www.teraz.sk/ekonomika",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.teraz.sk/rss/ekonomika.rss",
+      "verdict": "VERIFIED via fetch — working sectioned RSS from the state news agency TASR; current economy items with category tags. Reliable wire-level signal."
+    },
+    {
+      "name": "SME / Index (ekonomika)",
+      "url": "https://index.sme.sk/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "SME's business vertical Index. The RSS hub rss.sme.sk returned HTTP 402 to our fetcher, so feeds exist but could not be verified this session."
+    },
+    {
+      "name": "The Slovak Spectator",
+      "url": "https://spectator.sme.sk/",
+      "side": "news",
+      "category": "english-business-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "English-language Slovak news (SME group) with business section. Fetch returned HTTP 403; feed not verified. Useful for English-language enrichment."
+    },
+    {
+      "name": "Pravda — Ekonomika",
+      "url": "https://spravy.pravda.sk/ekonomika/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major daily with economy section; NOT fetch-verified this session (no fetch attempted after budget triage) — URL from prior knowledge, needs verification along with its RSS."
+    },
+    {
+      "name": "Aktuality.sk (ekonomika)",
+      "url": "https://www.aktuality.sk/ekonomika/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Top general portal (Ringier) with economy coverage; site blocks our fetcher, RSS unverified."
+    },
+    {
+      "name": "SITA / Webnoviny",
+      "url": "https://sita.sk/",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://sita.sk/feed/",
+      "verdict": "Private news agency (webnoviny.sk 301-redirects into sita.sk). Feed URL confirmed to exist via redirect chain but returns 403 to our fetcher — likely UA-gated, retest with a browser UA."
+    },
+    {
+      "name": "vEnergetike.sk (SITA energy vertical)",
+      "url": "https://sita.sk/venergetike/",
+      "side": "news",
+      "category": "energy-sector",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://sita.sk/venergetike/feed/",
+      "verdict": "Energy news vertical; feed URL resolved via 301 chain (venergetike.sk → webnoviny → sita.sk) but final fetch 403'd. Real, needs UA workaround."
+    },
+    {
+      "name": "Finsider",
+      "url": "https://finsider.sk/",
+      "side": "news",
+      "category": "finance-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://finsider.sk/feed/",
+      "verdict": "VERIFIED via fetch — working RSS, hourly updates; pensions, banking, markets. Good for the pension/LP policy beat."
+    },
+    {
+      "name": "Finreport",
+      "url": "https://www.finreport.sk/",
+      "side": "news",
+      "category": "finance-media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Financial-sector news (banking, insurance, intermediaries). Fetch returned 403; the WordPress /feed/ path could not be verified this session."
+    },
+    {
+      "name": "ASB.sk — architecture, construction, real estate",
+      "url": "https://www.asb.sk/",
+      "side": "news",
+      "category": "real-estate-sector",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.asb.sk/feed",
+      "verdict": "VERIFIED via fetch — working RSS with current items incl. HB Reavis strategy and real-estate fund leverage analysis. Core real-assets signal source."
+    },
+    {
+      "name": "YIM.BA — Yes In My Bratislava",
+      "url": "https://yimba.sk/",
+      "side": "news",
+      "category": "real-estate-sector",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — active Bratislava development/projects portal with project database. /feed/ returns 404; no RSS found, so HTML parsing required."
+    },
+    {
+      "name": "Energie-portal.sk",
+      "url": "https://www.energie-portal.sk/",
+      "side": "news",
+      "category": "energy-sector",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — active energy-sector portal (electricity, gas, heat, renewables, legislation). No RSS link found on page and /rss/ 404s; newsletter only. HTML parsing required."
+    },
+    {
+      "name": "oPeniazoch (Zoznam.sk)",
+      "url": "https://openiazoch.zoznam.sk/",
+      "side": "news",
+      "category": "finance-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — finance/markets portal with sector news and market data. No RSS link found on page."
+    },
+    {
+      "name": "The Recursive (CEE/SEE tech media)",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "startup-vc-media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://therecursive.com/feed/",
+      "verdict": "VERIFIED via fetch — working RSS; covers Slovakia periodically (e.g. 'Biggest Funding Rounds for Slovakia (H1 2026)'). Regional VC roundup layer, not SK-daily."
+    },
+    {
+      "name": "NBS — press releases (Tlačové správy)",
+      "url": "https://nbs.sk/tlacove-spravy/",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Central bank press hub (sanctions, licensing, macroprudential decisions). No RSS link visible on the page — parse HTML index."
+    },
+    {
+      "name": "Ministerstvo financií SR — press releases",
+      "url": "https://www.mfsr.sk/sk/media/tlacove-spravy/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Finance-ministry press page (budget, debt, financial-market legislation). No RSS found — HTML parsing."
+    },
+    {
+      "name": "BSSE — Novinky (exchange news/disclosures)",
+      "url": "https://www.bsse.sk/",
+      "side": "news",
+      "category": "exchange-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch as part of the BSSE site — monthly trading reports, SAX index revisions, issuer announcements in the Novinky section. No RSS observed."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Institutional alternatives database; Slovakia appears mainly through pan-CEE fund vehicles, a handful of local GPs, and LP records (pension DSS/insurers) — thin, fund-level, not entity-graph deep.",
+      "publicSourcesTheyUse": "NBS supervised-entity register (fund managers/AIFMs), fund annual reports filed to Register účtovných závierok, association rosters (SLOVCA), press releases — all directly accessible to us via subjekty.nbs.sk, registeruz.sk API and slovca.sk."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Deal- and company-level PE/VC coverage of Slovakia via its global taxonomy; decent on venture rounds touching SK founders, weaker on local mid-market and NPL/credit.",
+      "publicSourcesTheyUse": "Company registry filings (ORSR/RPO), press wires (TASR/SITA), startup media, firm websites. Direct routes for us: RPO API, RÚZ API, teraz.sk + SITA feeds, SLOVCA roster."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best of the globals on the Slovak startup/VC ecosystem (works with national ecosystem reports and local partners); startup-only lens — no credit, real assets or service graph.",
+      "publicSourcesTheyUse": "Self-reported startup profiles, SIH/SBA program disclosures, startup media (Startitup, The Recursive), SLOVCA. All four are in our catalog as direct sources."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow SK coverage; self-reported profiles and funding-round news; unreliable for legal-entity ground truth.",
+      "publicSourcesTheyUse": "Press releases and self-submission; underlying verifiable layer is ORSR/RPO which we take directly."
+    },
+    {
+      "platform": "FinStat (local, finstat.sk)",
+      "coverageNotes": "THE local benchmark: financials, risk flags, debts, insolvency and gazette monitoring for every Slovak company; widely used by banks and journalists. Not alternatives-aware (no asset-class taxonomy, no fund/LP layer).",
+      "publicSourcesTheyUse": "Openly built on Register účtovných závierok (RÚZ API), ORSR/RPO, Obchodný vestník structured data, Finančná správa debtor/VAT lists, insolvency register — every one of which we catalog and can ingest directly at $0."
+    },
+    {
+      "platform": "CRIF — Slovak Credit Bureau (cribis.sk)",
+      "coverageNotes": "Credit reports and company monitoring on Slovak entities; strong on payment discipline and linkages; paid, no alternatives framing.",
+      "publicSourcesTheyUse": "ORSR/RPO, RÚZ financial statements, Obchodný vestník, court/insolvency registers (REPLIK) — direct public routes available to us."
+    },
+    {
+      "platform": "Dun & Bradstreet (ex-Bisnode) Slovensko",
+      "coverageNotes": "Firmographics and scoring for SK within its global graph; commodity registry data resold with analytics.",
+      "publicSourcesTheyUse": "RPO/ORSR bulk data, RÚZ, gazette — all open."
+    },
+    {
+      "platform": "foaf.sk (Alvaria/open-data community)",
+      "coverageNotes": "Free ownership/relationship graph over Slovak registry data — proof of what pure open ORSR/RPO data yields (people-company edges).",
+      "publicSourcesTheyUse": "ORSR extracts and RPO open data exclusively — validates our deterministic-first pipeline design."
+    },
+    {
+      "platform": "Vestbee",
+      "coverageNotes": "CEE VC market maps, round roundups and investor lists including Slovakia; media/community layer rather than a database.",
+      "publicSourcesTheyUse": "Self-reported VC profiles, press, SLOVCA-type rosters — signals we get from The Recursive/Startitup feeds and SLOVCA directly."
+    }
+  ],
+  "searchedButAbsent": "Web search budget was exhausted for this session before the task began, so ALL verification was done by direct URL fetch (35+ fetches); nothing here was search-discovered beyond prior knowledge + hints. Confirmed absences/gaps: (1) No public RICS Slovakia member directory — valuer coverage routes through the Ministry of Justice znalec register instead. (2) No standalone Slovak factoring association found — factoring/ABL players sit under the leasing association (lizing.sk, currently serving a broken TLS cert) and NBS registers. (3) No separate national MiCA register — crypto licensees are a category inside NBS subjekty.nbs.sk (verified present). (4) No public Slovak national carbon-registry portal — SK EU ETS accounts are only browsable via the EU Union Registry public site. (5) ORSR itself exposes no API or bulk download — the machine route is the RPO API at api.statistics.sk. (6) RPVS (beneficial owners) has no documented public API. (7) energie-portal.sk, openiazoch.zoznam.sk and yimba.sk have no RSS feeds (checked pages/paths). (8) hnonline.sk, trend.sk, aktuality.sk, sita.sk, finreport.sk and the SME feed hub (rss.sme.sk, HTTP 402) block our fetcher — their RSS URLs are recorded where known but flagged unverified; retest with a browser UA before relying on them. (9) obcan.justice.sk registers (správcovia, znalci) render via JS — REPLIK is the parseable alternative for administrators. (10) AmCham member directory is login-gated. (11) investujeme.sk is dead as an independent portal (301 to Swiss Life Select) — excluded."
+}

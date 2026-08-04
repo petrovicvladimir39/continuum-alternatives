@@ -1,0 +1,548 @@
+{
+  "country": "LT",
+  "sources": [
+    {
+      "name": "Registrų centras — JAR (Register of Legal Entities) public search",
+      "url": "https://www.registrucentras.lt/jar/p/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Free public search by name or 9-digit code; limit 100 searches/day with captcha; detailed extracts paid/contract-based. The canonical company registry."
+    },
+    {
+      "name": "Registrų centras — JAR pirminiai duomenys (raw open data)",
+      "url": "https://www.registrucentras.lt/atviri-duomenys-ir-statistika/jar-pirminiai-duomenys-raw-data",
+      "side": "entities",
+      "category": "commercial-register-bulk",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "URL verified to exist (301 target of registrucentras.lt/p/1094); page body is JS-rendered so contents not machine-read this session. Known route for periodic JAR raw-data bulk files (legal form, status, address, NACE). Top-priority ingest."
+    },
+    {
+      "name": "Registrų centras — JADIS (participants/shareholders information system)",
+      "url": "https://www.registrucentras.lt/jadis/",
+      "side": "entities",
+      "category": "shareholder-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "Real RC subsystem holding UAB shareholder lists; exact URL not verified this session and public access is largely paid/self-service. Do not assume open UBO access (EU restriction applies)."
+    },
+    {
+      "name": "Bank of Lithuania — Financial Market Participants directory",
+      "url": "https://www.lb.lt/en/sfi-financial-market-participants",
+      "side": "entities",
+      "category": "regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Searchable directory of all supervised participants: banks/specialised banks, EMIs, PIs, insurers, management companies, AIFMs, CIUs, crowdfunding operators, consumer-credit providers, currency exchange; 15+ named sub-lists; includes sanctions and dispute counts. MiCA CASP licensees also surface here. lb.lt intermittently 403s automated fetchers — crawl politely from EU IP."
+    },
+    {
+      "name": "ESMA registers (AIFMs, UCITS, MiCA CASPs — Lithuania filter)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "eu-regulator-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Not fetched this session but a stable, well-known EU register hub with open downloads; useful cross-check/backup for LT AIFMs and CASP passporting when lb.lt blocks."
+    },
+    {
+      "name": "TAR — Teisės aktų registras (e-tar, official gazette successor)",
+      "url": "https://www.e-tar.lt/",
+      "side": "entities",
+      "category": "gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Site exists but returned 403 to our fetcher (both /portal/en and /portal/lt). TAR replaced Valstybės žinios in 2014 as the official register of legal acts. Verify access from EU IP."
+    },
+    {
+      "name": "Registrų centras — JAR vieši pranešimai (legal-entity public notices)",
+      "url": "https://www.registrucentras.lt/jar/pranesimai/",
+      "side": "entities",
+      "category": "company-notices",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "RC publishes statutory company notices (liquidation, reorganisation, capital reduction) — the gazette-equivalent for corporate events. Exact path not verified this session; RC domain itself is reachable."
+    },
+    {
+      "name": "LITEKO — public court decisions search",
+      "url": "https://liteko.teismai.lt/viesasprendimupaieska/",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "The official public search of Lithuanian court decisions (incl. insolvency rulings). Not verified this session (teismai.lt domain 403'd our fetcher); URL is the long-standing known route."
+    },
+    {
+      "name": "eTeismai.lt — court decisions aggregator",
+      "url": "https://eteismai.lt/",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Free public database of Lithuanian court decisions searchable by case number, plus codes and court directory. Useful fallback to LITEKO."
+    },
+    {
+      "name": "Teismai.lt — National Courts Administration portal",
+      "url": "https://www.teismai.lt/",
+      "side": "entities",
+      "category": "courts",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Official courts portal (hearings, insolvency case announcements, court news). Returned 403 to our fetcher; site is real — verify from EU IP."
+    },
+    {
+      "name": "AVNT — Authority of Audit, Accounting, Property Valuation and Insolvency Management",
+      "url": "https://www.avnt.lt/",
+      "side": "entities",
+      "category": "insolvency-and-valuers",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Returned 403 to our fetcher but is the real statutory home of: insolvency administrators roll, corporate insolvency process data/statistics, and the certified property & business valuers register (the local RICS-equivalent roll). Critical for Private Debt/NPL coverage; harvest from EU IP."
+    },
+    {
+      "name": "e-varžytynės / eAukcionai — state e-auction portal",
+      "url": "https://www.evarzytynes.lt/",
+      "side": "entities",
+      "category": "insolvency-auctions",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (302 to eaukcionai.lt/evs/). Public list of bailiff and insolvency auctions (real estate, vehicles, other assets), run by Ministry of Justice/RC/bailiffs chamber. Strong distressed-asset signal source."
+    },
+    {
+      "name": "Nasdaq Baltic — share/issuer lists (Vilnius incl.)",
+      "url": "https://nasdaqbaltic.com/statistics/en/shares",
+      "side": "entities",
+      "category": "exchange-issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Baltic Main/Secondary/First North lists in HTML tables with explicit XLSX downloads; Vilnius issuers flagged VLN."
+    },
+    {
+      "name": "Nasdaq Baltic — market news / issuer disclosures",
+      "url": "https://nasdaqbaltic.com/statistics/en/news",
+      "side": "entities",
+      "category": "exchange-disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Company announcements across Tallinn/Riga/Vilnius with filterable archive (/statistics/en/news/archive) and email subscription; no RSS link found on page."
+    },
+    {
+      "name": "Nasdaq Baltic — member firms list",
+      "url": "https://nasdaqbaltic.com/statistics/en/members",
+      "side": "entities",
+      "category": "exchange-members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Standard Nasdaq Baltic statistics route for exchange members (brokers); this exact path not fetched this session, sibling pages verified."
+    },
+    {
+      "name": "Nasdaq CSD — issuers/securities statistics (Lithuania)",
+      "url": "https://nasdaqcsd.com/",
+      "side": "entities",
+      "category": "csd-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Baltic central securities depository; publishes securities and issuer lists per market (>6,800 issuers), participant lists, settlement statistics."
+    },
+    {
+      "name": "LT VCA — Lithuanian Private Equity & Venture Capital Association members",
+      "url": "https://vca.lt/members",
+      "side": "entities",
+      "category": "pe-vc-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED page exists; 64 members, €3B AUM, €1.6B dry powder stated on homepage. Members page is a logo grid — names live in link hrefs/alt attributes, not visible text; extract from anchors or follow logo links. Categories: full (funds), associate (advisors/law firms/banks), honorary."
+    },
+    {
+      "name": "LBA — Association of Lithuanian Banks",
+      "url": "https://www.lba.lt/en",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 11 member banks (Swedbank, SEB, Luminor, Citadele...) + associate members listed; sector statistics and news published."
+    },
+    {
+      "name": "Lithuanian Insurers Association (Lietuvos draudikų asociacija)",
+      "url": "https://draudikai.lt/",
+      "side": "entities",
+      "category": "insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 11 member insurers listed by name (Balcia, BTA, Compensa, ERGO, If, Lietuvos draudimas, Gjensidige...)."
+    },
+    {
+      "name": "LIPFA — Lithuanian Investment and Pension Funds Association",
+      "url": "https://www.lipfa.lt/",
+      "side": "entities",
+      "category": "pension-funds-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Publishes 2nd/3rd-pillar AUM and client statistics (€6.7B / €0.65B); member roster not on homepage — pension managers themselves are in the LB FMP directory. Key LP-side context."
+    },
+    {
+      "name": "LFA — Fintech Hub LT / Lithuanian Fintech Association",
+      "url": "https://lfa.lt/",
+      "side": "entities",
+      "category": "fintech-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (fintechhub.lt 301s here). Unites licensed fintechs (EMIs/PIs/specialised banks); members & sponsors section plus newsroom."
+    },
+    {
+      "name": "LNTPA — Lithuanian Real Estate Development Association",
+      "url": "https://www.lntpa.lt/",
+      "side": "entities",
+      "category": "real-estate-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Developer members section (new joiners announced in news), market news, market reviews. Core Real Assets entity source."
+    },
+    {
+      "name": "Unicorns Lithuania — startup association",
+      "url": "https://unicorns.lt/",
+      "side": "entities",
+      "category": "startup-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real association of Lithuanian startups/scale-ups; returned 403 to our fetcher this session — retry from EU IP."
+    },
+    {
+      "name": "Invest Lithuania (investment promotion agency)",
+      "url": "https://investlithuania.com/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Publishes downloadable sector reports incl. 'Fintech Overview 2025–2026' and Business Services Sector Overview — good curated entity lists for fintech/service-graph; news section, no RSS found."
+    },
+    {
+      "name": "Innovation Agency Lithuania",
+      "url": "https://inovacijuagentura.lt/en/",
+      "side": "entities",
+      "category": "state-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National innovation agency (successor of Enterprise Lithuania functions; verslilietuva.lt cert now broken). Publishes news, startup ecosystem resources, export tools."
+    },
+    {
+      "name": "Startup Lithuania — startup database",
+      "url": "https://www.startuplithuania.com/",
+      "side": "entities",
+      "category": "startup-database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED. 1,190 startups / 958 funding rounds — but the database is Dealroom-powered (white-label). HARD RULE: do not scrape the Dealroom-embedded database; use it for market-map orientation and go to registries/press for facts."
+    },
+    {
+      "name": "INVEGA — national promotional institution",
+      "url": "https://invega.lt/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real (state guarantee/VC-fund-of-funds body; publishes selected financial intermediaries — accelerators, VC funds under state programmes). 403 to our fetcher; also check consolidation into ILTE."
+    },
+    {
+      "name": "ILTE — national development bank",
+      "url": "https://ilte.lt/",
+      "side": "entities",
+      "category": "dfi",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Lithuania's national development institution (consolidating INVEGA/VIPA functions). 403 to our fetcher this session; verify structure and intermediary lists from EU IP."
+    },
+    {
+      "name": "Turto bankas — state asset bank",
+      "url": "https://www.turtas.lt/",
+      "side": "entities",
+      "category": "state-assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real state enterprise managing/selling state property (privatization-adjacent). Connection refused to our fetcher (likely geo-block); verify from EU IP."
+    },
+    {
+      "name": "CVP IS — Central public procurement portal",
+      "url": "https://cvpp.eviesiejipirkimai.lt/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Tender search with CPV/procedure filters; no API mentioned on page (procurement open datasets exist via VPT/data.gov.lt routes)."
+    },
+    {
+      "name": "VPT — Public Procurement Office",
+      "url": "https://vpt.lrv.lt/",
+      "side": "entities",
+      "category": "procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real authority publishing procurement statistics/open data; lrv.lt government domains 403'd our fetcher across the board — verify from EU IP."
+    },
+    {
+      "name": "Lithuanian Bar Association (Lietuvos advokatūra)",
+      "url": "https://www.advokatura.lt/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED homepage; statutory advocate roll exists but the public search route was not visible on the homepage fetched — locate the advocate-search subpage when harvesting."
+    },
+    {
+      "name": "Lithuanian Chamber of Auditors (Lietuvos auditorių rūmai) — lists",
+      "url": "https://www.lar.lt/sarasai/615",
+      "side": "entities",
+      "category": "auditor-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED lar.lt with 'Sąrašai' (lists) section at this path — public auditor/audit-firm rolls for the service graph."
+    },
+    {
+      "name": "Lithuanian Chamber of Bailiffs (Antstolių rūmai)",
+      "url": "https://www.antstoliurumai.lt/",
+      "side": "entities",
+      "category": "enforcement-professionals",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real chamber with public bailiff directory (enforcement/NPL relevance); not fetched this session."
+    },
+    {
+      "name": "RICS firms directory (covers Lithuania)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "valuer-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "RICS-regulated firm search covering LT; global RICS route, no local chapter directory. Pair with AVNT's national valuers register. Not fetched this session."
+    },
+    {
+      "name": "EUTL — EU ETS Union Registry (Lithuanian accounts)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Stable, well-known EU transaction log; filter operator/trading accounts by Lithuania. Not re-fetched this session; publicly parseable with bulk views."
+    },
+    {
+      "name": "data.gov.lt — Lithuanian open data portal",
+      "url": "https://data.gov.lt/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "National open-data portal with catalog API; hosts company, procurement, Sodra and insolvency-adjacent datasets. 403 to our fetcher this session — real, retry from EU IP."
+    },
+    {
+      "name": "Sodra — open data (atvira.sodra.lt)",
+      "url": "https://atvira.sodra.lt/",
+      "side": "entities",
+      "category": "social-insurance-open-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "Known monthly employer-level open datasets (insured employee counts, average wage, social-insurance debts) — excellent deterministic enrichment for every LT entity. 403 to our fetcher this session; real and free."
+    },
+    {
+      "name": "Official Statistics Portal (osp.stat.gov.lt) + API",
+      "url": "https://osp.stat.gov.lt/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "State Data Agency portal with REST/PxWeb API and business-register statistics. 403 to our fetcher this session; real and free."
+    },
+    {
+      "name": "Verslo žinios",
+      "url": "https://www.vz.lt/",
+      "side": "news",
+      "category": "business-daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Lithuania's principal business daily (also runs rekvizitai.vz.lt company directory). Domain refuses our fetcher entirely; /rss returned 404 — RSS endpoint unconfirmed, likely paywalled content. Headline+link discipline only.",
+      "rssUrl": ""
+    },
+    {
+      "name": "15min Verslas (business) RSS",
+      "url": "https://www.15min.lt/verslas",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS 2.0 feed, ~20 items, updated daily.",
+      "rssUrl": "https://www.15min.lt/rss/verslas"
+    },
+    {
+      "name": "15min.lt — general news RSS",
+      "url": "https://www.15min.lt/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working general-news RSS feed.",
+      "rssUrl": "https://www.15min.lt/rss"
+    },
+    {
+      "name": "Delfi Verslas",
+      "url": "https://www.delfi.lt/verslas/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major portal's business section; delfi.lt refuses our fetcher so the historical RSS index (delfi.lt/rss/) could not be confirmed. Real source; verify feed from EU IP.",
+      "rssUrl": ""
+    },
+    {
+      "name": "LRT — Verslas / News in English",
+      "url": "https://www.lrt.lt/naujienos/verslas",
+      "side": "news",
+      "category": "public-broadcaster",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Public broadcaster business desk + English service (lrt.lt/en). Tried /rss and /static/rss/naujienos.rss — both 404; feed endpoint unconfirmed.",
+      "rssUrl": ""
+    },
+    {
+      "name": "Lrytas.lt (business section)",
+      "url": "https://www.lrytas.lt/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Major daily with business coverage; not fetched this session, RSS unconfirmed.",
+      "rssUrl": ""
+    },
+    {
+      "name": "The Baltic Times",
+      "url": "https://www.baltictimes.com/",
+      "side": "news",
+      "category": "regional-english-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED working RSS (~50 items) covering LT/LV/EE incl. M&A and company news in English.",
+      "rssUrl": "https://www.baltictimes.com/rss/"
+    },
+    {
+      "name": "BNS — Baltic News Service",
+      "url": "https://www.bns.lt/",
+      "side": "news",
+      "category": "newswire",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Leading Baltic wire; public headlines/summaries free, full text subscription (incl. BNS+ real-estate service). Headline-level monitoring only unless licensed."
+    },
+    {
+      "name": "Made in Vilnius",
+      "url": "https://madeinvilnius.lt/",
+      "side": "news",
+      "category": "city-business-tech-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real Vilnius business/tech news site (WordPress — /feed/ likely) but 403 to our fetcher; feed unconfirmed.",
+      "rssUrl": ""
+    },
+    {
+      "name": "Baltic News Network (BNN)",
+      "url": "https://bnn-news.com/",
+      "side": "news",
+      "category": "regional-english-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "English-language Baltic news site; not fetched this session; WordPress /feed likely but unconfirmed.",
+      "rssUrl": ""
+    },
+    {
+      "name": "Bank of Lithuania — news & press releases",
+      "url": "https://www.lb.lt/en/news",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "LB press page (licence grants/revocations, sanctions — high-value signals). This path 403'd our fetcher though the FMP directory page fetched fine; verify path and any RSS from EU IP."
+    },
+    {
+      "name": "Ministry of Finance — news",
+      "url": "https://finmin.lrv.lt/en/news/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real ministry press route; entire lrv.lt government platform 403'd our fetcher — retry from EU IP."
+    },
+    {
+      "name": "Ober-Haus — research & market reports",
+      "url": "https://www.ober-haus.lt/en/research/",
+      "side": "news",
+      "category": "real-estate-research",
+      "tier": "signals_press",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via /en/ homepage: annual Baltic market reviews, monthly Lithuanian apartment price index (OHBI), price tables, Vilnius market report 2026 — free downloads."
+    },
+    {
+      "name": "Inreal — market reviews",
+      "url": "https://www.inreal.lt/",
+      "side": "news",
+      "category": "real-estate-research",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Real Lithuanian RE advisory publishing market reviews; guessed /en/reviews/ path 404'd and root not verified this session."
+    },
+    {
+      "name": "Startup Lithuania — news",
+      "url": "https://www.startuplithuania.com/news/",
+      "side": "news",
+      "category": "startup-vc-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Domain VERIFIED with active ecosystem news + weekly newsletter; no RSS found. Funding-round signals for VC coverage."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Thin, fund-level Baltic coverage: LT VCA-member funds (BaltCap, Livonia, Practica, Iron Wolf, Coinvest et al.) with AUM/vintages; weak below fund level and on service graph.",
+      "publicSourcesTheyUse": "Bank of Lithuania AIFM/CIU register, LT VCA statistics and member list, EIF/InvestEU press releases, fund websites — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Deal-level LT VC/PE coverage, decent on rounds and exits; company financials thin (relies on registry re-sellers).",
+      "publicSourcesTheyUse": "Press releases (vz.lt, 15min, Baltic Times), Nasdaq Baltic disclosures, JAR filings via aggregators, Startup Lithuania announcements."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strongest startup/VC coverage of Lithuania — it literally powers the official Startup Lithuania database (white-label), so its LT data is quasi-official. HARD RULE: do not scrape Dealroom or the embedded database.",
+      "publicSourcesTheyUse": "Startup Lithuania submissions, Innovation Agency data, funding-round press, registry legal-form data — we go to Startup Lithuania news, press RSS, and JAR directly."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Patchy self-reported LT startup profiles; funding data lags Dealroom; no NPL/real-assets/service-graph coverage.",
+      "publicSourcesTheyUse": "Company self-submissions and TechCrunch-style press — the underlying LT press (15min, vz.lt, Made in Vilnius) is directly accessible."
+    },
+    {
+      "platform": "CB Insights",
+      "coverageNotes": "Minimal Lithuania coverage; occasional fintech-market mentions only.",
+      "publicSourcesTheyUse": "Invest Lithuania fintech reports, Bank of Lithuania licensing statistics — both public."
+    },
+    {
+      "platform": "Rekvizitai.lt (Verslo žinios)",
+      "coverageNotes": "LOCAL. The de-facto public company directory of Lithuania: profiles, financial summaries, employees, debts. Blocks scrapers; commercial re-use restricted.",
+      "publicSourcesTheyUse": "JAR raw open data (Registrų centras), RC financial statements, Sodra open data (employees/wages/debts) — we ingest those primary routes at $0 instead."
+    },
+    {
+      "platform": "Okredo",
+      "coverageNotes": "LOCAL. Lithuanian company-data/credit-risk API startup (freemium), LT+LV coverage, sells API access.",
+      "publicSourcesTheyUse": "JAR bulk data, Sodra open data, court/insolvency records (LITEKO/AVNT), procurement data — all public primaries listed in this catalog."
+    },
+    {
+      "platform": "Creditinfo Lietuva",
+      "coverageNotes": "LOCAL. Incumbent credit bureau; company reports, scoring, debtor registry; LBA associate member.",
+      "publicSourcesTheyUse": "JAR, Sodra, courts, plus proprietary bank payment data (not replicable, and we don't need it)."
+    },
+    {
+      "platform": "Scorify",
+      "coverageNotes": "LOCAL. Lithuanian credit-scoring/company-monitoring provider built on open registers.",
+      "publicSourcesTheyUse": "JAR raw data, Sodra open data, insolvency data — same public primaries we catalog above."
+    }
+  ],
+  "searchedButAbsent": "Caveat: this session's WebSearch budget was already exhausted (200/200) before this task started, so discovery ran on domain knowledge plus direct URL verification via fetch; 54 real sources catalogued, ~28 fetch-verified. Many Lithuanian state domains (e-tar.lt, avnt.lt, teismai.lt, all *.lrv.lt, data.gov.lt, osp.stat.gov.lt, atvira.sodra.lt, invega.lt, ilte.lt, turtas.lt) returned 403/refused to the US-based fetcher — they are real and known-good but need harvesting from an EU IP; marked honestly per row. Searched-for but absent or subsumed: (1) Valstybės žinios — ceased 2014, fully replaced by TAR (e-tar.lt); (2) no separate fund-administrator licensee list — fund administration falls inside the Bank of Lithuania FMP directory categories; (3) no standalone MiCA/crypto register — CASP authorisations sit inside the same LB FMP directory (the pre-MiCA 'crypto operator' JAR-notification list was retired); (4) no Lithuanian NPL-servicer or debt-purchaser association exists (servicers appear via LB consumer-credit/credit-servicer lists); (5) no litigation-funding association or local funder of note; (6) no local RICS chapter directory — only the global ricsfirms.com search plus AVNT's national valuers roll; (7) an independent Lithuanian leasing association could not be confirmed as currently operating (leasing statistics are published by LBA and Bank of Lithuania); (8) RSS endpoints for vz.lt, delfi.lt, lrt.lt and madeinvilnius.lt could not be confirmed because those domains block automated fetchers — only 15min.lt and baltictimes.com feeds were positively verified working."
+}

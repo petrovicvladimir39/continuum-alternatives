@@ -1,0 +1,528 @@
+{
+  "country": "HU",
+  "sources": [
+    {
+      "name": "e-Cégjegyzék (Cégszolgálat ingyenes céginformáció)",
+      "url": "https://www.e-cegjegyzek.hu/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Official free company-register search of the Ministry of Justice Company Information Service. HTML search, free basic company data. No public bulk API; bulk/structured data is sold via the Céginformációs Szolgálat under contract."
+    },
+    {
+      "name": "OCCSZ – Cégszolgálat Online Céginformáció",
+      "url": "https://occsz.e-cegjegyzek.hu/",
+      "side": "entities",
+      "category": "commercial register (online services)",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED loads (title 'Cégszolgálat Online Céginformáció'). Online company-information services hub of the Company Information Service; page content is thin for non-browser clients, deeper pages likely session-driven."
+    },
+    {
+      "name": "Céginformációs és az Elektronikus Cégeljárásban Közreműködő Szolgálat (Ministry of Justice)",
+      "url": "https://ceginformaciosszolgalat.kormany.hu/",
+      "side": "entities",
+      "category": "commercial register authority / bulk data seller",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session — fetch failed with a TLS certificate-chain error (unable to get local issuer certificate). This is the known authority page for company data services and paid bulk/group data supply; retry from a full browser."
+    },
+    {
+      "name": "e-Beszámoló – electronic financial statements portal",
+      "url": "https://e-beszamolo.im.gov.hu/",
+      "side": "entities",
+      "category": "company financial statements",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Official Ministry of Justice portal for all Hungarian company annual accounts. Free search (name / tax number / registration number), no registration required, published filings and attachments downloadable. High-value machine route to financials."
+    },
+    {
+      "name": "NAV public databases (adatbázisok)",
+      "url": "https://nav.gov.hu/adatbazisok",
+      "side": "entities",
+      "category": "tax authority registers",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Directory of public NAV databases: VAT-registered entities, sole traders register, debt-free taxpayers, reliable/risky taxpayer lists, tax delinquents, sanction-deleted tax numbers. Online search tools; no explicit bulk download or API advertised."
+    },
+    {
+      "name": "KSH – Hungarian Central Statistical Office",
+      "url": "https://www.ksh.hu/",
+      "side": "entities",
+      "category": "statistics / business demography",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "NOT FETCHED this session. Well-known official statistics office with open STADAT tables and business-register statistics (enterprise counts by form/sector). Download route is standard; verify exact endpoints in build."
+    },
+    {
+      "name": "MNB Intézménykereső – register of supervised financial institutions",
+      "url": "https://intezmenykereso.mnb.hu/",
+      "side": "entities",
+      "category": "financial regulator register (banks, investment firms, fund managers, insurers, funds)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — homepage rendered for a non-browser client, describing simple/advanced search over MNB-licensed institutions and funds plus downloadable special datasets (cross-border provider lists etc.). Hint says detailed search is POST-driven (historically with captcha) — treat per-entity scraping as fragile; use ESMA/EBA/EIOPA EU registers as the robust machine route for HU licensees. MNB is also the MiCA authority, so crypto licensees surface here and in the ESMA MiCA register."
+    },
+    {
+      "name": "MNB Aranykönyv (Golden Book – annual data of financial institutions)",
+      "url": "https://www.mnb.hu/felugyelet/idosorok",
+      "side": "entities",
+      "category": "regulator time series / institution financials",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "NOT FETCHED this session. Known MNB supervisory time-series page publishing the Aranykönyv (annual balance-sheet/P&L data per credit institution, insurer, fund manager) as Excel downloads. Verify exact URL in build."
+    },
+    {
+      "name": "ESMA Registers (AIFMs, UCITS ManCos, MiFID firms, MiCA)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU register covering HU fund managers and investment firms",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED loads (JS app shell; register list loads client-side). ESMA registers cover Hungarian AIFMs/UCITS/investment firms/MiCA licensees and expose open data endpoints — the reliable machine fallback for the captcha-prone MNB search."
+    },
+    {
+      "name": "EBA credit institution register (EUCLID)",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "EU register of credit institutions and payment institutions incl. HU",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "NOT FETCHED this session. Well-known EBA register with downloadable/API-accessible data covering Hungarian credit and payment institutions."
+    },
+    {
+      "name": "EIOPA register of insurance undertakings and IORPs",
+      "url": "https://register.eiopa.europa.eu/",
+      "side": "entities",
+      "category": "EU register of insurers and pension institutions incl. HU (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED this session. Known EIOPA register covering HU insurers and occupational pension institutions; access mechanics to be confirmed in build."
+    },
+    {
+      "name": "Magyar Közlöny – official gazette of Hungary",
+      "url": "https://magyarkozlony.hu/",
+      "side": "entities",
+      "category": "official gazette (laws, appointments, decrees)",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Official gazette; every issue downloadable as PDF, subject-word search with wildcards, archive to 2001 (688 pages of issues)."
+    },
+    {
+      "name": "Cégközlöny – company gazette",
+      "url": "https://cegkozlony.e-cegjegyzek.hu/",
+      "side": "entities",
+      "category": "company gazette (incorporations, liquidations, insolvency announcements)",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "EXISTS but fetch returned HTTP 403 to a non-browser client (www.e-cegkozlony.gov.hu also has a broken cert pointing at this host). This is where Hungarian liquidation/bankruptcy announcements are published — key insolvency signal source; needs a browser-grade crawler."
+    },
+    {
+      "name": "Közbeszerzési Hatóság + Közbeszerzési Adatbázis (KBA)",
+      "url": "https://www.kozbeszerzes.hu/",
+      "side": "entities",
+      "category": "public procurement authority, notice database, registers of qualified/excluded bidders",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Public Procurement Authority with the KBA central notice/contract database, the Közbeszerzési Értesítő gazette, and public registers (qualified bidders, excluded bidders, contract breaches). CoRe public contract search at kereso-core.kozbeszerzes.hu for post-2018 contracts."
+    },
+    {
+      "name": "EKR – electronic public procurement system",
+      "url": "https://ekr.gov.hu/",
+      "side": "entities",
+      "category": "public procurement platform",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "NOT FETCHED this session; known JS single-page application. Procedure-level data is easier to take from the KBA/CoRe public search than from EKR directly."
+    },
+    {
+      "name": "Budapest Stock Exchange – issuer list",
+      "url": "https://www.bet.hu/oldalak/kibocsatok",
+      "side": "entities",
+      "category": "stock exchange issuers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch of bet.hu homepage which links this issuer list plus new-issuance pages (incl. Xtend SME market). No RSS found on the homepage."
+    },
+    {
+      "name": "Budapest Stock Exchange – trading member firms",
+      "url": "https://www.bet.hu/oldalak/kereskedocegek",
+      "side": "entities",
+      "category": "exchange members / brokers",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as a live link from the bet.hu homepage ('Tőzsdei kereskedő cégek listája'); page itself not separately fetched."
+    },
+    {
+      "name": "HVCA – Hungarian Private Equity and Venture Capital Association members",
+      "url": "https://www.hvca.hu/hu/tagok",
+      "side": "entities",
+      "category": "PE/VC association member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED hvca.hu is live and navigation exposes the members section at /hu/tagok. Already partially harvested per hints; extend with full/associate member categorization. Also publishes investment statistics reports."
+    },
+    {
+      "name": "BAMOSZ – Association of Hungarian Investment Fund and Asset Management Companies",
+      "url": "https://www.bamosz.hu/",
+      "side": "entities",
+      "category": "fund & asset manager association + daily fund database",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Public member list plus a daily-updated database of ALL public Hungarian investment funds, filterable by manager/category/currency, with tabular data download. Best public machine route into HU fund data."
+    },
+    {
+      "name": "Magyar Bankszövetség – Hungarian Banking Association",
+      "url": "https://www.bankszovetseg.hu/",
+      "side": "entities",
+      "category": "banking association member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. ~60+ member institutions listed publicly; also publishes press releases and the Hitelintézeti Szemle journal."
+    },
+    {
+      "name": "Magyar Lízingszövetség – Hungarian Leasing Association",
+      "url": "https://lizingszovetseg.hu/",
+      "side": "entities",
+      "category": "leasing association members + market statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Public member directory (Tagok); association statistics partly public, partly member-gated."
+    },
+    {
+      "name": "Magyar Faktoring Szövetség – Hungarian Factoring Association",
+      "url": "https://faktoringszovetseg.hu/",
+      "side": "entities",
+      "category": "factoring association members + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Public member list at /tagok and market statistics at /statisztikak."
+    },
+    {
+      "name": "MABISZ – Association of Hungarian Insurance Companies",
+      "url": "https://mabisz.hu/",
+      "side": "entities",
+      "category": "insurance association member directory (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. ~20+ member insurers listed with logos/links. No aggregated market statistics on the site — use MNB Aranykönyv for insurer data."
+    },
+    {
+      "name": "Stabilitás Pénztárszövetség – pension/health fund association",
+      "url": "https://www.stabilitas.hu/",
+      "side": "entities",
+      "category": "pension fund association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED — fetch failed (connection refused). Known association of Hungarian voluntary pension and health funds; confirm current domain from a browser before relying on it."
+    },
+    {
+      "name": "MFB – Hungarian Development Bank",
+      "url": "https://www.mfb.hu/",
+      "side": "entities",
+      "category": "development bank / DFI",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Publishes press releases (Közlemények), loan programs, annual reports and public-data disclosures. No RSS found."
+    },
+    {
+      "name": "Hiventures (state VC fund manager)",
+      "url": "https://hiventures.hu/",
+      "side": "entities",
+      "category": "state venture capital fund",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED — fetch failed on a TLS certificate error. Hiventures is Hungary's dominant state VC (MFB group); portfolio and program pages exist but need browser-grade fetch."
+    },
+    {
+      "name": "MNV Zrt – Hungarian National Asset Management",
+      "url": "https://www.mnv.hu/",
+      "side": "entities",
+      "category": "state asset / privatization agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED — fetch failed on a TLS certificate error ('unable to verify the first certificate'). State asset manager publishing tenders and asset sales; retry with a browser-grade client."
+    },
+    {
+      "name": "HIPA – Hungarian Investment Promotion Agency",
+      "url": "https://hipa.hu/",
+      "side": "entities",
+      "category": "investment promotion agency (FDI project announcements)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "EXISTS but returned HTTP 403 to a non-browser client (bot protection). FDI project/news announcements are valuable real-assets signals; crawl via browser."
+    },
+    {
+      "name": "ÁKK – Government Debt Management Agency",
+      "url": "https://akk.hu/",
+      "side": "entities",
+      "category": "sovereign debt agency (auctions, yields, press)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Auction results, debt statistics, yields, analyses and press releases; structured statistics sections suggest downloadable series. No RSS found."
+    },
+    {
+      "name": "MKVK – Chamber of Hungarian Auditors",
+      "url": "https://www.mkvk.hu/",
+      "side": "entities",
+      "category": "auditor chamber register (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED portal loads. The chamber maintains the statutory register of auditors and audit firms; the public search itself was not directly confirmed in this fetch — locate the nyilvántartás search in build."
+    },
+    {
+      "name": "Magyar Ügyvédi Kamara – Hungarian Bar Association",
+      "url": "https://www.mük.hu/",
+      "side": "entities",
+      "category": "bar association / attorney register (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "PARTIALLY VERIFIED: magyarugyvedikamara.hu 301-redirects to the punycode domain www.xn--mk-xka.hu (mük.hu), which was not fetched further. The official public attorney/law-firm search (ügyvédkereső) lives under this domain."
+    },
+    {
+      "name": "RICS – Find a Firm directory (Hungary filter)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "RICS-accredited valuer/appraiser directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT FETCHED this session. Known global RICS firm directory searchable by country; use for Hungarian RICS-regulated valuation firms."
+    },
+    {
+      "name": "EU Transaction Log (EUTL) – Hungarian ETS accounts",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry (EU ETS national accounts for HU)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT FETCHED this session. The EUTL is the public route to Hungarian EU ETS account holders, installations and compliance data (Hungary has no separate open national carbon-registry portal; the national administrator sits under the energy ministry)."
+    },
+    {
+      "name": "EU e-Justice insolvency registers interconnection (Hungary)",
+      "url": "https://e-justice.europa.eu/topics/registers-business-insolvency-bankruptcy_en",
+      "side": "entities",
+      "category": "insolvency register search",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT FETCHED this session. Hungary's insolvency publications flow through the Cégközlöny/company register; the e-Justice interconnection provides an EU-standard search entry point over HU insolvency data. The standalone liquidator roll (felszámolói névjegyzék) could not be verified (fni.im.gov.hu DNS fails) — locate its current home under IM/OCCSZ in build."
+    },
+    {
+      "name": "Bírósági Határozatok Gyűjteménye – anonymized court decisions",
+      "url": "https://eakta.birosag.hu/anonimizalt-hatarozatok",
+      "side": "entities",
+      "category": "court decisions database (litigation-funding signals)",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT FETCHED this session. Official anonymized decision database of the Hungarian courts (birosag.hu); useful for litigation-finance and insolvency case signals. Verify URL and access mechanics in build."
+    },
+    {
+      "name": "BÉT kibocsátói hírek – issuer disclosures feed",
+      "url": "https://www.bet.hu/kib_hirek",
+      "side": "news",
+      "category": "exchange issuer disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED as live links from bet.hu homepage: issuer news at /kib_hirek and exchange announcements at /bet_hirek. No RSS found — HTML polling needed."
+    },
+    {
+      "name": "Portfolio.hu",
+      "url": "https://www.portfolio.hu/",
+      "side": "news",
+      "category": "financial & markets media (flagship)",
+      "tier": "signals_press",
+      "rssUrl": "https://www.portfolio.hu/rss/all.xml",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — RSS 2.0 feed fetched, current (built Aug 4 2026), Hungarian, markets/economy/energy/corporate coverage. The single most important HU financial-news source; category sub-feeds likely exist under /rss/ (unverified)."
+    },
+    {
+      "name": "Világgazdaság (vg.hu)",
+      "url": "https://www.vg.hu/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "rssUrl": "https://www.vg.hu/feed",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — working RSS feed fetched; Hungarian business/economics daily (Mediaworks), corporate and markets coverage incl. MOL/OTP."
+    },
+    {
+      "name": "Forbes.hu",
+      "url": "https://forbes.hu/",
+      "side": "news",
+      "category": "business magazine, startup/wealth coverage",
+      "tier": "signals_press",
+      "rssUrl": "https://forbes.hu/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — working RSS 2.0 feed fetched, current, Hungarian. Good for founder/company/wealth and VC-adjacent stories."
+    },
+    {
+      "name": "Telex – gazdaság",
+      "url": "https://telex.hu/gazdasag",
+      "side": "news",
+      "category": "general news with strong economy desk",
+      "tier": "signals_press",
+      "rssUrl": "https://telex.hu/rss/gazdasag",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — https://telex.hu/rss/gazdasag returned a valid feed (note: content appeared site-wide rather than economy-only; the general feed is https://telex.hu/rss). Hungarian."
+    },
+    {
+      "name": "G7.hu (economics analysis — merged into Telex)",
+      "url": "https://g7.hu/",
+      "side": "news",
+      "category": "economics analysis",
+      "tier": "signals_press",
+      "rssUrl": "https://telex.hu/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED redirect: g7.hu/feed/ 301-redirects permanently to telex.hu/feed/ — G7's feed (and evidently its publishing) now lives under Telex. Treat G7 as historical archive + Telex as the live channel."
+    },
+    {
+      "name": "HVG – gazdaság",
+      "url": "https://hvg.hu/gazdasag",
+      "side": "news",
+      "category": "weekly/daily economy & business",
+      "tier": "signals_press",
+      "rssUrl": "https://hvg.hu/rss",
+      "accessMethod": "js-blocked",
+      "verdict": "EXISTS but hvg.hu/rss returned HTTP 403 to a non-browser client (bot protection). Feed URLs are known to exist per-section (e.g. /rss/gazdasag); needs browser-grade fetch or UA negotiation."
+    },
+    {
+      "name": "Index.hu",
+      "url": "https://index.hu/gazdasag/",
+      "side": "news",
+      "category": "major news portal, economy section",
+      "tier": "signals_press",
+      "rssUrl": "https://index.hu/24ora/rss/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — working RSS feed fetched (site-wide 24-hour feed, 40+ items). Economy-only sub-feed not verified; filter by section URL."
+    },
+    {
+      "name": "Economx (formerly Napi.hu)",
+      "url": "https://www.economx.hu/",
+      "side": "news",
+      "category": "business/economy portal",
+      "tier": "signals_press",
+      "rssUrl": "https://www.economx.hu/feed",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — napi.hu/feed 301-redirects to economx.hu/feed, which returned a working feed. Napi.hu no longer exists as a separate outlet."
+    },
+    {
+      "name": "Budapest Business Journal",
+      "url": "https://bbj.hu/",
+      "side": "news",
+      "category": "English-language business news",
+      "tier": "signals_press",
+      "rssUrl": "https://bbj.hu/rss",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED — site fetched (business/economy/real-estate sections) and /rss returned a working RSS 2.0 feed with full article text, hourly updates. Best English-language HU business feed."
+    },
+    {
+      "name": "Property Forum",
+      "url": "https://www.property-forum.eu/",
+      "side": "news",
+      "category": "CEE/Hungary real estate news & events",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch — active CEE real-estate news covering Hungary (Budapest events, housing-market pieces). No RSS found; newsletter is their channel — crawl the news index."
+    },
+    {
+      "name": "Startup Hungary",
+      "url": "https://startuphungary.io/",
+      "side": "news",
+      "category": "startup ecosystem organization — reports & ecosystem data",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Ecosystem nonprofit with a /reports section (annual Hungarian Startup Report), founder directory, podcast. Good for VC-ecosystem mapping signals, not a daily feed."
+    },
+    {
+      "name": "24.hu (FN24 economy desk)",
+      "url": "https://24.hu/fn/",
+      "side": "news",
+      "category": "general portal with economy desk",
+      "tier": "signals_press",
+      "rssUrl": "https://24.hu/feed/",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED — fetcher could not reach 24.hu this session ('unable to fetch'). Feed URL is the conventional WordPress /feed/; confirm from a browser-grade client."
+    },
+    {
+      "name": "Daily News Hungary",
+      "url": "https://dailynewshungary.com/",
+      "side": "news",
+      "category": "English-language general/business news",
+      "tier": "signals_press",
+      "rssUrl": "https://dailynewshungary.com/feed/",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (not fetched). Real English-language outlet; WordPress-style feed expected at /feed/ — confirm in build."
+    },
+    {
+      "name": "Hungary Today",
+      "url": "https://hungarytoday.hu/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "rssUrl": "https://hungarytoday.hu/feed/",
+      "accessMethod": "js-blocked",
+      "verdict": "EXISTS but /feed/ returned HTTP 403 to a non-browser client (bot protection). Needs browser-grade fetch."
+    },
+    {
+      "name": "MNB Sajtószoba – central bank press room",
+      "url": "https://www.mnb.hu/sajtoszoba",
+      "side": "news",
+      "category": "regulator/central-bank press releases & decisions",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Press releases by year (2010–2026), Monetary Council decisions, supervision and statistics announcements. No RSS found — poll the HTML index. Statistical releases at statisztika.mnb.hu. Also home of MNB green-finance program announcements."
+    },
+    {
+      "name": "Nemzetgazdasági Minisztérium (Ministry for National Economy) press",
+      "url": "https://kormany.hu/nemzetgazdasagi-miniszterium",
+      "side": "news",
+      "category": "finance/economy ministry press page",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT VERIFIED this session (kormany.hu not fetched; ministry structure changes periodically). Government press flows through kormany.hu — confirm the current ministry slug in build."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (global)",
+      "coverageNotes": "Thin-to-moderate Hungary coverage: the larger HU GPs and state-linked funds (Hiventures, MFB group vehicles), some LP records for pension funds and insurers, fundraising/AUM estimates. Weak on service graph, NPL/servicers, and niche alts.",
+      "publicSourcesTheyUse": "HVCA and Invest Europe member lists/statistics, MNB licensee register (fund manager licenses), ESMA AIFM register, fund annual reports via e-beszamolo-type filings, press releases from GPs — all directly accessible to us."
+    },
+    {
+      "platform": "PitchBook (global)",
+      "coverageNotes": "Deal-level HU PE/VC coverage (buyouts, VC rounds, exits) with reasonable recall on announced deals; valuations mostly estimated. Little on private debt, real assets or the institutional service graph.",
+      "publicSourcesTheyUse": "Hungarian business press (Portfolio.hu, Forbes.hu, Telex/G7, VG), company-register events (Cégközlöny incorporations/changes), HVCA deal statistics, exchange disclosures (BÉT) — we can ingest each at source."
+    },
+    {
+      "platform": "Dealroom (global, ecosystem partnerships)",
+      "coverageNotes": "Hungarian startup/scaleup mapping is decent via CEE ecosystem reports and local partnerships; strong on founder/round taxonomy, weak on non-tech alternatives.",
+      "publicSourcesTheyUse": "Startup Hungary reports, HVCA/EIF program announcements, press (Forbes.hu, Portfolio), accelerator/portfolio pages (e.g. Hiventures portfolio) — all public routes we can hit directly."
+    },
+    {
+      "platform": "Crunchbase (global)",
+      "coverageNotes": "Self-reported + press-driven HU startup coverage; patchy on rounds below Series A and on anything non-tech. Entity data often stale versus the company register.",
+      "publicSourcesTheyUse": "Company self-submissions and English-language press (BBJ, Daily News Hungary); the authoritative upstream (e-cégjegyzék, e-beszámoló) is public and ours to use."
+    },
+    {
+      "platform": "Opten (local, Hungary)",
+      "coverageNotes": "The leading Hungarian company-information provider: full registry mirror, financials, litigation/insolvency flags, ownership networks, credit scores. This is the local benchmark for entity depth. Do not scrape.",
+      "publicSourcesTheyUse": "Bulk registry data purchased from the Céginformációs Szolgálat, Cégközlöny gazette feed, e-beszamolo financial statements, NAV public databases, court/insolvency publications — every underlying source is public or purchasable from the state directly."
+    },
+    {
+      "platform": "Céginfo.hu (local, Hungary)",
+      "coverageNotes": "Second major local company-data provider; similar registry-derived offering (company data, financials, monitoring, risk flags). Do not scrape.",
+      "publicSourcesTheyUse": "Same state pipeline: Céginformációs Szolgálat bulk data, Cégközlöny, e-beszamolo, NAV lists."
+    },
+    {
+      "platform": "Dun & Bradstreet Hungary (ex-Bisnode)",
+      "coverageNotes": "Registry-derived firmographics, credit ratings, UBO-adjacent linkage analysis for Hungary within a global graph. Strong corporate-hierarchy data; nothing alternatives-specific.",
+      "publicSourcesTheyUse": "State registry bulk data, e-beszamolo filings, NAV databases, gazette publications."
+    },
+    {
+      "platform": "EMIS (CEE-focused aggregator)",
+      "coverageNotes": "Aggregates Hungarian macro, sector reports, company financials and local news for emerging markets; decent sector-level context, shallow on fund-level alternatives.",
+      "publicSourcesTheyUse": "KSH statistics, MNB statistics/Aranykönyv, local press licensing (Portfolio, VG), registry-derived financials — the public layers (KSH, MNB, filings) are directly accessible to us."
+    }
+  ],
+  "searchedButAbsent": "Process note: the session's WebSearch budget was already exhausted (200/200) before this task began, so discovery used the hint list + domain knowledge, verified by ~30 direct URL fetches; verdicts state per-source verification status. Searched-for but absent or unconfirmable: (1) a standalone open Hungarian insolvency register portal — insolvency/liquidation publication flows through the Cégközlöny (which 403-blocks non-browser clients) and the EU e-Justice interconnection; (2) the liquidator roll (felszámolói névjegyzék) direct URL — fni.im.gov.hu does not resolve; current home under IM/OCCSZ needs browser discovery; (3) any public bulk API for the company register — bulk data is sold under contract by the Céginformációs Szolgálat, not open; (4) open UBO data — none, consistent with EU-wide restriction; (5) RSS feeds for MNB, BÉT, MFB, ÁKK, Property Forum — none found, HTML polling required; (6) a standalone Hungarian national carbon-registry portal — the public route is the EU Transaction Log; the national ETS administrator sits under the energy ministry without an obvious open register; (7) a dedicated Hungarian NPL-servicer association — NPL/collections entities appear only via MNB licensing categories (követeléskezelő) in the Intézménykereső; (8) MNV and Hiventures and the ministry Céginformációs page all failed TLS verification from this client — real sites, retry with a browser-grade crawler; (9) Napi.hu and G7.hu no longer exist as separate outlets (301 redirects to Economx and Telex respectively)."
+}

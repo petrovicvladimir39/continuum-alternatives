@@ -1,0 +1,588 @@
+{
+  "country": "FI",
+  "sources": [
+    {
+      "name": "PRH — Finnish Trade Register (Kaupparekisteri)",
+      "url": "https://www.prh.fi/en/kaupparekisteri.html",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "National commercial register operated by the Finnish Patent and Registration Office. Authoritative company register; machine route is the separate open-data API (next entry). Site is server-rendered; this exact path not fetch-verified this run but PRH domain confirmed live via avoindata.prh.fi."
+    },
+    {
+      "name": "PRH/YTJ Open Data API (avoindata.prh.fi)",
+      "url": "https://avoindata.prh.fi/",
+      "side": "entities",
+      "category": "commercial register open data / bulk API",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Genuinely open, no-auth REST APIs: (1) YTJ company data API (trade register basics + tax-admin registrations), (2) registered trade-register notifications API (filings since 2014-11-07), (3) digital financial statements API (iXBRL income statement/balance sheet). Attribution required. This is the primary $0 deterministic entity backbone for FI."
+    },
+    {
+      "name": "YTJ — Business Information System (BIS)",
+      "url": "https://www.ytj.fi/en/",
+      "side": "entities",
+      "category": "company search / Business ID / LEI",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Joint PRH/Tax Administration company search by name, Business ID or LEI; links filings and beneficial-owner obligations. Human search UI; use the open data API for machine access."
+    },
+    {
+      "name": "PRH Virre Information Service",
+      "url": "https://virre.prh.fi/",
+      "side": "entities",
+      "category": "trade register extracts, financial statements, foundation register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Exists but our fetcher hit a redirect loop (session-based Java webapp). Paid extracts + free searches of trade register and Register of Foundations. Use avoindata.prh.fi for machine access; Virre for documents."
+    },
+    {
+      "name": "PRH Register of Foundations (Säätiörekisteri)",
+      "url": "https://www.prh.fi/en/saatiorekisteri.html",
+      "side": "entities",
+      "category": "foundations (LP side / endowments)",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "PRH-operated foundation register (Finnish foundations are significant LP allocators). Data accessed via Virre. URL not fetch-verified this run; PRH is the confirmed operator."
+    },
+    {
+      "name": "Avoindata.fi — national open data portal (CKAN)",
+      "url": "https://www.avoindata.fi/",
+      "side": "entities",
+      "category": "open data portal (cross-registry datasets)",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Real national CKAN portal with API at /data/api/3/action/*, but returned HTTP 403 to our fetcher (bot protection on cloud UAs). Hosts datasets incl. the bankruptcy/restructuring register data. Retry from production crawler with proper UA."
+    },
+    {
+      "name": "FIN-FSA — List of supervised entities",
+      "url": "https://www.finanssivalvonta.fi/en/registers/supervised-entities/",
+      "side": "entities",
+      "category": "regulator register: banks, fund ManCos, AIFMs, investment firms",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED page. Register of all FIN-FSA-supervised entities (incl. AIFMs, UCITS ManCos and their funds, investment firms), updated nightly; front-end register app is backed by a JSON endpoint (already harvested in this project — extend that harvest rather than re-derive)."
+    },
+    {
+      "name": "FIN-FSA — Registers hub (notifications, tied agents, insurance intermediaries, prospectuses)",
+      "url": "https://www.finanssivalvonta.fi/en/registers/",
+      "side": "entities",
+      "category": "regulator registers: passporting notifications, insurance intermediaries, prospectuses",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Hub for: prospectus register, notification lists (EEA passported service providers), tied agents, insurance intermediary register (separate external DB), equity savings account providers, warning lists. No documented API; per-register scraping needed."
+    },
+    {
+      "name": "FIN-FSA — Virtual currency / MiCA service providers",
+      "url": "https://www.finanssivalvonta.fi/en/registers/",
+      "side": "entities",
+      "category": "crypto/MiCA licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "MiCA authorizations and legacy virtual currency provider registrations are held by FIN-FSA and surface through its supervised-entities/notification lists (verified hub above); no standalone MiCA register page fetch-verified this run. Tokenized-RWA (category 5) sourcing route."
+    },
+    {
+      "name": "Bank of Finland / FIN-FSA Open Data API portal",
+      "url": "https://portal.boffsaopendata.fi/",
+      "side": "entities",
+      "category": "central bank + regulator statistics APIs",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Azure API Management developer portal for Suomen Pankki / FIN-FSA open data APIs; free signup for API keys. Covers statistical datasets (rates, MFI, funds). Machine route for BoF data."
+    },
+    {
+      "name": "Bank of Finland — Statistics (investment & private equity funds, MFI)",
+      "url": "https://www.suomenpankki.fi/en/statistics/",
+      "side": "entities",
+      "category": "central bank: fund statistics, MFI lists, PE fund aggregates",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Dedicated 'Investment and private equity funds' statistics, MFI balance sheets/interest rates, with an Open Data Service linked. Aggregate market-sizing + reporter population context, not entity-level granularity."
+    },
+    {
+      "name": "Finnish Centre for Pensions (ETK)",
+      "url": "https://www.etk.fi/en/",
+      "side": "entities",
+      "category": "pension system central body — LP side",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Statutory central body for earnings-related pensions; statistical database, key figures, and taxonomy of pension insurance companies / industry-wide and company pension funds (the Finnish LP universe)."
+    },
+    {
+      "name": "Finnish Tax Administration (Vero) — open data",
+      "url": "https://www.vero.fi/en/About-us/finnish-tax-administration/open_data/",
+      "side": "entities",
+      "category": "corporate tax open data",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "Vero publishes annual open-data files incl. corporate income tax data (public in Finland). Exact path not fetch-verified this run — verify before wiring; well-established public program."
+    },
+    {
+      "name": "Energy Authority (Energiavirasto) — EU ETS national administrator",
+      "url": "https://energiavirasto.fi/en/frontpage",
+      "side": "entities",
+      "category": "carbon / EU ETS registry accounts (Finland)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Domain returned HTTP 403 to our fetcher (bot protection); Energiavirasto is the confirmed Finnish national administrator of the Union Registry (EU ETS accounts). Carbon-alt (category 5) sourcing route; EUTL at EU level complements it."
+    },
+    {
+      "name": "Virallinen lehti — Official Gazette of Finland",
+      "url": "https://www.virallinenlehti.fi/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official gazette with electronic edition (Sähköinen lehti); publishes statutory announcements. Submitting requires login; reading the e-journal does not. Scrape-ability of archive needs a follow-up pass."
+    },
+    {
+      "name": "Insolvency Register (Maksukyvyttömyysrekisteri, Legal Register Centre)",
+      "url": "https://maksukyvyttomyysrekisteri.om.fi/",
+      "side": "entities",
+      "category": "insolvency/court register: bankruptcies + restructurings",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "URL live (VERIFIED reachable) but renders as a JS SPA with no static content for our fetcher. Free public search of bankruptcy, restructuring and debt-adjustment cases, run by Oikeusrekisterikeskus. Pair with the open-data dataset below for bulk."
+    },
+    {
+      "name": "Bankruptcy & restructuring register open data (via Avoindata.fi)",
+      "url": "https://www.avoindata.fi/data/fi/dataset/konkurssi-ja-yrityssaneerausrekisteri",
+      "side": "entities",
+      "category": "insolvency bulk open data",
+      "tier": "tier3_gazette",
+      "accessMethod": "download",
+      "verdict": "Portal returned 403 to our fetcher (bot protection), so dataset page unverified this run — but this is the hinted konkurssit open-data route from Oikeusrekisterikeskus. Verify slug via CKAN API from production crawler. Distressed/NPL (category 2) signal gold."
+    },
+    {
+      "name": "Finlex — legal information databank",
+      "url": "https://finlex.fi/en/",
+      "side": "entities",
+      "category": "legislation + case law + open data",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Free Ministry of Justice databank: statutes, decades of court decisions (Supreme, appeal, administrative, Market Court), government proposals, treaties; has an open data section. Context/monitoring source, not an entity register."
+    },
+    {
+      "name": "Konkurssiasiamies — Bankruptcy Ombudsman",
+      "url": "https://www.konkurssiasiamies.fi/en/",
+      "side": "entities",
+      "category": "insolvency-practitioner supervision",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Independent authority supervising bankruptcy estate administration; publishes recommendations, statements, statistics; runs the Kosti case system. Best national proxy for the insolvency-practitioner ecosystem (Finland has no separate IP roll — see searchedButAbsent)."
+    },
+    {
+      "name": "Nasdaq Helsinki — listed companies & First North Growth Market",
+      "url": "https://www.nasdaq.com/european-market-activity/shares",
+      "side": "entities",
+      "category": "stock exchange issuer lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Legacy nasdaqomxnordic.com listed-companies page now 301s to nasdaq.com European market activity, which is JS-driven and reset our connection. Issuer universe still fully recoverable via disclosure wires (GlobeNewswire/STT) and FIN-FSA prospectus register; expect an undocumented JSON behind the screener."
+    },
+    {
+      "name": "GlobeNewswire — Nasdaq Helsinki (OMXH) company disclosures",
+      "url": "https://www.globenewswire.com/en/search/exchange/OMXH",
+      "side": "entities",
+      "category": "exchange disclosure feed",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Page loads (VERIFIED reachable) but our fetch showed 'no articles for this search' — the exchange filter syntax needs confirmation. GlobeNewswire is Nasdaq's wire and does carry Helsinki company releases; it also offers per-search RSS. Needs one interactive session to pin the right filter/feed URL."
+    },
+    {
+      "name": "Pääomasijoittajat (FVCA) — member directory",
+      "url": "https://paaomasijoittajat.fi/en/members/",
+      "side": "entities",
+      "category": "PE/VC association members (GPs, LPs, advisors)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Finnish Venture Capital Association, ~200 members incl. VC/PE funds, fund investors, family offices, corporate VCs — largest in Nordics. Already harvested per task hint; keep for refresh. Also publishes FVCA industry statistics."
+    },
+    {
+      "name": "FiBAN — Finnish Business Angels Network",
+      "url": "https://fiban.org/",
+      "side": "entities",
+      "category": "angel network + investment statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 630 angels, annual investment reports and per-year angel-investment statistics (EUR 526m tracked since 2011). Entity leads (angel-backed startups, syndicates) + market stats."
+    },
+    {
+      "name": "Finance Finland (Finanssiala ry) — members",
+      "url": "https://www.finanssiala.fi/en/members-and-board-of-directors/",
+      "side": "entities",
+      "category": "banking/insurance/fund-management association members",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (hub page; members page linked from nav). Represents banks, life/non-life insurers, pension companies, finance houses (leasing/factoring), fund ManCos, securities dealers — one association covering what several countries split across many."
+    },
+    {
+      "name": "TELA — Finnish Pension Alliance (member organisations)",
+      "url": "https://www.tela.fi/en/",
+      "side": "entities",
+      "category": "pension investor association — LP side",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Association of all statutory earnings-related pension insurers (the core Finnish LP base, ~EUR 250bn+ AUM); member list is behind an About-us subpage not directly displayed on the homepage. TELA also publishes quarterly investment-allocation analyses of pension assets."
+    },
+    {
+      "name": "Keva — public sector pension provider",
+      "url": "https://www.keva.fi/en/",
+      "side": "entities",
+      "category": "LP: largest Finnish pension investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public-sector pension provider; publishes investment section, annual/interim reports with allocation detail (incl. alternatives). Key LP profile source."
+    },
+    {
+      "name": "Business Finland",
+      "url": "https://www.businessfinland.fi/en/whats-new/news",
+      "side": "entities",
+      "category": "innovation funding & investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State innovation-funding and trade/investment-promotion agency; news page is server-rendered and parseable (no RSS visible). Grant/funding decisions signal early-stage pipeline."
+    },
+    {
+      "name": "Finnvera",
+      "url": "https://www.finnvera.fi/eng",
+      "side": "entities",
+      "category": "state financing & export credit agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED at /eng. Loans, guarantees, export credit guarantees; publishes financing statistics and press releases. Private-debt-adjacent (category 2) state actor."
+    },
+    {
+      "name": "Tesi (Finnish Industry Investment)",
+      "url": "https://tesi.fi/en/",
+      "side": "entities",
+      "category": "state fund-of-funds & co-investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State-owned investor listing BOTH portfolio funds (GP discovery: e.g. Cloudberry VC, Evolver Equity) and direct portfolio companies. High-value seed list for FI GP universe and LP-commitment edges."
+    },
+    {
+      "name": "Sitra — Finnish Innovation Fund",
+      "url": "https://www.sitra.fi/en/",
+      "side": "entities",
+      "category": "public fund / institutional investor",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public endowment-like fund under Parliament; publishes research and holds investments (incl. fund positions reported in annual report). Secondary entity source, primary for context."
+    },
+    {
+      "name": "Finnfund",
+      "url": "https://www.finnfund.fi/en/",
+      "side": "entities",
+      "category": "development finance institution",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Finnish DFI, EUR 857m portfolio, lists current investments by sector (forestry, renewables, financial institutions, agriculture, digital infra). Real-assets/impact (categories 3, 5) edges."
+    },
+    {
+      "name": "Solidium",
+      "url": "https://www.solidium.fi/en/",
+      "side": "entities",
+      "category": "state holding company",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Lists all twelve listed-equity holdings with exact ownership percentages (~EUR 9.8bn, Aug 2026): Nokia 5.7%, Konecranes 11.1%, Outokumpu 15.0%, etc. Clean ownership-edge source."
+    },
+    {
+      "name": "Government ownership steering (Prime Minister's Office)",
+      "url": "https://valtioneuvosto.fi/en/government-ownership-steering",
+      "side": "entities",
+      "category": "state-owned enterprise portfolio",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "valtioneuvosto.fi returned 403 to our fetcher (bot protection); the ownership-steering department and its annual report listing all state shareholdings are real and public. Retry from production crawler."
+    },
+    {
+      "name": "Hilma — public procurement notices (hankintailmoitukset.fi)",
+      "url": "https://www.hankintailmoitukset.fi/en/",
+      "side": "entities",
+      "category": "public procurement portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED reachable but renders as a JS SPA. Hilma has a documented open API for procurement notices (Azure API Management based); infra/real-asset concession and advisory-mandate signals. Locate API docs via site 'avoin rajapinta' section from a browser session."
+    },
+    {
+      "name": "Finnish Bar Association + Find-a-Lawyer directory",
+      "url": "https://app.loydaasianajaja.fi/en",
+      "side": "entities",
+      "category": "law firm / attorney directory (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via asianajajat.fi (asianajajaliitto.fi 301s there). Official find-a-lawyer app lists all licensed advocates/firms, filterable by specialty (M&A, insolvency, funds). Category 6 sourcing. Respect the no-individual-harvesting rule: firm-level only."
+    },
+    {
+      "name": "Finland Chamber of Commerce (Keskuskauppakamari) — authorized property valuers (AKA)",
+      "url": "https://kauppakamari.fi/en/",
+      "side": "entities",
+      "category": "accredited valuer directory (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED site; it runs the property-valuation authorization (AKA/KHK) system, though the valuer register itself wasn't visible on the EN homepage — locate the 'Auktorisoidut kiinteistöarvioijat' search subpage. Finland's substitute for a deep RICS bench (category 3 service graph)."
+    },
+    {
+      "name": "RAKLI — real estate owners & construction clients association",
+      "url": "https://www.rakli.fi/",
+      "side": "entities",
+      "category": "real estate owner/investor association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Association of professional property owners, investors and developers; member organisations under 'Jäsenorganisaatiot' subpage. Category 3 entity discovery (RE investors, developers, managers)."
+    },
+    {
+      "name": "KTI Property Information",
+      "url": "https://kti.fi/en/",
+      "side": "entities",
+      "category": "real estate market data & indices",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. KTI Index, quarterly transactions service, property-development tracking, special investment (RE) funds reviews, annual 'The Finnish Property Market' report (free PDF). Deep data is subscription (KTI Online) — use free reports only."
+    },
+    {
+      "name": "Statistics Finland — StatFin PxWeb API",
+      "url": "https://statfin.stat.fi/PxWeb/api/v1/en/StatFin/",
+      "side": "entities",
+      "category": "official statistics API (bankruptcies, national accounts, RE prices)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED — API returned the database node list (JSON). Free PxWeb API covering bankruptcies, financial accounts, housing/RE prices, enterprise demographics. Context and macro layers at $0."
+    },
+    {
+      "name": "Kauppalehti",
+      "url": "https://www.kauppalehti.fi/",
+      "side": "news",
+      "category": "business daily (Alma Media)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://feeds.kauppalehti.fi/rss/main",
+      "verdict": "Finland's main business daily. Both site and feeds.kauppalehti.fi refused our fetcher; Alma Media has curtailed public RSS, so the legacy feed URL is recorded UNVERIFIED. Headline+link only, paywalled body — respect copyright discipline."
+    },
+    {
+      "name": "Talouselämä",
+      "url": "https://www.talouselama.fi/",
+      "side": "news",
+      "category": "business weekly (Alma Media)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Leading business magazine (deals, ownership, funds). Fetch refused (Alma bot-block); no public RSS confirmed. Monitor via front-page crawl from production infra or via STT/Epressi releases it covers."
+    },
+    {
+      "name": "Arvopaperi",
+      "url": "https://www.arvopaperi.fi/",
+      "side": "news",
+      "category": "investor/markets media (Alma Media)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Investor-focused markets title under Alma; not fetch-verified this run (same Alma bot-wall expected). Listed for completeness of the markets-media set; verify from production crawler."
+    },
+    {
+      "name": "Tekniikka & Talous",
+      "url": "https://www.tekniikkatalous.fi/",
+      "side": "news",
+      "category": "technology & industry media (Alma Media)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Tech/industry title relevant to industrials, energy and infra deal signals. Not fetch-verified this run; same Alma access caveats."
+    },
+    {
+      "name": "Helsingin Sanomat — Talous",
+      "url": "https://www.hs.fi/talous/",
+      "side": "news",
+      "category": "national daily, business section (Sanoma)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.hs.fi/rss/talous.xml",
+      "verdict": "Largest national daily. Sanoma blocked our fetcher outright, so the section feed URL is recorded UNVERIFIED — HS has long published section RSS at /rss/; confirm from a normal UA. Paywalled bodies; headline+link only."
+    },
+    {
+      "name": "Taloussanomat (Ilta-Sanomat business)",
+      "url": "https://www.is.fi/taloussanomat/",
+      "side": "news",
+      "category": "business news (Sanoma, free)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.is.fi/rss/taloussanomat.xml",
+      "verdict": "Free business news desk incl. bankruptcy and company coverage. Sanoma blocked our fetcher; feed URL recorded UNVERIFIED (historically the documented IS feed). Confirm from production crawler."
+    },
+    {
+      "name": "Yle Uutiset — talous (RSS)",
+      "url": "https://yle.fi/uutiset",
+      "side": "news",
+      "category": "public broadcaster news, Finnish",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET",
+      "verdict": "VERIFIED WORKING FEED (27 items, fresh, full metadata). Feed is filterable by concept parameter for business topics; base recent.rss confirmed. Free, no paywall, clean licensing posture for headline+link."
+    },
+    {
+      "name": "Yle News (English, RSS)",
+      "url": "https://yle.fi/news",
+      "side": "news",
+      "category": "public broadcaster news, English",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS",
+      "verdict": "VERIFIED WORKING FEED (~30 items incl. economy/housing/tax stories). Best free English-language FI signal feed."
+    },
+    {
+      "name": "Helsinki Times",
+      "url": "https://www.helsinkitimes.fi/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.helsinkitimes.fi/?format=feed&type=rss",
+      "verdict": "VERIFIED WORKING FEED (Joomla RSS, fresh items incl. Finnish tax/economy). English-language secondary signal source."
+    },
+    {
+      "name": "Salkunrakentaja",
+      "url": "https://www.salkunrakentaja.fi/",
+      "side": "news",
+      "category": "investing/finance media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.salkunrakentaja.fi/feed/",
+      "verdict": "VERIFIED WORKING FEED. Active Finnish investing media (stocks, markets, macro, crypto). Free content, WordPress feed."
+    },
+    {
+      "name": "ArcticStartup",
+      "url": "https://arcticstartup.com/",
+      "side": "news",
+      "category": "Nordic/Baltic startup & VC media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://arcticstartup.com/feed/",
+      "verdict": "Long-running Nordic startup/VC outlet. Site returned 403 to our fetcher (Cloudflare-style block); WordPress /feed/ recorded but UNVERIFIED from this environment — the hinted RSS presumably works with a standard UA. Funding-round signal source for categories 1."
+    },
+    {
+      "name": "Inderes",
+      "url": "https://www.inderes.fi/",
+      "side": "news",
+      "category": "equity research & markets media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Freemium equity-research platform covering Nasdaq Helsinki: free daily morning reviews, analyst comments, events calendar; premium locks full reports. No RSS found (guessed /fi/rss returned 404). Never reproduce research bodies — headline/metadata signals only."
+    },
+    {
+      "name": "STT Info — press release & stock exchange notice distribution",
+      "url": "https://www.sttinfo.fi/",
+      "side": "news",
+      "category": "press release wire (incl. exchange notices)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Finnish News Agency distribution platform: 17,000+ releases/yr, carries stock exchange notices, Business Wire and ACCESS Newswire content; per-newsroom subscriptions/feeds (Bank of Finland's own releases route through it). Feed URLs are per-publisher — enumerate newsrooms of tracked entities."
+    },
+    {
+      "name": "Epressi (LianaPress)",
+      "url": "https://www.epressi.com/",
+      "side": "news",
+      "category": "press release distribution",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Second major FI release wire with category-based feeds ('Tilaa tiedotesyöte'); per-category RSS URLs need one enumeration pass (e.g. talous category). Complements STT Info."
+    },
+    {
+      "name": "FIN-FSA — press, supervision and news releases",
+      "url": "https://www.finanssivalvonta.fi/en/publications-and-press-releases/",
+      "side": "news",
+      "category": "regulator press page",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Year-organized supervision releases (2013–2026), press and news releases, reporting releases, quarterly market newsletter. No RSS found (guessed /en/rss-feeds/ 404). Enforcement/authorization signals — license grants and withdrawals are entity-lifecycle events."
+    },
+    {
+      "name": "Bank of Finland — press releases & news",
+      "url": "https://www.suomenpankki.fi/en/media-and-publications/",
+      "side": "news",
+      "category": "central bank press page",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Press releases, statistical announcements, speeches; page states RSS feeds exist (exact URLs not exposed in static content) and email distribution runs via STT newsroom. Pin feed URL in one browser pass."
+    },
+    {
+      "name": "Ministry of Finance (VM) — press releases",
+      "url": "https://vm.fi/en/press-releases-and-news",
+      "side": "news",
+      "category": "finance ministry press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "valtioneuvosto.fi platform 403'd our fetcher, so path UNVERIFIED this run; ministry press pages on that platform are real and public. Policy signals (taxation of funds, state asset decisions). Retry from production crawler."
+    },
+    {
+      "name": "Kiinteistölehti",
+      "url": "https://www.kiinteistolehti.fi/",
+      "side": "news",
+      "category": "real estate sector media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Established Finnish real-estate trade title (Kiinteistöliitto). NOT fetch-verified this run; include for category 3 signal coverage and verify feed (/feed/ likely, WordPress) from production."
+    },
+    {
+      "name": "Rakennuslehti",
+      "url": "https://www.rakennuslehti.fi/",
+      "side": "news",
+      "category": "construction & property development media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Main construction-industry paper (developments, contractors, distressed builders). NOT fetch-verified this run; verify and hunt /feed/ from production. Category 3 signals incl. developer insolvencies."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (now BlackRock)",
+      "coverageNotes": "Strong on Finnish GP/LP fund-level data: FVCA-member buyout/VC funds, pension LPs (Keva, Varma, Ilmarinen) commitment tracking, fundraising and performance. Thin on Finnish service graph, NPL/distressed, and anything below institutional fund size.",
+      "publicSourcesTheyUse": "FIN-FSA AIFM/ManCo authorizations, Pääomasijoittajat (FVCA) member and statistics publications, pension providers' own annual/interim reports (Keva, TELA members), press releases — all directly reachable via the FIN-FSA supervised-entities register, paaomasijoittajat.fi, tela.fi/keva.fi listed above."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Good Finnish deal coverage (M&A, PE buyouts, VC rounds) and company financials; weaker on LP granularity and local insolvency/credit events.",
+      "publicSourcesTheyUse": "PRH trade register + financial statements (the avoindata.prh.fi iXBRL API is the direct route), Nasdaq Helsinki disclosures via GlobeNewswire/STT, press wires, FVCA statistics."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best-in-class Finnish startup/VC ecosystem mapping (works with Nordic ecosystem orgs); rounds, valuations, investor graphs. Not focused on debt, real assets, or service graph.",
+      "publicSourcesTheyUse": "PRH/YTJ open data for entity backbone, Business Finland and FiBAN announcements/statistics, ArcticStartup and Yle/HS press coverage, Tesi portfolio disclosures — all cataloged above as direct sources."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Finnish startup coverage; self-reported profiles plus press-derived rounds. Frequent gaps and stale data outside VC.",
+      "publicSourcesTheyUse": "Press releases (STT Info/Epressi wires), company self-reporting, news coverage — nothing they use that we cannot reach via the wires and Yle/HS feeds directly."
+    },
+    {
+      "platform": "Suomen Asiakastieto / Enento Group (local)",
+      "coverageNotes": "The dominant local company & credit information provider: credit ratings, payment defaults, financials, real-estate/condo data, ESG scores. Covers ALL Finnish companies — the credit/distress layer global platforms lack. Commercial product; do not scrape.",
+      "publicSourcesTheyUse": "PRH trade register + financial statements, Legal Register Centre insolvency register, enforcement (ulosotto) data, Vero tax data, court payment-default records — the public originals are avoindata.prh.fi, maksukyvyttomyysrekisteri.om.fi and Vero open data, all cataloged above."
+    },
+    {
+      "platform": "Vainu (local)",
+      "coverageNotes": "Nordic sales-intelligence over 5M+ companies (FI/SE/DK/NO): firmographics, financials, group structures, technographics, change signals. Strong entity backbone, no alternatives-specific intelligence.",
+      "publicSourcesTheyUse": "States 'official sources' + financial statements — in practice PRH/YTJ open data and filed financials (avoindata.prh.fi APIs), plus company websites. We reach the same registries directly at $0."
+    },
+    {
+      "platform": "Alma Talent Tietopalvelut (local, Kauppalehti companies)",
+      "coverageNotes": "Kauppalehti-branded company information, financials, decision-maker data and TE-500 style rankings; deeply integrated with Alma's business media. Commercial; do not scrape.",
+      "publicSourcesTheyUse": "PRH trade register, filed financial statements, official announcements (gazette/insolvency) — same public originals we ingest via avoindata.prh.fi and the insolvency open data."
+    },
+    {
+      "platform": "Inderes (local)",
+      "coverageNotes": "Community equity research covering nearly the whole Nasdaq Helsinki main list + First North: estimates, recommendations, insider-trade tracking. Listed-equity only, not private alternatives — but the best public window on Finnish listed RE funds/REIT-likes.",
+      "publicSourcesTheyUse": "Nasdaq Helsinki company disclosures (GlobeNewswire/STT wires), company IR pages, FIN-FSA prospectus register — all direct-access sources in our catalog."
+    },
+    {
+      "platform": "KTI Property Information (local)",
+      "coverageNotes": "The authority on Finnish institutional real estate: transaction volumes, rental indices, special investment fund (open-ended RE fund) reviews. Subscription product with meaningful free annual reports.",
+      "publicSourcesTheyUse": "Own proprietary surveys (not replicable), plus public deal press releases and FIN-FSA special-investment-fund registrations — the public slice is reachable via FIN-FSA registers and the release wires."
+    },
+    {
+      "platform": "Finder.fi (Fonecta, local)",
+      "coverageNotes": "Free-tier company lookup (financials snapshots, Business IDs, officers) used widely by Finnish professionals; consumer-grade, no alternatives angle.",
+      "publicSourcesTheyUse": "PRH/YTJ open data and filed financials — identical originals to avoindata.prh.fi."
+    }
+  ],
+  "searchedButAbsent": "Session web-search budget was exhausted at task start (200/200 used), so discovery ran on domain knowledge + direct URL verification (30+ fetches); items below are stated with that caveat. (1) No standalone Finnish insolvency-practitioner roll: bankruptcy administrators are court-appointed attorneys supervised by Konkurssiasiamies — the Bar Association directory + Konkurssiasiamies are the substitutes. (2) No separate fund-administrator license category: administration falls under FIN-FSA investment-services/AIFM authorizations. (3) No standalone national MiCA register page verified: MiCA licensees surface inside FIN-FSA's supervised-entities/notification lists. (4) RICS has minimal Finland presence: the national valuer credential is Keskuskauppakamari's AKA/KHK authorization, not RICS. (5) Good News from Finland is discontinued as a standalone outlet (301s into businessfinland.com marketing) — dropped rather than padded. (6) Alma Media (Kauppalehti/Talouselämä/Arvopaperi) has withdrawn public RSS and hard-blocks cloud fetchers; legacy feed URLs recorded as unverified. (7) Nasdaq's legacy nordic listed-companies page (nasdaqomxnordic.com) is retired — issuer lists now only via JS-heavy nasdaq.com or disclosure wires. (8) No Finnish privatization agency exists (no active privatization program); state-asset routes are Solidium + PMO ownership steering. (9) No dedicated Finnish litigation-funding or royalties registry found — category 5 sourcing must come via press wires and PRH classification. (10) avoindata.fi and valtioneuvosto.fi/energiavirasto.fi 403-block cloud user agents — real sources, need production-crawler UA, flagged honestly in verdicts."
+}

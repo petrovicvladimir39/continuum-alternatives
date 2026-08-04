@@ -1,0 +1,557 @@
+{
+  "country": "EE",
+  "sources": [
+    {
+      "name": "e-Business Register (Äriregister, RIK)",
+      "url": "https://ariregister.rik.ee/eng",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Official national commercial register run by RIK. Free public search of all Estonian legal entities incl. beneficial owners and annual reports. Verified indirectly via its open-data portal."
+    },
+    {
+      "name": "e-Business Register Open Data portal",
+      "url": "https://avaandmed.ariregister.rik.ee/en",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Fully open bulk downloads (machine-readable, CC BY 4.0) plus open-data API endpoints: company status/details, annual reports, beneficial owners, entries and rulings. The single best bulk backbone for EE entities — genuinely free, no auth for bulk files."
+    },
+    {
+      "name": "e-Business Register APIs (REST + X-Road)",
+      "url": "https://avaandmed.ariregister.rik.ee/en/introduction-of-api",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED (listed on open-data portal). REST API and X-Road REST for beneficial-owner and company queries; some detailed XML services are contract/paid."
+    },
+    {
+      "name": "EMTA open data — paid taxes, turnover, employees per company",
+      "url": "https://www.emta.ee/ariklient/amet-uudised-ja-kontakt/uudised-pressiinfo-statistika/statistika-ja-avaandmed",
+      "side": "entities",
+      "category": "tax-authority-company-data",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Tax and Customs Board publishes quarterly XLSX/CSV of paid taxes, turnover and employee counts for every registered business (10th day after quarter). Registry-grade financial signal for AUM proxies, servicer/NPL activity, portfolio company health."
+    },
+    {
+      "name": "e-Land Register (e-Kinnistusraamat)",
+      "url": "https://kinnistusraamat.rik.ee/",
+      "side": "entities",
+      "category": "land-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official property register (owners, mortgages, restrictions), Est/Eng interface. Searchable; some detailed queries free only for owners/entitled persons — bulk access is limited, per-query works."
+    },
+    {
+      "name": "Building Register (Ehitisregister, EHR)",
+      "url": "https://livekluster.ehr.ee/ui/ehr/v1",
+      "side": "entities",
+      "category": "real-assets-register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED redirect from ehr.ee. Official building register (permits, buildings, energy certificates) — relevant for developers/RE. JS single-page app; data also surfaced via Estonian open-data portal."
+    },
+    {
+      "name": "Finantsinspektsioon — supervised entities register",
+      "url": "https://www.fi.ee/en/supervised-entities",
+      "side": "entities",
+      "category": "financial-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fi.ee homepage. Registers of banks, fund managers (incl. AIFMs), investment firms, insurers, creditors, payment institutions, and now MiCA CASPs. Already harvested per hints — extend to CASP and creditor registers."
+    },
+    {
+      "name": "FI central storage of regulated information (OAM)",
+      "url": "https://oam.fi.ee/en",
+      "side": "entities",
+      "category": "issuer-disclosures",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official storage of issuer regulated announcements and PDMR (manager transaction) notifications. Login is for submitters; disclosure registers are the public record route."
+    },
+    {
+      "name": "FI statistics environment (FIstar)",
+      "url": "https://statistika.fi.ee/fistar/#/en/p/FINANTSSEKTOR",
+      "side": "entities",
+      "category": "financial-sector-statistics",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Linked from verified FI homepage; not fetched directly. Financial-sector statistics environment (banks, funds, insurers). JS app."
+    },
+    {
+      "name": "Eesti Pank statistics",
+      "url": "https://statistika.eestipank.ee/",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Central bank statistics database (credit institutions, funds, financing). Not fetched this session; Eesti Pank main site verified and lists statistical releases incl. crypto asset services."
+    },
+    {
+      "name": "Pensionikeskus — funded pension registry",
+      "url": "https://www.pensionikeskus.ee/en/",
+      "side": "entities",
+      "category": "pension-LP-side",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Registry/operator of II and III pillar: pension funds, fund managers, fees, NAVs, and a statistics section. The core LP-side dataset for Estonia."
+    },
+    {
+      "name": "FIU (Rahapesu Andmebüroo) — VASP licenses",
+      "url": "https://fiu.ee/en",
+      "side": "entities",
+      "category": "crypto-aml-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Historic licensor of virtual asset service providers; publishes revoked licenses and news. Post-MiCA (transition ended 1 Jul 2026 per FI news) CASP supervision sits with Finantsinspektsioon — use both."
+    },
+    {
+      "name": "MTR — majandustegevuse register (TTJA)",
+      "url": "https://mtr.ttja.ee/",
+      "side": "entities",
+      "category": "activity-licenses",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public unauthenticated search of activity licenses/notifications (incl. historic crypto-provider licenses, debt collection-adjacent activities). NOTE: migrating to the new 'Tarvik' system from 25.06.2025 — track the successor."
+    },
+    {
+      "name": "EU Transaction Log (EUTL) — Estonian ETS accounts",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon-registry",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetched this session but well-established: public EUTL lets you filter Estonian registry accounts, installations and compliance — the public carbon-registry route for EE (national administrator: Environmental Board/Kliimaministeerium)."
+    },
+    {
+      "name": "Ametlikud Teadaanded — official announcements",
+      "url": "https://www.ametlikudteadaanded.ee/",
+      "side": "entities",
+      "category": "insolvency-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Fully open official notices portal: bankruptcy, enforcement, liquidation, planning notices. Filterable public search by notice type/registry code, email subscriptions, and an explicit 'data reuse' (Andmete taaskasutamine) route. Primary EE insolvency signal."
+    },
+    {
+      "name": "Riigi Teataja — state gazette",
+      "url": "https://www.riigiteataja.ee/",
+      "side": "entities",
+      "category": "gazette-legal-acts",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetch returned a JS loading shell; site is authoritative gazette for legal acts and hosts systematic open access (XML of acts). Verified indirectly via kohus.ee which points court publications here."
+    },
+    {
+      "name": "Court decisions search (kohtulahendid, Riigi Teataja)",
+      "url": "https://www.riigiteataja.ee/kohtulahendid/koik_menetlused.html",
+      "side": "entities",
+      "category": "court-decisions",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "Public database of administrative, civil, criminal and misdemeanour decisions — confirmed to exist by kohus.ee (verified), URL itself not fetched this session."
+    },
+    {
+      "name": "Estonian courts (kohus.ee) + public e-File",
+      "url": "https://www.kohus.ee/en",
+      "side": "entities",
+      "category": "courts",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Session schedules (published via Riigi Teataja), judicial decisions access, and the Public e-File (etoimik) for case monitoring. Insolvency proceedings themselves surface via Ametlikud Teadaanded."
+    },
+    {
+      "name": "Nasdaq Baltic / Nasdaq Tallinn — issuer and share lists",
+      "url": "https://nasdaqbaltic.com/statistics/en/shares",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. Baltic Main List, Secondary List and First North with Tallinn-domiciled issuers; XLSX export of share lists. Member lists and bond/fund lists on sibling pages."
+    },
+    {
+      "name": "EstVCA — Estonian Private Equity & Venture Capital Association members",
+      "url": "https://estvca.ee/members",
+      "side": "entities",
+      "category": "association-pe-vc",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Full members (VC/PE/mezzanine/family offices), Limited Partners (pension funds, DFIs), associate members (law firms, auditors, banks). ~30+ organizations. Already 'done' per hints — this confirms structure for re-harvest."
+    },
+    {
+      "name": "EstBAN — Estonian Business Angels Network",
+      "url": "https://estban.ee/",
+      "side": "entities",
+      "category": "association-angels",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Member and fund-member lists, annual investment statistics (EUR 14.1m in 2025), news section."
+    },
+    {
+      "name": "FinanceEstonia — financial sector cluster",
+      "url": "https://financeestonia.eu/",
+      "side": "entities",
+      "category": "association-finance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 90+ member directory at /meie-liikmed/ spanning fintech, capital markets, crowdfunding, pensions; news at /uudised/. Good for service-graph and niche-alts entity sourcing."
+    },
+    {
+      "name": "Estonian Banking Association (Pangaliit)",
+      "url": "https://pangaliit.ee/",
+      "side": "entities",
+      "category": "association-banking",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 9 member banks (~98% of sector assets), banking statistics and standards. Leasing association functions folded here historically."
+    },
+    {
+      "name": "Estonian Insurance Association (EKSL)",
+      "url": "https://eksl.ee/",
+      "side": "entities",
+      "category": "association-insurance",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 18 member insurers ('all insurance providers operating in Estonia') plus a statistics section — LP-side and ILS-adjacent."
+    },
+    {
+      "name": "EIS — Estonian Business and Innovation Agency (ex-KredEx/Enterprise Estonia)",
+      "url": "https://eis.ee/en/",
+      "side": "entities",
+      "category": "development-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National DFI/promotion agency: innovation loans, guarantees, housing finance, export programs; news and newsletter."
+    },
+    {
+      "name": "SmartCap — state fund-of-funds",
+      "url": "https://smartcap.ee/",
+      "side": "entities",
+      "category": "state-LP-fund-of-funds",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Manages Venture Capital Fund (~EUR 176m), Green Fund (EUR 100m), Defence Fund (EUR 100m); public portfolio at /sc_portfolio/ and annual reports. Key EE LP entity + list of backed fund managers."
+    },
+    {
+      "name": "Invest Estonia",
+      "url": "https://investinestonia.com/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "rssUrl": "https://investinestonia.com/feed/",
+      "verdict": "VERIFIED. FDI promotion arm of EIS; sector guides and news; site itself advertises RSS at /feed/ (feed URL not separately fetched)."
+    },
+    {
+      "name": "Startup Estonia",
+      "url": "https://startupestonia.ee/",
+      "side": "entities",
+      "category": "startup-ecosystem-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Quarterly sector reports, funding statistics, ecosystem news. Its startup database is powered by Dealroom — per project rules DO NOT scrape the database; use the quarterly reports and go to primary sources instead."
+    },
+    {
+      "name": "Riigihanked — public procurement register",
+      "url": "https://riigihanked.riik.ee/rhr-web/#/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED to exist (JS SPA; content not parseable by plain fetch). Public search of tenders/contracts; procurement datasets also republished on the national open-data portal (avaandmed.eesti.ee) and EU TED."
+    },
+    {
+      "name": "Estonian Bar Association — attorney & law firm search",
+      "url": "https://advokatuur.ee/et/vajad-advokaati/eesti-advokaadid",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via homepage nav: 'Leia advokaat' at /et/vajad-advokaati/eesti-advokaadid and law firms at /et/vajad-advokaati/eesti-advokaadiburood. Service-graph (fund-structuring/M&A law firms)."
+    },
+    {
+      "name": "Chamber of Bailiffs and Bankruptcy Trustees (KPK)",
+      "url": "https://kpkoda.ee/",
+      "side": "entities",
+      "category": "insolvency-practitioners",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Searchable rolls of bailiffs (kohtutäiturid) and bankruptcy trustees (pankrotihaldurid) — the EE insolvency-practitioner directory."
+    },
+    {
+      "name": "Chamber of Notaries (Notarite Koda)",
+      "url": "https://www.notar.ee/",
+      "side": "entities",
+      "category": "notaries",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real organization with a find-a-notary directory; not fetched this session — verify on ingest."
+    },
+    {
+      "name": "Estonian Chamber of Commerce and Industry",
+      "url": "https://www.koda.ee/en",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real membership directory (~3,000 members) and business news; not fetched this session — verify on ingest."
+    },
+    {
+      "name": "Land and Spatial Development Board (Maaruum, ex-Maa-amet)",
+      "url": "https://maaruum.ee/en",
+      "side": "entities",
+      "category": "real-estate-transactions-geodata",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (maaamet.ee 302-redirects here — agency renamed). Publishes real-estate transaction statistics, market overviews, State Real Estate Register, and open geodata via Geoportal. Core real-assets pricing source."
+    },
+    {
+      "name": "Kutseregister — professional qualifications register (valuers)",
+      "url": "https://www.kutseregister.edu.ee/",
+      "side": "entities",
+      "category": "valuer-qualifications",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Register of certified professionals incl. real-estate valuers (kinnisvara hindaja kutse) — the EE equivalent of a valuer roll (RICS has no national EE directory). Not fetched this session — verify URL on ingest."
+    },
+    {
+      "name": "Estonian Association of Appraisers (EKHÜ)",
+      "url": "https://www.ekhy.ee/",
+      "side": "entities",
+      "category": "valuers-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Real professional body of property valuers; lists certified valuers. Not fetched this session — verify on ingest."
+    },
+    {
+      "name": "Statistics Estonia database (andmed.stat.ee)",
+      "url": "https://andmed.stat.ee/en/stat",
+      "side": "entities",
+      "category": "national-statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED PxWeb statistical database; PxWeb exposes a standard JSON API (API docs not on the landing page but the platform is API-native). Macro/sector context, enterprise demographics."
+    },
+    {
+      "name": "Elering — TSO live data and dashboard",
+      "url": "https://elering.ee/en",
+      "side": "entities",
+      "category": "energy-infrastructure-data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. Electricity/gas TSO with Elering LIVE dashboard, open system data and estfeed data platform — underpins renewables/energy-transition real-asset coverage; also publishes news at /en/articles."
+    },
+    {
+      "name": "ERR News (English)",
+      "url": "https://news.err.ee/",
+      "side": "news",
+      "category": "news-general-business",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://news.err.ee/rss",
+      "verdict": "VERIFIED WORKING RSS. Public broadcaster, English-language; solid economy/business coverage, no paywall. Best free EE English signal."
+    },
+    {
+      "name": "ERR uudised (Estonian, incl. majandus)",
+      "url": "https://www.err.ee/",
+      "side": "news",
+      "category": "news-general-business",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.err.ee/rss",
+      "verdict": "Same verified platform as the English feed; Estonian feed URL follows the same pattern but was not separately fetched — verify on ingest."
+    },
+    {
+      "name": "Äripäev",
+      "url": "https://www.aripaev.ee/",
+      "side": "news",
+      "category": "news-business-daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "THE Estonian business daily (Bonnier). Fetch blocked outright for our client; heavily paywalled. Use headline-level monitoring only, honor paywall — headline+link doctrine. RSS existence unconfirmed (search budget exhausted)."
+    },
+    {
+      "name": "Postimees Majandus",
+      "url": "https://majandus.postimees.ee/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.postimees.ee/rss",
+      "verdict": "Major daily's business section. Both site and /rss returned 403 to our fetcher (bot protection); /rss is the historically documented feed root — likely works from a normal RSS client. Partially paywalled."
+    },
+    {
+      "name": "Delfi Ärileht",
+      "url": "https://arileht.delfi.ee/",
+      "side": "news",
+      "category": "news-business",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Business section of Delfi (Ekspress Grupp). Unfetchable by our client (bot protection); Delfi historically exposes RSS per section — feed URL unconfirmed this session."
+    },
+    {
+      "name": "Eesti Ekspress",
+      "url": "https://ekspress.delfi.ee/",
+      "side": "news",
+      "category": "news-investigative-business",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Weekly with strong business/investigative coverage (Ekspress Grupp, paywalled). Not fetched this session."
+    },
+    {
+      "name": "The Baltic Times",
+      "url": "https://www.baltictimes.com/",
+      "side": "news",
+      "category": "news-english-regional",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. English-language pan-Baltic business/politics coverage since 1996; no visible RSS link on site."
+    },
+    {
+      "name": "ArcticStartup",
+      "url": "https://arcticstartup.com/",
+      "side": "news",
+      "category": "news-startup-vc",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://arcticstartup.com/feed",
+      "verdict": "Nordic-Baltic startup/VC media covering Estonian rounds. /feed returned 403 to our fetcher (Cloudflare-style block); WordPress feed very likely works from a standard RSS client — verify on ingest."
+    },
+    {
+      "name": "Ärigeenius (geenius.ee business)",
+      "url": "https://ari.geenius.ee/",
+      "side": "news",
+      "category": "news-business-tech",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://ari.geenius.ee/feed/",
+      "verdict": "Estonian tech/business portal (Geenius Meedia). Unfetchable by our client; WordPress-network /feed/ is the standard pattern — verify from an RSS client. Partially paywalled."
+    },
+    {
+      "name": "Rahageenius (personal finance/markets, geenius.ee)",
+      "url": "https://raha.geenius.ee/",
+      "side": "news",
+      "category": "news-finance",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "rssUrl": "https://raha.geenius.ee/feed/",
+      "verdict": "Finance vertical of the same Geenius network; not fetched (sibling site was bot-blocked). Feed URL follows the network pattern — verify on ingest."
+    },
+    {
+      "name": "Finantsinspektsioon news RSS",
+      "url": "https://www.fi.ee/en/news",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.fi.ee/en/uudised/rss",
+      "verdict": "VERIFIED WORKING RSS. License grants/withdrawals (Admiral Markets, Crowdestate), CASP transition, merger permissions — high-value entity-event signal."
+    },
+    {
+      "name": "Eesti Pank press releases",
+      "url": "https://www.eestipank.ee/en/press/press-releases",
+      "side": "news",
+      "category": "central-bank-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Press releases, economic-policy statements and statistical releases (incl. crypto asset services stats). No RSS link visible — scrape the paginated index."
+    },
+    {
+      "name": "Ministry of Finance (fin.ee) news",
+      "url": "https://www.fin.ee/en",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (note: rahandusministeerium.ee is dead — site moved to fin.ee). News on beneficial-ownership rules, Treasury bills, EU funds; footer advertises an RSS feed (exact feed URL not captured — pull from footer on ingest)."
+    },
+    {
+      "name": "Nasdaq Baltic market news / issuer disclosures",
+      "url": "https://nasdaqbaltic.com/statistics/en/news",
+      "side": "news",
+      "category": "exchange-disclosures",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official issuer announcements for Baltic regulated market and First North; filterable index plus email newsletter. No RSS link on page; announcements are distributed via GlobeNewswire, whose feed builder is a secondary route."
+    },
+    {
+      "name": "LHV Financial Portal",
+      "url": "https://fp.lhv.ee/news/",
+      "side": "news",
+      "category": "markets-news-community",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "LHV bank's market-news portal covering Baltic listed companies — long-running Estonian investor hub. Not fetched this session — verify on ingest."
+    },
+    {
+      "name": "e-Estonia briefing/blog",
+      "url": "https://e-estonia.com/blog/",
+      "side": "news",
+      "category": "news-digital-economy",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "rssUrl": "https://e-estonia.com/feed/",
+      "verdict": "Government-backed digital-economy publication; useful for fintech/tokenization context. WordPress feed pattern; not fetched this session."
+    },
+    {
+      "name": "Ehitusuudised (Äripäev construction portal)",
+      "url": "https://www.ehitusuudised.ee/",
+      "side": "news",
+      "category": "news-real-estate-construction",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Äripäev-network construction/real-estate trade portal — real-assets deal signal. Not fetched (parent aripaev.ee blocks our client); likely same paywall regime."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Dealroom (global, powers Startup Estonia database)",
+      "coverageNotes": "Strongest startup/VC coverage of Estonia of any global platform — it is the official data partner behind the Startup Estonia database, so Estonian startups, rounds and investor mapping are unusually complete. Weak on private debt, real assets, and the service graph.",
+      "publicSourcesTheyUse": "e-Business Register open data (avaandmed.ariregister.rik.ee), EMTA quarterly tax/turnover/employee open data (visible in Estonian startup employment/revenue metrics), press releases and startup media (ArcticStartup, Ärigeenius, ERR), self-reported company profiles, Startup Estonia quarterly reports. All of these are directly accessible to us at source."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Covers the visible Estonian VC/PE layer (BaltCap, Karma Ventures, Trind, Superangel, Specialist VC, Startup Wise Guys, Plural's Estonian footprint) and larger deals; thin below headline rounds, sparse on Estonian LPs, NPL/servicers and niche alts.",
+      "publicSourcesTheyUse": "Company registry filings (ariregister annual reports), Nasdaq Baltic disclosures, EstVCA membership and activity reports, fund/firm press releases, English-language media (ERR News, Baltic Times). Direct routes exist for every one."
+    },
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Fund-level coverage of Baltic-focused GPs (BaltCap, Livonia, INVL vehicles touching EE) and some LP data via pension-fund reporting; Estonia-specific depth is shallow — few Estonian LPs profiled, almost nothing on service providers.",
+      "publicSourcesTheyUse": "Finantsinspektsioon fund/AIFM registers, Pensionikeskus fund data, annual reports filed to the e-Business Register, EstVCA publications — all public and directly harvestable."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Estonian startup coverage, largely self-reported and press-derived; unreliable for round completeness and entity resolution (no registry codes).",
+      "publicSourcesTheyUse": "Press releases, TechCrunch/ArcticStartup-type media, self-submission. Registry-linked verification is exactly what they lack and we can add via RIK open data."
+    },
+    {
+      "platform": "Inforegister (Register OÜ) — local",
+      "coverageNotes": "Estonian credit-risk and company-intelligence portal: payment defaults, tax arrears, network graphs of boards/owners, distress ratings. Effectively a local moat on registry-derivative analytics; no alternatives-investment framing.",
+      "publicSourcesTheyUse": "e-Business Register open data + documents, EMTA open data (tax arrears, paid taxes), Ametlikud Teadaanded insolvency notices, court decisions — 100% public inputs we ingest directly under the same open licenses."
+    },
+    {
+      "platform": "Creditinfo Eesti / e-krediidiinfo.ee — local",
+      "coverageNotes": "Official credit bureau; company reports, payment-default register (maksehäireregister), scoring. The payment-default ledger itself is proprietary member-contributed data (banks report into it) — not replicable from public sources; everything else is registry-derived.",
+      "publicSourcesTheyUse": "e-Business Register, EMTA open data, Ametlikud Teadaanded; proprietary layer is bank-reported defaults."
+    },
+    {
+      "platform": "Scorestorybook (Storybook) — local",
+      "coverageNotes": "Company scoring, media-mention monitoring and B2B prospecting on Estonian companies; strong entity-resolution over local media.",
+      "publicSourcesTheyUse": "e-Business Register open data, EMTA quarterly data, Estonian online media (Äripäev/Delfi/Postimees headlines), Ametlikud Teadaanded."
+    },
+    {
+      "platform": "Teatmik.ee — local",
+      "coverageNotes": "Free lookup layer over the commercial register incl. beneficial owners and annual-report figures; no analytics. Demonstrates how complete the free RIK data is.",
+      "publicSourcesTheyUse": "e-Business Register open data and documents exclusively."
+    },
+    {
+      "platform": "Funderbeam — local origin (marketplace)",
+      "coverageNotes": "Estonian-founded funding/secondary marketplace; carries data on its own listed private companies and syndicates — a niche primary source for its own deals rather than a coverage competitor.",
+      "publicSourcesTheyUse": "Own listings and issuer disclosures; underlying entities verifiable via ariregister."
+    }
+  ],
+  "searchedButAbsent": "Searched for but genuinely absent or consolidated elsewhere: (1) an active privatization/state-asset sales agency — none exists; large-scale privatization ended in the 1990s (Erastamisagentuur dissolved), state holdings are governed via the Ministry of Finance/Ministry of Economic Affairs ownership reports on fin.ee; (2) a standalone leasing/factoring association — Estonian leasing companies are represented within Pangaliit (Banking Association), which carries leasing statistics; (3) an RICS Estonia national directory — RICS has no Estonian chapter directory, only the global find-a-member; the national valuer route is the Kutseregister qualifications register + EKHÜ; (4) a dedicated fund-administrator or depositary licensee list separate from Finantsinspektsioon — fund admins/depositaries appear only inside FI's supervised-entities register; (5) litigation-funding, royalty, or ILS registers — none exist in Estonia; (6) a standalone NPL/servicer register — debt collectors and creditors fall under FI's creditor/credit-intermediary register and (historically) MTR; (7) a separate insolvency court register — insolvency publication is consolidated into Ametlikud Teadaanded, which is why it is the load-bearing tier3 source. Process caveats stated honestly: the session's WebSearch budget was exhausted after two queries, so RSS discovery for Äripäev, Postimees, Delfi and Geenius relied on direct feed-URL fetches, several of which returned 403 bot-blocks — those feeds are marked js-blocked with candidate rssUrls rather than confirmed; rahandusministeerium.ee is dead (moved to fin.ee) and maaamet.ee now redirects to maaruum.ee (agency renamed 2025); MTR is mid-migration to the new Tarvik system (since 25.06.2025) and crypto supervision moved from FIU to Finantsinspektsioon under MiCA (transition ended 01.07.2026) — both successor routes should be tracked at ingest time."
+}

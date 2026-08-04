@@ -1,0 +1,510 @@
+{
+  "country": "MT",
+  "sources": [
+    {
+      "name": "Malta Business Registry (MBR) — authority site",
+      "url": "https://mbr.mt/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Official company registry authority. Houses Registrar of Companies, Beneficial Ownership register (access restricted post-2022 CJEU ruling), and the Insolvency & Receivership Service. Site mentions APIs only for government-entity data sharing — no public developer API or open-data dump found."
+    },
+    {
+      "name": "MBR online registry (BAROS company search)",
+      "url": "https://register.mbr.mt/app/home",
+      "side": "entities",
+      "category": "commercial register — company search",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to non-browser clients (registry.mbr.mt/ROC redirects here). JS single-page app; free basic company search works in a real browser. No documented public API; scraping requires headless browser and robots review."
+    },
+    {
+      "name": "EU e-Justice / BRIS company search (Malta via MBR)",
+      "url": "https://e-justice.europa.eu/content_find_a_company-489-en.do",
+      "side": "entities",
+      "category": "commercial register — EU interconnection",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. BRIS interconnects MBR company data EU-wide; a fallback route to Maltese basic company data when register.mbr.mt blocks automation."
+    },
+    {
+      "name": "Malta Financial Services Authority (MFSA)",
+      "url": "https://www.mfsa.mt/",
+      "side": "entities",
+      "category": "financial regulator (single regulator: banking, funds, insurance, pensions, CSPs, VFA/MiCA)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (WAF). Malta's single financial regulator — also covers insurance and retirement/pension schemes (no separate pension regulator exists). Publishes news, circulars, enforcement, and licence-holder lists; needs browser-grade access."
+    },
+    {
+      "name": "MFSA Financial Services Register (FSR)",
+      "url": "https://fsr.mfsa.mt/",
+      "side": "entities",
+      "category": "licensee register — AIFMs, funds (PIFs/NAIFs/UCITS), ManCos, insurance, retirement schemes, CSPs, VFA/MiCA CASPs",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 + JS app, as expected. The canonical register of every Maltese licensed entity incl. fund managers, retirement scheme administrators and crypto (VFA→MiCA) licensees. Workarounds: ESMA/EIOPA/EBA registers below, plus MFSA annual-report annexes."
+    },
+    {
+      "name": "ESMA Registers (Malta AIFMs, UCITS, MiCA CASPs, firms)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU register mirror of MFSA licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED portal loads. ESMA registers (AIFM directory, UCITS ManCos, MiCA CASP register, MiFID firms) include all Maltese entities and offer downloadable/open-data extracts — the best machine route around fsr.mfsa.mt's 403."
+    },
+    {
+      "name": "EIOPA Register of Insurance Undertakings & IORPs (Malta)",
+      "url": "https://register.eiopa.europa.eu/",
+      "side": "entities",
+      "category": "insurance + occupational pensions register (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. EIOPA's register covers Maltese insurers/reinsurers (incl. Malta's large captive/PCC sector) and IORPs — the machine route for the insurance/pension LP side."
+    },
+    {
+      "name": "EBA credit institutions register (EUCLID) — Malta banks",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "bank register",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "NOT re-verified this session, but EUCLID's payment/credit institution registers are publicly exportable (CSV) and include all Maltese banks and EMIs."
+    },
+    {
+      "name": "Central Bank of Malta",
+      "url": "https://www.centralbankmalta.org/",
+      "side": "entities",
+      "category": "central bank — statistics (investment funds, banking), press",
+      "tier": "tier2_regulator",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.centralbankmalta.org/rssnews.ashx",
+      "verdict": "VERIFIED accessible with RSS feed. Publishes investment-fund and banking statistics, economic updates, Central Credit Register info (register itself restricted). Dual value: entity-side statistics + signals."
+    },
+    {
+      "name": "FIAU — Financial Intelligence Analysis Unit",
+      "url": "https://fiaumalta.org/",
+      "side": "entities",
+      "category": "AML supervisor — enforcement notices on CSPs/servicers/licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Publishes enforcement/administrative penalty notices naming supervised entities (CSPs, trustees, fund admins) — high-value compliance signals; newsletter but no RSS found."
+    },
+    {
+      "name": "Malta Gaming Authority — Licensee Register",
+      "url": "https://www.mga.org.mt/licensee-hub/licensee-register/",
+      "side": "entities",
+      "category": "sector licensee register (gaming — major Maltese corporate ecosystem)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Main site VERIFIED accessible; register URL confirmed from homepage (searchable by licensee name/status/URL) but the search app itself not fetch-tested. Gaming groups are significant Maltese deal/credit counterparties."
+    },
+    {
+      "name": "Malta Digital Innovation Authority (MDIA)",
+      "url": "https://mdia.gov.mt/",
+      "side": "entities",
+      "category": "technology-arrangements / ITAS certification register (tokenized RWA relevance)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (gov.mt WAF). Certifies technology arrangements from the 2018 DLT framework; register of certified entities requires browser access."
+    },
+    {
+      "name": "Office of the Arbiter for Financial Services (OAFS)",
+      "url": "https://financialarbiter.org.mt/",
+      "side": "entities",
+      "category": "financial dispute adjudicator — published decisions",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Decisions browsable by year — names providers (incl. retirement schemes and investment firms); useful risk/conduct signal on licensees."
+    },
+    {
+      "name": "Malta Resources Authority (EU ETS national administrator)",
+      "url": "https://www.mra.org.mt/",
+      "side": "entities",
+      "category": "carbon registry (Union Registry national administrator)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Fetch FAILED (SSL handshake error). MRA administers Malta's Union Registry accounts for EU ETS. Malta has no standalone national carbon registry beyond this."
+    },
+    {
+      "name": "EU Transaction Log (EUTL) — Malta ETS accounts",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon — public ETS account/compliance data",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT re-verified this session; EUTL is the long-standing public EU route to Malta's ETS account holders and compliance data — the practical carbon-data source given MRA's broken site."
+    },
+    {
+      "name": "Government Gazette of Malta (DOI)",
+      "url": "https://www.gov.mt/en/Government/DOI/Government%20Gazette/Pages/Government-Gazette.aspx",
+      "side": "entities",
+      "category": "official gazette — legal notices, court/company notices",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (gov.mt WAF). Gazette PDFs are downloadable in a real browser; carries legal notices, winding-up and judicial notices."
+    },
+    {
+      "name": "eCourts Malta — online judgments and court services",
+      "url": "https://ecourts.gov.mt/onlineservices/",
+      "side": "entities",
+      "category": "court register — judgments, civil/commercial cases",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (gov.mt WAF). Public judgment search (incl. commercial/insolvency matters) works in browser; needs headless-browser access."
+    },
+    {
+      "name": "MBR Insolvency & Receivership Service (insolvency register + IP roll)",
+      "url": "https://mbr.mt/",
+      "side": "entities",
+      "category": "insolvency register + insolvency practitioners",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED that MBR houses the Insolvency and Receivership Service and Official Receiver (per authority site). A distinct public online insolvency-practitioner roll was NOT locatable without JS; likely inside BAROS. Flag for browser-based mapping."
+    },
+    {
+      "name": "Legislation Malta (Laws of Malta)",
+      "url": "https://legislation.mt/",
+      "side": "entities",
+      "category": "consolidated laws + legal notices",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Official consolidated legislation portal (Companies Act, Investment Services Act etc.) — reference source for the regulatory spine."
+    },
+    {
+      "name": "Malta Stock Exchange (Borza ta' Malta)",
+      "url": "https://www.borzamalta.com.mt/",
+      "side": "entities",
+      "category": "stock exchange — issuers, Prospects MTF, statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Equities, corporate bonds (large listed-bond market — key private-credit-adjacent signal), Prospects MTF for SMEs at /markets/prospects-mtf, statistics at /publications-and-statistics. Guessed deep paths 404 — crawl from homepage nav."
+    },
+    {
+      "name": "MSE Officially Appointed Mechanism (company announcements)",
+      "url": "https://www.borzamalta.com.mt/officially-appointed-mechanism",
+      "side": "entities",
+      "category": "issuer disclosures / announcements",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "URL taken from verified homepage nav; page itself not fetch-tested. The OAM is Malta's official storage for listed-company regulated disclosures — prime issuer-signal source."
+    },
+    {
+      "name": "FinanceMalta (financial-industry promotion body + member directory)",
+      "url": "https://www.financemalta.org/",
+      "side": "entities",
+      "category": "fund/finance industry association — member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch. Public-private promotion body whose member directory spans fund managers, administrators, law firms, fiduciaries — the closest thing Malta has to a funds-association directory. Needs browser access."
+    },
+    {
+      "name": "Malta Bankers' Association",
+      "url": "https://www.maltabankers.org/",
+      "side": "entities",
+      "category": "banking association — member list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible with public List of Member Banks and media releases."
+    },
+    {
+      "name": "Insurance Association Malta",
+      "url": "https://www.maltainsurance.org/",
+      "side": "entities",
+      "category": "insurance association — member list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; ~16 member insurers listed publicly with links; news section active."
+    },
+    {
+      "name": "Institute of Financial Services Practitioners (IFSP)",
+      "url": "https://www.ifsp.org.mt/",
+      "side": "entities",
+      "category": "practitioner association — fund/tax/CSP professionals",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch. Key association of Malta's financial-services practitioners (lawyers, accountants, CSPs); member firm list requires browser access."
+    },
+    {
+      "name": "Malta Institute of Accountants — member & firm directories",
+      "url": "https://www.miamalta.org/",
+      "side": "entities",
+      "category": "accountancy body — auditor/firm directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; public Members' Directory and Member Firms' Directory at members.miamalta.org — route to fund auditors and admin-adjacent firms."
+    },
+    {
+      "name": "Chamber of Advocates Malta — Find a Lawyer",
+      "url": "https://www.avukati.org/",
+      "side": "entities",
+      "category": "bar association — lawyer directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; official searchable directory of warranted advocates."
+    },
+    {
+      "name": "Notarial Council of Malta — Find a Notary",
+      "url": "https://notariesofmalta.org/",
+      "side": "entities",
+      "category": "notary directory (property/deal execution layer)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; public Find-a-Notary feature."
+    },
+    {
+      "name": "Kamra tal-Periti — Find a Perit directory",
+      "url": "https://kamratalperiti.org/",
+      "side": "entities",
+      "category": "valuer/architect directory (periti perform property valuations in Malta)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; searchable directory at /pre-directory/. Malta has no RICS national association — periti are the statutory valuation profession."
+    },
+    {
+      "name": "The Malta Chamber of Commerce, Enterprise and Industry",
+      "url": "https://www.maltachamber.org.mt/",
+      "side": "entities",
+      "category": "business chamber — news + (login-gated) member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; strong business news/press-release flow; member directory behind members-area login."
+    },
+    {
+      "name": "Malta Development Bank",
+      "url": "https://mdb.org.mt/",
+      "side": "entities",
+      "category": "national development bank (DFI)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Guarantee/co-lending schemes, press section, quarterly AFC Radar publication — signals on credit intermediaries and infrastructure finance."
+    },
+    {
+      "name": "Malta Enterprise",
+      "url": "https://www.maltaenterprise.com/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; FDI agency with incentive schemes and news (no RSS visible)."
+    },
+    {
+      "name": "Tech.mt",
+      "url": "https://tech.mt/",
+      "side": "entities",
+      "category": "tech-sector promotion body — members directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible; public-private tech promotion body with members directory and news — startup/VC-adjacent ecosystem mapping."
+    },
+    {
+      "name": "TradeMalta",
+      "url": "https://www.trademalta.org/",
+      "side": "entities",
+      "category": "export/trade promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session; real public-private export promotion body (referenced as partner on verified WhosWho.mt page)."
+    },
+    {
+      "name": "ePPS — Malta electronic Public Procurement System",
+      "url": "https://www.etenders.gov.mt/epps/home.do",
+      "side": "entities",
+      "category": "public procurement portal — tenders + awards",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible without login: CfT registry advanced search and opened-tender details are public — route to EPC contractors, concessionaires, infrastructure counterparties."
+    },
+    {
+      "name": "Malta Open Data Portal",
+      "url": "https://open.data.gov.mt/",
+      "side": "entities",
+      "category": "national open-data portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (www.data.gov.mt DNS fails; open.data.gov.mt behind gov WAF). Portal exists but Malta publishes little company-register open data; low expected yield — verify in browser."
+    },
+    {
+      "name": "National Statistics Office (NSO) Malta",
+      "url": "https://nso.gov.mt/",
+      "side": "entities",
+      "category": "official statistics — business demography, sectors",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch (gov WAF). News releases (GDP, business registers statistics) accessible in browser; frequently cited by local business press."
+    },
+    {
+      "name": "Malta Institute of Taxation",
+      "url": "https://www.maintax.org/",
+      "side": "entities",
+      "category": "tax practitioner body",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session; established professional body relevant to fund-structuring service graph."
+    },
+    {
+      "name": "BusinessNow.mt",
+      "url": "https://businessnow.mt/",
+      "side": "news",
+      "category": "business news (top dedicated business portal)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://businessnow.mt/feed/",
+      "verdict": "VERIFIED working RSS, hourly updates. Strong coverage of MFSA consultations, government finance, real estate, corporate news — best single Maltese business feed."
+    },
+    {
+      "name": "MaltaCEOs.mt",
+      "url": "https://maltaceos.mt/",
+      "side": "news",
+      "category": "business leadership / appointments news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://maltaceos.mt/feed/",
+      "verdict": "VERIFIED working RSS. Executive appointments, board changes, bank/corporate results — ideal for people-signal extraction."
+    },
+    {
+      "name": "The Malta Business Weekly",
+      "url": "https://www.maltabusinessweekly.com/",
+      "side": "news",
+      "category": "business weekly (Malta Independent group)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.maltabusinessweekly.com/feed/",
+      "verdict": "VERIFIED working RSS. Economy, finance, property-valuation, ETS/ports coverage."
+    },
+    {
+      "name": "Times of Malta — Business",
+      "url": "https://timesofmalta.com/business",
+      "side": "news",
+      "category": "top national daily — business section",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Domain BLOCKS our fetcher entirely ('unable to fetch'). Malta's largest daily with substantial business coverage; RSS existence could not be verified — needs browser-grade access and robots review."
+    },
+    {
+      "name": "MaltaToday — Business",
+      "url": "https://www.maltatoday.com.mt/business_comment",
+      "side": "news",
+      "category": "national daily — business/comment",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site real but /rss and guessed business paths returned 404 to our fetcher; correct section paths and any feed need browser discovery."
+    },
+    {
+      "name": "The Malta Independent",
+      "url": "https://www.independent.com.mt/",
+      "side": "news",
+      "category": "national daily",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site loads (404 page rendered for guessed /rss paths) — no working feed URL found; business content also syndicated via Malta Business Weekly feed above."
+    },
+    {
+      "name": "The Shift News",
+      "url": "https://theshiftnews.com/",
+      "side": "news",
+      "category": "investigative journalism — governance, procurement, finance",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://theshiftnews.com/feed/",
+      "verdict": "VERIFIED working RSS. Investigations touching banks, government contracts, insolvencies — risk-signal value."
+    },
+    {
+      "name": "Newsbook Malta (English)",
+      "url": "https://newsbook.com.mt/en/",
+      "side": "news",
+      "category": "general news with economy coverage",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://newsbook.com.mt/en/feed/",
+      "verdict": "VERIFIED working RSS, hourly. General news; Maltese-language edition also exists at newsbook.com.mt."
+    },
+    {
+      "name": "Lovin Malta",
+      "url": "https://lovinmalta.com/",
+      "side": "news",
+      "category": "digital news/lifestyle with business items",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://lovinmalta.com/feed/",
+      "verdict": "Feed URL returned 403 to our fetcher (WAF); WordPress feed likely functional from a browser UA — verify before relying on it."
+    },
+    {
+      "name": "WhosWho.mt",
+      "url": "https://whoswho.mt/",
+      "side": "news",
+      "category": "business news + company/executive directory",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED accessible. Hybrid business search engine + news; /feed returned 404 (no RSS) — newsletter only. Directory side useful for entity enrichment."
+    },
+    {
+      "name": "SiGMA News",
+      "url": "https://sigma.world/news/",
+      "side": "news",
+      "category": "gaming/fintech/crypto sector news (Malta-HQ)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED 403 to plain fetch. Malta-headquartered outlet covering the gaming/crypto ecosystem that dominates Maltese corporate activity."
+    },
+    {
+      "name": "TVM News (PBS Malta)",
+      "url": "https://tvmnews.mt/",
+      "side": "news",
+      "category": "public broadcaster",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. National public broadcaster with economy coverage in Maltese and English; secondary priority."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Thin dedicated Malta coverage: Malta appears as a fund domicile (PIFs/NAIFs/AIFMs) and service-provider jurisdiction rather than a deal market; some Malta-domiciled AIFMs and funds profiled.",
+      "publicSourcesTheyUse": "MFSA Financial Services Register / ESMA AIFM register, fund annual reports filed at MBR, press releases — all reachable directly via fsr.mfsa.mt (browser), registers.esma.europa.eu, and register.mbr.mt."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Covers Maltese companies mainly through gaming/fintech M&A and the occasional VC round; Malta-domiciled holdcos of foreign groups appear frequently.",
+      "publicSourcesTheyUse": "MBR filings (via aggregators), MSE announcements, international deal press — direct routes: register.mbr.mt, MSE Officially Appointed Mechanism, BusinessNow.mt/Times of Malta."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Maintains Malta startup-ecosystem data (counts, funding); partners with national promotion bodies in other markets — Malta coverage largely self-reported plus press.",
+      "publicSourcesTheyUse": "Tech.mt/Malta Enterprise announcements, startup press, Crunchbase-style self-reporting — direct routes: tech.mt news, maltaenterprise.com, BusinessNow.mt RSS."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Sparse Malta coverage: gaming/crypto companies and a handful of funded startups; heavy reliance on self-reported profiles.",
+      "publicSourcesTheyUse": "Self-reported data plus press; underlying verifiable layer is MBR company data and news — go direct to register.mbr.mt and the verified RSS feeds above."
+    },
+    {
+      "platform": "Monterey Insight (Malta Fund Report)",
+      "coverageNotes": "The most Malta-specific competitor: annual Malta Fund Report ranking fund administrators, custodians, auditors, legal advisers and ManCos by assets serviced — exactly our Institutional Service Graph for Malta.",
+      "publicSourcesTheyUse": "Direct surveys of service providers layered on the MFSA register universe — the public skeleton (who is licensed as administrator/custodian/ManCo) is reproducible from fsr.mfsa.mt + ESMA/EIOPA registers + MFSA annual report annexes."
+    },
+    {
+      "platform": "OpenCorporates",
+      "coverageNotes": "Lists Malta as a jurisdiction sourced from the Malta Business Registry; depth/freshness varies given MBR's lack of open data.",
+      "publicSourcesTheyUse": "MBR public register — go direct to register.mbr.mt (browser-grade) rather than relying on the aggregator."
+    },
+    {
+      "platform": "Moody's Orbis / Kompany (BvD)",
+      "coverageNotes": "Malta company financials and ownership via registry-filings resale; used by compliance teams for Maltese holdcos.",
+      "publicSourcesTheyUse": "MBR filed accounts and registry extracts (paid documents at source) — direct route is register.mbr.mt document purchase; beneficial-ownership access is legally restricted."
+    },
+    {
+      "platform": "With Intelligence (ex-HFM/EuroHedge)",
+      "coverageNotes": "Covers Malta as a hedge-fund servicing domicile (ManCos, administrators, PIF regime commentary); largely editorial plus manager-reported data.",
+      "publicSourcesTheyUse": "MFSA register + circulars, FinanceMalta materials, service-provider announcements — all reachable directly via the sources catalogued above."
+    },
+    {
+      "platform": "WhosWho.mt / FinanceMalta directory (local)",
+      "coverageNotes": "Local quasi-competitors for the directory layer: WhosWho.mt (companies + executives + news), FinanceMalta member directory (finance-sector firms). Neither offers structured data export.",
+      "publicSourcesTheyUse": "Self-registration by firms plus local press; both are themselves usable public sources (whoswho.mt verified accessible; financemalta.org needs browser access)."
+    }
+  ],
+  "searchedButAbsent": "Constraint disclosed: the session's WebSearch budget was already exhausted (200/200) before this task began, so discovery relied on direct URL verification (WebFetch) plus domain knowledge; ~50 URLs were fetch-tested. Genuinely absent or unverifiable after searching/fetching: (1) No Maltese PE/VC association exists (no MVCA-equivalent; Invest Europe has no Malta member association) — the funds-industry association role is filled by FinanceMalta and IFSP; the old Malta Funds Industry Association has no working web presence. (2) Malta Business Angels Network (MBAN) — no live site found; apparently inactive. (3) MARSP (Malta Association of Retirement Scheme Practitioners) — marsp.org.mt timed out (DNS); marsp.org is a Michigan retirees body; treat the Maltese association's web presence as dead pending browser re-check. (4) MIMCOL / privatisation agency — mimcol.com.mt DNS not found; Malta has no active privatization-agency portal; state-holdings news flows through DOI/gov.mt. (5) No separate pension or insurance regulator exists — MFSA is the single regulator (EIOPA register is the machine route); recorded as structure, not absence. (6) No public MBR bulk-download, open-data dump, or developer API found — MBR's API references are government-to-government only. (7) No standalone online insolvency-practitioner roll located — administered by MBR's Insolvency & Receivership Service behind the JS registry. (8) No RICS national association or separate valuer register beyond the Kamra tal-Periti directory. (9) RSS for Times of Malta, MaltaToday, and The Malta Independent could not be verified (domain block / 404s on standard feed paths). (10) No dedicated startup/tech news outlet (Malta startup coverage lives in BusinessNow.mt, Tech.mt news, SiGMA). (11) Malta Stock Exchange member-firm/broker list page could not be pinpointed (guessed paths 404; homepage nav only exposes a generic /links page) — needs browser crawl. (12) No national carbon registry beyond MRA-administered EU Union Registry accounts; MRA's own site fails SSL. Total genuine sources catalogued: 50 — but note several are EU-level mirrors included precisely because the corresponding Maltese portals (MFSA FSR, MBR app) block automation; Malta's true count of distinct national business-grade portals is closer to 40.\""
+}

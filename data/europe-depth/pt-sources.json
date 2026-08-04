@@ -1,0 +1,541 @@
+{
+  "country": "PT",
+  "sources": [
+    {
+      "name": "Publicações de Atos Societários (Ministério da Justiça / IRN)",
+      "url": "https://publicacoes.mj.pt/Pesquisa.aspx",
+      "side": "entities",
+      "category": "commercial register — company act publications",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Official free searchable index of all Portuguese company acts (incorporations, management changes, dissolutions) by NIF/NIPC, name, district, date, act type. Plain form-based HTML, machine-parseable; no API or bulk route advertised. This is the key free registry-events firehose for PT."
+    },
+    {
+      "name": "IRN — Instituto dos Registos e do Notariado (Registo Comercial)",
+      "url": "https://irn.justica.gov.pt/",
+      "side": "entities",
+      "category": "commercial register — institutional portal & certidão permanente",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED via fetch. IRN runs the commercial register; portal confirms Empresa Online 2.0, certidões/certificados and RCBE. Full company record (certidão permanente) is paid per-company with access code; no open bulk route. RCBE (UBO) access is restricted — do not assume open UBO data."
+    },
+    {
+      "name": "dados.gov.pt — Portuguese open data portal",
+      "url": "https://dados.gov.pt/pt/datasets/",
+      "side": "entities",
+      "category": "open data portal (cross-domain: procurement, justice, statistics)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch. 20,869 datasets, runs udata with documented API reference. Hosts IMPIC/BASE procurement datasets and other government data; the programmatic backdoor for several ministries."
+    },
+    {
+      "name": "INE — Statistics Portugal",
+      "url": "https://www.ine.pt/xportal/xmain?xpid=INE&xpgid=ine_main",
+      "side": "entities",
+      "category": "national statistics — enterprise demographics, construction, housing",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch. Site confirms 'Services, Feeds and APIs' resources, Enterprises section, database and microdata access. Useful for company demographics and real-estate/market context series."
+    },
+    {
+      "name": "Banco de Portugal — Entidades Autorizadas (authorized entities register)",
+      "url": "https://www.bportugal.pt/entidades-autorizadas",
+      "side": "entities",
+      "category": "central bank register — credit institutions, financial companies, payment/e-money, credit servicers, VASPs",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Register is real and is THE list of banks, financial credit companies, credit servicers (NPL side) and crypto VASPs, but bportugal.pt returned HTTP 403 to automated fetch — bot-protected. Alternate machine routes: EBA EUCLID register and ECB MFI lists."
+    },
+    {
+      "name": "BPstat — Banco de Portugal statistics portal",
+      "url": "https://bpstat.bportugal.pt/",
+      "side": "entities",
+      "category": "central bank statistics — credit, funds, securities, NPL ratios",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "Fetch returned only the SPA shell ('BPstat' heading) — JS-rendered — but the portal exists and BPstat publishes a documented public REST API (bpstat.bportugal.pt/data/docs is the known docs route). Marked api on that basis; endpoint docs not re-verified this run."
+    },
+    {
+      "name": "CMVM — registers of management companies, funds, auditors and real-estate appraisers",
+      "url": "https://www.cmvm.pt/",
+      "side": "entities",
+      "category": "securities regulator registers — AIFMs, fund managers, funds, peritos avaliadores",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "CONFIRMED BLOCKED: root returns empty content to automated fetch and /en/Pages/homepage.aspx 404s; legacy SDI endpoints (web3.cmvm.pt/sdi, /sdi2004) are dead. Registers (incl. the register of real-estate appraisers — Portugal's valuer roll) and press releases live behind the JS portal. Use ESMA registers as the machine route."
+    },
+    {
+      "name": "ESMA Registers (EU alternate route for CMVM-supervised entities)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EU register — AIFMs, UCITS ManCos, investment firms, MiCA CASPs for PT",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "VERIFIED via fetch (portal live, register list + search). ESMA registers cover PT AIFMs/managers/firms and MiCA CASP authorisations; ESMA publishes open download/API endpoints per register. Best deterministic substitute for the JS-blocked CMVM portal."
+    },
+    {
+      "name": "EBA Credit Institutions Register (EUCLID)",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "EU register — credit institutions & payment institutions incl. Portugal",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "NOT fetch-verified this run (search budget exhausted); EBA's public register with documented API/downloads is the standard machine route around Banco de Portugal's bot-blocked register. URL is the known register entry point."
+    },
+    {
+      "name": "ASF — Autoridade de Supervisão de Seguros e Fundos de Pensões (registers)",
+      "url": "https://www.asf.com.pt/",
+      "side": "entities",
+      "category": "insurance & pension regulator — insurers, pension funds, management entities, intermediaries (the LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Searchable registers of all authorized entities: insurers (with history), pension funds and their management entities, intermediaries with yearly movement records; links to EIOPA register; RSS subscription offered in footer; statistics calendars."
+    },
+    {
+      "name": "EIOPA Register of Insurance Intermediaries",
+      "url": "https://register.eiopa.europa.eu/",
+      "side": "entities",
+      "category": "EU register — insurance intermediaries incl. PT",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Linked from the verified ASF site as the European intermediaries register; not directly fetched this run."
+    },
+    {
+      "name": "Diário da República (official gazette)",
+      "url": "https://diariodarepublica.pt/",
+      "side": "entities",
+      "category": "official gazette — laws, appointments, state acts",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "Homepage rendered empty to automated fetch (SPA), but this is unambiguously the official gazette and it maintains a documented open web-service/API programme (legacy dre.pt open data; gazette datasets also surface on dados.gov.pt). Marked api with that caveat — endpoint docs not re-verified this run."
+    },
+    {
+      "name": "CITIUS — Publicidade de insolvências (PER/PEAP/PEVE/CIRE)",
+      "url": "https://www.citius.mj.pt/portal/consultas/ConsultasCire.aspx",
+      "side": "entities",
+      "category": "insolvency publications register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Official searchable publicity of all insolvency, PER, PEAP and PEVE proceedings by NIF/name/court/date; standard HTML forms, machine-parseable. Core distressed/NPL signal source."
+    },
+    {
+      "name": "CAAJ — Lista oficial de administradores judiciais",
+      "url": "https://caaj.justica.gov.pt/",
+      "side": "entities",
+      "category": "insolvency-practitioner roll",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. CAAJ (independent supervisor of justice auxiliaries) publishes the official list of insolvency administrators under 'Administradores judiciais → Lista oficial'."
+    },
+    {
+      "name": "DGPJ — Estatísticas da Justiça",
+      "url": "https://estatisticas.justica.gov.pt/",
+      "side": "entities",
+      "category": "justice statistics — insolvency and court caseload data",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Page returned blank to automated fetch (SPA). This is the known official justice-statistics portal (DGPJ) with insolvency series; needs a JS-capable crawler or its underlying data services."
+    },
+    {
+      "name": "Portal BASE — public procurement contracts",
+      "url": "https://www.base.gov.pt/Base4/pt/",
+      "side": "entities",
+      "category": "public procurement portal",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED via fetch. Centralizes all Portuguese public contracts; confirms IMPIC datasets published to dados.gov.pt (the bulk route); on-site statistics pages. No first-party API advertised on homepage."
+    },
+    {
+      "name": "Euronext Lisbon — issuer list, indices & disclosures",
+      "url": "https://live.euronext.com/en/markets/lisbon",
+      "side": "entities",
+      "category": "stock exchange — issuers, equity list, company press releases",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED via fetch that the page exists with equity list route (/en/markets/lisbon/equities/list) and issuer press releases, but market data loads via JS (gateway.euronext.com). Needs JS rendering or Euronext's data services."
+    },
+    {
+      "name": "APCRI — Associação Portuguesa de Capital de Risco (members)",
+      "url": "https://www.apcri.pt/associados",
+      "side": "entities",
+      "category": "PE/VC association member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (homepage confirms association since 1998 and an Associados nav link to this URL; the members page itself not separately fetched). The canonical PT GP roster."
+    },
+    {
+      "name": "APFIPP — funds, pensions & asset management association",
+      "url": "https://www.apfipp.pt/",
+      "side": "entities",
+      "category": "asset-management association — member lists by category + AUM/fund statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Member directories split by category (securities fund managers, real-estate fund managers, pension fund managers, wealth managers) plus monthly statistics and AUM by fund type — high-value for both entities and market data."
+    },
+    {
+      "name": "APB — Associação Portuguesa de Bancos",
+      "url": "https://www.apb.pt/",
+      "side": "entities",
+      "category": "banking association — members + sector statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. 28 members (>90% of banking assets) with directory, plus sector indicators and statistical publications."
+    },
+    {
+      "name": "ALF — Associação Portuguesa de Leasing, Factoring e Renting",
+      "url": "http://alf.pt/",
+      "side": "entities",
+      "category": "leasing/factoring association member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (note: https redirects to http). Member directory organized by Leasing/Factoring/Renting categories with profiles — maps the PT asset-backed and receivables-finance ecosystem."
+    },
+    {
+      "name": "APS — Associação Portuguesa de Seguradores",
+      "url": "https://www.apseguradores.pt/",
+      "side": "entities",
+      "category": "insurers association — members + statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT verifiable by automated fetch — both / and /pt entered a redirect loop (>10). The association is real and publishes member and statistics content; needs browser-grade fetching."
+    },
+    {
+      "name": "Ordem dos Advogados — lawyer & law-firm directory",
+      "url": "https://portal.oa.pt/",
+      "side": "entities",
+      "category": "bar association directory (service graph: law firms)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Searchable directories: Pesquisa de Advogados, Pesquisa de Sociedades de Advogados (law firms), trainees, contacts."
+    },
+    {
+      "name": "OROC — Ordem dos Revisores Oficiais de Contas (statutory auditors)",
+      "url": "https://www.oroc.pt/",
+      "side": "entities",
+      "category": "auditors' professional roll (service graph: fund auditors)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this run (budget); OROC is the statutory auditors' order and maintains the ROC roll; audit-firm registration also appears in CMVM registers."
+    },
+    {
+      "name": "Banco Português de Fomento (national development bank)",
+      "url": "https://www.bpfomento.pt/",
+      "side": "entities",
+      "category": "development bank — venture/growth fund-of-funds, guarantees (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site returned HTTP 403 to automated fetch — bot-protected. BPF is real and is the state LP/fund-of-funds channel (ex-IFD/200M/PME Investimentos programmes); needs browser-grade access or its news via press."
+    },
+    {
+      "name": "Portugal Ventures (state-backed VC)",
+      "url": "https://www.portugalventures.pt/",
+      "side": "entities",
+      "category": "state VC — portfolio directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. €283M AUM, 256 companies invested; portfolio browsable by sector (Digital 38, Industry 51, Life Sciences 25, Tourism 33)."
+    },
+    {
+      "name": "Startup Portugal — ecosystem mapping platform",
+      "url": "https://startupportugal.com/",
+      "side": "entities",
+      "category": "startup agency — ecosystem data/directory, reports",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Ecosystem Mapping Platform with metrics, Ecosystem Reports, Startup Recognition/Status lists, biweekly newsletter — the public backbone Dealroom builds its Lisbon coverage on."
+    },
+    {
+      "name": "AICEP Portugal Global (investment promotion agency)",
+      "url": "https://www.portugalglobal.pt/",
+      "side": "entities",
+      "category": "investment-promotion agency — FDI info, Portugalglobal magazine",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch (root works; /EN/Pages/Index.aspx 404s). Invest/export sections, supplier catalog, magazine with company coverage; €11bn contracted investment claimed."
+    },
+    {
+      "name": "IAPMEI — Agência para a Competitividade e Inovação (SME agency)",
+      "url": "https://www.iapmei.pt/",
+      "side": "entities",
+      "category": "SME agency — incentives, PME Líder/Excelência status lists",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch returned only the page title — content likely JS-loaded. Agency is real; PME Líder/Excelência lists are a useful mid-market screen but were not reachable this run."
+    },
+    {
+      "name": "Parpública — Participações Públicas SGPS",
+      "url": "https://www.parpublica.pt/",
+      "side": "entities",
+      "category": "state holding company — participations portfolio, privatizations",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Dedicated Participações section (portfolio, organogram, acquisitions/disposals); ~40 privatization processes historically — the privatization/state-asset side."
+    },
+    {
+      "name": "DGTF — Tesouro e Finanças (state corporate sector holdings)",
+      "url": "https://www.etf.gov.pt/",
+      "side": "entities",
+      "category": "treasury directorate — state shareholdings (setor empresarial do Estado)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "dgtf.gov.pt 301-redirects to etf.gov.pt; redirect target not content-verified this run. DGTF publishes state participation lists — verify final site manually."
+    },
+    {
+      "name": "IGCP — Treasury and Debt Management Agency",
+      "url": "https://www.igcp.pt/en/",
+      "side": "entities",
+      "category": "debt agency — auctions, debt statistics, investor relations",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Monthly debt bulletins, auction results (T-bill auction July 2026 visible), rates data — clean HTML."
+    },
+    {
+      "name": "APA — Agência Portuguesa do Ambiente (EU ETS / CELE national registry)",
+      "url": "https://apambiente.pt/",
+      "side": "entities",
+      "category": "carbon registry — EU ETS national accounts, installation operators",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT verifiable this run: connection refused (ECONNREFUSED) from our fetcher for both root and the CELE path. APA is the real EU ETS national administrator for PT; EU-level alternates: Union Registry and EUTL public data."
+    },
+    {
+      "name": "ERSE — Entidade Reguladora dos Serviços Energéticos",
+      "url": "https://www.erse.pt/",
+      "side": "entities",
+      "category": "energy regulator — energy companies section, market supervision (renewables/infra relevance)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. 'Empresas de Energia' section, press releases, bulletins and market reports — supports the renewables/energy-transition asset class."
+    },
+    {
+      "name": "DGEG — Direção-Geral de Energia e Geologia",
+      "url": "https://www.dgeg.gov.pt/",
+      "side": "entities",
+      "category": "energy directorate — licensing and energy statistics (renewables pipeline)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this run (budget). DGEG is the licensing authority for generation and publishes renewables statistics; verify access method manually."
+    },
+    {
+      "name": "RICS — Find a Firm / member directory (Portugal)",
+      "url": "https://www.ricsfirms.com/",
+      "side": "entities",
+      "category": "RICS-accredited valuers directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this run. RICS's public firm directory covers Portugal-registered firms; note CMVM also keeps the statutory register of real-estate fund appraisers (behind the JS-blocked CMVM portal)."
+    },
+    {
+      "name": "ECO — Economia Online",
+      "url": "https://eco.pt/",
+      "side": "news",
+      "category": "business daily (top PT digital business outlet; verticals incl. ECO Seguros, Capital Verde)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://eco.pt/feed/",
+      "verdict": "VERIFIED: feed live (Aug 2026 items, hourly updates), covers economy, finance, deals, policy."
+    },
+    {
+      "name": "ECO News (English)",
+      "url": "https://econews.pt/",
+      "side": "news",
+      "category": "English-language Portuguese economy news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://econews.pt/feed/",
+      "verdict": "VERIFIED: feed live with English coverage of banking, energy, FDI (e.g. Natixis Lisbon expansion) — good for pan-European normalization."
+    },
+    {
+      "name": "Jornal de Negócios",
+      "url": "https://www.jornaldenegocios.pt/",
+      "side": "news",
+      "category": "financial/business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.jornaldenegocios.pt/rss",
+      "verdict": "VERIFIED: /rss serves a live feed (negocios.pt 301s to jornaldenegocios.pt); markets, economy, companies; per-section feeds also exist off the /rss index."
+    },
+    {
+      "name": "Jornal Económico",
+      "url": "https://jornaleconomico.sapo.pt/",
+      "side": "news",
+      "category": "financial weekly/daily — markets, banking, funds",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://jornaleconomico.sapo.pt/feed/",
+      "verdict": "VERIFIED: feed live (note domain moved from jornaleconomico.pt to jornaleconomico.sapo.pt)."
+    },
+    {
+      "name": "Dinheiro Vivo (DN business vertical)",
+      "url": "https://dinheirovivo.dn.pt/",
+      "side": "news",
+      "category": "business news vertical of Diário de Notícias",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://dinheirovivo.dn.pt/feed",
+      "verdict": "VERIFIED with caveat: /feed serves a live DN-wide feed in which Dinheiro Vivo items appear as a category — filter by category when ingesting."
+    },
+    {
+      "name": "Observador",
+      "url": "https://observador.pt/",
+      "side": "news",
+      "category": "general/business digital daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://observador.pt/feed/",
+      "verdict": "Feed URL returned HTTP 402 to our fetcher — bot/paywall-gated for automated access; the feed is the outlet's standard WordPress route and may work with proper headers. Marked honestly as blocked in this environment."
+    },
+    {
+      "name": "Expresso — Economia",
+      "url": "https://expresso.pt/economia",
+      "side": "news",
+      "category": "leading weekly — economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Our fetcher cannot access expresso.pt at all (fetch refused). Outlet is real and premium-paywalled; RSS not confirmed."
+    },
+    {
+      "name": "Público — Economia",
+      "url": "https://www.publico.pt/economia",
+      "side": "news",
+      "category": "quality daily — economy section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "publico.pt/rss returned 403 to automated fetch; site bot-protected. RSS feeds are known to exist historically but could not be confirmed this run."
+    },
+    {
+      "name": "Iberian Property",
+      "url": "https://www.iberian.property/",
+      "side": "news",
+      "category": "real estate investment media (Iberia) — deals, players, reports",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Sections for residential/offices/retail/logistics/hotels/data centers, deal coverage, Portugal Real Estate Summit; no RSS found on page."
+    },
+    {
+      "name": "Vida Imobiliária",
+      "url": "https://vidaimobiliaria.com/",
+      "side": "news",
+      "category": "Portuguese real estate news & magazine",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch. Investment/markets/retail/offices/hotels/industrial sections; no RSS visible — distribution is via daily newsletter; HTML listing pages parseable."
+    },
+    {
+      "name": "Idealista News Portugal",
+      "url": "https://www.idealista.pt/news/",
+      "side": "news",
+      "category": "real estate portal news (housing market, investment)",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/news/rss returned 404; news section is real but feed route not found this run — likely needs sitemap or HTML parsing."
+    },
+    {
+      "name": "Iberian Lawyer",
+      "url": "https://iberianlawyer.com/",
+      "side": "news",
+      "category": "legal-sector media — law firms, funds, deal mandates (service graph signals)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch — bot-protected. Real outlet covering Iberian law-firm and deal activity."
+    },
+    {
+      "name": "Link to Leaders",
+      "url": "https://linktoleaders.com/",
+      "side": "news",
+      "category": "startup/entrepreneurship & investment media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://linktoleaders.com/feed/",
+      "verdict": "VERIFIED: feed live (Aug 2026), covers startups, VC rounds, fintech (e.g. Raize)."
+    },
+    {
+      "name": "Essential Business",
+      "url": "https://www.essential-business.pt/",
+      "side": "news",
+      "category": "English-language Portugal business news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/feed/ returned 403 to our fetcher; outlet is real but automated access unconfirmed."
+    },
+    {
+      "name": "The Portugal News (Business)",
+      "url": "https://www.theportugalnews.com/",
+      "side": "news",
+      "category": "English-language weekly — business section",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/rss returned empty content to our fetcher; feed existence unconfirmed this run."
+    },
+    {
+      "name": "Governo de Portugal — Comunicados (incl. Finance Ministry)",
+      "url": "https://www.portugal.gov.pt/pt/gc25/comunicacao/comunicados",
+      "side": "news",
+      "category": "government press releases",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via fetch: live Comunicados page of the XXV Government; no RSS visible; ministry attribution requires per-item parsing."
+    },
+    {
+      "name": "Banco de Portugal — Comunicados (press releases)",
+      "url": "https://www.bportugal.pt/comunicados",
+      "side": "news",
+      "category": "central bank press page",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "bportugal.pt serves 403 to automated fetch domain-wide; the comunicados section is the standard BdP press route but this exact path was NOT verifiable this run — treat as unverified until browser-checked."
+    },
+    {
+      "name": "Portugal Fintech",
+      "url": "https://www.portugalfintech.pt/",
+      "side": "news",
+      "category": "fintech ecosystem association — Portugal Fintech Report, ecosystem news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetched this run (budget). Known publisher of the annual Portugal Fintech Report and startup directory; verify access manually."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Covers Portuguese GPs/LPs/funds as part of pan-European alternatives coverage — strongest on fund vehicles, LP commitments and performance estimates; PT depth is modest (few dozen active GPs).",
+      "publicSourcesTheyUse": "CMVM register of management companies and funds (our route: ESMA registers, since CMVM portal is JS-blocked), APCRI member roster, APFIPP AUM statistics, fund annual reports, Diário da República fund-vehicle acts."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "PT PE/VC deal and company coverage via news-driven collection plus registry lookups; good on cross-border buyouts touching Portugal, thinner on domestic small-cap.",
+      "publicSourcesTheyUse": "Company-act publications (publicacoes.mj.pt), Diário da República, Euronext Lisbon issuer disclosures, and press (ECO, Jornal de Negócios, Jornal Económico) — all directly cataloged here."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strong Lisbon/Porto startup ecosystem coverage; runs ecosystem mapping in partnership with government startup bodies.",
+      "publicSourcesTheyUse": "Startup Portugal ecosystem mapping platform and reports, Portugal Ventures portfolio pages, accelerator/incubator portfolio lists, startup media (Link to Leaders, ECO) — all public and cataloged."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow PT startup coverage, largely self-reported profiles plus funding-round press.",
+      "publicSourcesTheyUse": "Startup press releases and PT startup media; the underlying verifiable layer is the same publicacoes.mj.pt incorporation/act stream and news RSS we catalog."
+    },
+    {
+      "platform": "TTR Data (Transactional Track Record)",
+      "coverageNotes": "Iberia-specialist M&A/PE/VC deal database — arguably the deepest deal coverage for Portugal specifically, including mid-market and advisor league tables.",
+      "publicSourcesTheyUse": "Registry act publications (publicacoes.mj.pt), Diário da República, CMVM/Euronext issuer filings, CITIUS insolvency publicity, law-firm deal announcements and Iberian legal press (Iberian Lawyer)."
+    },
+    {
+      "platform": "Informa D&B Portugal (CESCE group)",
+      "coverageNotes": "The dominant local company-information/credit provider — financials, risk scores, ESG scores, directories on effectively all PT companies; sells 'public data files' and database licensing.",
+      "publicSourcesTheyUse": "IRN commercial register publications, IES annual accounts filings (official channel), Diário da República, CITIUS insolvency data, Portal BASE procurement — the same official spine we ingest directly at $0."
+    },
+    {
+      "platform": "Racius",
+      "coverageNotes": "Free local company-directory site (company events, dissolutions, statistics) demonstrating what is derivable purely from open registry publications; site itself 403s bots and we do not scrape competitors.",
+      "publicSourcesTheyUse": "publicacoes.mj.pt company acts and Diário da República — go direct to those."
+    },
+    {
+      "platform": "Confidencial Imobiliário",
+      "coverageNotes": "Local real-estate data house (SIR residential index, Portuguese Housing Market Survey) — the reference for PT housing/investment price data; site is JS-heavy, content behind subscription.",
+      "publicSourcesTheyUse": "Built on proprietary deed/agency panels; the public alternatives we catalog are INE housing statistics and Portal BASE/registry data, plus Iberian Property and Vida Imobiliária for deal signals."
+    }
+  ],
+  "searchedButAbsent": "Searched for but absent or unusable: (1) No open/bulk route to the commercial register itself — Portugal has no free bulk company register download or API; only the free per-act publications index (publicacoes.mj.pt) and the paid per-company certidão permanente. (2) RCBE (beneficial-ownership register) exists but public access is restricted post-CJEU — correctly treated as closed per project rules. (3) CMVM legacy machine endpoints (web3.cmvm.pt/sdi and /sdi2004) are dead (404) — the registers now live only behind the JS-blocked main portal; ESMA registers are the working alternate. (4) FNABA (business angels federation) — fnaba.org currently 302-redirects to an unrelated spam domain (wikimoderator.com); no working official site found, so it was excluded. (5) Idealista News RSS (/news/rss) 404s. (6) Público and Expresso feeds could not be confirmed — both domains block automated fetch (403 / connection refused). (7) No dedicated public register of NPL/credit servicers found as a standalone list — credit-servicing licensees sit inside Banco de Portugal's bot-blocked Entidades Autorizadas register. (8) No Portuguese litigation-funding association or dedicated carbon-market association found. (9) APA (EU ETS national administrator) refused connections from our fetcher, and APS (insurers association) loops redirects — both real but unverifiable this run. Note: the session's web-search budget was exhausted at task start, so all verification was done by direct URL fetches; a handful of well-known sources (EBA EUCLID, EIOPA, OROC, DGEG, RICS firms directory, Portugal Fintech) are included with accessMethod marked unknown/api and explicit not-fetched caveats rather than fabricated verdicts."
+}

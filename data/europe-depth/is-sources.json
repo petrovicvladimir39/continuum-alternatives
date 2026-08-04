@@ -1,0 +1,424 @@
+{
+  "country": "IS",
+  "sources": [
+    {
+      "name": "Fyrirtækjaskrá – Icelandic Company Register (Skatturinn/RSK)",
+      "url": "https://www.skatturinn.is/fyrirtaekjaskra/leit/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Free open search over the company register, annual-accounts register (ársreikningaskrá) and VAT register in one interface (name/address/kennitala/VSK). No documented public API or bulk download on the page; server-rendered results are scrapeable per-record."
+    },
+    {
+      "name": "Ársreikningaskrá – Annual Accounts Register (via Skatturinn search)",
+      "url": "https://www.skatturinn.is/fyrirtaekjaskra/leit/",
+      "side": "entities",
+      "category": "financial statements register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (same portal as fyrirtækjaskrá). Filed annual accounts are retrievable per company through the open search; filings are documents (PDF), record index is parseable. No bulk route found."
+    },
+    {
+      "name": "Central Bank of Iceland – Register of Supervised Entities (eftirlitsskyldir aðilar)",
+      "url": "https://sedlabanki.is/fjarmalaeftirlit/eftirlitsskyld-starfsemi/eftirlitsskyldir-adilar/",
+      "side": "entities",
+      "category": "financial regulator register",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sedlabanki.is sitemap. FME merged into the Central Bank in 2020, so this is Iceland's single financial-regulator register (banks, fund management companies/AIFMs, securities firms, insurers, pension funds). Site returns empty content to plain fetchers — JS-rendered; needs headless rendering or manual download."
+    },
+    {
+      "name": "Central Bank of Iceland – Fund Register (skrá yfir sjóði: UCITS & AIFs)",
+      "url": "https://sedlabanki.is/fjarmalaeftirlit/eftirlitsskyld-starfsemi/skra-yfir-sjodi/",
+      "side": "entities",
+      "category": "fund register (UCITS/AIF)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sitemap; the dedicated register of Icelandic funds. Page content JS-rendered, empty to plain fetchers."
+    },
+    {
+      "name": "Central Bank of Iceland – Pension Market Supervision",
+      "url": "https://sedlabanki.is/fjarmalaeftirlit/lifeyrismarkadur/",
+      "side": "entities",
+      "category": "pension regulator (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sitemap. The Central Bank is Iceland's pension supervisor; section covers licensed pension funds and their reporting. JS-rendered."
+    },
+    {
+      "name": "Central Bank of Iceland – Insurance Supervision (vátryggingastarfsemi)",
+      "url": "https://sedlabanki.is/fjarmalaeftirlit/vatryggingastarfsemi/",
+      "side": "entities",
+      "category": "insurance regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sitemap. Insurance licensees supervised by the Central Bank. JS-rendered."
+    },
+    {
+      "name": "Central Bank of Iceland – Foreign (passporting) Entities Search",
+      "url": "https://sedlabanki.is/fjarmalaeftirlit/eftirlitsskyld-starfsemi/starfsemi-erlendra-adila-a-islandi/erlendir-adilar-leitarvel/",
+      "side": "entities",
+      "category": "cross-border licensee search",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sitemap — search engine for foreign financial firms passporting into Iceland (EEA). JS-rendered."
+    },
+    {
+      "name": "Central Bank of Iceland – Licences & Registrations index (incl. VASP/crypto registration)",
+      "url": "https://sedlabanki.is/leyfisveitingar/starfsleyfi-og-skraningar/",
+      "side": "entities",
+      "category": "licensing index / crypto-VASP",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "URL confirmed via sitemap. Central Bank is the competent authority for virtual-asset service provider registration and MiCA in Iceland; no separate standalone VASP list was verifiable this session. JS-rendered."
+    },
+    {
+      "name": "ESMA registers (EEA-wide, includes Icelandic AIFMs/UCITS/firms/MiCA)",
+      "url": "https://registers.esma.europa.eu/publication/",
+      "side": "entities",
+      "category": "EEA regulator register aggregator",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "KNOWN-GOOD machine route: ESMA's open registers (searchable + downloadable) cover EEA-EFTA states, giving a structured fallback for Icelandic fund managers/funds/investment firms while the sedlabanki.is site is JS-blocked. Not re-verified this session (search budget exhausted)."
+    },
+    {
+      "name": "Lögbirtingablað – Legal Gazette (insolvency & company notices)",
+      "url": "https://www.logbirtingablad.is/",
+      "side": "entities",
+      "category": "legal gazette / insolvency notices",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official legal gazette (since 1908); all issues from 1 Jan 2001 online. Contains bankruptcy announcements, estate administration, auctions, court summonses and company/business registration notices. Login only needed for placing ads; reading/search open."
+    },
+    {
+      "name": "Stjórnartíðindi – Official Gazette (laws/regulations)",
+      "url": "https://island.is/stjornartidindi",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED (stjornartidindi.is now redirects to island.is). Openly searchable A/B/C divisions with category filters, and RSS feeds advertised for all three divisions (feed links on page)."
+    },
+    {
+      "name": "Héraðsdómstólar – District Courts (dómasafn ruling search + court schedules)",
+      "url": "https://www.heradsdomstolar.is/",
+      "side": "entities",
+      "category": "court register / rulings",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "VERIFIED to exist (redirects to the island.is district-courts organization page) with 'Dómasafn' ruling search and court-schedule search. Parseability of the search itself unconfirmed. Insolvency case notices flow through Lögbirtingablað, not a standalone insolvency register."
+    },
+    {
+      "name": "Nasdaq Iceland (Kauphöllin) – issuer & market lists",
+      "url": "https://www.nasdaq.com/european-market-activity/shares",
+      "side": "entities",
+      "category": "stock exchange issuer list",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "The old nasdaqomxnordic.com listed-companies page now 301-redirects to nasdaq.com European market activity, which is JavaScript-rendered. Iceland Main Market + First North issuers are there but need headless rendering or Nasdaq data APIs."
+    },
+    {
+      "name": "Nasdaq Nordic/Iceland company disclosures via GlobeNewswire",
+      "url": "https://www.globenewswire.com/",
+      "side": "entities",
+      "category": "issuer disclosures distribution",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "GlobeNewswire distributes Nasdaq Iceland company announcements and offers per-search RSS feed generation; exact Iceland-exchange feed URL not pinned down this session (search budget exhausted)."
+    },
+    {
+      "name": "Framvís – Association of Venture/Angel Investors, member directory",
+      "url": "https://framvis.is/medlimir",
+      "side": "entities",
+      "category": "VC/PE association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED with member names: funds (Frumtak, Crowberry Capital, Brunnur Ventures, Reykjavik VC, VEX, Kvika Asset Management, Kría, Alfa Framtak) and angel groups (Tennin, Nordic Ignite, Investa, Silfurberg etc.). Logo-heavy page — names extractable but image-based in places."
+    },
+    {
+      "name": "SFF – Icelandic Financial Services Association (members)",
+      "url": "https://www.sff.is/",
+      "side": "entities",
+      "category": "banking/insurance/fund association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 24 member firms listed on homepage with links: banks (Arion, Íslandsbanki, Landsbankinn), insurers (Sjóvá, VÍS), fund managers (Íslandssjóðir, Íslensk verðbréf), securities firms. SFF also absorbs the insurance-association role."
+    },
+    {
+      "name": "Landssamtök lífeyrissjóða – Icelandic Pension Funds Association (all funds list)",
+      "url": "https://www.lifeyrismal.is/is/sjodirnir",
+      "side": "entities",
+      "category": "pension funds directory (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Structured list of 18 member pension funds with names, descriptions and website links — the core Icelandic LP universe."
+    },
+    {
+      "name": "Viðskiptaráð Íslands – Iceland Chamber of Commerce",
+      "url": "https://www.vi.is/",
+      "side": "entities",
+      "category": "chamber of commerce / member directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Member directory ('Félagar') plus regular economic research/analysis publications; also runs arbitration services."
+    },
+    {
+      "name": "Business Iceland (Íslandsstofa) – Invest in Iceland",
+      "url": "https://www.islandsstofa.is/en/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (businessiceland.is redirects here). Invest-in-Iceland service, export dashboard, sector reports (energy/green, tech, fisheries, tourism, creative)."
+    },
+    {
+      "name": "Kría – state venture fund-of-funds (Iceland Venture Initiative)",
+      "url": "https://www.kria.vc/",
+      "side": "entities",
+      "category": "state fund-of-funds / DFI",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site returns 403 to plain fetchers (bot-blocked) but is the known home of the state VC fund-of-funds that backs Icelandic venture funds. Member list of its portfolio funds partly recoverable via Framvís."
+    },
+    {
+      "name": "Byggðastofnun – Icelandic Regional Development Institute",
+      "url": "https://www.byggdastofnun.is/",
+      "side": "entities",
+      "category": "development bank / regional lender",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State regional-development lender (general, agricultural, green loans), research fund, regional data dashboards and publications."
+    },
+    {
+      "name": "Útboðsvefur – national public procurement portal",
+      "url": "https://utbodsvefur.is/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Shared advertising platform for public tenders (66 live at check), server-rendered searchable table with direct links — parseable without JS. Run under Fjársýslan (which absorbed Ríkiskaup)."
+    },
+    {
+      "name": "TED – EU tenders database (covers Iceland via EEA)",
+      "url": "https://ted.europa.eu/",
+      "side": "entities",
+      "category": "public procurement (supranational)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "KNOWN-GOOD: above-threshold Icelandic tenders publish to TED, which has a documented open API and bulk downloads. Not re-verified this session."
+    },
+    {
+      "name": "Opnir reikningar – Icelandic state open-payments portal",
+      "url": "https://opnirreikningar.is/",
+      "side": "entities",
+      "category": "public finance transparency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Referenced by Fjársýslan's official page as the state open-accounts portal (with rikisreikningur.is and arsreikningar.is for state entities). Not directly fetched this session — access method unconfirmed."
+    },
+    {
+      "name": "International Carbon Registry (ICR) – Iceland-based carbon registry",
+      "url": "https://www.carbonregistry.com/",
+      "side": "entities",
+      "category": "carbon registry",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Icelandic company (International Carbon Registry ehf.) with a public, browsable project registry (/projects) and carbon directory (developers, VVBs); technical docs at documentation.carbonregistry.com — possible API, unconfirmed."
+    },
+    {
+      "name": "Lögmannafélag Íslands – Bar Association lawyer directory",
+      "url": "https://www.lmfi.is/logmannalisti",
+      "side": "entities",
+      "category": "bar association / insolvency practitioners route",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Searchable directory of licensed lawyers by firm and specialization (multi-language). Also the practical roll for insolvency trustees (skiptastjórar), who are court-appointed lawyers — Iceland has no separate IP register."
+    },
+    {
+      "name": "FLE – Institute of State Authorized Public Accountants (member directory)",
+      "url": "https://www.fle.is/is/felagatal",
+      "side": "entities",
+      "category": "auditor directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Association VERIFIED and a 'Félagatal / Members' directory link confirmed in navigation; directory content/parseability not confirmed this session."
+    },
+    {
+      "name": "HMS – Housing and Construction Authority (property register & housing data)",
+      "url": "https://hms.is/",
+      "side": "entities",
+      "category": "property register / real-assets data",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "HMS holds fasteignaskrá (property register, moved from Þjóðskrá) and publishes housing-market data. Site repeatedly returned HTTP 429 to the fetcher during this session — exists but aggressively rate-limited; access method unconfirmed."
+    },
+    {
+      "name": "Statistics Iceland (Hagstofa) – statistical database & open data",
+      "url": "https://statice.is/",
+      "side": "entities",
+      "category": "statistics / enterprise demography",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "api",
+      "verdict": "VERIFIED site with statistical database and dedicated open-data access section; the statbank runs PX-Web (px.hagstofa.is) which exposes the standard PX-Web JSON API for enterprise/business statistics."
+    },
+    {
+      "name": "KLAK – Icelandic Startups (ecosystem hub/accelerators)",
+      "url": "https://klak.is/",
+      "side": "entities",
+      "category": "startup ecosystem / venture studios",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Runs Gulleggið, Hringiða (green), Startup SuperNova, Startup Tourism etc.; FT-recognized hub — useful for sourcing portfolio companies and venture-studio-adjacent entities."
+    },
+    {
+      "name": "Innherji (Vísir) – financial markets news",
+      "url": "https://www.visir.is/k/innherji",
+      "side": "news",
+      "category": "financial news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.visir.is/rss/innherji",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS 2.0 feed, ~40 items, dedicated markets/finance vertical — the highest-signal free financial feed in Iceland."
+    },
+    {
+      "name": "Vísir – Viðskipti (business news)",
+      "url": "https://www.visir.is/vidskipti",
+      "side": "news",
+      "category": "business news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.visir.is/rss/vidskipti",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS 2.0 feed (100+ items, TTL 100 min)."
+    },
+    {
+      "name": "mbl.is – Viðskipti (Morgunblaðið business)",
+      "url": "https://www.mbl.is/vidskipti/",
+      "side": "news",
+      "category": "business news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.mbl.is/feeds/vidskipti/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED via mbl.is official feeds directory, which lists the business feed at /feeds/vidskipti/."
+    },
+    {
+      "name": "Viðskiptablaðið – business weekly",
+      "url": "https://www.vb.is/",
+      "side": "news",
+      "category": "business news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Iceland's main business paper. Site returned 403 to the fetcher (bot protection); RSS existence unconfirmed. Treat as headless-crawl target; partial paywall."
+    },
+    {
+      "name": "RÚV – national broadcaster news",
+      "url": "https://www.ruv.is/",
+      "side": "news",
+      "category": "general/business news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.ruv.is/rss/frettir",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS (general news incl. domestic/economy). A dedicated viðskipti sub-feed was not confirmed — filter by category downstream."
+    },
+    {
+      "name": "Heimildin – investigative/news outlet (successor of Kjarninn + Stundin)",
+      "url": "https://heimildin.is/",
+      "side": "news",
+      "category": "news / investigative economics",
+      "tier": "signals_press",
+      "rssUrl": "https://heimildin.is/rss/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS 2.0. Note: the 'Kjarninn' hint is stale — Kjarninn and Stundin merged into Heimildin in 2023."
+    },
+    {
+      "name": "Northstack – Icelandic startup & VC media",
+      "url": "https://northstack.is/",
+      "side": "news",
+      "category": "startup/VC media",
+      "tier": "signals_press",
+      "rssUrl": "https://northstack.is/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS (Ghost), active (latest article Apr 2026); covers funding rounds, VC funds, ecosystem data — the best Icelandic venture signal source."
+    },
+    {
+      "name": "Iceland Review – English-language news",
+      "url": "https://www.icelandreview.com/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "rssUrl": "https://www.icelandreview.com/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS 2.0, active (items dated within 2 days of check)."
+    },
+    {
+      "name": "The Reykjavík Grapevine – English-language news",
+      "url": "https://grapevine.is/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "rssUrl": "https://grapevine.is/feed/",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED valid RSS 2.0, active."
+    },
+    {
+      "name": "Iceland Monitor – mbl.is English edition",
+      "url": "https://icelandmonitor.mbl.is/",
+      "side": "news",
+      "category": "English-language news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Site is real and active but its /feeds/ page returned 404 — no working RSS confirmed; crawl or use Icelandic mbl feeds instead."
+    },
+    {
+      "name": "Central Bank of Iceland – news, statistics & press releases",
+      "url": "https://www.cb.is/",
+      "side": "news",
+      "category": "regulator/central-bank press",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED English site with News and Announcements, statistics (rates, FX), and a 'Subscriptions and RSS' page in the footer (exact feed URL behind that page, not extracted this session)."
+    },
+    {
+      "name": "Stjórnarráðið – Government Offices news/press releases",
+      "url": "https://www.stjornarradid.is/efst-a-baugi/frettir/",
+      "side": "news",
+      "category": "government press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Key source for ministry decisions (finance, privatization e.g. Íslandsbanki sell-downs). Fetcher received an HTTP 402 anomaly this session — access method unconfirmed; likely crawlable normally."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Keldan (keldan.is, local — Iceland's main commercial company-data portal)",
+      "coverageNotes": "Icelandic companies, financial statements, ownership/management, market data, legal-gazette monitoring; freemium/subscription. The de-facto local benchmark for entity data UX. Site is a JS SPA (returned only shell to fetchers).",
+      "publicSourcesTheyUse": "Skatturinn fyrirtækjaskrá + ársreikningaskrá, VAT register, Lögbirtingablað notices, Nasdaq Iceland market/disclosure data, property/vehicle registers — all cataloged above and reachable directly."
+    },
+    {
+      "platform": "Creditinfo (Icelandic-founded global credit bureau; Creditinfo Ísland)",
+      "coverageNotes": "Credit reports, default registers, company monitoring for Iceland; subscription. Strong on private-debt/NPL-relevant signals (defaults, insolvency).",
+      "publicSourcesTheyUse": "RSK company & annual-accounts registers, Lögbirtingablað bankruptcy/enforcement notices, district-court data — direct public routes cataloged above."
+    },
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Thin but present Iceland coverage: pension funds as LPs (the 18 Landssamtök lífeyrissjóða members), a handful of GPs (Frumtak, Crowberry, Brunnur, VEX, Alfa Framtak, Kvika AM funds).",
+      "publicSourcesTheyUse": "Central Bank supervised-entities & fund registers, pension-fund annual reports (public PDFs on each fund's site), association member lists, press releases."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Icelandic VC/PE deals and funds, mostly deal-level from press; covers exits of listed companies via Nasdaq Iceland.",
+      "publicSourcesTheyUse": "Press/RSS (Northstack, Innherji, Vísir, mbl), Nasdaq Iceland disclosures via GlobeNewswire, company register lookups."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Iceland startup/scaleup universe and funding rounds; sometimes partners with Nordic ecosystem bodies; company pages seeded from registries + news.",
+      "publicSourcesTheyUse": "Fyrirtækjaskrá basics, KLAK/ecosystem program cohorts, Northstack and English-language press, Framvís member funds' portfolio pages."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Shallow Iceland coverage — self-reported profiles plus press-scraped rounds for the visible startups (e.g. Kerecis-type stories).",
+      "publicSourcesTheyUse": "Press releases and English media (Iceland Review, Grapevine, Northstack), founder self-submission."
+    }
+  ],
+  "searchedButAbsent": "METHOD CAVEAT: the session's WebSearch budget was already exhausted (200/200) before this task started, so discovery ran entirely on direct URL verification (WebFetch) of known institutions plus the sedlabanki.is sitemap; a broader keyword sweep in Icelandic could not be run. Findings below are what was searched-for/checked and NOT found or not confirmable. (1) No separate private-equity association exists — Framvís (VC/angels) is the only fund-investor association; no BVCA-style PE body found. (2) No standalone insolvency-practitioner roll: trustees (skiptastjórar) are court-appointed lawyers; the only public routes are the Lögmannafélag directory and Lögbirtingablað notices. (3) No dedicated insolvency register: bankruptcy publicity flows through Lögbirtingablað and district courts, not a searchable national insolvency database. (4) No open-data bulk/API route for fyrirtækjaskrá: opingogn.is now redirects to a Digital Iceland page stating the open-data framework is 'being modernized / new arrangement in development' — no dataset catalog or company-register bulk download currently public. (5) FME's standalone site is gone (merged into the Central Bank 2020); all sedlabanki.is register pages exist (sitemap-confirmed) but render empty to non-JS fetchers — headless crawling required. (6) Nasdaq Iceland static issuer lists are gone: nasdaqomxnordic.com redirects to JS-rendered nasdaq.com pages; no parseable public issuer list found. (7) Kjarninn and Fréttablaðið are defunct (Kjarninn+Stundin merged into Heimildin 2023; Fréttablaðið closed 2023) — hint corrected. (8) Nýsköpunarsjóður atvinnulífsins (nsa.is) is unreachable (SSL handshake failure); its reported merger into Kría could not be verified this session. (9) No RICS-style valuer directory found; licensed real-estate agents/appraisers are registered with district commissioners (sýslumenn) but no parseable public roll was verified. (10) No standalone crypto/VASP public list confirmed — registration sits under the Central Bank licensing pages (JS-blocked); ESMA's EEA MiCA register is the machine-readable fallback. (11) No sovereign wealth fund / privatization agency: the proposed Þjóðarsjóður was never established; bank sell-downs run via the Ministry of Finance (Bankasýslan was being wound down). (12) National ETS/carbon account registry (Umhverfisstofnun/Climate authority, EU-registry-based) not verified this session — only the private Iceland-based ICR is cataloged. (13) RSS not confirmed for: Viðskiptablaðið (403 bot-block), Iceland Monitor (/feeds/ 404), Stjórnarráðið (402 anomaly), RÚV business-specific sub-feed. (14) HMS (property register) verified to exist but returned HTTP 429 on every attempt — access method unconfirmed. Iceland is a ~380k-person market: the 42 genuine sources above are materially complete for tiers 1–3; padding to 50 would have required inventing or duplicating."
+}

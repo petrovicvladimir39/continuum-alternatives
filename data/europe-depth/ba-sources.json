@@ -1,0 +1,559 @@
+{
+  "country": "BA",
+  "sources": [
+    {
+      "name": "Business Registers Portal of BiH Courts (bizreg.pravosudje.ba)",
+      "url": "https://bizreg.pravosudje.ba/pls/apex/f?p=183:20:0",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Single portal over the three judicial e-registers: Brcko District, Federation BiH and Republika Srpska. Basic + advanced search, statistics section. No bulk/API advertised; Oracle APEX app is scrapable per-entity. Informational character only (certified extracts come from courts)."
+    },
+    {
+      "name": "APIF — Agencija za posrednicke, informaticke i finansijske usluge RS",
+      "url": "https://www.apif.net",
+      "side": "entities",
+      "category": "business-register-financials",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS agency hosting the Business Subjects Register, Register of Financial Statements, Unified Register of Accounts, entrepreneurs register and more. Public search of business subjects; older financial statements free, full financials via contract. Key deterministic financials source for RS companies."
+    },
+    {
+      "name": "FIA — Finansijsko-informaticka agencija FBiH",
+      "url": "https://fia.ba",
+      "side": "entities",
+      "category": "financial-statements-register",
+      "tier": "tier1_registry",
+      "accessMethod": "js-blocked",
+      "verdict": "Site exists and loads (title 'FIA | Web portal') but content is JS-rendered so the fetcher saw nothing. FIA runs the FBiH registry of financial statements and the FBiH beneficial-owners registry (auth-gated). Counterpart to APIF for the Federation; needs headless-browser or subscription route."
+    },
+    {
+      "name": "Komisija za vrijednosne papire FBiH (FBiH Securities Commission)",
+      "url": "https://www.komvp.gov.ba",
+      "side": "entities",
+      "category": "securities-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Returns HTTP 403 to our fetcher (bot-blocking); the institution is real and current — it licenses fund management companies, investment funds, brokers and custodians in FBiH and publishes their registers. Needs browser-grade crawling."
+    },
+    {
+      "name": "Komisija za hartije od vrijednosti Republike Srpske (RS Securities Commission)",
+      "url": "https://www.secrs.gov.ba",
+      "side": "entities",
+      "category": "securities-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Publishes registers of issuers, open/specialized investment funds, fund management companies, brokerages, custodian banks, factoring companies AND virtual currency service providers (the closest thing BA has to a crypto register). No RSS found. High value for the funds + crypto + factoring layer."
+    },
+    {
+      "name": "FBA — Agencija za bankarstvo FBiH (Banking Agency of FBiH)",
+      "url": "https://www.fba.ba",
+      "side": "entities",
+      "category": "banking-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed on a TLS certificate-chain error; institution is real and active. Licenses and lists FBiH banks, microcredit organizations, leasing companies and factoring providers, plus quarterly sector reports. Retry with relaxed TLS or browser."
+    },
+    {
+      "name": "ABRS — Agencija za bankarstvo Republike Srpske",
+      "url": "https://abrs.ba",
+      "side": "entities",
+      "category": "banking-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Publishes registers of banks, microcredit organizations, savings-credit organizations, leasing companies, e-money institutions and exchange offices under 'Institucije'. Footer offers an RSS subscription (exact feed URL not captured — grab it from the footer link)."
+    },
+    {
+      "name": "CBBH — Central Bank of Bosnia and Herzegovina",
+      "url": "https://www.cbbh.ba",
+      "rssUrl": "https://www.cbbh.ba/Feed/Rss/",
+      "side": "entities",
+      "category": "central-bank",
+      "tier": "tier2_regulator",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Single Registry of Accounts of business entities, Central Registry of Credits, dedicated statistics web portal, monthly/quarterly publications and financial-stability reports. RSS feed advertised at /Feed/Rss/. Also a signals source (press releases)."
+    },
+    {
+      "name": "NADOS — Agencija za nadzor osiguranja FBiH (FBiH Insurance Supervision)",
+      "url": "https://nados.ba",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "DNS/connection timed out from our fetcher during this session; agency is real — supervises FBiH insurers and publishes registers of insurance companies and intermediaries plus market reports. Re-verify from another network."
+    },
+    {
+      "name": "AZORS — Agencija za osiguranje Republike Srpske",
+      "url": "https://azors.rs.ba",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS insurance regulator; 'Ucesnici na trzistu' section lists insurers and intermediaries; publishes reports, statistics and broker/agent exam notices. No RSS found. LP-side relevance: insurer investment portfolios."
+    },
+    {
+      "name": "Agencija za osiguranje u BiH (state-level Insurance Agency)",
+      "url": "https://www.azobih.gov.ba",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Fetch died in a redirect loop; the state-level umbrella insurance agency is real (coordinates the two entity regulators, publishes consolidated market reports). Re-verify with a browser."
+    },
+    {
+      "name": "AOD — Agencija za osiguranje depozita BiH (Deposit Insurance Agency)",
+      "url": "https://www.aod.ba",
+      "side": "entities",
+      "category": "deposit-insurance",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to our fetcher (bot-blocking); real institution listing member banks of the deposit insurance scheme — a clean cross-check list of active banks."
+    },
+    {
+      "name": "Konkurencijsko vijece BiH (Competition Council)",
+      "url": "https://bihkonk.gov.ba",
+      "side": "entities",
+      "category": "competition-authority",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Connection timed out this session; institution is real. Publishes merger-control notifications and decisions — one of the best public M&A/deal signals in BA. Re-verify and check for a decisions archive."
+    },
+    {
+      "name": "DERK — Drzavna regulatorna komisija za elektricnu energiju",
+      "url": "https://www.derk.ba",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State electricity regulator: 'Registar licenci' and register of international electricity traders, plus license-application notices. Directly useful for energy/infrastructure entity discovery."
+    },
+    {
+      "name": "FERK — Regulatorna komisija za energiju u FBiH",
+      "url": "https://www.ferk.ba",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Site exists but returned empty content to the fetcher (JS-rendered); /registri returned 404. FERK is the FBiH energy regulator and publishes licensee registers incl. renewable producers. Needs browser crawl to locate the register path."
+    },
+    {
+      "name": "RERS — Regulatorna komisija za energetiku Republike Srpske",
+      "url": "https://reers.ba",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS energy regulator: licensing registers for electricity, gas, oil; renewable-energy producer certificates and subsidy-rights registries. Cyrillic/Latin/English versions. Strong source for renewables SPVs."
+    },
+    {
+      "name": "UINO/UIO — Uprava za indirektno oporezivanje BiH",
+      "url": "https://www.uino.gov.ba",
+      "side": "entities",
+      "category": "tax-authority",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Reachable (name page verified) but the VAT-taxpayer search lives in e-services not seen by the fetcher. The VAT register is a useful active-business cross-check; access route needs mapping."
+    },
+    {
+      "name": "Sluzbeni list BiH (Official Gazettes of BiH + FBiH + Sarajevo Canton)",
+      "url": "http://www.sluzbenilist.ba",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Publisher of Sluzbeni glasnik BiH (official + advertising section incl. corporate announcements), international treaties edition, Sluzbene novine FBiH and Sarajevo Canton gazette. Search is public, full archives are subscriber-gated — budget a subscription for bankruptcy/announcement coverage."
+    },
+    {
+      "name": "Sluzbeni glasnik Republike Srpske",
+      "url": "https://www.slglasnik.org",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS official gazette with electronic editions, digital archive and the 'Dikta' register for locating where a regulation was published. Bankruptcy openings and corporate notices for RS run through it; e-edition subscription likely needed for full text."
+    },
+    {
+      "name": "Portal pravosudja BiH (Judicial Portal)",
+      "url": "https://pravosudje.ba",
+      "side": "entities",
+      "category": "courts-insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Central judicial portal: links to the business registers, E-sud online case access, court directory. Insolvency notices are not surfaced prominently here — bankruptcy publication in BA runs through the entity gazettes and court bulletin boards; treat this as the court-infrastructure entry point."
+    },
+    {
+      "name": "SASE — Sarajevska berza (Sarajevo Stock Exchange)",
+      "url": "https://www.sase.ba",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site exists (title verified) but is JS-heavy; the fetcher got no body. SASE publishes issuer lists, member brokers, indices (SASX-10/BIFX) and issuer disclosures. Needs headless crawl; check for RSS on the news section."
+    },
+    {
+      "name": "BLSE — Banjalucka berza (Banja Luka Stock Exchange)",
+      "url": "https://www.blberza.com",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED. Issuer ('emitenti') data, member brokers, BIRS/ORS/BATX indices, daily/weekly reports, interactive statistics, corporate calendar — and MULTIPLE RSS feeds (exchange news, corporate news, financial news, corporate calendar) listed on site; capture the exact feed URLs from the RSS page. Best machine route into RS issuer disclosures."
+    },
+    {
+      "name": "RVP — Registar vrijednosnih papira u FBiH",
+      "url": "https://www.rvp.ba",
+      "side": "entities",
+      "category": "central-securities-depository",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. FBiH securities depository: searchable issuers and securities (ISIN, nominal, quantity), top-10 holders, newly registered/deleted securities, open joint-stock companies, takeover and dividend notices. Covers FBiH + Brcko sections. Excellent ownership-signal source."
+    },
+    {
+      "name": "Centralni registar hartija od vrijednosti RS (CRHoV)",
+      "url": "https://www.crhovrs.org",
+      "side": "entities",
+      "category": "central-securities-depository",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS securities depository: issuer directory, securities register, top-10 shareholders, shareholder-structure queries by country/security type, non-resident participation stats. Strong for ownership mapping of RS joint-stock companies."
+    },
+    {
+      "name": "FIPA — Foreign Investment Promotion Agency of BiH",
+      "url": "http://www.fipa.gov.ba",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed with a redirect loop on both www/non-www and /en paths; agency is real and active (FDI statistics, investment opportunities, sector profiles). Re-verify with a browser."
+    },
+    {
+      "name": "APF — Agencija za privatizaciju u FBiH",
+      "url": "http://apf.gov.ba/",
+      "side": "entities",
+      "category": "privatization",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED (http only; https redirects back to http). Publishes privatization tenders (currently 0 active sales), state-capital sale decisions, gazette references and procurement notices. Low current deal flow but authoritative for state-asset events."
+    },
+    {
+      "name": "IRBRS — Investiciono-razvojna banka Republike Srpske",
+      "url": "https://www.irbrs.org",
+      "side": "entities",
+      "category": "development-bank-privatization",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS development bank managing six state funds (development, employment, housing, EQUITY/Akcijski fond, restitution, real estate) and acting as authorized seller of state capital in non-privatized RS enterprises. Both a DFI entity and a privatization-event source."
+    },
+    {
+      "name": "PREF — Penzijski rezervni fond Republike Srpske",
+      "url": "https://www.pref.rs.ba",
+      "side": "entities",
+      "category": "pension-fund-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. RS pension reserve fund: monthly/semi-annual/annual reports, portfolio detail (domestic utilities/energy stakes + international equities), AGM voting reports, dividend announcements. The clearest institutional-LP-side actor in BA."
+    },
+    {
+      "name": "Razvojna banka Federacije BiH",
+      "url": "https://www.rbfbih.ba",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. FBiH development bank: credit lines (fixed assets, agriculture, energy efficiency, renewables, microenterprise), financial reports, procurement notices, strategy 2021-2027."
+    },
+    {
+      "name": "Portal javnih nabavki BiH (e-Nabavke)",
+      "url": "https://www.ejn.gov.ba/en",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National e-procurement portal: searchable tender notices, awards/reports, registries of contracting authorities and suppliers with location maps. Useful for EPC/infrastructure entity discovery and public-contract signals."
+    },
+    {
+      "name": "Komisija za koncesije Republike Srpske",
+      "url": "https://koncesije-rs.org",
+      "side": "entities",
+      "category": "concessions-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Public register of all awarded RS concessions (energy, minerals, infrastructure) plus public calls and annual reports. Direct source for concessionaire entities (Real Assets category)."
+    },
+    {
+      "name": "Vanjskotrgovinska komora BiH (Foreign Trade Chamber)",
+      "url": "https://komorabih.ba",
+      "side": "entities",
+      "category": "chamber-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Exporter directory, company registry, sectoral catalogs, trade data, news/announcements. State-level chamber with offices in Sarajevo/Mostar/Banja Luka."
+    },
+    {
+      "name": "Privredna/Gospodarska komora FBiH",
+      "url": "https://www.kfbih.com",
+      "side": "entities",
+      "category": "chamber-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. FBiH chamber of economy: sectoral associations (industry, energy, trade), tenders and event news, domestic-product catalog."
+    },
+    {
+      "name": "Privredna komora Republike Srpske",
+      "url": "https://komorars.ba",
+      "side": "entities",
+      "category": "chamber-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. RS chamber with 'Poslovni registar RS' claiming 12,000+ companies, 16 sectoral associations, InfoBiz regulation portal, five regional offices."
+    },
+    {
+      "name": "UBBiH — Udruzenje banaka Bosne i Hercegovine",
+      "url": "https://ubbih.ba",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Association of ~23 member banks (alphabetical member list on site), BH.bankar publication, news. EBF member. Clean bank-universe cross-check."
+    },
+    {
+      "name": "AMFI — Udruzenje mikrokreditnih organizacija u BiH",
+      "url": "https://amfi.ba",
+      "side": "entities",
+      "category": "microfinance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Microfinance association with 'Clanice' member list and aggregate sector statistics; hosts MicroBalkans conference. Maps the specialty-finance/microcredit layer (Private Debt category)."
+    },
+    {
+      "name": "BIT Alliance (IT industry association)",
+      "url": "https://bit-alliance.ba",
+      "side": "entities",
+      "category": "tech-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Leading BA IT-company association with members directory, news and ITkarijera.ba job portal — the best proxy for the tech/startup company universe given no formal VC association exists."
+    },
+    {
+      "name": "Advokatska/Odvjetnicka komora FBiH (FBiH Bar Association)",
+      "url": "https://advokomfbih.ba",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 'Spisak advokata' — lawyer lists via five regional chambers (Sarajevo, Tuzla, Mostar, Zenica, Bihac). Source for the legal-services node of the Institutional Service Graph. RS bar association site not verified this session."
+    },
+    {
+      "name": "BHAS — Agencija za statistiku BiH",
+      "url": "https://bhas.gov.ba",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. State statistics agency; explicitly publishes a 'Statisticki poslovni registar' (statistical business register) category plus structural business statistics, investment and trade data; open-data portal referenced."
+    },
+    {
+      "name": "FZS — Federalni zavod za statistiku (FBiH)",
+      "url": "https://fzs.ba",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. FBiH statistics institute: GDP, industrial production, wages, canton-level data, monthly bulletins and yearbooks."
+    },
+    {
+      "name": "RZS RS — Republicki zavod za statistiku Republike Srpske",
+      "url": "https://www.rzs.rs.ba",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "download",
+      "verdict": "VERIFIED. RS statistics institute: GDP, wages, industry, foreign trade, municipal profiles; database portal with downloadable reports."
+    },
+    {
+      "name": "BiznisInfo.ba",
+      "url": "https://www.biznisinfo.ba",
+      "rssUrl": "https://www.biznisinfo.ba/feed/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING RSS. Bosnian business daily (WordPress, hourly updates): banking M&A (Raiffeisen/Addiko takeover, UniCredit mini-bond), tax revenues, infrastructure projects, retail expansion. One of the cleanest machine routes into BA business news."
+    },
+    {
+      "name": "Akta.ba",
+      "url": "https://www.akta.ba",
+      "rssUrl": "https://www.akta.ba/rss",
+      "side": "news",
+      "category": "business-news-tenders",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED; RSS URL advertised on site (https://www.akta.ba/rss). Business portal since 2005: investments/projects, capital markets, tenders and public calls, industry profit-leader analyses, plus its own business-registry search."
+    },
+    {
+      "name": "Indikator.ba",
+      "url": "https://indikator.ba",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Private financial-business media since 2011: taxation, companies and markets, capital markets/exchanges, tenders and auctions. No visible RSS (/feed returns 404) — crawl category pages."
+    },
+    {
+      "name": "Capital.ba",
+      "url": "https://www.capital.ba",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Returns HTTP 403 to our fetcher (bot-blocking). Real and long-running Banja Luka business portal — the main RS-focused economy outlet. WordPress-based, so /feed/ very likely exists behind the block; needs browser-grade crawler to confirm."
+    },
+    {
+      "name": "Klix.ba — Biznis",
+      "url": "https://www.klix.ba/biznis",
+      "rssUrl": "https://www.klix.ba/rss",
+      "side": "news",
+      "category": "general-news-business",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING RSS at /rss (site-wide feed including Ekonomija category; the category-specific /rss/biznis returns 404). Largest BA news portal; economy section carries banking, corporate and macro stories."
+    },
+    {
+      "name": "eKapija BiH",
+      "url": "https://ba.ekapija.com",
+      "side": "news",
+      "category": "business-news-tenders",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to our fetcher (bot protection). Real regional business portal with a dedicated BiH edition: deals, investments, tenders, company news. Do not scrape aggressively; consider their newsletter or licensed feed."
+    },
+    {
+      "name": "Bloomberg Adria — Bosna i Hercegovina",
+      "url": "https://ba.bloombergadria.com",
+      "side": "news",
+      "category": "financial-news-markets",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. BA edition of the regional Bloomberg franchise: Ekonomija, Biznis, Trzista (market data/quotes), Tehnologija, Green, newsletters and Businessweek Adria. Highest-quality markets journalism covering BA; no RSS found on the page."
+    },
+    {
+      "name": "N1 BiH",
+      "url": "https://n1info.ba",
+      "rssUrl": "https://n1info.ba/feed/",
+      "side": "news",
+      "category": "general-news-business",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING RSS (site-wide, 50+ items, updated daily; includes Biznis/Ekonomija coverage). CNN-affiliated regional broadcaster's BA edition. Note ba.n1info.com 301-redirects to n1info.ba."
+    },
+    {
+      "name": "Sarajevo Times",
+      "url": "https://sarajevotimes.com",
+      "rssUrl": "https://sarajevotimes.com/feed/",
+      "side": "news",
+      "category": "english-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "verdict": "VERIFIED WORKING RSS, hourly updates. English-language BA news incl. business/labor items — useful for English-first signal extraction."
+    },
+    {
+      "name": "Oslobodjenje — Biznis",
+      "url": "https://www.oslobodjenje.ba",
+      "side": "news",
+      "category": "daily-business-section",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Historic Sarajevo daily with dedicated BIZNIS section (credit ratings, tourism projects, crypto regulation). RSS link present in footer — exact feed URL not captured, grab from site."
+    },
+    {
+      "name": "Nezavisne novine",
+      "url": "https://www.nezavisne.com",
+      "side": "news",
+      "category": "daily-business-section",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to our fetcher at /rss (bot-blocking). Real Banja Luka daily with an Ekonomija section; historically served RSS per category. Needs browser verification of feed URLs."
+    },
+    {
+      "name": "Glas Srpske",
+      "url": "https://www.glassrpske.com",
+      "side": "news",
+      "category": "daily-business-section",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to our fetcher (bot-blocking). Real Banja Luka daily with economy coverage of RS companies and state enterprises. Verify feed availability via browser."
+    },
+    {
+      "name": "FENA — Federalna novinska agencija",
+      "url": "https://fena.ba",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. State news agency with an Ekonomija section (e.g. S&P rating confirmations). No RSS visible on homepage; syndication may require agreement."
+    },
+    {
+      "name": "SRNA — Novinska agencija Republike Srpske",
+      "url": "https://www.srna.rs",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session (no fetch attempted before budget planning); SRNA is the real RS state news agency covering RS economy and government. Verify URL and feed availability before onboarding."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Effectively zero BA-specific fund coverage; Bosnia appears only inside CEE/SEE aggregates and via the handful of regional funds (EBRD/EIF-backed SEE vehicles) that list BA in their geographic mandate. No local GP/LP depth.",
+      "publicSourcesTheyUse": "Fund manager self-reporting and regulatory filings elsewhere; for BA-touching funds the visible public trail is EBRD/EIF project disclosures and fund press releases — all of which we can ingest directly."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Sparse BA deal records, mostly cross-border acquisitions of BA companies (banking consolidation, industrial M&A) and the rare venture round. Company records thin, financials largely absent.",
+      "publicSourcesTheyUse": "Press coverage (eKapija, Bloomberg Adria, SeeNews), SASE/BLSE issuer disclosures, and Competition Council merger decisions — all directly accessible to us (bihkonk.gov.ba, blberza.com RSS, sase.ba)."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best of the globals for the BA startup layer — has BA startup profiles via its ecosystem partnerships in the Western Balkans; funding data mostly self-reported or press-derived.",
+      "publicSourcesTheyUse": "Startup ecosystem lists (BIT Alliance members, accelerator cohorts), tech press, founder self-reporting. We can go directly to bit-alliance.ba and local tech/business media RSS."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Thin self-reported BA company profiles; funding rounds patchy and often unsourced. Useful only as a lead list, never as a fact source.",
+      "publicSourcesTheyUse": "Self-registration + press scraping. Underlying verifiable facts trace to the same local press (Klix, BiznisInfo, Akta) we ingest natively."
+    },
+    {
+      "platform": "CompanyWall Business (companywall.ba) — LOCAL",
+      "coverageNotes": "VERIFIED local/regional company-data provider: ~87k companies, 92k entrepreneurs; financial statements, credit ratings, account blockades, bankruptcy proceedings, ownership and tax debt. Paid tiers 41-1,135 KM. The strongest local company-financials competitor.",
+      "publicSourcesTheyUse": "Explicitly cites FIA (FBiH), APIF (RS) and the Brcko Finance Directorate plus court registers — exactly the tier-1 registries we catalog for direct ingestion (fia.ba, apif.net, bizreg.pravosudje.ba)."
+    },
+    {
+      "platform": "LRC BIS (Sarajevo) — LOCAL",
+      "coverageNotes": "Long-standing Bosnian credit bureau / business-intelligence house (credit reports, sector analyses, bank-grade scoring) sold into local banks. Its historical domain lrcbis.com did NOT resolve during this session — current web presence needs re-verification, but the firm is the incumbent local BI provider.",
+      "publicSourcesTheyUse": "FIA and APIF financial statements, court/business registers, CBBH credit-registry-adjacent data — again the same public tier-1/2 sources we access directly."
+    },
+    {
+      "platform": "Akta.ba (business data arm) — LOCAL",
+      "coverageNotes": "Beyond news, runs a company-registry search and a tender-intelligence product; good tender/award tracking and industry profit-leader rankings.",
+      "publicSourcesTheyUse": "e-Nabavke procurement portal (ejn.gov.ba), official gazettes, court business registers, FIA/APIF financials — all direct-access for us."
+    },
+    {
+      "platform": "eKapija — REGIONAL",
+      "coverageNotes": "Regional business-news + tender platform with a BiH edition; strong on investment-project announcements and public tenders; bot-blocks scrapers (403).",
+      "publicSourcesTheyUse": "ejn.gov.ba tenders, municipal/entity government announcements, company press releases — we ingest those origins directly, respecting their no-scrape posture."
+    },
+    {
+      "platform": "Dun & Bradstreet / former Bisnode SEE — REGIONAL",
+      "coverageNotes": "Sells BA company credit data inside regional packages; coverage is registry-derived, no alternatives-specific intelligence. Local bisnode.ba domain not verified this session.",
+      "publicSourcesTheyUse": "APIF/FIA financial statements and the court business registers via licensed bulk arrangements — the same registries we hit at source."
+    },
+    {
+      "platform": "Bloomberg Adria — REGIONAL",
+      "coverageNotes": "Markets data + journalism for the Adria region incl. BA; strong on listed securities, macro and banking, not on private funds.",
+      "publicSourcesTheyUse": "SASE/BLSE market data feeds, CBBH statistics, entity statistics institutes — all public and cataloged here."
+    }
+  ],
+  "searchedButAbsent": "IMPORTANT CAVEAT: the session's WebSearch budget (200/200) was already exhausted before this task started, so discovery ran on direct URL verification (~35 fetches) plus domain knowledge; a follow-up search pass could add cantonal and municipal sources. GENUINELY ABSENT in BA after checking: (1) No national PE/VC association — no BVCA/Invest-Europe member body exists for BiH; the startup/VC layer is only visible via BIT Alliance, regional SEE ecosystem reports and donor programs (EBRD/EIF/World Bank). (2) No carbon registry / EU ETS national accounts — BiH is not in the EU ETS (only Energy Community obligations); no national ETS registry exists. (3) No MiCA register — BiH is not an EU member; the only crypto register is the RS Securities Commission's register of virtual currency service providers (on secrs.gov.ba); FBiH has no equivalent found. (4) No RICS national directory — RICS has no BA-specific public register; valuation professionals appear only as court-appointed experts (sudski vjestaci) on entity justice-ministry lists, for which I could not verify a stable consolidated URL. (5) No unified national UBO register — beneficial-ownership registers exist separately at FIA (FBiH) and APIF (RS) and are authentication-gated, consistent with post-2022 EU case law; no open access. (6) No dedicated national insolvency-register portal — bankruptcy/liquidation notices are published through the entity official gazettes and court announcements on the bizreg portal, not a standalone register. (7) No voluntary-pension-fund register of substance — the LP-side pension layer is essentially PREF RS plus one RS voluntary fund manager; FBiH's voluntary pension market never materialized. (8) No separate fund-administrator licensee list — fund custody/administration licensing sits inside the two securities commissions' custodian-bank registers. ALSO SEARCHED/ATTEMPTED BUT NOT VERIFIABLE THIS SESSION (real institutions, fetch-blocked or unresolved): komvp.gov.ba (403), fba.ba (TLS), nados.ba (timeout), azobih.gov.ba (redirect loop), aod.ba (403), bihkonk.gov.ba (timeout), fipa.gov.ba (redirect loop), RS Bar Association, both notary chambers, Brcko District Finance Directorate standalone site, RS Ministry of Finance press page, and LRC BIS's current domain (lrcbis.com DNS fails)."
+}

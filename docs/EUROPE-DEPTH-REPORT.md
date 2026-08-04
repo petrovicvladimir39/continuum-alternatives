@@ -62,3 +62,47 @@ paid/ToS-locked APIs.
   (2019 OffeneRegister dump is the only bulk artifact); the register moat in DE
   is gazette-side (Handelsregisterbekanntmachungen), not register-side.
 
+## GB
+
+- entities: 903 → 3771 (3376 active)
+- classified: 2532 entities · six-class Level-1 counts (mapped spine, zeros honest):
+    - Private Equity & Growth: 522
+    - Private Debt & Credit: 519
+    - Real Assets & Infrastructure: 279
+    - Liquid Alternatives & Hedge Funds: 955
+    - Niche & Emerging Alternatives: 2
+    - Institutional Service Graph: 255
+- Level-3 strategies found: carbon_markets, infrastructure_economic, real_estate_debt, secondaries
+- field coverage (3756 orgs): legal_name 67% · reg-no 90% · LEI 23% · VAT 0% · legal_form 67% · status 67% · address 67% · website 0% · licence 0% · share_capital 0% · email 0%
+- logo coverage: 0%
+- geocode precision: city 3330 · unlocated 696 · rooftop 42 · street 6
+- facts: proposed 2
+- sources in DB: tier4_exchange_corporate 1 · signals_press active 12 · signals_press 11
+- ledger: GB $0.469 / $0.45 · cumulative $1.454 / $20.00
+
+### GB run notes (2026-08-04)
+
+- **Sources**: 65 cataloged (43 entities-side / 22 news-side; target 50 ✓).
+  12 news active (8 newly + 4 carried from clean-100: PE Wire, AltAssets,
+  Sifted, PDI). Bank of England news js-blocked (documented).
+- **Harvest**: Companies House Free Company Data bulk (5,695,468 rows scanned,
+  $0, no key needed) → 2,967 SIC-bucketed picks → 2,500 created ACTIVE with
+  full depth fields (reg number, legal form, status, registered address,
+  incorporation date), 466 ambiguous skipped per dedup law, 2,501 register
+  classifications proposed across 13 SIC buckets (64303 VC 600 · 66300 fund
+  mgmt 600 · trusts/OEICs/REITs 767 · 82911 collection agencies 300 ·
+  6492x credit 300 · aux 400). SIC 64205 (financial holdcos) deliberately
+  EXCLUDED: six-figure shelf-vehicle count, no alternatives signal.
+  UK Private Capital (ex-BVCA) directory: 543 names → 375 created provisional
+  with per-member true countries, 147 ambiguous skipped.
+- **Enrichment**: 2,460 city-centroid locations seeded from PostTown geocoding;
+  websites 0% from the bulk file (Companies House carries none — FCA register
+  API [free operator key] + streaming API documented as the follow-up route).
+- **Extraction**: $0.469 spent → 11 processed, 4 relevant, 4 facts PROPOSED,
+  backlog 45. Round-robin by source active (post-DE fix).
+- **Top 3**: Companies House bulk (the single richest $0 register in Europe),
+  UK Private Capital directory, UKTN RSS (2 relevant of 2 processed).
+- **Surprise**: the UK is the ONLY European jurisdiction with genuinely open
+  UBO data (PSC bulk snapshot) — recorded for the legal-gated future decision,
+  NOT ingested (constitution UBO rule).
+

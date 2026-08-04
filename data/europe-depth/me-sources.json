@@ -1,0 +1,424 @@
+{
+  "country": "ME",
+  "sources": [
+    {
+      "name": "CRPS — Centralni registar privrednih subjekata (Central Register of Business Entities)",
+      "url": "http://www.crps.me/",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "unknown",
+      "verdict": "The canonical Montenegrin company register, maintained under the Revenue and Customs Administration (Uprava prihoda i carina); company search historically at pretraga.crps.me. Both crps.me and pretraga.crps.me failed TLS connection ('socket closed') in this run — the site appears to be a legacy HTTP-only application. Real and authoritative, but the machine route needs a plain-HTTP client or headless browser; no bulk/API route found. Records include founders, directors, capital, and bankruptcy status flags."
+    },
+    {
+      "name": "data.gov.me — Montenegro Open Data Portal",
+      "url": "https://data.gov.me/",
+      "side": "entities",
+      "category": "open-data",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified live. CKAN-based portal with a Finance category and CKAN API. However, a search for business-register datasets returned only agriculture/tourism datasets — CRPS data is NOT currently published here. Useful for auxiliary registers (court interpreters/experts, licensed engineers, inspectors) and as the watch-point for any future CRPS open-data release."
+    },
+    {
+      "name": "Komisija za tržište kapitala (Capital Market Authority of Montenegro, SCMN)",
+      "url": "https://www.scmn.me/",
+      "side": "entities",
+      "category": "securities-funds-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes registers of investment fund management companies (društva za upravljanje investicionim fondom), open-end and closed-end investment funds, and investment firms (investiciona društva); it is also the supervisor for voluntary pension funds. Register pages are HTML lists under the site's Registri section (the /me/registri path 404s directly — navigate from homepage). This is THE fund-manager register for Montenegro — core Tier 2 source."
+    },
+    {
+      "name": "SCMN Reporting Portal / CRPI — Central Registry of Prescribed Information",
+      "url": "https://portal.scmnreporting.me/",
+      "side": "entities",
+      "category": "issuer-disclosures",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified to exist: crpi.me (advertised on scmn.me) resolves via certificate to scmnreporting.me; portal.scmnreporting.me serves a JavaScript SPA shell ('Index') with no static HTML. This is the official channel for issuer regulated disclosures (prescribed information). Needs headless-browser or API reverse-engineering; content is public by law."
+    },
+    {
+      "name": "CBCG — Centralna banka Crne Gore (Central Bank of Montenegro)",
+      "url": "https://www.cbcg.me/",
+      "side": "entities",
+      "category": "central-bank-registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes the licensed credit-institution list (Bankarski sistem section), financial-service providers (Pružaoci finansijskih usluga), payment institutions and e-money institutions (incl. their financial statements), credit-intermediary records, and recognized rating agencies. Register/list pages are server-rendered HTML at /me/kljucne-funkcije/kontrolna-funkcija/. No RSS found."
+    },
+    {
+      "name": "ANO — Agencija za nadzor osiguranja (Insurance Supervision Agency)",
+      "url": "https://www.ano.me/",
+      "side": "entities",
+      "category": "insurance-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes the register of insurance companies (/registar-drustava-za-osiguranje/), licensed insurance agents and brokers, and authorized actuaries; statistics and market reports at /izvjestaji/ plus a dedicated data portal at portal.ano.me. Covers the insurer LP side of the market completely."
+    },
+    {
+      "name": "REGAGEN — Energy and Regulated Utilities Regulatory Agency (license data portal)",
+      "url": "https://dataportal.regagen.co.me/licence",
+      "side": "entities",
+      "category": "energy-regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Structured license register on a dedicated data portal with sector splits: electricity (/licence/ee-sektor), oil & gas (/licence/nafta-i-gas), regulated utilities. Key source for renewable/energy-transition SPVs and concessionaires (61% of 2024 generation was renewable). One of the cleanest machine routes in the country."
+    },
+    {
+      "name": "Fond za zaštitu depozita (Deposit Protection Fund)",
+      "url": "https://www.fzdcg.org/",
+      "side": "entities",
+      "category": "deposit-insurance",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member credit-institution list (/kreditne-institucije-clanice-fonda/) and — valuable for the distressed/NPL vertical — the list of credit institutions in bankruptcy with protected-event payouts (/kreditne-institucije-u-stecaju-zasticeni-slucaj/). Annual reports and statistics as PDFs."
+    },
+    {
+      "name": "Službeni list Crne Gore (Official Gazette of Montenegro)",
+      "url": "https://www.sluzbenilist.me/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "The official gazette publisher — carries laws, secondary legislation, and statutory announcements including bankruptcy notices. Returned HTTP 403 to our fetcher (bot protection); the site itself has a searchable edition database. Real and essential; needs a browser-grade client or print-edition subscription for full text."
+    },
+    {
+      "name": "Sudovi Crne Gore — courts portal (incl. Privredni sud / Commercial Court)",
+      "url": "https://sudovi.me/",
+      "side": "entities",
+      "category": "courts-insolvency",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "The judiciary portal serving all courts including the Commercial Court of Montenegro (Privredni sud, Podgorica) which runs bankruptcy proceedings and posts hearing/insolvency notices on court bulletin boards. Fetch returned an empty JS shell — the portal is a client-rendered app. Montenegro has NO separate national insolvency e-register; bankruptcy publicity runs through the Commercial Court board, the Official Gazette, and status flags in CRPS."
+    },
+    {
+      "name": "Montenegroberza AD — Montenegro Stock Exchange (MNSE)",
+      "url": "https://mnse.me/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Lists traded symbols/issuers with prices (TECG, JGPK, POIS...), MONEX index, market cap, and a Vijesti (news) section. Issuer detail and member (broker) lists are navigable from the Simboli menu; no RSS found. Small market — trading is thin and concentrated (a recent week's volume spike came from two block transactions)."
+    },
+    {
+      "name": "CKDD — Centralna klirinško depozitarna društvo (Central Securities Depository)",
+      "url": "https://www.ckdd.me/",
+      "side": "entities",
+      "category": "csd-issuer-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Maintains the register of dematerialized securities: issuer list (/Home/Index/23), shareholders (/Home/Index/24), trading symbols (/Home/Index/66), and debt securities. Old-style server-rendered ASP.NET pages — parseable. Complements MNSE with the full issuer universe including untraded joint-stock companies."
+    },
+    {
+      "name": "CeJN — Crnogorski elektronski sistem javnih nabavki (e-procurement portal)",
+      "url": "https://cejn.gov.me/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Verified to exist; serves a JavaScript SPA shell only. Montenegro's electronic public procurement system with public tender and contract-award search. Needs headless browser or its underlying JSON endpoints. Relevant for infrastructure/EPC contractor mapping."
+    },
+    {
+      "name": "Udruženje banaka Crne Gore (Association of Montenegrin Banks, UBCG)",
+      "url": "https://ubcg.info/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member-bank directory (/clanice-udruzenja/), publications including the Bankar magazine (/publikacije/), news blog, seminar calendar. Associate member of the European Banking Federation. WordPress-family site — likely feed-capable."
+    },
+    {
+      "name": "Privredna komora Crne Gore (Chamber of Economy of Montenegro)",
+      "url": "https://www.privrednakomora.me/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The national chamber (membership is statutory for companies), with sector boards and the Glasnik publication. Connection timed out in this run so no access-method could be confirmed — real institution, needs retry from a different network path."
+    },
+    {
+      "name": "AmCham Montenegro",
+      "url": "https://amcham.me/",
+      "side": "entities",
+      "category": "business-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public member list at /en/member-list (captures the foreign-investor corporate community incl. Porto Montenegro-tier investors), publications, and advocacy committees including a Real Estate committee. English content available."
+    },
+    {
+      "name": "MIA — Montenegrin Investment Agency",
+      "url": "https://mia.gov.me/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. The state FDI-promotion agency (successor to MIPA): register of investment incentive measures, strategic project and PPP information, success-story profiles of flagship real-asset investments (Porto Montenegro, Luštica Bay, Porto Novi), bilingual. News at /me/novosti/, no RSS."
+    },
+    {
+      "name": "Razvojna banka Crne Gore (Development Bank of Montenegro, ex-IRF)",
+      "url": "https://www.rb.me/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live — irfcg.me now 301-redirects here, confirming the Investment and Development Fund's transformation into the Development Bank. Credit lines up to EUR 16m across entrepreneurship/tourism/infrastructure, annual reports and financial statements, funded-project stories. The domestic DFI/LP-side anchor."
+    },
+    {
+      "name": "Fond za inovacije Crne Gore (Innovation Fund of Montenegro)",
+      "url": "https://fondzainovacije.me/",
+      "side": "entities",
+      "category": "innovation-fund",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. State early-stage funder: startup grants, innovation vouchers, collaborative grants, GovTech; application portal at programifonda.me. News at /aktuelno/. Best public proxy for the pre-VC pipeline in a country with no VC association."
+    },
+    {
+      "name": "ICT Cortex — Montenegrin ICT cluster",
+      "url": "https://ictcortex.me/",
+      "side": "entities",
+      "category": "tech-cluster",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Member directory at /clanice/ mapping the investable tech-company universe, plus news and press sections. WordPress — /feed likely works. The closest thing Montenegro has to a startup-ecosystem directory."
+    },
+    {
+      "name": "Advokatska komora Crne Gore (Bar Association of Montenegro)",
+      "url": "http://www.advokatskakomora.me/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public lawyer directory by municipality (advokati_po_opstinama.html) plus law-partnership and joint-office registers (IMENIK.html). Plain static HTML — trivially parseable. Source for the M&A/restructuring law-firm layer of the service graph."
+    },
+    {
+      "name": "Notarska komora Crne Gore (Notary Chamber)",
+      "url": "https://notarskakomora.me/",
+      "side": "entities",
+      "category": "notary-directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public directory of all notary offices at /notari/ plus tariff. Relevant to the transaction-services graph (real estate and corporate transactions require notarization in Montenegro)."
+    },
+    {
+      "name": "Fond PIO — Pension and Disability Insurance Fund of Montenegro",
+      "url": "https://www.fondpio.me/",
+      "side": "entities",
+      "category": "pension-fund-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. The state first-pillar pension institution — statistics (/statisticki-podaci/), announcements, legal framework. Note: it is a pay-as-you-go fund, not an asset-owner LP in the Western sense; voluntary pension funds (third pillar) are registered/supervised by the Capital Market Authority."
+    },
+    {
+      "name": "MONSTAT — Statistical Office of Montenegro",
+      "url": "https://www.monstat.org/",
+      "side": "entities",
+      "category": "statistics",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "The national statistics office (business demography, FDI, GDP, structural business statistics). Fetch returned an empty page in this run — likely legacy/JS rendering; real institution with extensive publication archive, English section historically at /eng/. Retry needed to pin the machine route."
+    },
+    {
+      "name": "Investitor.me",
+      "url": "https://investitor.me/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://investitor.me/feed/",
+      "verdict": "Verified working RSS with hourly updates. Montenegrin business/finance portal — banking results, Montenegroberza activity, infrastructure, regulation, companies. The single best-fit news source for this platform: recent feed items covered Prva Banka H1 profit, exchange volume spikes, and cadastre deadlines."
+    },
+    {
+      "name": "CdM — Cafe del Montenegro",
+      "url": "https://www.cdm.me/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.cdm.me/feed/",
+      "verdict": "Verified working RSS (WordPress). General news portal with a distinct Ekonomija category; economy items (e.g. Air Montenegro operations) appear in the main feed. Category feed at /kategorija/ekonomija/feed/ is the standard WordPress pattern (unverified)."
+    },
+    {
+      "name": "Vijesti — Biznis",
+      "url": "https://www.vijesti.me/biznis",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.vijesti.me/rss",
+      "verdict": "Montenegro's leading independent daily with a dedicated Biznis section. Our fetcher was blocked at the network level ('unable to fetch'), so the /rss endpoint could not be confirmed in this run — it is the historically documented feed URL. High editorial value; needs a browser-grade client."
+    },
+    {
+      "name": "Bankar.me",
+      "url": "https://www.bankar.me/",
+      "side": "news",
+      "category": "banking-finance-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.bankar.me/feed/",
+      "verdict": "Specialist banking/finance portal (bank results, CBCG decisions, capital markets). Both homepage and /feed/ returned HTTP 403 to our fetcher (Cloudflare-type bot protection); as a WordPress site the /feed/ URL is the standard route and may work for conventional RSS readers with browser user-agents. Real, high-relevance source."
+    },
+    {
+      "name": "Pobjeda",
+      "url": "https://www.pobjeda.me/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (HTML renders). Oldest daily newspaper, state-linked, with economy coverage. /rss returns the HTML homepage, not a feed — no working RSS discovered; section pages are parseable."
+    },
+    {
+      "name": "Dan",
+      "url": "https://www.dan.co.me/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Major daily with economy pages. /rss returned HTTP 403 (bot protection); no feed confirmed. Include via browser-grade crawling if needed; editorial value for corporate/judicial affairs coverage."
+    },
+    {
+      "name": "RTCG — Radio Television of Montenegro",
+      "url": "https://www.rtcg.me/",
+      "side": "news",
+      "category": "public-broadcaster",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Public broadcaster with economy news desk. rss.html returned 403 to our fetcher; RTCG has historically offered per-section RSS. Needs browser-grade verification."
+    },
+    {
+      "name": "MINA / MINA Business — news agency",
+      "url": "https://mina.news/",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "The national news agency with a dedicated MINA Business wire — the upstream source many Montenegrin portals republish. Returned 403; core service is subscription-based. Worth a commercial feed conversation rather than scraping."
+    },
+    {
+      "name": "Portal Analitika",
+      "url": "https://portalanalitika.me/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Established news portal with economy coverage. /feed returned an HTML shell rather than XML — no working RSS confirmed; site itself is real and active."
+    },
+    {
+      "name": "Antena M",
+      "url": "https://www.antenam.net/",
+      "side": "news",
+      "category": "general-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "News portal with economy section; /feed returned 403. Secondary priority."
+    },
+    {
+      "name": "Total Montenegro News",
+      "url": "https://total-montenegro-news.com/",
+      "side": "news",
+      "category": "english-language-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://total-montenegro-news.com/feed",
+      "verdict": "English-language Montenegro news site. The RSS feed is technically functional BUT the latest items observed date from late 2020 — the outlet appears dormant. Cataloged honestly as low-priority/possibly defunct; do not rely on it for live signals."
+    },
+    {
+      "name": "Balkan Green Energy News — Montenegro coverage",
+      "url": "https://balkangreenenergynews.com/tag/montenegro/",
+      "side": "news",
+      "category": "energy-sector-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://balkangreenenergynews.com/feed/",
+      "verdict": "Verified working RSS (main feed; WordPress tag feed /tag/montenegro/feed/ follows the standard pattern). Regional renewables/energy-transition outlet that regularly covers Montenegrin solar, wind, and hydro projects — directly feeds the Real Assets vertical."
+    },
+    {
+      "name": "SeeNews",
+      "url": "https://seenews.com/",
+      "side": "news",
+      "category": "regional-business-wire",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Regional SEE business news wire with systematic Montenegro corporate coverage (M&A, banking, energy). Freemium model. Not fetch-verified in this run (search budget exhausted); long-established and real. Respect its ToS — headline+link only."
+    },
+    {
+      "name": "bne IntelliNews",
+      "url": "https://www.intellinews.com/",
+      "side": "news",
+      "category": "regional-business-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Emerging-Europe business media with Montenegro country coverage (banking, politics-economy nexus, energy). Subscription with some free content. Not fetch-verified in this run; established outlet."
+    },
+    {
+      "name": "The Recursive",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "startup-media",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "rssUrl": "https://therecursive.com/feed/",
+      "verdict": "SEE innovation/startup media covering the Western Balkans incl. Montenegro's ecosystem (funding rounds, ICT Cortex activity). WordPress — /feed/ is the expected route; not fetch-verified in this run."
+    },
+    {
+      "name": "CBCG press releases (Saopštenja)",
+      "url": "https://www.cbcg.me/me/javnost-rada/aktuelno/saopstenja",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified section on the central bank site — licensing decisions, supervisory measures, macro reports. Server-rendered HTML list, no RSS; low-volume, high-authority signal stream."
+    },
+    {
+      "name": "SCMN news (Novosti)",
+      "url": "https://www.scmn.me/me/novosti",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified section. Capital Market Authority announcements — fund/manager licensing, enforcement, market rules — plus a newsletter and the 'Puls tržišta kapitala' podcast. No RSS; HTML list is parseable."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "EMIS (ISI Emerging Markets)",
+      "coverageNotes": "The deepest commercial coverage of Montenegro among global providers: company financials, industry reports, macro data, and news monitoring for the ME market.",
+      "publicSourcesTheyUse": "CRPS company registrations, statutory financial statements filed with the Revenue and Customs Administration, MONSTAT statistics, CBCG data, and local media (Vijesti, MINA, Pobjeda) — all of which we can go to directly."
+    },
+    {
+      "platform": "CompanyWall Business Montenegro (companywall.me)",
+      "coverageNotes": "Local/regional credit-reporting platform with a dedicated Montenegrin company database: financials, blocked-account status, ownership, court/bankruptcy flags.",
+      "publicSourcesTheyUse": "CRPS register data, annual financial statements from the tax authority, Commercial Court/gazette insolvency announcements, CBCG blocked-account data — the direct public routes are CRPS, Službeni list, and sudovi.me."
+    },
+    {
+      "platform": "Dun & Bradstreet (via Bisnode legacy SEE network)",
+      "coverageNotes": "WorldBase-level firmographics for Montenegrin entities used for compliance/KYB; no alternatives-specific intelligence.",
+      "publicSourcesTheyUse": "CRPS register extracts and gazette notices, resold through local partners; the primary source is CRPS which we target directly."
+    },
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Near-zero dedicated Montenegro content — the country appears only inside Balkans/CEE-mandate funds' geographic footnotes; no local GP/LP profiles of substance.",
+      "publicSourcesTheyUse": "Fund-manager self-reporting plus regulator lists; for ME the underlying public route is the SCMN fund-manager and fund registers, which we catalog directly."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Sparse: a handful of Montenegrin companies/deals captured via regional M&A press; no systematic register coverage.",
+      "publicSourcesTheyUse": "Press (SeeNews, IntelliNews, local portals) and advisor league-table submissions; the direct public equivalents are the news feeds and CRPS/MNSE disclosures in our catalog."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Thin Western-Balkans startup layer; Montenegro entries mostly via regional ecosystem reports rather than local partnership.",
+      "publicSourcesTheyUse": "Self-reported startup profiles, Innovation Fund grant announcements, ICT Cortex ecosystem lists, The Recursive coverage — all public and cataloged here."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "A few dozen self-registered Montenegrin startups; stale and incomplete; no fund/LP layer.",
+      "publicSourcesTheyUse": "Self-reporting and press releases; no registry ingestion for ME — nothing they have that CRPS + Innovation Fund + ICT Cortex don't provide directly."
+    },
+    {
+      "platform": "SeeNews Data (AI/company-data arm of SeeNews)",
+      "coverageNotes": "SEE-regional company rankings (TOP 100 SEE) and news-derived corporate data including Montenegrin companies.",
+      "publicSourcesTheyUse": "National registers and statistical offices across SEE (for ME: CRPS, MONSTAT) plus their own editorial wire — the register routes are in our catalog."
+    }
+  ],
+  "searchedButAbsent": "Montenegro is a ~620k-population market; 41 genuine sources were found and honesty overrides the 50 target. Note: the session's WebSearch budget was already exhausted when this task started, so discovery relied on direct URL verification (WebFetch) of known institutions plus the task hints; every 'verified' claim above reflects an actual fetch in this run. Searched for but NOT found / confirmed absent: (1) PE/VC association — no Montenegrin private equity or venture capital association exists (no national member of Invest Europe); the ecosystem proxy is the Innovation Fund + ICT Cortex. (2) CRPS bulk/open-data/API route — data.gov.me carries no business-register dataset; no API documentation found; the register itself (crps.me / pretraga.crps.me) failed TLS handshakes from our tooling (legacy HTTP-only app) so its accessMethod remains unresolved. (3) Dedicated national insolvency portal — none exists; bankruptcy publicity runs through the Commercial Court (inside the JS-rendered sudovi.me portal), the Official Gazette, and CRPS status flags. A standalone roll of licensed insolvency practitioners (stečajni upravnici) is maintained by the Ministry of Justice but no working public URL could be verified this run. (4) Crypto/MiCA/TVTG licensee register — Montenegro is not an EU member; MiCA does not apply, the domestic digital-assets law has not produced an operating public licensee register, and none was found. (5) Carbon registry — no national ETS/carbon-credit registry; Montenegro's emissions scheme runs through the Environment Agency's permitting without a public credits register. (6) Stock-exchange member (broker) list — MNSE's member directory was not separately reachable; broker-dealers are covered via the SCMN investment-firm register instead. (7) Valuer directory — the Institute of Certified Appraisers of Montenegro (IOPCG) domain iopcg.me did not resolve; no working national valuer roll verified (RICS has no ME national association). (8) Privatization agency — the Privatization and Capital Projects Council exists within the Government (gov.me) but has no standalone portal with a machine-accessible asset list. (9) Voluntary pension funds — the third-pillar register sits with the Capital Market Authority; the market has only a handful of entities and no separate regulator. (10) Working RSS could not be confirmed for Vijesti, Bankar.me, Dan, RTCG, MINA, Antena M, or Portal Analitika (403s/bot-blocks/HTML shells) — recorded honestly per source; only CdM, Investitor.me, Balkan Green Energy News, and (dormant) Total Montenegro News feeds were verified working. (11) Fund administrators/depositaries — no local association or public directory; depositary services are provided by CBCG-licensed banks, covered via the CBCG register."
+}

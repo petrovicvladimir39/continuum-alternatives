@@ -1,0 +1,596 @@
+{
+  "country": "RS",
+  "sources": [
+    {
+      "name": "APR — Registar privrednih subjekata (Serbian Business Registers Agency, company register)",
+      "url": "https://www.apr.gov.rs/registri.3.html",
+      "side": "entities",
+      "category": "commercial-register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Canonical company/entrepreneur register; 27+ registers under one agency with per-register search portals (eServisi). No API advertised on-site; bulk route is via the national open data portal."
+    },
+    {
+      "name": "APR — Registar finansijskih izveštaja (financial statements register)",
+      "url": "https://pretraga2.apr.gov.rs/unifiedentitysearch",
+      "side": "entities",
+      "category": "financial-statements",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Parent APR portal verified live and lists the financial-statements register; this unified search URL is the known public entry point but was not individually fetched this session. Annual statements downloadable per entity at no cost."
+    },
+    {
+      "name": "APR — Registar založnog prava (pledge register)",
+      "url": "https://www.apr.gov.rs/registri/zalozno-pravo.2088.html",
+      "side": "entities",
+      "category": "secured-transactions",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Register confirmed on the verified APR registers index (zalozno pravo); deep URL not individually fetched. Key for private-credit/ABL collateral mapping."
+    },
+    {
+      "name": "APR — Registar finansijskog lizinga (financial leasing contracts register)",
+      "url": "https://www.apr.gov.rs/registri/finansijski-lizing.2087.html",
+      "side": "entities",
+      "category": "leasing-contracts",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Register confirmed on the verified APR registers index; deep URL not individually fetched. Contract-level leasing data complements the NBS lessor register."
+    },
+    {
+      "name": "APR — Registar faktoringa (factoring register)",
+      "url": "https://www.apr.gov.rs/registri/faktoring.2090.html",
+      "side": "entities",
+      "category": "factoring",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "Register confirmed on the verified APR registers index; deep URL not individually fetched. Maps trade/supply-chain finance players."
+    },
+    {
+      "name": "Portal otvorenih podataka Republike Srbije (data.gov.rs)",
+      "url": "https://data.gov.rs/",
+      "side": "entities",
+      "category": "open-data-portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "Verified live with API documentation at /apidoc (uData-style portal). The bulk/machine route for APR and other state datasets; APR org page URL slug needs discovery via the portal's own search — direct org URL guessed returned 404."
+    },
+    {
+      "name": "Komisija za hartije od vrednosti (Serbian SEC) — registers of licensed entities",
+      "url": "https://www.sec.gov.rs/",
+      "side": "entities",
+      "category": "securities-regulator-registers",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (Aug 2026). Publishes registers of investment firms, fund management companies (drustva za upravljanje), UCITS AND alternative investment funds (AIF), brokers, portfolio managers, custodian banks, plus a register of digital-token service providers under the Law on Digital Assets. Core AIFM universe for Serbia."
+    },
+    {
+      "name": "Narodna banka Srbije — Spisak banaka (bank register)",
+      "url": "https://nbs.rs/sr_RS/finansijske-institucije/",
+      "side": "entities",
+      "category": "bank-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live; NBS financial-institutions section confirmed publishing the bank list plus balance-sheet data per bank."
+    },
+    {
+      "name": "NBS — insurance undertakings register and market data",
+      "url": "https://nbs.rs/sr_RS/finansijske-institucije/osiguranje/",
+      "side": "entities",
+      "category": "insurance-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Insurance market participants list and business-operation data confirmed via the verified NBS financial-institutions section; deep URL not individually fetched. NBS is the insurance regulator (LP side)."
+    },
+    {
+      "name": "NBS — voluntary pension fund management companies + FONDex",
+      "url": "https://nbs.rs/sr_RS/finansijske-institucije/penzijski-fondovi/",
+      "side": "entities",
+      "category": "pension-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Confirmed via verified NBS section: register of voluntary pension fund ManCos and FONDex unit values. The domestic institutional-LP universe; deep URL not individually fetched."
+    },
+    {
+      "name": "NBS — financial leasing providers register",
+      "url": "https://nbs.rs/sr_RS/finansijske-institucije/lizing/",
+      "side": "entities",
+      "category": "leasing-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Lessors list and business data confirmed via verified NBS section; deep URL not individually fetched."
+    },
+    {
+      "name": "NBS — payment institutions and e-money institutions registers",
+      "url": "https://nbs.rs/sr_RS/finansijske-institucije/platne-institucije/",
+      "side": "entities",
+      "category": "payment-emoney-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "Both registers confirmed via verified NBS section (plus third-country e-money list); deep URL not individually fetched."
+    },
+    {
+      "name": "NBS — virtual currency service providers (Law on Digital Assets)",
+      "url": "https://nbs.rs/sr_RS/ciljevi-i-funkcije/nadzor-nad-finansijskim-institucijama/digitalna-imovina/",
+      "side": "entities",
+      "category": "crypto-licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "NBS supervises virtual-currency VASPs (SEC supervises digital tokens) under Serbia's Law on Digital Assets — MiCA does not apply (non-EU). Digital-asset supervision referenced on the verified NBS site; this specific register URL not fetch-verified."
+    },
+    {
+      "name": "NBS — prinudna naplata (blocked/forced-collection accounts search)",
+      "url": "https://nbs.rs/sr_RS/finansijsko_trziste/prinudna-naplata/",
+      "side": "entities",
+      "category": "debtor-distress-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Well-known NBS public search of companies with blocked accounts — the standard Serbian distress signal used by every local credit-data provider. Not fetch-verified this session; NBS root verified live."
+    },
+    {
+      "name": "Ministarstvo finansija — register of licensed real-estate appraisers (procenitelji)",
+      "url": "https://www.mfin.gov.rs/",
+      "side": "entities",
+      "category": "valuer-register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "MFIN site verified live and lists 'Procenitelji vrednosti nepokretnosti' as a service (licensing under the Law on Valuers); the actual register page was not reached. Valuer roll for real-assets service graph."
+    },
+    {
+      "name": "Sluzbeni glasnik Republike Srbije (Official Gazette)",
+      "url": "http://www.slglasnik.com/",
+      "side": "entities",
+      "category": "official-gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "slglasnik.rs verified redirecting (302) to slglasnik.com, which failed our fetcher's TLS check (unable to verify certificate). Gazette publisher exists and operates; treat as verified-with-TLS-caveat. Full-text access largely via the legal information system below."
+    },
+    {
+      "name": "Pravno-informacioni sistem RS (legal information system, gazette texts)",
+      "url": "https://www.pravno-informacioni-sistem.rs/",
+      "side": "entities",
+      "category": "gazette-legal-database",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Site live but returned minimal server-rendered content to our fetcher (JS-heavy app). Official online access to gazette issues and consolidated regulations; basic access free."
+    },
+    {
+      "name": "ALSU — Agencija za licenciranje stecajnih upravnika (insolvency supervision)",
+      "url": "https://alsu.gov.rs/",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (news to Jul 2026). Directory of licensed insolvency practitioners, bankruptcy case database (debtor, court, practitioner, dates), estate asset-sale announcements, quarterly reports. This is the platform's deep prior integration — extend only, one source among many."
+    },
+    {
+      "name": "APR — Registar stecajnih masa i sudskih zabrana (bankruptcy estates, court restrictions)",
+      "url": "https://www.apr.gov.rs/registri/stecajne-mase.2093.html",
+      "side": "entities",
+      "category": "insolvency-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Bankruptcy-estate and court-restriction registers confirmed on the verified APR registers index; deep URL not individually fetched. Complements ALSU case data."
+    },
+    {
+      "name": "Portal sudova Srbije (courts portal, case tracking + eOglasna tabla)",
+      "url": "https://portal.sud.rs/",
+      "side": "entities",
+      "category": "court-register",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public case-status search across commercial, basic/higher, appellate, administrative courts (subportals like tpson.portal.sud.rs), public e-notice board, and an open-data portal link. Commercial-court module is the litigation/restructuring signal source."
+    },
+    {
+      "name": "Beogradska berza (BELEX — Belgrade Stock Exchange)",
+      "url": "https://www.belex.rs/",
+      "side": "entities",
+      "category": "stock-exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Both fetch attempts failed with 'certificate has expired' at our fetcher — could not verify content this session. BELEX is unquestionably operational (issuer lists, member firms, prime/standard listing disclosures, indices BELEX15/BELEXline); re-verify TLS from production crawler before integration."
+    },
+    {
+      "name": "Centralni registar, depo i kliring hartija od vrednosti (CSD)",
+      "url": "https://www.crhov.rs/",
+      "side": "entities",
+      "category": "central-securities-depository",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Registered issuers, share-ownership statistics (AD ownership), member list by membership type, corporate actions. Excellent deterministic source for issuer/shareholder structure."
+    },
+    {
+      "name": "Portal javnih nabavki (public procurement portal)",
+      "url": "https://jnportal.ujn.gov.rs/",
+      "side": "entities",
+      "category": "public-procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live: 91k+ notices in 2026, searchable tenders, awards, contracts, framework agreements, annual reports. Concession/PPP and infrastructure deal-flow signal."
+    },
+    {
+      "name": "Kancelarija za javne nabavke (Public Procurement Office)",
+      "url": "https://www.ujn.gov.rs/",
+      "side": "entities",
+      "category": "procurement-authority",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes procurement regulations, guidelines, reports; operates the jnportal. Secondary to the portal itself."
+    },
+    {
+      "name": "Razvojna agencija Srbije (RAS — Development Agency of Serbia)",
+      "url": "https://ras.gov.rs/",
+      "side": "entities",
+      "category": "investment-promotion",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (news Jul 2026). FDI promotion, SME/subsidy programs, supplier database, active press page — both an entity source (state ecosystem) and an FDI signal source."
+    },
+    {
+      "name": "Fond za inovacionu delatnost (Innovation Fund + Serbia Ventures)",
+      "url": "https://www.inovacionifond.rs/",
+      "side": "entities",
+      "category": "state-vc-lp",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Publishes public-call results and awardee lists (924 supported projects, EUR 125m). Serbia Ventures / Serbia Ventures AI is the state LP program seeding domestic VC funds — a direct register-grade route into the Serbian GP/LP graph."
+    },
+    {
+      "name": "Fond za razvoj Republike Srbije (Development Fund)",
+      "url": "https://fondzarazvoj.co.rs/",
+      "side": "entities",
+      "category": "development-bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (gov.rs domain 301-redirects here). State lender: credit lines, restructuring, sector programs. Public-credit side of the ecosystem."
+    },
+    {
+      "name": "AOFI — Agencija za osiguranje i finansiranje izvoza (export credit agency)",
+      "url": "https://www.aofi.rs/",
+      "side": "entities",
+      "category": "export-credit-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Export credit insurance, guarantees, factoring; publishes financial reports and news. Trade-finance node in the service graph."
+    },
+    {
+      "name": "Udruzenje banaka Srbije (Association of Serbian Banks)",
+      "url": "https://www.ubs-asb.com/",
+      "side": "entities",
+      "category": "banking-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (news Jul 2026). Public bank list, Kreditni biro (credit bureau) documentation, Bankarstvo journal archive."
+    },
+    {
+      "name": "Udruzenje osiguravaca Srbije (Association of Serbian Insurers)",
+      "url": "https://uos.rs/",
+      "side": "entities",
+      "category": "insurance-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed on TLS ('unable to verify the first certificate'). Association exists (runs the green card bureau and guarantee fund); NBS register remains the authoritative insurer list. Re-verify TLS from production crawler."
+    },
+    {
+      "name": "Privredna komora Srbije (Serbian Chamber of Commerce)",
+      "url": "https://pks.rs/",
+      "side": "entities",
+      "category": "chamber-of-commerce",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "Site responded but rendered no server-side content to our fetcher (JS app). PKS runs sector associations (granske asocijacije) and member services; mandatory membership means near-universal company coverage, but APR is the better deterministic source."
+    },
+    {
+      "name": "Advokatska komora Srbije (Serbian Bar Association) — Imenik advokata",
+      "url": "https://aks.org.rs/",
+      "side": "entities",
+      "category": "bar-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public lawyer directory organized by regional chambers (Belgrade, Nis, Kragujevac...). Law-firm layer of the institutional service graph."
+    },
+    {
+      "name": "AmCham Serbia — member directory",
+      "url": "https://amcham.rs/",
+      "side": "entities",
+      "category": "business-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Public List of Members incl. patron members (banks, funds' portfolio companies, advisors). Useful for service-graph and corporate mapping."
+    },
+    {
+      "name": "Foreign Investors Council (FIC) Serbia",
+      "url": "https://fic.org.rs/",
+      "side": "entities",
+      "category": "business-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Annual White Book (regulatory analysis) public; member directory appears login-gated — treat member list as partially available."
+    },
+    {
+      "name": "NALED — Baza clanova + Siva knjiga",
+      "url": "https://naled.rs/",
+      "side": "entities",
+      "category": "business-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live (news Aug 2026). Public member database and regulatory reform publications (Siva knjiga 18)."
+    },
+    {
+      "name": "Digital Serbia Initiative (DSI)",
+      "url": "https://www.dsi.rs/",
+      "side": "entities",
+      "category": "tech-ecosystem-association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. 30+ members listed publicly (Microsoft, Google, Telekom, Nordeus). Closest thing Serbia has to a startup-ecosystem association; partners on ecosystem reports used by Dealroom-style platforms."
+    },
+    {
+      "name": "Republicki geodetski zavod (RGZ) — eKatastar + real-estate price register",
+      "url": "https://rgz.gov.rs/",
+      "side": "entities",
+      "category": "cadastre-price-register",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed with 'certificate has expired' at our fetcher. RGZ operates eKatastar cadastre search, GeoSrbija geoportal, and the Registar cena nepokretnosti (transaction price register) — the deterministic real-assets price source. Re-verify TLS in production."
+    },
+    {
+      "name": "Ministarstvo privrede (Ministry of Economy — privatization and SOE portfolio)",
+      "url": "https://privreda.gov.rs/",
+      "side": "entities",
+      "category": "privatization-agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed on expired certificate; legacy portal priv.rs no longer resolves (DNS ENOTFOUND). The ministry took over the Privatization Agency's role — privatization notices publish here and in the gazette. Needs production re-verification."
+    },
+    {
+      "name": "Uprava za javni dug (Public Debt Administration) — auctions and debt data",
+      "url": "https://www.javnidug.gov.rs/",
+      "side": "entities",
+      "category": "sovereign-debt",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Server live (observed 302 to /rsc) but content not fetched this session. Publishes government securities auction calendars/results and debt stock — rates backdrop for private credit."
+    },
+    {
+      "name": "EBRD project database (Serbia project summary documents)",
+      "url": "https://www.ebrd.com/work-with-us/project-finance/project-summary-documents.html",
+      "side": "entities",
+      "category": "dfi-projects",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "Not fetch-verified this session, but EBRD PSD database is a stable public index filterable by country=Serbia; EBRD is an active LP/lender in Serbian funds and infrastructure (e.g. backed Ominimo's Series B per The Recursive feed we verified)."
+    },
+    {
+      "name": "eKapija",
+      "url": "https://www.ekapija.com/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.ekapija.com/rss",
+      "verdict": "Both homepage and /rss returned 403 to our fetcher (bot blocking) — needs a real user-agent/crawler config. eKapija is Serbia's leading B2B/deals portal (investments, tenders, real estate) and historically offers RSS; rssUrl recorded but NOT verified this session. Honor robots and their terms — they also sell company data."
+    },
+    {
+      "name": "Forbes Srbija",
+      "url": "https://forbes.n1info.rs/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://forbes.n1info.rs/feed",
+      "verdict": "Site verified live (Aug 2026) and the page itself advertises the /feed RSS URL; feed not separately fetched. Business, money, leaders, rankings."
+    },
+    {
+      "name": "Biznis.rs",
+      "url": "https://biznis.rs/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://biznis.rs/feed/",
+      "verdict": "RSS feed fetch-verified working (hourly updates, finance/economy items incl. PPP law, KKR fund, energy). Solid daily business wire."
+    },
+    {
+      "name": "Nova ekonomija",
+      "url": "https://novaekonomija.rs/",
+      "side": "news",
+      "category": "economics-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://novaekonomija.rs/feed",
+      "verdict": "RSS feed fetch-verified working (WordPress, hourly, sr-RS). Independent economics reporting — energy, labor, regional economy."
+    },
+    {
+      "name": "BIZLife",
+      "url": "https://bizlife.rs/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://bizlife.rs/feed/",
+      "verdict": "RSS feed fetch-verified working (Aug 2026). Business magazine; mixes finance with lifestyle — filter needed."
+    },
+    {
+      "name": "Bloomberg Adria — Srbija",
+      "url": "https://rs.bloombergadria.com/",
+      "side": "news",
+      "category": "markets-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Regional Bloomberg-licensed markets/business coverage with Serbia edition; no RSS link found on page; partial paywall. Headline+link discipline applies."
+    },
+    {
+      "name": "Netokracija Srbija",
+      "url": "https://www.netokracija.rs/",
+      "side": "news",
+      "category": "startup-tech-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.netokracija.rs/feed",
+      "verdict": "RSS fetch-verified working — precisely the VC signal layer: funding rounds (BoolSi $6M, Veli exit, Ominimo unicorn) in Serbian."
+    },
+    {
+      "name": "Startit",
+      "url": "https://startit.rs/",
+      "side": "news",
+      "category": "startup-tech-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://startit.rs/feed/",
+      "verdict": "RSS fetch-verified working (hourly). Serbian startup/IT ecosystem media, job-market and community coverage."
+    },
+    {
+      "name": "The Recursive",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "regional-vc-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://therecursive.com/feed/",
+      "verdict": "RSS fetch-verified working; confirmed Serbia coverage (Ominimo unicorn round with EBRD). English-language SEE startup/VC wire — good cross-check on Serbian rounds."
+    },
+    {
+      "name": "Gradnja.rs",
+      "url": "https://www.gradnja.rs/",
+      "side": "news",
+      "category": "real-estate-construction-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.gradnja.rs/feed/",
+      "verdict": "RSS fetch-verified working (25 items, hourly). Construction/architecture/real-estate — includes rankings like top-25 construction firms by profit."
+    },
+    {
+      "name": "Balkan Green Energy News",
+      "url": "https://balkangreenenergynews.com/",
+      "side": "news",
+      "category": "energy-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://balkangreenenergynews.com/feed/",
+      "verdict": "RSS fetch-verified working; confirmed Serbia renewables coverage. English + regional — the energy-transition deal signal source."
+    },
+    {
+      "name": "Energetski portal",
+      "url": "https://www.energetskiportal.rs/",
+      "side": "news",
+      "category": "energy-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Site verified live (Aug 2026, Serbia/region/energy/ecology sections). /feed/ returned HTML rather than RSS — no working feed found; crawl the category indexes."
+    },
+    {
+      "name": "Kamatica",
+      "url": "https://www.kamatica.com/",
+      "side": "news",
+      "category": "personal-finance-banking-news",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live, updated daily. Banking products, rates, exchange, berza news. No RSS found; has newsletter."
+    },
+    {
+      "name": "N1 Srbija — Biznis",
+      "url": "https://n1info.rs/biznis/",
+      "side": "news",
+      "category": "business-news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://n1info.rs/feed/",
+      "verdict": "Section verified live (rs.n1info.com 301s to n1info.rs); page indicates a root /feed/ RSS — feed itself not separately fetched. Finance, energy, macro coverage."
+    },
+    {
+      "name": "Danas",
+      "url": "https://www.danas.rs/",
+      "side": "news",
+      "category": "daily-newspaper",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.danas.rs/feed/",
+      "verdict": "Feed URL returned 403 to our fetcher (bot blocking) — WordPress feed very likely exists but is NOT verified; needs UA config. Daily with real economy desk."
+    },
+    {
+      "name": "Tanjug — Ekonomija",
+      "url": "https://www.tanjug.rs/ekonomija",
+      "side": "news",
+      "category": "news-agency",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.tanjug.rs/rss",
+      "verdict": "Site verified live with an Ekonomija section (incl. 'Companies' subsection) and an /rss link in the footer; feed URL itself not separately fetched. State news agency — treat editorially accordingly."
+    },
+    {
+      "name": "SeeNews",
+      "url": "https://seenews.com/",
+      "side": "news",
+      "category": "regional-business-wire",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Returned 403 to our fetcher; established SEE corporate/M&A wire covering Serbia, largely subscription. Headline-level use only, honor terms."
+    },
+    {
+      "name": "NBS pressroom (Narodna banka Srbije saopstenja)",
+      "url": "https://nbs.rs/sr_RS/scripts/allshownews/index.html",
+      "side": "news",
+      "category": "regulator-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "NBS press content verified reachable (individual pressroom pages fetch fine). Monetary policy, licensing decisions, supervision actions — primary-source signals."
+    },
+    {
+      "name": "Ministarstvo finansija — Aktivnosti (press)",
+      "url": "https://www.mfin.gov.rs/",
+      "side": "news",
+      "category": "ministry-press",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live with active news section (Aug 2026): fiscal policy, credit-rating, public-finance announcements."
+    },
+    {
+      "name": "Vestbee — CEE funding rounds and VC reports",
+      "url": "https://www.vestbee.com/blog",
+      "side": "news",
+      "category": "regional-vc-data-media",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "Verified live. Quarterly 'VC funding in CEE' reports and weekly round listings that include Serbian deals; free content. Also a light competitor — see analysis."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin (BlackRock)",
+      "coverageNotes": "Thin on Serbia: a handful of regional GPs/funds that touch Serbia (SEE/CEE buyout and infra vehicles) and DFI LPs; essentially no coverage of local service graph, NPL market, or sub-institutional managers. Serbia usually appears only inside CEE aggregates.",
+      "publicSourcesTheyUse": "Fund manager self-reporting plus public filings and DFI disclosures. Direct-route equivalents for us: EBRD/IFC project disclosures, Serbian SEC (KHOV) fund and ManCo registers, Invest Europe CEE activity reports."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Covers headline Serbian VC/PE deals (Nordeus/Take-Two, Tenderly, Ominimo) and M&A with named advisors, but long-tail and local mid-market deals are patchy; financials often absent because they don't mine APR.",
+      "publicSourcesTheyUse": "Press releases, startup media, law-firm deal announcements. Direct routes for us: The Recursive/Netokracija/Startit RSS, eKapija deal reporting, APR financial statements for the actual numbers."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Best-in-class Serbian startup mapping via co-branded ecosystem reports with local partners (Digital Serbia Initiative orbit); strong on startups/rounds, weak on PE, credit, real assets and the institutional layer.",
+      "publicSourcesTheyUse": "Ecosystem partners (DSI), accelerator/awardee lists, startup media. Direct routes: DSI member/eco data, Innovation Fund public-call results (incl. Serbia Ventures backed funds), Netokracija/Startit feeds."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow self-reported Serbian company profiles; funding data inconsistent, no registry grounding, no distressed/credit dimension.",
+      "publicSourcesTheyUse": "Self-reporting and news scraping. Direct routes: same news feeds plus APR as the corrective registry spine we have and they lack."
+    },
+    {
+      "platform": "CompanyWall Business (local, companywall.rs — verified live)",
+      "coverageNotes": "Local company-credit data for RS + region: 128k companies, financials, blocked accounts, court/insolvency data, ownership links, tax debt. Strong deterministic base, zero alternatives-specific intelligence (no fund/GP/LP layer, no signals).",
+      "publicSourcesTheyUse": "Visibly: APR company register + financial statements, NBS blocked-accounts (prinudna naplata), court/insolvency registers, tax-debtor lists. All of these are public and cataloged above for direct ingestion."
+    },
+    {
+      "platform": "Boniteti.rs / CUBE Risk Management Solutions (local)",
+      "coverageNotes": "Serbian credit-scoring and company-monitoring platform used by banks/corporates; APR-grounded financials and distress flags. Site refused our connection this session (ECONNREFUSED) — existence known, not re-verified. No alternatives layer.",
+      "publicSourcesTheyUse": "APR financial statements and status changes, NBS forced-collection register, ALSU/court insolvency data — all directly accessible to us."
+    },
+    {
+      "platform": "eKapija (local, dual role)",
+      "coverageNotes": "Both a news source and a paid company-data/tender-intelligence provider; strongest local deal/tender/real-estate signal coverage in Serbian. Bot-blocked to our fetcher (403).",
+      "publicSourcesTheyUse": "Own journalism plus APR data and the public procurement portal. We ingest headlines/links per copyright discipline and go directly to APR + jnportal for the underlying data; never scrape their paid database."
+    }
+  ],
+  "searchedButAbsent": "Constraints first: the session's WebSearch budget was already exhausted (200/200) before this task started, so everything above was verified by direct fetch of known URLs; items I could not confirm by fetch are marked honestly. Absent or not-found: (1) National PE/VC association — no active Serbian Private Equity Association (SPEA-style) site could be confirmed; Serbia has no Invest Europe-affiliated national association; the gap is filled by SEC AIF/ManCo registers, Innovation Fund's Serbia Ventures program, DSI, and regional sources (Invest Europe CEE report, Vestbee). (2) EU ETS carbon registry national accounts — Serbia is not in the EU ETS; no national allowance registry exists (only future CBAM alignment); carbon category is genuinely absent. (3) MiCA licensee register — MiCA does not apply; the domestic Law on Digital Assets regime splits registers between NBS (virtual currencies) and SEC (digital tokens), both cataloged. (4) Standalone fund-administrator licensee list — none; depositary/custodian licensing sits inside the SEC registers. (5) UBO register — APR keeps Central Records of Beneficial Owners but public access is restricted (per project rule: never assume open UBO). (6) RICS Serbia — no national RICS directory; valuer roll is the MFIN licensed-appraiser register plus the national valuers association (NUPS), whose site I could not verify without search. (7) Leasing association (ALCS) — could not verify an active site; NBS lessor register covers the universe. (8) Unreachable during session despite likely existing: priv.rs (DNS dead — privatization moved under Ministry of Economy), boniteti.rs (connection refused), belex.rs / rgz.gov.rs / privreda.gov.rs / uos.rs / slglasnik.com (TLS certificate failures at our fetcher — several Serbian state sites use certificate chains our fetcher rejects; production crawler should retry with a proper trust store). (9) Beta news agency (beta.rs) — subscription wire, not verified, excluded rather than padded."
+}

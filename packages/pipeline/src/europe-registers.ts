@@ -230,8 +230,125 @@ function toIsoDate(d: string): string {
   return m === null ? d : `${m[3]}-${m[2]}-${m[1]}`;
 }
 
+// ── FR: AMF PSAN/CASP whitelist (crypto-asset service providers) ────────────
+
+const PSAN_DATASET_API =
+  "https://www.data.gouv.fr/api/1/datasets/?q=PSAN+prestataires+actifs+numeriques&page_size=1";
+
+const FR_COUNTRY_NAMES: Record<string, string> = {
+  france: "FR", allemagne: "DE", "royaume-uni": "GB", irlande: "IE", luxembourg: "LU",
+  belgique: "BE", "pays-bas": "NL", espagne: "ES", italie: "IT", portugal: "PT",
+  suisse: "CH", autriche: "AT", malte: "MT", chypre: "CY", lituanie: "LT",
+  estonie: "EE", lettonie: "LV", pologne: "PL",
+};
+
+/** FR VAT number derives deterministically from SIREN (statutory formula). */
+function frVatFromSiren(siren: string): string | undefined {
+  if (!/^\d{9}$/.test(siren)) {
+    return undefined;
+  }
+  const key = (12 + 3 * (Number.parseInt(siren, 10) % 97)) % 97;
+  return `FR${String(key).padStart(2, "0")}${siren}`;
+}
+
+async function harvestFrPsan(): Promise<void> {
+  const meta = (await (await fetch(PSAN_DATASET_API, { headers: { "user-agent": "ContinuumBot/0.1" } })).json()) as {
+    data?: { resources?: { format: string; url: string }[] }[];
+  };
+  const csvUrl = meta.data?.[0]?.resources?.find((r) => r.format === "csv")?.url;
+  if (csvUrl === undefined) {
+    console.error("frpsan: no CSV resource on the data.gouv dataset");
+    process.exit(1);
+  }
+  console.log(`frpsan: ${csvUrl}`);
+  const text = await (await fetch(csvUrl, { headers: { "user-agent": "ContinuumBot/0.1" } })).text();
+  const lines = text.replace(/^﻿/, "").split(/\r?\n/);
+  const header = splitLine(lines[0] ?? "", ";").map((h) => h.replace(/"/g, ""));
+  const col = Object.fromEntries(header.map((h, i) => [h, i]));
+  const cell = (cells: string[], name: string) => (cells[col[name] ?? -1] ?? "").replace(/^"|"$/g, "").trim();
+
+  const byAmfNo = new Map<string, RegisterRow>();
+  let radiated = 0;
+  for (const line of lines.slice(1)) {
+    if (line.trim() === "") {
+      continue;
+    }
+    const cells = splitLine(line, ";");
+    const no = cell(cells, "no_amf");
+    const name = cell(cells, "entite_nom");
+    if (no === "" || name === "" || byAmfNo.has(no)) {
+      if (byAmfNo.has(no)) continue;
+      continue;
+    }
+    if (cell(cells, "statut").toLowerCase() === "radié") {
+      radiated += 1;
+      continue;
+    }
+    const lei = cell(cells, "lei");
+    const siren = cell(cells, "no_registre_national");
+    const country = FR_COUNTRY_NAMES[cell(cells, "pays_siege").toLowerCase()] ?? "FR";
+    const vat = frVatFromSiren(siren);
+    byAmfNo.set(no, {
+      name,
+      country,
+      website: cell(cells, "site_internet") || null,
+      registryId: lei !== "" ? lei : `AMF:${no}`,
+      tags: ["register_verified", "amf_psan"],
+      note: `AMF PSAN/CASP ${no} · ${cell(cells, "nature_autorisation")} since ${cell(cells, "date_debut_autorisation")}`,
+      depth: {
+        legalName: name,
+        ...(cell(cells, "forme_juridique") !== "" ? { legalFormNative: cell(cells, "forme_juridique") } : {}),
+        legalStatus: "active",
+        regulatoryStatus: "regulated",
+        primaryRegulator: "AMF",
+        regulatoryLicenseNumber: no,
+        ...(lei !== "" ? { leiCode: lei } : {}),
+        ...(vat !== undefined ? { taxId: vat } : {}),
+        ...(cell(cells, "email") !== "" ? { corporateEmail: cell(cells, "email") } : {}),
+        ...(cell(cells, "telephone") !== "" ? { corporatePhone: cell(cells, "telephone") } : {}),
+        hqCountry: country,
+        primaryRole: "Vendor",
+      },
+    });
+  }
+  console.log(`frpsan: ${byAmfNo.size} active licensees (+${radiated} radiés skipped mechanically)`);
+
+  const importer = new RegisterImporter();
+  await importer.init();
+  const rows = [...byAmfNo.values()];
+  for (const row of rows) {
+    await importer.importRow(row);
+  }
+  await importer.flush();
+  let classifications = 0;
+  for (const row of rows) {
+    const id = row.registryId == null ? undefined : importer.entityIdFor(row.registryId);
+    if (id === undefined) {
+      continue;
+    }
+    const inserted = await db
+      .insert(entityClassifications)
+      .values({
+        entityId: id,
+        assetClass: "niche_alts",
+        strategy: "",
+        subClass: "digital_assets",
+        source: "register",
+        status: "proposed",
+        confidence: "0.90",
+      })
+      .onConflictDoNothing()
+      .returning({ e: entityClassifications.entityId });
+    classifications += inserted.length;
+  }
+  console.log(
+    `frpsan import: created ${importer.counts.created} · merged ${importer.counts.merged + importer.counts.merged_registry} · ambiguous skipped ${importer.counts.ambiguous} · classifications ${classifications}`,
+  );
+}
+
 const ADAPTERS: Record<string, () => Promise<void>> = {
   gbch: harvestGbCompaniesHouse,
+  frpsan: harvestFrPsan,
 };
 
 const isMain = process.argv[1]?.replace(/\\/g, "/").endsWith("europe-registers.ts") === true;

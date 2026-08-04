@@ -1,0 +1,603 @@
+{
+  "country": "GR",
+  "sources": [
+    {
+      "name": "GEMI — General Commercial Registry public search (Γ.Ε.ΜΗ.)",
+      "url": "https://publicity.businessportal.gr/",
+      "side": "entities",
+      "category": "commercial register",
+      "tier": "tier1_registry",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official GEMI publicity search: by AFM (tax ID), GEMI number, name, legal form, status, location, incorporation date. Server-rendered form, per-company announcement pages. No public bulk API advertised on-page; per-entity scraping route is feasible."
+    },
+    {
+      "name": "data.gov.gr — National Open Data Portal (incl. business/registry datasets)",
+      "url": "https://data.gov.gr/",
+      "side": "entities",
+      "category": "open data portal",
+      "tier": "tier1_registry",
+      "accessMethod": "api",
+      "verdict": "VERIFIED. 22,315 datasets, 487 orgs, documented API (data-gov-gr.gitbook.io guides) plus bulk download; 'Economy & financial' theme and high-value entrepreneurship datasets. Best machine route to registry-derived data."
+    },
+    {
+      "name": "ELSTAT — Hellenic Statistical Authority (business registers & SBS)",
+      "url": "https://www.statistics.gr/en/home",
+      "side": "entities",
+      "category": "statistics / business demography",
+      "tier": "tier1_registry",
+      "accessMethod": "download",
+      "rssUrl": "https://www.statistics.gr/en/rss",
+      "verdict": "VERIFIED. Structural business statistics, business registries/administrative registers, high-value open datasets, press-release RSS advertised on site (rssUrl is the advertised link, feed itself not fetched)."
+    },
+    {
+      "name": "HCMC — Hellenic Capital Market Commission registers (AIFMs/AEDOEE, UCITS ManCos, investment firms)",
+      "url": "http://www.hcmc.gr/",
+      "side": "entities",
+      "category": "securities & fund-manager regulator",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "CONFIRMED GEO-BLOCKED: connection refused from outside Greece (ECONNREFUSED on hcmc.gr), matching prior reports. Registers of Greek AIFMs, ManCos, investment firms exist behind it. Workaround: Greek IP/proxy or ESMA mirrors (next entries)."
+    },
+    {
+      "name": "ESMA AIFMD register (Greek AIFMs mirror)",
+      "url": "https://registers.esma.europa.eu/publication/searchRegister?core=esma_registers_aifmd",
+      "side": "entities",
+      "category": "fund-manager register (EU mirror)",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "VERIFIED reachable; CSV export offered but volume-capped and CAPTCHA appears on some queries. Reliable substitute for geo-blocked HCMC AIFM register; filter Member State = GR."
+    },
+    {
+      "name": "ESMA interim MiCA register (Greek CASPs)",
+      "url": "https://www.esma.europa.eu/publications-data/interim-mica-register",
+      "side": "entities",
+      "category": "crypto/MiCA licensees",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "PARTIALLY VERIFIED: my fetch of a slug variant returned 404; ESMA publishes the interim MiCA register as a downloadable spreadsheet (HCMC is Greece's CASP authority). Confirm exact current URL before wiring."
+    },
+    {
+      "name": "Bank of Greece — supervised institutions registers (banks, credit servicing firms/NPL servicers, payment & e-money institutions)",
+      "url": "https://www.bankofgreece.gr/en/main-tasks/supervision/supervised-institutions",
+      "side": "entities",
+      "category": "central bank registers incl. NPL servicers",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch (bot protection), but this is the canonical home of the Greek credit-servicing-firm (NPL servicer) list — core private-debt coverage. Needs browser-grade crawler or manual pulls; lists are typically PDF/HTML."
+    },
+    {
+      "name": "Bank of Greece — Private Insurance Supervision (register of insurance undertakings)",
+      "url": "https://www.bankofgreece.gr/en/main-tasks/supervision/private-insurance-supervision",
+      "side": "entities",
+      "category": "insurance regulator (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "Same 403 bot-block as rest of bankofgreece.gr. BoG (DEIA) is the Greek insurance supervisor; register exists behind block. EIOPA register is the fallback mirror."
+    },
+    {
+      "name": "EBA credit institutions register (EUCLID) — Greek banks mirror",
+      "url": "https://euclid.eba.europa.eu/register/",
+      "side": "entities",
+      "category": "bank register (EU mirror)",
+      "tier": "tier2_regulator",
+      "accessMethod": "api",
+      "verdict": "NOT fetch-verified this session; EBA's EUCLID/PSD2 registers are known to expose downloadable/API data covering Greek credit and payment institutions. Use as workaround for blocked BoG pages."
+    },
+    {
+      "name": "EIOPA register of insurance undertakings — Greece mirror",
+      "url": "https://register.eiopa.europa.eu/",
+      "side": "entities",
+      "category": "insurance register (EU mirror)",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Known EIOPA register covering Greek insurers/intermediaries; fallback for the 403-blocked BoG insurance register."
+    },
+    {
+      "name": "ELTE — Hellenic Accounting & Auditing Oversight Board (registers of audit firms & CPAs)",
+      "url": "https://elte.org.gr/",
+      "side": "entities",
+      "category": "audit-firm register (service graph)",
+      "tier": "tier2_regulator",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National audit oversight authority; maintains public registers of certified audit firms, CPAs, and licensed foreign audit firms — fund-auditor coverage for the institutional service graph."
+    },
+    {
+      "name": "Ministry of Finance — Register of Certified Valuers (Μητρώο Πιστοποιημένων Εκτιμητών)",
+      "url": "https://minfin.gov.gr/",
+      "side": "entities",
+      "category": "valuer/appraiser register",
+      "tier": "tier2_regulator",
+      "accessMethod": "unknown",
+      "verdict": "Ministry domain is real but the register page itself was NOT verified this session (ministry site recently migrated). The certified-valuer register (real-asset appraisers) is legally maintained by MinFin — locate current path before wiring."
+    },
+    {
+      "name": "National Actuarial Authority (occupational pension funds / TEA oversight)",
+      "url": "https://www.eaa.gr/",
+      "side": "entities",
+      "category": "pension regulator (LP side)",
+      "tier": "tier2_regulator",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch; domain live. Supervises occupational insurance funds (TEA) — the domestic institutional LP layer. Fund lists likely PDF."
+    },
+    {
+      "name": "National Printing House — FEK official gazette search",
+      "url": "https://search.et.gr/el/",
+      "side": "entities",
+      "category": "official gazette",
+      "tier": "tier3_gazette",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED via et.gr: dedicated FEK/KAD search portal; issues downloadable, cryptographically signed PDFs since 2006. Corporate acts (esp. pre-GEMI and fund/SPV notices) publish here."
+    },
+    {
+      "name": "Diavgeia transparency portal + open data API",
+      "url": "https://diavgeia.gov.gr/opendata/organizations.json",
+      "side": "entities",
+      "category": "public-sector decisions open data",
+      "tier": "tier3_gazette",
+      "accessMethod": "api",
+      "verdict": "VERIFIED: opendata endpoint returned valid JSON (organizations with VAT numbers, categories, supervisors). Full decision-search API; every public-sector act (grants, concessions, appointments, procurement awards) is here. Note: UI showed temporary maintenance limiting UI search to ADA only — API still served data."
+    },
+    {
+      "name": "Electronic Solvency Register (Ηλεκτρονικό Μητρώο Φερεγγυότητας)",
+      "url": "https://www.solvency.gov.gr/",
+      "side": "entities",
+      "category": "insolvency register",
+      "tier": "tier3_gazette",
+      "accessMethod": "unknown",
+      "verdict": "NOT REACHABLE from this environment: DNS ENOTFOUND (both with/without www) — likely GR-only resolution/geo-fencing. This is the statutory insolvency publicity register under L.4738/2020; retest from Greek IP."
+    },
+    {
+      "name": "EGDIX — Special Secretariat for Private Debt Management (insolvency administrators register, out-of-court workout stats)",
+      "url": "https://keyd.gov.gr/",
+      "side": "entities",
+      "category": "insolvency practitioners / private debt authority",
+      "tier": "tier3_gazette",
+      "accessMethod": "js-blocked",
+      "verdict": "Connection refused from outside Greece (ECONNREFUSED) — geo-block. Hosts the roll of licensed insolvency administrators (διαχειριστές αφερεγγυότητας) and private-debt statistics. Greek IP required."
+    },
+    {
+      "name": "Hellenic e-Procurement portal (ESIDIS/KIMDIS — promitheus.gov.gr)",
+      "url": "https://portal.eprocurement.gov.gr/",
+      "side": "entities",
+      "category": "public procurement",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "VERIFIED redirect promitheus.gov.gr → portal.eprocurement.gov.gr, but portal rendered blank to the fetcher (JS SPA). Procurement notices also flow through Diavgeia (API) and EU TED — use those for machine access."
+    },
+    {
+      "name": "Athens Exchange Group (ATHEX) — listed companies, members, announcements",
+      "url": "https://www.athexgroup.gr/",
+      "side": "entities",
+      "category": "stock exchange",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch (bot protection) on multiple paths incl. company lists. Issuer list, member list, and company announcement feed exist behind it; needs browser-grade crawling or vendor feed. REITs (AEEAP) and listed holdcos live here."
+    },
+    {
+      "name": "Elevate Greece — national startup registry",
+      "url": "https://elevategreece.gov.gr/",
+      "side": "entities",
+      "category": "startup registry (VC pipeline)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official state-accredited startup database with searchable directory (the-startup-database route) — the cleanest public census of Greek VC-backed/VC-able companies."
+    },
+    {
+      "name": "HVCA — Hellenic Venture Capital & Private Equity Association",
+      "url": "https://www.hvca.gr/",
+      "side": "entities",
+      "category": "PE/VC association directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch (site historically flaky/TYPO3 as hinted; retried, still blocked to bots). Member directory of Greek GPs exists on the site — retry with browser-grade fetch."
+    },
+    {
+      "name": "ETHE — Union of Institutional Investors (fund & asset managers association) + data portal",
+      "url": "https://www.ethe.org.gr/",
+      "side": "entities",
+      "category": "asset-management association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. ~40+ member ManCos/AEDAK displayed with categories; quarterly market statistics and a dedicated stats database at data.ethe.org.gr. Strong liquid-alts/fund coverage."
+    },
+    {
+      "name": "Hellenic Bank Association — member banks",
+      "url": "https://www.hba.gr/en",
+      "side": "entities",
+      "category": "banking association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. 24 members (10 regular, 14 associate), members section + press releases. Anchor for the credit-institution side."
+    },
+    {
+      "name": "EAEE — Hellenic Association of Insurance Companies",
+      "url": "https://www.eaee.gr/",
+      "side": "entities",
+      "category": "insurance association (LP side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch; association is real and publishes member lists and premium statistics. Needs browser-grade fetch."
+    },
+    {
+      "name": "Hellenic Factors Association — member factoring companies",
+      "url": "https://hellenicfactors.gr/",
+      "side": "entities",
+      "category": "factoring/supply-chain finance association",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Members listed on-page: ABC Factors, BFF, Eurobank Factors, NBG Factors, Credia Factors, Piraeus Factoring, Optima Factors (+ Pancreta 2024). Direct trade-finance entity source."
+    },
+    {
+      "name": "SEV — Hellenic Federation of Enterprises",
+      "url": "https://www.sev.org.gr/en/",
+      "side": "entities",
+      "category": "business federation / research",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Research & publications section, member news, economic bulletins. Corporate-side context and member signals; no full public member directory visible."
+    },
+    {
+      "name": "Enterprise Greece — investment promotion agency",
+      "url": "https://www.enterprisegreece.gov.gr/en/",
+      "side": "entities",
+      "category": "investment promotion agency",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. National FDI/trade agency under MFA; strategic-investments framework pages, press releases, events. Strategic-investment approvals are deal signals."
+    },
+    {
+      "name": "Growthfund (HCAP) — National Fund of Greece",
+      "url": "https://growthfund.gr/en/",
+      "side": "entities",
+      "category": "sovereign holding / state assets",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. EUR 12.3B AuM, 23 subsidiaries/participations, real estate + concessions; tender and appointment news flow. Successor umbrella for privatization pipeline."
+    },
+    {
+      "name": "HRADF / TAIPED (privatization agency — archived)",
+      "url": "https://hradf.com/en/",
+      "side": "entities",
+      "category": "privatization agency (legacy)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED with caveat: site explicitly no longer updated; redirects users to Growthfund and the PPF platform under Growthfund. Keep only as historical tender archive."
+    },
+    {
+      "name": "Hellenic Development Bank (HDB)",
+      "url": "https://hdb.gr/en/",
+      "side": "entities",
+      "category": "national development bank",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to automated fetch; institution real (guarantee/co-financing programs channeled via banks). Program announcements are credit-market signals."
+    },
+    {
+      "name": "HDBI — Hellenic Development Bank of Investments (sovereign fund-of-funds, ex-TANEO)",
+      "url": "https://hdbi.gr/en/",
+      "side": "entities",
+      "category": "development finance / LP fund-of-funds",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Self-described Sovereign Fund of Funds of Greece; portfolio page (about-hdbi/portfolio-2) lists the Greek VC/PE funds it anchors — a public map of the domestic GP universe and its LP."
+    },
+    {
+      "name": "HFSF — Hellenic Financial Stability Fund",
+      "url": "https://hfsf.gr/en/",
+      "side": "entities",
+      "category": "bank recap fund / state shareholder",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "Fetch failed (socket closed) this session; fund is real (systemic-bank stakes, divestment reports). Retry; note HFSF has been merging into Growthfund."
+    },
+    {
+      "name": "EBRD — Greece country page & project database",
+      "url": "https://www.ebrd.com/home/work-with-us/project-finance/project-summary-documents.html",
+      "side": "entities",
+      "category": "DFI projects (LP/co-investor side)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "NOT fetch-verified this session; EBRD project summary documents database is a known public, filterable source of Greek deals and fund commitments."
+    },
+    {
+      "name": "EIF — EquiFund & Greek fund commitments",
+      "url": "https://www.eif.org/what_we_do/resources/equifund/index.htm",
+      "side": "entities",
+      "category": "DFI / LP commitments to Greek VC-PE funds",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. EquiFund (EIF-managed) seeded most of the current Greek VC generation; EIF publishes intermediary lists. Confirm current URL."
+    },
+    {
+      "name": "Athens Bar Association (DSA) — member search",
+      "url": "https://www.dsa.gr/",
+      "side": "entities",
+      "category": "bar association (service graph)",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. Official Athens Bar site with member search at /dsa_members — law-firm/lawyer verification for the service graph."
+    },
+    {
+      "name": "RICS — find a member / firm directory (Greece)",
+      "url": "https://www.rics.org/find-a-member",
+      "side": "entities",
+      "category": "RICS valuer directory",
+      "tier": "tier4_exchange_corporate",
+      "accessMethod": "unknown",
+      "verdict": "NOT fetch-verified this session. Global RICS directory filterable to Greece for accredited valuers; likely JS search. Complement to MinFin certified-valuer register."
+    },
+    {
+      "name": "EU ETS Union Registry / EUTL — Greek national accounts (carbon)",
+      "url": "https://ec.europa.eu/clima/ets/",
+      "side": "entities",
+      "category": "carbon registry (EU ETS)",
+      "tier": "tier2_regulator",
+      "accessMethod": "download",
+      "verdict": "NOT fetch-verified this session, but EUTL public data (account holders, compliance, transactions incl. Greek installations) is a long-standing bulk-downloadable EU source; Greek national administrator sits at Ministry of Environment & Energy (ypen.gov.gr — returned 403 to bots)."
+    },
+    {
+      "name": "Oikonomikos Tachydromos (OT.gr)",
+      "url": "https://www.ot.gr/",
+      "side": "news",
+      "category": "financial/business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.ot.gr/feed/",
+      "verdict": "VERIFIED RSS: live feed, markets/banking/real-estate coverage, updated same-day."
+    },
+    {
+      "name": "Mononews",
+      "url": "https://www.mononews.gr/",
+      "side": "news",
+      "category": "business news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.mononews.gr/feed",
+      "verdict": "VERIFIED RSS 2.0: deals, shipping, banking, markets; current-day items."
+    },
+    {
+      "name": "Newmoney",
+      "url": "https://www.newmoney.gr/",
+      "side": "news",
+      "category": "financial news portal",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.newmoney.gr/feed/",
+      "verdict": "VERIFIED RSS (WordPress, hourly updates): finance/business with lifestyle mix."
+    },
+    {
+      "name": "Business Daily",
+      "url": "https://www.businessdaily.gr/",
+      "side": "news",
+      "category": "business daily",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.businessdaily.gr/rss.xml",
+      "verdict": "VERIFIED RSS: actively maintained, business + ATHEX announcements coverage."
+    },
+    {
+      "name": "Insider.gr",
+      "url": "https://www.insider.gr/",
+      "side": "news",
+      "category": "business/markets news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.insider.gr/rss.xml",
+      "verdict": "VERIFIED RSS: ~50 items, markets, acquisitions, economy."
+    },
+    {
+      "name": "Fortune Greece",
+      "url": "https://www.fortunegreece.com/",
+      "side": "news",
+      "category": "business magazine",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.fortunegreece.com/feed/",
+      "verdict": "VERIFIED RSS: ~100 items, hourly build; markets, banking, corporate deals."
+    },
+    {
+      "name": "Bankingnews.gr",
+      "url": "https://www.bankingnews.gr/",
+      "side": "news",
+      "category": "banking/markets news",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.bankingnews.gr/rss",
+      "verdict": "VERIFIED RSS 2.0 at /rss (note: /rss.xml is 404). Banking-sector heavy — useful for NPL/credit signals."
+    },
+    {
+      "name": "Insurance Daily",
+      "url": "https://www.insurancedaily.gr/",
+      "side": "news",
+      "category": "insurance sector news (LP side)",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://www.insurancedaily.gr/feed/",
+      "verdict": "VERIFIED RSS: insurance-sector news incl. occupational funds (TEA) legislation and BoG supervisory updates."
+    },
+    {
+      "name": "The Recursive (SEE tech/VC, Greece coverage)",
+      "url": "https://therecursive.com/",
+      "side": "news",
+      "category": "startup & VC media",
+      "tier": "signals_press",
+      "accessMethod": "rss",
+      "rssUrl": "https://therecursive.com/feed/",
+      "verdict": "VERIFIED RSS with explicit Greece coverage (e.g. 'Biggest Funding Rounds for Greece (H1 2026)'). Regional CEE/SEE VC signal source."
+    },
+    {
+      "name": "Naftemporiki",
+      "url": "https://www.naftemporiki.gr/",
+      "side": "news",
+      "category": "financial daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "rssUrl": "https://www.naftemporiki.gr/feed/",
+      "verdict": "Feed URL (WordPress convention) returned 403 to this fetcher — bot protection, not proof of absence. Site is a top financial daily; retry feed with standard crawler UA."
+    },
+    {
+      "name": "Kathimerini",
+      "url": "https://www.kathimerini.gr/",
+      "side": "news",
+      "category": "quality daily (economy section)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetcher could not reach kathimerini.gr at all (blocked). RSS index reportedly at /rss/ but UNVERIFIED from this environment."
+    },
+    {
+      "name": "eKathimerini (English)",
+      "url": "https://www.ekathimerini.com/",
+      "side": "news",
+      "category": "English-language business/politics daily",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Fetcher blocked from ekathimerini.com. Best English-language Greek economy source; feed presence unverified."
+    },
+    {
+      "name": "Capital.gr",
+      "url": "https://www.capital.gr/",
+      "side": "news",
+      "category": "financial news portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 on /rss and site to this fetcher (bot protection). Long-established markets portal with company/ATHEX coverage; feed discovery needs browser-grade access."
+    },
+    {
+      "name": "Euro2day",
+      "url": "https://www.euro2day.gr/",
+      "side": "news",
+      "category": "financial news portal",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/rss and /rssPage.aspx both 404; root not verified this session. Site is a real, established finance outlet; feed route unknown."
+    },
+    {
+      "name": "Reporter.gr",
+      "url": "https://www.reporter.gr/",
+      "side": "news",
+      "category": "finance/business news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "/rss.xml returned 404; root not fetched this session. Real outlet; feed path unknown."
+    },
+    {
+      "name": "Liberal.gr",
+      "url": "https://www.liberal.gr/",
+      "side": "news",
+      "category": "economy & politics portal",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 to fetcher on /feed. Real outlet with economy coverage; needs browser-grade fetch."
+    },
+    {
+      "name": "Energypress",
+      "url": "https://energypress.gr/",
+      "side": "news",
+      "category": "energy sector portal (real assets/renewables)",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 on /rss.xml to this fetcher. Leading Greek energy-market portal — key for renewables/infrastructure deal flow; retry feed with standard crawler."
+    },
+    {
+      "name": "Worldenergynews",
+      "url": "https://worldenergynews.gr/",
+      "side": "news",
+      "category": "energy news",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Fetch timed out this session. Real Greek energy outlet; unverified."
+    },
+    {
+      "name": "ered.gr — Real Estate & Development",
+      "url": "https://www.ered.gr/",
+      "side": "news",
+      "category": "real estate market portal",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED site: RE news, price indices (residential/commercial by region), deals, market observatory. /feed/ returned 404 — no working RSS found; crawl listing pages."
+    },
+    {
+      "name": "AMNA — Athens-Macedonian News Agency",
+      "url": "https://www.amna.gr/",
+      "side": "news",
+      "category": "national news agency",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "State news agency is real; tested feed path /feeds/rss.php returned 404. Feed route unverified; much content paywalled/subscriber."
+    },
+    {
+      "name": "Startupper.gr",
+      "url": "https://startupper.gr/",
+      "side": "news",
+      "category": "startup/VC media",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "HTTP 403 on /feed/ to this fetcher. Real Greek startup outlet; retry with standard crawler UA."
+    },
+    {
+      "name": "Capital Link — Greek shipping & investor forums / Maritime Intelligence Hub",
+      "url": "https://capitallink.com/",
+      "side": "news",
+      "category": "shipping finance & IR platform",
+      "tier": "signals_press",
+      "accessMethod": "parseable-index",
+      "verdict": "VERIFIED. IR/communications firm with Greek Shipping Forum, Invest in Greece forum, maritime intelligence hub, company presentations — useful for shipping (a de facto Greek real-asset class) and issuer signals."
+    },
+    {
+      "name": "Bank of Greece — press releases & publications",
+      "url": "https://www.bankofgreece.gr/en/news-and-media/press-releases",
+      "side": "news",
+      "category": "central bank press",
+      "tier": "signals_press",
+      "accessMethod": "js-blocked",
+      "verdict": "Domain-wide 403 to automated fetch. Press releases, Financial Stability Review and statistics are key credit/NPL signals; needs browser-grade access or email subscription."
+    },
+    {
+      "name": "Ministry of National Economy and Finance — press/announcements",
+      "url": "https://minfin.gov.gr/",
+      "side": "news",
+      "category": "finance ministry press",
+      "tier": "signals_press",
+      "accessMethod": "unknown",
+      "verdict": "Domain real; press section not verified this session (site recently migrated). Privatization, guarantee schemes (Herakles/HAPS securitizations) announce here."
+    }
+  ],
+  "competitorAnalysis": [
+    {
+      "platform": "Preqin",
+      "coverageNotes": "Thin-to-moderate Greece coverage: the handful of institutional Greek GPs (mostly EquiFund-era VCs and a few PE/infra managers), Greek exposure of pan-European funds, and some LP records (HDBI, insurance groups). Weak on NPL servicers, service graph, and non-fund entities.",
+      "publicSourcesTheyUse": "HCMC AIFM lists (via Greek access), ESMA registers, HDBI/EIF EquiFund portfolio disclosures, fund manager websites and press releases — all reachable directly (ESMA + HDBI portfolio page + press)."
+    },
+    {
+      "platform": "PitchBook",
+      "coverageNotes": "Deal-level coverage of Greek PE/VC and M&A, decent on larger buyouts (CVC/BC Partners activity in Greece), valuations mostly modeled. Weak on private debt/NPL trades and real-asset SPVs.",
+      "publicSourcesTheyUse": "Press (Kathimerini/Capital/Naftemporiki English wires), ATHEX announcements, GEMI filings for cap-table confirmation, EU/EIF and EBRD project disclosures — GEMI, ATHEX, Diavgeia and EBRD project docs are directly accessible."
+    },
+    {
+      "platform": "Dealroom",
+      "coverageNotes": "Strongest global platform for the Greek startup/VC layer; powers or overlaps with the annual 'Startups in Greece' reporting (with Found.ation/Marathon ecosystem actors). Company-level coverage broad, funding data crowdsourced+press.",
+      "publicSourcesTheyUse": "Elevate Greece registry, The Recursive and Greek startup press, EIF/EquiFund fund lists, founder self-reporting — Elevate Greece and The Recursive RSS are direct routes."
+    },
+    {
+      "platform": "Crunchbase",
+      "coverageNotes": "Broad but shallow Greek company/round coverage, self-reported and press-driven; frequent gaps and stale entries outside VC.",
+      "publicSourcesTheyUse": "Press releases, company self-submissions, TechCrunch-style media — the underlying Greek press (verified RSS set above) is directly ingestable."
+    },
+    {
+      "platform": "ICAP CRIF (local leader)",
+      "coverageNotes": "Deepest Greek firmographics: credit ratings, financial statements, sector studies, business directories covering the whole corporate universe incl. servicers and real-estate companies. Paid; the de facto local Preqin-for-firmographics.",
+      "publicSourcesTheyUse": "GEMI/businessportal filings and financial statements, FEK (et.gr) corporate acts, court/protest data, ELSTAT — GEMI publicity search, search.et.gr and ELSTAT are all directly accessible public feeds."
+    },
+    {
+      "platform": "Infobank Hellastat (IBHS, local)",
+      "coverageNotes": "Greek business information and sector risk reports; company financials and demographics. Similar public underpinnings to ICAP at smaller scale.",
+      "publicSourcesTheyUse": "GEMI filings, FEK, ELSTAT business registers — all direct."
+    },
+    {
+      "platform": "Tiresias (Teiresias S.A., local credit bureau)",
+      "coverageNotes": "Bank-owned credit bureau: defaults, bounced cheques, credit profiles. Not publicly accessible (bank/consent-gated) — relevant as the reason public insolvency signals must come from solvency.gov.gr, Diavgeia and FEK instead.",
+      "publicSourcesTheyUse": "Court registries, protested bills, bank submissions — the public slice we can reach directly is the Electronic Solvency Register and FEK insolvency notices."
+    }
+  ],
+  "searchedButAbsent": "Session constraint disclosed: the WebSearch budget was exhausted before this task began, so discovery was WebFetch-verification of known/hinted URLs rather than fresh search fan-out. Absent or unreachable despite attempts: (1) no public Greek UBO register route — Central UBO Registry access is restricted post-CJEU; (2) no standalone fund-administrator licensee list — administration falls under HCMC/BoG perimeters, and HCMC is geo-blocked (connection refused from non-GR IPs); (3) no Greek litigation-funding register or association found; (4) solvency.gov.gr (insolvency register) did not resolve via DNS from this environment and keyd.gov.gr (insolvency-administrator roll) refused connections — both need a Greek IP; (5) no working RSS could be confirmed for Kathimerini, eKathimerini, Capital.gr, Euro2day, Naftemporiki, AMNA, or Athens Exchange — all bot-blocked (403) or 404 on standard feed paths, though the outlets themselves are real; (6) no public register of occupational pension funds (TEA) holdings — only the National Actuarial Authority (403 to bots) and Ministry of Labour PDFs; (7) no dedicated Greek leasing-association web directory verified (association exists but no reliable URL confirmed, so it was excluded rather than padded); (8) Bank of Greece domain (all registers + press) returns 403 to automated fetchers — content exists but needs browser-grade crawling; (9) GEMI exposes no advertised public bulk API on the publicity portal — data.gov.gr API is the closest open bulk route."
+}
