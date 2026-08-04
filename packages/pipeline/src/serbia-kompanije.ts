@@ -61,6 +61,14 @@ const SECTORS_OF_INTEREST: Record<string, { l1: string; l2?: string; l3?: string
   "35": { l1: "real_assets", l2: "energy_transition", role: "Portfolio Co", label: "electricity, gas, steam" },
   "41": { l1: "real_assets", l2: "private_real_estate", role: "Portfolio Co", label: "construction of buildings" },
   "42": { l1: "real_assets", l2: "infrastructure", role: "Portfolio Co", label: "civil engineering" },
+  "43": { l1: "real_assets", l2: "private_real_estate", role: "Portfolio Co", label: "specialised construction" },
+  "62": { l1: "service_graph", l2: "technology", role: "Vendor", label: "IT services / fintech" },
+  "63": { l1: "service_graph", l2: "technology", l3: "data_provider", role: "Vendor", label: "information services" },
+  "71": { l1: "service_graph", l2: "technology", l3: "valuation_provider", role: "Vendor", label: "architecture, engineering, valuation" },
+  "72": { l1: "service_graph", l2: "technology", role: "Vendor", label: "scientific R&D" },
+  "73": { l1: "service_graph", role: "Vendor", label: "advertising & market research" },
+  "77": { l1: "private_debt", l2: "asset_backed_lending", role: "GP", label: "rental & leasing" },
+  "81": { l1: "service_graph", l2: "asset_servicing", l3: "property_manager", role: "Vendor", label: "facilities / property management" },
 };
 
 type Company = {
@@ -87,7 +95,45 @@ type Company = {
   banks?: string[] | undefined;
   /** "Aktivna" / "U likvidaciji" / "U stečaju" — mapped to legal_status. */
   statusRaw?: string | undefined;
+  /** "O kompaniji" — the short editorial summary. */
+  summary?: string | undefined;
+  /** "Opis" — the long company description. */
+  description?: string | undefined;
+  email?: string | undefined;
 };
+
+/**
+ * Pull the block of text between two section headings in the page's
+ * innerText. Returns verbatim prose — never paraphrased, never generated.
+ */
+function between(text: string, start: string, ends: string[]): string | undefined {
+  const startIdx = text.indexOf(`\n${start}\n`);
+  if (startIdx === -1) {
+    return undefined;
+  }
+  const from = startIdx + start.length + 2;
+  let to = text.length;
+  for (const end of ends) {
+    const i = text.indexOf(`\n${end}\n`, from);
+    if (i !== -1 && i < to) {
+      to = i;
+    }
+  }
+  const body = text.slice(from, to).replace(/\s+/g, " ").trim();
+  return body.length >= 40 ? body.slice(0, 4000) : undefined;
+}
+
+const SECTION_ENDS = [
+  "Opis",
+  "MATIČNI BROJ",
+  "PIB",
+  "OSNIVANJE",
+  "Finansijski podaci",
+  "Lokacija na mapi",
+  "Podaci iz NBS",
+  "Povezane vesti",
+  "ISTRAŽITE VIŠE",
+];
 
 /** Serbian register status → the standardized legal_status vocabulary. */
 function mapStatus(raw: string | undefined): string | undefined {
@@ -204,6 +250,15 @@ async function scrapeCompany(browser: Browser, url: string): Promise<Company | n
     const statusRaw =
       /Status:\s*([^.]+)\./i.exec(metaDesc)?.[1]?.trim() ?? afterLabel(t, "STATUS");
 
+    const mailtos = await page
+      .$$eval("a[href^='mailto:']", (as) =>
+        as.map((a) => (a as HTMLAnchorElement).getAttribute("href") ?? ""),
+      )
+      .catch(() => [] as string[]);
+    const emailFound =
+      mailtos[0]?.replace(/^mailto:/i, "").split("?")[0]?.trim() ??
+      /[\w.+-]+@[\w-]+\.[a-z]{2,}/i.exec(t)?.[0];
+
     const naceRaw = afterLabel(t, "DELATNOST");
     const naceM = naceRaw === undefined ? null : /^(\d{3,4})\s*[—-]\s*(.+)$/.exec(naceRaw);
 
@@ -259,6 +314,13 @@ async function scrapeCompany(browser: Browser, url: string): Promise<Company | n
         : {}),
       ...(banks.length > 0 ? { banks: [...new Set(banks)].slice(0, 12) } : {}),
       ...(statusRaw !== undefined ? { statusRaw } : {}),
+      ...(between(t, "O kompaniji", SECTION_ENDS) !== undefined
+        ? { summary: between(t, "O kompaniji", SECTION_ENDS) }
+        : {}),
+      ...(between(t, "Opis", SECTION_ENDS.filter((s) => s !== "Opis")) !== undefined
+        ? { description: between(t, "Opis", SECTION_ENDS.filter((s) => s !== "Opis")) }
+        : {}),
+      ...(emailFound !== undefined ? { email: emailFound } : {}),
     };
     return company;
   } catch {
@@ -343,9 +405,19 @@ async function importCompany(c: Company): Promise<"created" | "merged" | "ambigu
       hq_city = COALESCE(hq_city, ${c.city ?? null}),
       hq_country = COALESCE(hq_country, 'RS'),
       website = COALESCE(website, ${c.website ?? null}),
+      corporate_email = COALESCE(corporate_email, ${c.email ?? null}),
       registered_address = COALESCE(registered_address, ${address}::jsonb),
       category_fields = COALESCE(category_fields, '{}'::jsonb) || ${categoryFields}::jsonb
     WHERE entity_id = ${entityId}::uuid`);
+
+  // Prose, stored VERBATIM as published — the long "Opis" preferred over the
+  // short "O kompaniji" blurb. Never paraphrased, never generated.
+  const prose = c.description ?? c.summary;
+  if (prose !== undefined) {
+    await db.execute(sql`
+      UPDATE entities SET summary = COALESCE(summary, ${prose})
+      WHERE id = ${entityId}::uuid`);
+  }
 
   // Sector classification straight from the register's own NACE code.
   const division = c.naceCode?.slice(0, 2);
