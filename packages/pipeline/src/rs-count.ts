@@ -9,8 +9,8 @@ async function main() {
   } catch { queue = 0; }
   const r = await db.execute(sql`select count(*)::int n from organizations where category_fields->>'source' = 'kompanije.co.rs'`);
   const s = await db.execute(sql`select count(*)::int n from entity_tags where tag='rs_sector_target'`);
-  const n = (r.rows[0] as any).n;
+  const n = (r.rows[0] as { n: number }).n;
   const pct = queue > 0 ? Math.round((n / queue) * 100) : 0;
-  console.log(`${n}/${queue} imported (${pct}%) · target-sector ${(s.rows[0] as any).n}`);
+  console.log(`${n}/${queue} imported (${pct}%) · target-sector ${(s.rows[0] as { n: number }).n}`);
 }
 main().then(()=>process.exit(0)).catch(e=>{console.error(String(e).slice(0,120));process.exit(1)});

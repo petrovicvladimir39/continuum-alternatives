@@ -12,7 +12,7 @@ async function main() {
     select count(distinct el.entity_id)::int n from entity_locations el
     join entities e on e.id=el.entity_id
     where e.country='RS' and el.precision in ('rooftop','street')`);
-  const x = r.rows[0] as any;
-  console.log(`${x.crawled}/${x.with_site} sites crawled · logo ${x.logo} · email ${x.email} · summary ${x.summary} · rooftop/street ${(g.rows[0] as any).n}`);
+  const x = r.rows[0] as Record<string, number>;
+  console.log(`${x.crawled}/${x.with_site} sites crawled · logo ${x.logo} · email ${x.email} · summary ${x.summary} · rooftop/street ${(g.rows[0] as { n: number }).n}`);
 }
 main().then(()=>process.exit(0)).catch(e=>{console.error(String(e).slice(0,120));process.exit(1)});

@@ -3,9 +3,9 @@ import { chromium } from "playwright";
 import {
   createEntity,
   db,
-  entities,
+
   entityTags,
-  eq,
+
   organizations,
   resolveEntity,
   sql,
