@@ -238,15 +238,27 @@ async function main(): Promise<void> {
   mkdirSync(path.dirname(OUT), { recursive: true });
   // Windows locks the file while it is open in Excel; fall back to a sibling
   // name rather than losing the run.
-  let written = OUT;
-  try {
-    await wb.xlsx.writeFile(OUT);
-  } catch (error) {
-    if ((error as { code?: string }).code !== "EBUSY") {
-      throw error;
+  // Windows locks a workbook while Excel has it open. Try the canonical name,
+  // then numbered siblings, so a locked file never costs a run.
+  let written = "";
+  for (const candidate of [
+    OUT,
+    ...Array.from({ length: 20 }, (_, i) => OUT.replace(/\.xlsx$/, `-v${i + 2}.xlsx`)),
+  ]) {
+    try {
+      await wb.xlsx.writeFile(candidate);
+      written = candidate;
+      break;
+    } catch (error) {
+      if ((error as { code?: string }).code !== "EBUSY") {
+        throw error;
+      }
     }
-    written = OUT.replace(/\.xlsx$/, "-new.xlsx");
-    await wb.xlsx.writeFile(written);
+  }
+  if (written === "") {
+    throw new Error("every candidate workbook filename is locked — close Excel and retry");
+  }
+  if (written !== OUT) {
     console.log(`NOTE: ${path.basename(OUT)} is open in Excel — wrote ${path.basename(written)} instead.`);
   }
   console.log(
