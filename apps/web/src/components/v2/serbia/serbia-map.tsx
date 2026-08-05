@@ -168,6 +168,32 @@ export function SerbiaMap(): React.ReactElement {
           "circle-stroke-color": "#ffffff",
         },
       });
+      // LOGO PINS: a symbol layer above the circles. Icons are registered
+      // lazily (see the loader effect) — a feature only joins this layer once
+      // its logo has actually decoded, so a broken image degrades to the
+      // circle beneath rather than leaving a hole.
+      m.addLayer({
+        id: "logo-pin",
+        type: "symbol",
+        source: "rs",
+        filter: ["all", ["!", ["has", "point_count"]], ["has", "icon"]],
+        layout: {
+          "icon-image": ["get", "icon"],
+          "icon-size": ["interpolate", ["linear"], ["zoom"], 8, 0.32, 14, 0.6],
+          "icon-allow-overlap": false,
+          "icon-padding": 2,
+          // Bigger companies win collisions, so majors stay visible as
+          // smaller firms fade in on zoom.
+          "symbol-sort-key": ["-", 0, ["coalesce", ["get", "revenue"], 0]],
+        },
+      });
+      m.on("click", "logo-pin", (ev) => {
+        const f = ev.features?.[0];
+        if (f !== undefined) setSelected(f.properties as Props);
+      });
+      m.on("mouseenter", "logo-pin", () => (m.getCanvas().style.cursor = "pointer"));
+      m.on("mouseleave", "logo-pin", () => (m.getCanvas().style.cursor = ""));
+
       m.on("click", "pin", (ev) => {
         const f = ev.features?.[0];
         if (f !== undefined) setSelected(f.properties as Props);
@@ -189,17 +215,90 @@ export function SerbiaMap(): React.ReactElement {
     };
   }, []);
 
-  // Push filtered data into the source.
+  /**
+   * Logo loader. Company logos are third-party URLs of unknown size, so each
+   * is fetched, drawn onto a square canvas with rounded corners and registered
+   * with map.addImage() under a per-entity id. Only then does the feature get
+   * an `icon` property, which is what puts it in the symbol layer — so a 404
+   * or a CORS refusal simply leaves the coloured circle showing instead of a
+   * blank pin. Loading is capped and revenue-ordered: the largest companies
+   * get logos first, which is also what survives label collision.
+   */
+  const [iconReady, setIconReady] = useState(0);
+  const loadedIcons = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const m = map.current;
+    if (m === null || all.length === 0) return;
+    let cancelled = false;
+
+    const candidates = all
+      .filter((f) => typeof f.properties.logo === "string" && f.properties.logo !== "")
+      .slice(0, 600);
+
+    const run = async (): Promise<void> => {
+      let added = 0;
+      for (const f of candidates) {
+        if (cancelled) return;
+        const id = String(f.properties.id);
+        if (loadedIcons.current.has(id)) continue;
+        loadedIcons.current.add(id);
+        try {
+          const img = new Image(64, 64);
+          img.crossOrigin = "anonymous";
+          img.src = String(f.properties.logo);
+          await img.decode();
+          const c = document.createElement("canvas");
+          c.width = 64;
+          c.height = 64;
+          const ctx = c.getContext("2d");
+          if (ctx === null) continue;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.roundRect(0, 0, 64, 64, 12);
+          ctx.fill();
+          ctx.strokeStyle = "rgba(0,0,0,0.14)";
+          ctx.stroke();
+          ctx.clip();
+          // Contain-fit so wide banners are not distorted.
+          const scale = Math.min(56 / img.width, 56 / img.height);
+          const w = img.width * scale;
+          const h = img.height * scale;
+          ctx.drawImage(img, (64 - w) / 2, (64 - h) / 2, w, h);
+          const data = ctx.getImageData(0, 0, 64, 64);
+          if (!m.hasImage(id)) m.addImage(id, data, { pixelRatio: 2 });
+          added += 1;
+          if (added % 25 === 0 && !cancelled) setIconReady((n) => n + 1);
+        } catch {
+          /* unreachable or CORS-blocked logo — circle pin remains */
+        }
+      }
+      if (!cancelled) setIconReady((n) => n + 1);
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [all]);
+
+  // Push filtered data into the source, tagging features whose logo image is
+  // registered so the symbol layer can pick them up.
   useEffect(() => {
     const m = map.current;
     if (m === null) return;
     const apply = (): void => {
       const src = m.getSource("rs") as maplibregl.GeoJSONSource | undefined;
-      src?.setData({ type: "FeatureCollection", features: filtered } as GeoJSON.FeatureCollection);
+      const features = filtered.map((f) => {
+        const id = String(f.properties.id);
+        return m.hasImage(id)
+          ? { ...f, properties: { ...f.properties, icon: id } }
+          : f;
+      });
+      src?.setData({ type: "FeatureCollection", features } as GeoJSON.FeatureCollection);
     };
     if (m.isStyleLoaded()) apply();
     else m.once("load", apply);
-  }, [filtered]);
+  }, [filtered, iconReady]);
 
   const toggle = (set: Set<string>, val: string, fn: (s: Set<string>) => void): void => {
     const next = new Set(set);

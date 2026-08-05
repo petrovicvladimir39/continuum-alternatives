@@ -79,14 +79,19 @@ export async function GET(): Promise<NextResponse> {
       legalForm: r.legal_form_native === null ? null : String(r.legal_form_native),
       status: r.legal_status === null ? null : String(r.legal_status),
       founded: r.founded_year === null ? null : Number(r.founded_year),
-      summary: r.summary === null ? null : String(r.summary).slice(0, 1200),
+      // Trimmed deliberately: at 1,200 chars across ~6,700 features the
+      // payload hit 9.4 MB and the browser refused to cache it
+      // (ERR_CACHE_WRITE_FAILURE), so the map never received its data.
+      summary: r.summary === null ? null : String(r.summary).slice(0, 260),
       banks: Array.isArray(r.nbs_banks) ? (r.nbs_banks as string[]).slice(0, 8) : [],
       bankCount: Number(r.bank_count ?? 0),
     },
   }));
 
+  // no-store: the collection is large enough that the HTTP cache rejects the
+  // write, which surfaced as a silently failed fetch rather than an error.
   return NextResponse.json(
     { type: "FeatureCollection", features },
-    { headers: { "cache-control": "public, max-age=300" } },
+    { headers: { "cache-control": "no-store" } },
   );
 }
