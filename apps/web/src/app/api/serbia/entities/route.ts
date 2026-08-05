@@ -11,7 +11,26 @@ export const dynamic = "force-dynamic";
  * with each feature so the map can style honestly: a city-centroid pin is
  * not the same claim as a rooftop one.
  */
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: Request): Promise<NextResponse> {
+  // VIEWPORT-BOUNDED, ZOOM-AWARE. Shipping the whole country in one response
+  // was 6.8 MB and the browser refused to cache it. tippecanoe (and therefore
+  // real MVT generation) is unavailable on this box, so the equivalent win is
+  // to serve only what the viewport needs: a revenue-ranked head at low zoom,
+  // everything inside the bbox once zoomed in.
+  const url = new URL(request.url);
+  const bbox = (url.searchParams.get("bbox") ?? "")
+    .split(",")
+    .map((n) => Number.parseFloat(n));
+  const zoom = Number.parseFloat(url.searchParams.get("z") ?? "6");
+  const hasBbox = bbox.length === 4 && bbox.every((n) => Number.isFinite(n));
+  const [west, south, east, north] = hasBbox ? bbox : [18.5, 41.8, 23.2, 46.3];
+  // Below z9 the map is clustered anyway, so a ranked head is indistinguishable
+  // on screen and a fraction of the bytes.
+  // Sized to what the screen can actually show: symbol collision hides most
+  // pins beyond ~1.5k in a dense city, so a bigger page is bytes with no
+  // visible benefit. Panning accumulates, so coverage is not lost.
+  const limit = zoom >= 11 ? 1500 : zoom >= 9 ? 1200 : 900;
+
   const rows = await db.execute(sql`
     SELECT
       e.id, e.name, e.slug, e.summary,
@@ -46,8 +65,11 @@ export async function GET(): Promise<NextResponse> {
       ORDER BY (ec.status = 'approved') DESC, ec.confidence DESC NULLS LAST LIMIT 1
     ) cls ON true
     WHERE e.country = 'RS'
+      AND loc.lon BETWEEN ${west} AND ${east}
+      AND loc.lat BETWEEN ${south} AND ${north}
+      ${url.searchParams.get("logos") === "1" ? sql`AND o.logo_url IS NOT NULL` : sql``}
     ORDER BY (o.category_fields->>'revenue_rsd')::numeric DESC NULLS LAST
-    LIMIT 9000
+    LIMIT ${limit}
   `);
 
   const features = (rows.rows as Record<string, unknown>[]).map((r) => ({

@@ -58,25 +58,66 @@ export function SerbiaMap(): React.ReactElement {
   const [roles, setRoles] = useState<Set<string>>(new Set());
   const [city, setCity] = useState<string>("");
   const [preciseOnly, setPreciseOnly] = useState(false);
+  /** Logos-only is the DEFAULT view: it is the map worth looking at, and it
+   *  also cuts the payload to the ~25% of entities that carry a logo. */
+  const [logosOnly, setLogosOnly] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let alive = true;
-    void fetch("/api/serbia/entities")
-      .then((r) => r.json())
-      .then((json: { features: Feature[] }) => {
-        if (alive) {
-          setAll(json.features ?? []);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  /**
+   * VIEWPORT LOADING. The whole country in one response was 6.8 MB — big
+   * enough that the browser rejected the cache write and the fetch silently
+   * failed. Real vector tiles would be the textbook answer, but tippecanoe is
+   * not available here, so this fetches per viewport instead: the server
+   * returns a revenue-ranked head at low zoom and everything in the bbox once
+   * zoomed in. Results accumulate by id, so panning back does not re-fetch
+   * and the pins you have already seen stay put.
+   */
+  const seenIds = useRef<Set<string>>(new Set());
+  const inflight = useRef<AbortController | null>(null);
+  // Read inside the stable loader without re-creating it on every toggle.
+  const logosOnlyRef = useRef(true);
+  logosOnlyRef.current = logosOnly;
+
+  const loadViewport = useMemo(
+    () =>
+      (m: MlMap): void => {
+        const b = m.getBounds();
+        const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]
+          .map((n) => n.toFixed(4))
+          .join(",");
+        const z = m.getZoom().toFixed(1);
+        inflight.current?.abort();
+        const ctrl = new AbortController();
+        inflight.current = ctrl;
+        setLoading(true);
+        void fetch(
+          `/api/serbia/entities?bbox=${bbox}&z=${z}${logosOnlyRef.current ? "&logos=1" : ""}`,
+          { signal: ctrl.signal },
+        )
+          .then((r) => r.json())
+          .then((json: { features: Feature[] }) => {
+            const fresh = (json.features ?? []).filter(
+              (f) => !seenIds.current.has(String(f.properties.id)),
+            );
+            for (const f of fresh) {
+              seenIds.current.add(String(f.properties.id));
+            }
+            if (fresh.length > 0) {
+              setAll((prev) => [...prev, ...fresh]);
+            }
+            setLoading(false);
+          })
+          .catch((err: unknown) => {
+            // An abort means a newer viewport request took over, so it keeps
+            // the spinner. Any real failure must clear it, or the rail reads
+            // "Loading…" forever with no error anywhere to explain why.
+            if (!(err instanceof DOMException && err.name === "AbortError")) {
+              setLoading(false);
+            }
+          });
+      },
+    [],
+  );
 
   const cities = useMemo(() => {
     const counts = new Map<string, number>();
@@ -104,9 +145,10 @@ export function SerbiaMap(): React.ReactElement {
         if (roles.size > 0 && !roles.has(String(p.role ?? ""))) return false;
         if (city !== "" && p.city !== city) return false;
         if (preciseOnly && p.precision === "city") return false;
+        if (logosOnly && (p.logo === null || p.logo === undefined || p.logo === "")) return false;
         return true;
       }),
-    [all, classes, roles, city, preciseOnly],
+    [all, classes, roles, city, preciseOnly, logosOnly],
   );
 
   // Map init (once).
@@ -162,7 +204,7 @@ export function SerbiaMap(): React.ReactElement {
             "#9aa3af",
           ],
           // Hollow fill for city-centroid pins: a centroid is a weaker claim.
-          "circle-opacity": ["case", ["==", ["get", "precision"], "city"], 0.25, 0.9],
+          "circle-opacity": ["case", ["has", "icon"], 0, ["==", ["get", "precision"], "city"], 0.25, 0.9],
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 4, 14, 8],
           "circle-stroke-width": 1.5,
           "circle-stroke-color": "#ffffff",
@@ -207,6 +249,8 @@ export function SerbiaMap(): React.ReactElement {
         m.on("mouseenter", layer, () => (m.getCanvas().style.cursor = "pointer"));
         m.on("mouseleave", layer, () => (m.getCanvas().style.cursor = ""));
       }
+      loadViewport(m);
+      m.on("moveend", () => loadViewport(m));
     });
     map.current = m;
     return () => {
@@ -234,7 +278,7 @@ export function SerbiaMap(): React.ReactElement {
 
     const candidates = all
       .filter((f) => typeof f.properties.logo === "string" && f.properties.logo !== "")
-      .slice(0, 600);
+      .slice(0, 2000);
 
     const run = async (): Promise<void> => {
       let added = 0;
@@ -318,6 +362,20 @@ export function SerbiaMap(): React.ReactElement {
           {loading ? "Loading…" : `${filtered.length.toLocaleString()} of ${all.length.toLocaleString()} placed`}
         </p>
 
+        <label className="mb-2 flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={logosOnly}
+            onChange={(e) => {
+              setLogosOnly(e.target.checked);
+              seenIds.current.clear();
+              setAll([]);
+              const m = map.current;
+              if (m !== null) loadViewport(m);
+            }}
+          />
+          <span>Companies with logos only</span>
+        </label>
         <label className="mb-4 flex cursor-pointer items-center gap-2">
           <input
             type="checkbox"
