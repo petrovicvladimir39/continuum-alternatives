@@ -29,7 +29,12 @@ export async function GET(request: Request): Promise<NextResponse> {
   // Sized to what the screen can actually show: symbol collision hides most
   // pins beyond ~1.5k in a dense city, so a bigger page is bytes with no
   // visible benefit. Panning accumulates, so coverage is not lost.
-  const limit = zoom >= 11 ? 1500 : zoom >= 9 ? 1200 : 900;
+  // The logos-only view is a far smaller universe — 1,680 Serbian entities
+  // carry both a logo and coordinates — so it can be served whole instead of
+  // as a ranked head. A 900-row cap was hiding a third of it at country zoom
+  // for no payload saving worth having.
+  const logosOnly = url.searchParams.get("logos") === "1";
+  const limit = logosOnly ? 2000 : zoom >= 11 ? 1500 : zoom >= 9 ? 1200 : 900;
 
   const rows = await db.execute(sql`
     SELECT
@@ -67,7 +72,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     WHERE e.country = 'RS'
       AND loc.lon BETWEEN ${west} AND ${east}
       AND loc.lat BETWEEN ${south} AND ${north}
-      ${url.searchParams.get("logos") === "1" ? sql`AND o.logo_url IS NOT NULL` : sql``}
+      ${logosOnly ? sql`AND o.logo_url IS NOT NULL` : sql``}
     ORDER BY (o.category_fields->>'revenue_rsd')::numeric DESC NULLS LAST
     LIMIT ${limit}
   `);
