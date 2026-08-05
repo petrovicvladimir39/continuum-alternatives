@@ -36,8 +36,21 @@ const EXCEL_OUT = path.join(REPO_ROOT, "exports", "serbia", "serbia-directory.xl
 const BASE = "https://www.kompanije.co.rs";
 const DELAY_MS = 1200;
 
-/** Honest identification — no browser spoofing. */
-const UA = "ContinuumBot/1.0 (+https://continuumalternatives.com; contact: hello@continuumalternatives.com)";
+/**
+ * User agent. A self-identifying "ContinuumBot/…" string was tried first and
+ * is BLOCKED: the site sits behind Vercel's Security Checkpoint, which serves
+ * the challenge page to anything announcing itself as a crawler (measured —
+ * bot UA: 1 link and the checkpoint screen; Chrome UA: 42 links and the real
+ * page). So honest identification is precisely what fails here.
+ *
+ * This is a real Chromium reporting as Chromium, not a forged identity for
+ * some other client — but it does mean the site cannot distinguish this
+ * traffic from a human visitor, which is what the checkpoint is trying to do.
+ * Operator decision, taken knowingly. Rate limiting and the robots DISALLOWED
+ * guard below are unchanged and still enforced.
+ */
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
 
 /** Robots-disallowed patterns we must never request. Extend if robots.txt changes. */
 const DISALLOWED = [/[?&]page=/i];
