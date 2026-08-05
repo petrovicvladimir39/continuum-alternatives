@@ -40,7 +40,7 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..
 const URLS_FILE = path.join(REPO_ROOT, "data", "kompanije-urls.json");
 const STATE_FILE = path.join(REPO_ROOT, "data", "kompanije-state.json");
 const BASE = "https://www.kompanije.co.rs";
-const DELAY_MS = 1500;
+const DELAY_MS = 900;
 
 /**
  * NACE divisions that matter for alternative investments. Section K
@@ -50,14 +50,43 @@ const DELAY_MS = 1500;
  * developers and energy sit.
  */
 const SECTORS_OF_INTEREST: Record<string, { l1: string; l2?: string; l3?: string; role: string; label: string }> = {
-  "64": { l1: "private_debt", l2: "direct_lending", role: "GP", label: "financial services ex-insurance" },
+  // ── 4-DIGIT CODES FIRST (checked before the 2-digit division) ──
+  // Division-level mapping force-fits, which the constitution forbids: it
+  // labelled banks as direct-lending GPs and turned call centres, trade-fair
+  // organisers and packaging firms into "NPL servicers". Heterogeneous
+  // divisions are therefore resolved at 4 digits, and codes that are NOT
+  // alternatives-relevant are deliberately absent so they stay unclassified.
+  "6411": { l1: "service_graph", role: "Bank", label: "central banking" },
+  "6419": { l1: "service_graph", role: "Bank", label: "other monetary intermediation (banks)" },
+  "6420": { l1: "service_graph", role: "SPV", label: "activities of holding companies" },
+  "6430": { l1: "liquid_alts", role: "Fund Vehicle", label: "trusts, funds and similar financial entities" },
+  "6491": { l1: "private_debt", l2: "asset_backed_lending", role: "GP", label: "financial leasing" },
+  "6492": { l1: "private_debt", l2: "direct_lending", role: "GP", label: "other credit granting" },
+  "6499": { l1: "service_graph", role: "Advisor", label: "other financial services n.e.c." },
+  "6511": { l1: "service_graph", role: "LP", label: "life insurance" },
+  "6512": { l1: "service_graph", role: "LP", label: "non-life insurance" },
+  "6520": { l1: "service_graph", role: "LP", label: "reinsurance" },
+  "6530": { l1: "service_graph", role: "LP", label: "pension funding" },
+  "6611": { l1: "service_graph", role: "Vendor", label: "administration of financial markets" },
+  "6612": { l1: "service_graph", role: "Advisor", label: "security & commodity contracts brokerage" },
+  "6619": { l1: "service_graph", role: "Advisor", label: "auxiliary to financial services n.e.c." },
+  "6621": { l1: "service_graph", role: "Advisor", label: "risk & damage evaluation" },
+  "6622": { l1: "service_graph", role: "Advisor", label: "insurance agents & brokers" },
+  "6629": { l1: "service_graph", role: "Advisor", label: "auxiliary to insurance & pension" },
+  "6630": { l1: "liquid_alts", role: "ManCo", label: "FUND MANAGEMENT" },
+  "8291": { l1: "private_debt", l2: "npl", role: "Servicer", label: "debt collection agencies & credit bureaus" },
+  // 8211/8219/8220/8230/8292/8299 (office admin, call centres, trade fairs,
+  // packaging, other business support) are NOT alternatives — omitted on
+  // purpose so they remain unclassified rather than force-fit.
+  "7010": { l1: "service_graph", role: "SPV", label: "activities of head offices" },
+  "7022": { l1: "service_graph", l2: "legal_advisory", l3: "ma_advisor", role: "Advisor", label: "management consultancy" },
+  // ── 2-DIGIT DIVISIONS (homogeneous enough to map wholesale) ──
   "65": { l1: "service_graph", role: "LP", label: "insurance, reinsurance, pension funds" },
   "66": { l1: "service_graph", role: "Advisor", label: "auxiliary financial services" },
   "68": { l1: "real_assets", l2: "private_real_estate", role: "Portfolio Co", label: "real estate" },
   "69": { l1: "service_graph", l2: "legal_advisory", role: "Advisor", label: "legal & accounting" },
   "70": { l1: "service_graph", l2: "legal_advisory", l3: "ma_advisor", role: "Advisor", label: "management consultancy / head offices" },
   "74": { l1: "service_graph", role: "Vendor", label: "other professional & technical" },
-  "82": { l1: "private_debt", l2: "npl", role: "Servicer", label: "business support incl. debt collection" },
   "35": { l1: "real_assets", l2: "energy_transition", role: "Portfolio Co", label: "electricity, gas, steam" },
   "41": { l1: "real_assets", l2: "private_real_estate", role: "Portfolio Co", label: "construction of buildings" },
   "42": { l1: "real_assets", l2: "infrastructure", role: "Portfolio Co", label: "civil engineering" },
@@ -70,6 +99,21 @@ const SECTORS_OF_INTEREST: Record<string, { l1: string; l2?: string; l3?: string
   "77": { l1: "private_debt", l2: "asset_backed_lending", role: "GP", label: "rental & leasing" },
   "81": { l1: "service_graph", l2: "asset_servicing", l3: "property_manager", role: "Vendor", label: "facilities / property management" },
 };
+
+/**
+ * Resolve a NACE code to its taxonomy mapping: exact 4-digit code first, then
+ * the 2-digit division. Returns undefined when neither matches, which is a
+ * valid outcome — the entity simply stays unclassified.
+ */
+function sectorFor(
+  naceCode: string | undefined,
+): { l1: string; l2?: string; l3?: string; role: string; label: string } | undefined {
+  if (naceCode === undefined || naceCode === "") {
+    return undefined;
+  }
+  const code = naceCode.trim();
+  return SECTORS_OF_INTEREST[code] ?? SECTORS_OF_INTEREST[code.slice(0, 2)];
+}
 
 type Company = {
   url: string;
@@ -213,7 +257,7 @@ async function scrapeCompany(browser: Browser, url: string): Promise<Company | n
     if (res !== null && res.status() >= 400) {
       return null;
     }
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(1200);
     const text = (await page.evaluate(() => document.body.innerText)).replace(/\r/g, "");
     if (text.includes("Security Checkpoint")) {
       await page.waitForTimeout(4000);
@@ -458,8 +502,7 @@ async function importCompany(c: Company): Promise<"created" | "merged" | "ambigu
   }
 
   // Sector classification straight from the register's own NACE code.
-  const division = c.naceCode?.slice(0, 2);
-  const sector = division === undefined ? undefined : SECTORS_OF_INTEREST[division];
+  const sector = sectorFor(c.naceCode);
   if (sector !== undefined) {
     await db.execute(sql`
       INSERT INTO entity_classifications (entity_id, asset_class, strategy, sub_class, source, status, confidence)
@@ -551,8 +594,7 @@ async function crawl(): Promise<void> {
       if (c.revenueRsd !== undefined) fields.financials += 1;
       if (c.employees !== undefined) fields.employees += 1;
       if (c.lat !== undefined) fields.coords += 1;
-      const div = c.naceCode?.slice(0, 2);
-      if (div !== undefined && SECTORS_OF_INTEREST[div] !== undefined) {
+      if (sectorFor(c.naceCode) !== undefined) {
         counts.ofInterest += 1;
       }
       const outcome = await importCompany(c);
