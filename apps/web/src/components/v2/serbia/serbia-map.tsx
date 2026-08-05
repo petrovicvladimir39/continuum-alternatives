@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import maplibregl, { type Map as MlMap } from "maplibre-gl";
+import maplibregl, {
+  type DataDrivenPropertyValueSpecification,
+  type Map as MlMap,
+} from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 /**
@@ -74,6 +77,12 @@ export function SerbiaMap(): React.ReactElement {
    */
   const seenIds = useRef<Set<string>>(new Set());
   const inflight = useRef<AbortController | null>(null);
+  const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Until one request has landed, later moves must NOT abort it — map settle
+   *  fires several moveend events and each abort was starving the first load,
+   *  which is why the rail sat on "Loading…" forever. */
+  const hasLoaded = useRef(false);
+  const initialLoad = useRef(false);
   // Read inside the stable loader without re-creating it on every toggle.
   const logosOnlyRef = useRef(true);
   logosOnlyRef.current = logosOnly;
@@ -86,7 +95,13 @@ export function SerbiaMap(): React.ReactElement {
           .map((n) => n.toFixed(4))
           .join(",");
         const z = m.getZoom().toFixed(1);
-        inflight.current?.abort();
+        // Only pre-empt an in-flight request once something has already
+        // landed. Before that, let the first load finish.
+        if (hasLoaded.current) {
+          inflight.current?.abort();
+        } else if (inflight.current !== null) {
+          return;
+        }
         const ctrl = new AbortController();
         inflight.current = ctrl;
         setLoading(true);
@@ -105,6 +120,8 @@ export function SerbiaMap(): React.ReactElement {
             if (fresh.length > 0) {
               setAll((prev) => [...prev, ...fresh]);
             }
+            hasLoaded.current = true;
+            inflight.current = null;
             setLoading(false);
           })
           .catch((err: unknown) => {
@@ -112,12 +129,36 @@ export function SerbiaMap(): React.ReactElement {
             // the spinner. Any real failure must clear it, or the rail reads
             // "Loading…" forever with no error anywhere to explain why.
             if (!(err instanceof DOMException && err.name === "AbortError")) {
+              inflight.current = null;
               setLoading(false);
             }
           });
       },
     [],
   );
+
+  /**
+   * Initial load is deliberately INDEPENDENT of the map's `load` event.
+   * Chrome suspends requestAnimationFrame in a background tab, so MapLibre's
+   * `load` never fires there — gating the first fetch on it left the map
+   * permanently empty with no error to show for it. Data now loads on mount
+   * over Serbia's bounds; `moveend` refines it once the map is interactive.
+   */
+  useEffect(() => {
+    if (initialLoad.current) return;
+    initialLoad.current = true;
+    void fetch(`/api/serbia/entities?bbox=18.5,41.8,23.2,46.3&z=6.4${logosOnly ? "&logos=1" : ""}`)
+      .then((r) => r.json())
+      .then((json: { features: Feature[] }) => {
+        for (const f of json.features ?? []) seenIds.current.add(String(f.properties.id));
+        setAll(json.features ?? []);
+        hasLoaded.current = true;
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+    // Mount-only by design: logosOnly is read once here and its toggle does
+    // its own reset-and-refetch, so listing it as a dep would double-fetch.
+  }, []);
 
   const cities = useMemo(() => {
     const counts = new Map<string, number>();
@@ -197,12 +238,15 @@ export function SerbiaMap(): React.ReactElement {
         source: "rs",
         filter: ["!", ["has", "point_count"]],
         paint: {
+          // Built from L1_COLOR at runtime, so the palette has one home. The
+          // cast is needed because a spread loses the fixed-arity tuple shape
+          // MapLibre's `match` type demands.
           "circle-color": [
             "match",
             ["get", "l1"],
             ...Object.entries(L1_COLOR).flatMap(([k, v]) => [k, v]),
             "#9aa3af",
-          ],
+          ] as unknown as DataDrivenPropertyValueSpecification<string>,
           // Hollow fill for city-centroid pins: a centroid is a weaker claim.
           "circle-opacity": ["case", ["has", "icon"], 0, ["==", ["get", "precision"], "city"], 0.25, 0.9],
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 4, 14, 8],
@@ -243,14 +287,21 @@ export function SerbiaMap(): React.ReactElement {
       m.on("click", "clusters", (ev) => {
         const f = ev.features?.[0];
         if (f === undefined) return;
-        m.easeTo({ center: (f.geometry as { coordinates: [number, number] }).coordinates, zoom: m.getZoom() + 2 });
+        if (f.geometry.type !== "Point") return;
+        m.easeTo({ center: f.geometry.coordinates as [number, number], zoom: m.getZoom() + 2 });
       });
       for (const layer of ["pin", "clusters"]) {
         m.on("mouseenter", layer, () => (m.getCanvas().style.cursor = "pointer"));
         m.on("mouseleave", layer, () => (m.getCanvas().style.cursor = ""));
       }
-      loadViewport(m);
-      m.on("moveend", () => loadViewport(m));
+      // Debounced: map settle emits several moveend events in quick
+      // succession, and firing on each one was thrashing the endpoint.
+      m.on("moveend", () => {
+        if (debounce.current !== null) {
+          clearTimeout(debounce.current);
+        }
+        debounce.current = setTimeout(() => loadViewport(m), 450);
+      });
     });
     map.current = m;
     return () => {
@@ -269,6 +320,10 @@ export function SerbiaMap(): React.ReactElement {
    * get logos first, which is also what survives label collision.
    */
   const [iconReady, setIconReady] = useState(0);
+  /** Logos that actually decoded and registered — reported in the rail, since
+   *  "fetched" and "drawable" are different claims and only the second one
+   *  puts a pin on the map. */
+  const [iconCount, setIconCount] = useState(0);
   const loadedIcons = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -280,45 +335,82 @@ export function SerbiaMap(): React.ReactElement {
       .filter((f) => typeof f.properties.logo === "string" && f.properties.logo !== "")
       .slice(0, 2000);
 
-    const run = async (): Promise<void> => {
-      let added = 0;
-      for (const f of candidates) {
-        if (cancelled) return;
-        const id = String(f.properties.id);
-        if (loadedIcons.current.has(id)) continue;
-        loadedIcons.current.add(id);
-        try {
-          const img = new Image(64, 64);
-          img.crossOrigin = "anonymous";
-          img.src = String(f.properties.logo);
-          await img.decode();
-          const c = document.createElement("canvas");
-          c.width = 64;
-          c.height = 64;
-          const ctx = c.getContext("2d");
-          if (ctx === null) continue;
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.roundRect(0, 0, 64, 64, 12);
-          ctx.fill();
-          ctx.strokeStyle = "rgba(0,0,0,0.14)";
-          ctx.stroke();
-          ctx.clip();
-          // Contain-fit so wide banners are not distorted.
-          const scale = Math.min(56 / img.width, 56 / img.height);
-          const w = img.width * scale;
-          const h = img.height * scale;
-          ctx.drawImage(img, (64 - w) / 2, (64 - h) / 2, w, h);
-          const data = ctx.getImageData(0, 0, 64, 64);
-          if (!m.hasImage(id)) m.addImage(id, data, { pixelRatio: 2 });
-          added += 1;
-          if (added % 25 === 0 && !cancelled) setIconReady((n) => n + 1);
-        } catch {
-          /* unreachable or CORS-blocked logo — circle pin remains */
-        }
+    /** One logo: fetch (same-origin proxy) -> decode -> canvas -> addImage.
+     *
+     *  createImageBitmap, NOT `new Image()` + decode(): an HTMLImageElement's
+     *  decode() promise never settles while the document is hidden, which
+     *  silently wedged the first batch forever (10 logos fetched, then
+     *  nothing). createImageBitmap decodes off the rendering path and is
+     *  unaffected by visibility. The timeout is belt-and-braces so no single
+     *  slow host can stall the batch it sits in. */
+    const loadOne = async (f: Feature): Promise<boolean> => {
+      const id = String(f.properties.id);
+      try {
+        const res = await fetch(
+          `/api/serbia/logo?url=${encodeURIComponent(String(f.properties.logo))}`,
+          { signal: AbortSignal.timeout(12_000) },
+        );
+        if (!res.ok) return false;
+        const img = await createImageBitmap(await res.blob());
+        const c = document.createElement("canvas");
+        c.width = 64;
+        c.height = 64;
+        const ctx = c.getContext("2d");
+        if (ctx === null) return false;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 64, 64, 12);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(0,0,0,0.14)";
+        ctx.stroke();
+        ctx.clip();
+        const scale = Math.min(56 / img.width, 56 / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (64 - w) / 2, (64 - h) / 2, w, h);
+        const data = ctx.getImageData(0, 0, 64, 64);
+        img.close();
+        if (!m.hasImage(id)) m.addImage(id, data, { pixelRatio: 2 });
+        return true;
+      } catch {
+        return false;
       }
-      if (!cancelled) setIconReady((n) => n + 1);
     };
+
+    // A WORKER POOL, not fixed batches. Sequential loading managed about one
+    // logo a second and would never have finished; fixed batches were barely
+    // better, because every batch waits on its slowest member and a dead
+    // third-party host burns the full timeout while eleven workers idle. Each
+    // worker here pulls the next item the moment it is free, so one bad host
+    // costs one slot rather than a whole batch.
+    const run = async (): Promise<void> => {
+      const todo = candidates.filter((f) => !loadedIcons.current.has(String(f.properties.id)));
+      for (const f of todo) loadedIcons.current.add(String(f.properties.id));
+
+      let next = 0;
+      let done = 0;
+      let ok = 0;
+      const worker = async (): Promise<void> => {
+        while (!cancelled) {
+          const f = todo[next++];
+          if (f === undefined) return;
+          if (await loadOne(f)) ok += 1;
+          done += 1;
+          // Re-tag the source periodically rather than per logo: each tag is a
+          // full setData, so doing it 900 times would cost more than the loads.
+          if (done % 20 === 0 && !cancelled) {
+            setIconReady((n) => n + 1);
+            setIconCount(ok);
+          }
+        }
+      };
+      await Promise.all(Array.from({ length: 16 }, worker));
+      if (!cancelled) {
+        setIconReady((n) => n + 1);
+        setIconCount(ok);
+      }
+    };
+
     void run();
     return () => {
       cancelled = true;
@@ -360,6 +452,12 @@ export function SerbiaMap(): React.ReactElement {
         <h1 className="mb-1 text-[15px] font-semibold">Serbia</h1>
         <p className="mb-4 text-[12px] text-neutral-500">
           {loading ? "Loading…" : `${filtered.length.toLocaleString()} of ${all.length.toLocaleString()} placed`}
+          {iconCount > 0 && (
+            <>
+              <br />
+              {iconCount.toLocaleString()} logos drawn
+            </>
+          )}
         </p>
 
         <label className="mb-2 flex cursor-pointer items-center gap-2">
