@@ -36,6 +36,7 @@ const TARGET_DIVISIONS = [
 
 const COLUMNS: { header: string; key: string; width: number }[] = [
   // identity
+  { header: "profile_completeness_pct", key: "completeness", width: 22 },
   { header: "name", key: "name", width: 46 },
   { header: "legal_name", key: "legal_name", width: 46 },
   { header: "maticni_broj", key: "registry_id", width: 16 },
@@ -95,6 +96,51 @@ const COLUMNS: { header: string; key: string; width: number }[] = [
 ];
 
 type Row = Record<string, unknown>;
+
+/**
+ * Profile completeness, 0-100 — the same idea LinkedIn and Apollo use to
+ * score a company record. Weights reflect what those platforms treat as a
+ * usable profile: identity and logo, a real description, industry, contact
+ * route, location precise enough to map, and size signals.
+ *
+ * This measures OUR record, not the company. A low score means we have not
+ * sourced the field yet — never that the company lacks it.
+ */
+const COMPLETENESS_WEIGHTS: { key: string; weight: number }[] = [
+  { key: "logo_url", weight: 12 },
+  { key: "summary", weight: 12 },
+  { key: "website", weight: 10 },
+  { key: "address_street", weight: 6 },
+  { key: "hq_city", weight: 4 },
+  { key: "industry", weight: 8 },
+  { key: "employee_range", weight: 8 },
+  { key: "revenue_range", weight: 8 },
+  { key: "registry_id", weight: 3 },
+  { key: "tax_id", weight: 3 },
+  { key: "company_type", weight: 5 },
+  { key: "founded_year", weight: 5 },
+  { key: "corporate_email", weight: 4 },
+  { key: "corporate_phone", weight: 2 },
+  { key: "linkedin_url", weight: 5 },
+  { key: "l1", weight: 5 },
+];
+const COMPLETENESS_TOTAL = COMPLETENESS_WEIGHTS.reduce((n, w) => n + w.weight, 0);
+
+function completeness(r: Row): number {
+  let got = 0;
+  for (const { key, weight } of COMPLETENESS_WEIGHTS) {
+    const v = r[key];
+    if (v !== null && v !== undefined && String(v).trim() !== "") {
+      got += weight;
+    }
+  }
+  // Precise coordinates carry their own weight (mapping is the point).
+  const p = r.location_precision;
+  if (p === "rooftop" || p === "street") {
+    got += 10;
+  }
+  return Math.round((got / (COMPLETENESS_TOTAL + 10)) * 100);
+}
 
 async function fetchRows(): Promise<Row[]> {
   const res = await db.execute(sql`
@@ -161,7 +207,7 @@ function toCell(v: unknown): string | number {
 
 const NUMERIC = new Set([
   "revenue_rsd", "total_assets_rsd", "capital_rsd", "net_profit_rsd",
-  "employees", "fiscal_year", "founded_year", "lat", "lon",
+  "employees", "fiscal_year", "founded_year", "lat", "lon", "completeness",
 ]);
 
 function addSheet(wb: ExcelJS.Workbook, title: string, rows: Row[]): ExcelJS.Worksheet {
@@ -187,15 +233,34 @@ function addSheet(wb: ExcelJS.Workbook, title: string, rows: Row[]): ExcelJS.Wor
 
 async function main(): Promise<void> {
   const rows = await fetchRows();
+  for (const r of rows) {
+    r.completeness = completeness(r);
+  }
   const target = rows.filter((r) => {
     const nace = r.nace_code === null || r.nace_code === undefined ? "" : String(r.nace_code);
     return TARGET_DIVISIONS.includes(nace.slice(0, 2));
   });
+  // MAP SELECTION — the curated set the map renders: anything we can actually
+  // place, that belongs to the alternatives universe (classified into the
+  // taxonomy OR sitting in a target NACE division), ranked by how complete
+  // the record is.
+  const mapSet = rows
+    .filter((r) => {
+      const p = r.location_precision;
+      const placeable = p === "rooftop" || p === "street";
+      const nace = r.nace_code === null || r.nace_code === undefined ? "" : String(r.nace_code);
+      const inUniverse =
+        (r.l1 !== null && r.l1 !== undefined && String(r.l1) !== "") ||
+        TARGET_DIVISIONS.includes(nace.slice(0, 2));
+      return placeable && inUniverse;
+    })
+    .sort((a, b) => Number(b.completeness ?? 0) - Number(a.completeness ?? 0));
 
   const wb = new ExcelJS.Workbook();
   wb.creator = "Continuum Alternatives — Serbia deep run";
   wb.created = new Date();
 
+  addSheet(wb, "Map selection", mapSet);
   addSheet(wb, "Target sectors", target);
   addSheet(wb, "All entities", rows);
 
@@ -226,6 +291,13 @@ async function main(): Promise<void> {
     });
   }
   cov.addRow({});
+  cov.addRow({ column: `Map selection: ${mapSet.length} placeable alternatives-universe entities` });
+  const band = (lo: number, hi: number) =>
+    mapSet.filter((r) => Number(r.completeness ?? 0) >= lo && Number(r.completeness ?? 0) < hi).length;
+  cov.addRow({ column: `  completeness 80-100%: ${band(80, 101)}` });
+  cov.addRow({ column: `  completeness 60-79%:  ${band(60, 80)}` });
+  cov.addRow({ column: `  completeness 40-59%:  ${band(40, 60)}` });
+  cov.addRow({ column: `  completeness < 40%:   ${band(0, 40)}` });
   cov.addRow({ column: `Target-sector rows: ${target.length} of ${rows.length} Serbian records` });
   cov.addRow({ column: "Empty cell = the source never stated it. Never guessed, never estimated." });
   cov.addRow({ column: "Financials are as filed with APR, in RSD, verbatim — no FX conversion applied." });
