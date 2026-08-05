@@ -271,13 +271,23 @@ async function main(): Promise<void> {
   const limIdx = process.argv.indexOf("--limit");
   const limit = limIdx >= 0 ? Number.parseInt(process.argv[limIdx + 1] ?? "0", 10) : 0;
 
+  const targetsOnly = process.argv.includes("--targets-only");
+  // Target-sector companies first, then by revenue, so a partial run always
+  // covers the alternatives-relevant universe before the long tail. Rows
+  // already crawled (provenance envelope present) are skipped, making the
+  // pass resumable.
   const rows = (
     await db.execute(sql`
       SELECT o.entity_id, o.website, e.name
       FROM organizations o
       JOIN entities e ON e.id = o.entity_id
       WHERE e.country = 'RS' AND o.website IS NOT NULL
-      ORDER BY e.name
+        AND o.enrichment->'website_crawl' IS NULL
+        ${targetsOnly ? sql`AND EXISTS (SELECT 1 FROM entity_tags t WHERE t.entity_id = e.id AND t.tag = 'rs_sector_target')` : sql``}
+      ORDER BY
+        EXISTS (SELECT 1 FROM entity_tags t WHERE t.entity_id = e.id AND t.tag = 'rs_sector_target') DESC,
+        (o.category_fields->>'revenue_rsd')::numeric DESC NULLS LAST,
+        e.name
       ${limit > 0 ? sql`LIMIT ${limit}` : sql``}
     `)
   ).rows as { entity_id: string; website: string; name: string }[];
