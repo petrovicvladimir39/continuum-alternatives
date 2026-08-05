@@ -1,0 +1,158 @@
+◇ injected env (9) from ..\..\.env // tip: ⌘ suppress logs { quiet: true }
+
+=== depth 0: 7 nodes ===
+
+=== depth 1: 27 nodes ===
+
+=== depth 2: 72 nodes ===
+
+=== depth 3: 130 nodes ===
+  6419: 24 companies listed (class holds 42)
+  6420: 24 companies listed (class holds 309)
+  6430: 3 companies listed
+  6491: 13 companies listed
+  6492: 8 companies listed
+  6499: 24 companies listed (class holds 166)
+  6511: 5 companies listed
+  6512: 13 companies listed
+  6520: 4 companies listed
+  6611: 1 companies listed
+  6612: 24 companies listed (class holds 188)
+  6619: 24 companies listed (class holds 192)
+  6621: 24 companies listed (class holds 52)
+  6622: 24 companies listed (class holds 119)
+  6629: 14 companies listed
+  6630: 19 companies listed
+  6810: 24 companies listed (class holds 436)
+  6820: 24 companies listed (class holds 1869)
+  6831: 24 companies listed (class holds 697)
+  6832: 24 companies listed (class holds 368)
+  6910: 24 companies listed (class holds 81)
+  6920: 24 companies listed (class holds 2330)
+  7010: 24 companies listed (class holds 113)
+  7021: 24 companies listed (class holds 74)
+  7022: 24 companies listed (class holds 6256)
+  7111: 24 companies listed (class holds 553)
+  7112: 24 companies listed (class holds 2543)
+  7120: 24 companies listed (class holds 1622)
+  7211: 24 companies listed (class holds 59)
+  7219: 24 companies listed (class holds 516)
+  7220: 24 companies listed (class holds 47)
+  7311: 24 companies listed (class holds 1496)
+  7312: 24 companies listed (class holds 27)
+  7320: 24 companies listed (class holds 164)
+  7410: 24 companies listed (class holds 286)
+  7420: 24 companies listed (class holds 54)
+  7430: 24 companies listed (class holds 84)
+  7490: 24 companies listed (class holds 381)
+  7500: 24 companies listed (class holds 476)
+  7711: 24 companies listed (class holds 624)
+  7712: 17 companies listed
+  7721: 24 companies listed (class holds 27)
+  7729: 24 companies listed (class holds 40)
+  7731: 3 companies listed
+  7732: 24 companies listed (class holds 95)
+  7733: 12 companies listed
+  7734: 5 companies listed
+  7735: 8 companies listed
+  7739: 24 companies listed (class holds 133)
+  7740: 19 companies listed
+  7810: 24 companies listed (class holds 43)
+  7820: 24 companies listed (class holds 82)
+  7830: 24 companies listed (class holds 98)
+  7911: 24 companies listed (class holds 591)
+  7912: 24 companies listed (class holds 204)
+  7990: 24 companies listed (class holds 115)
+  8010: 24 companies listed (class holds 284)
+  8020: 24 companies listed (class holds 532)
+  8030: 6 companies listed
+  8110: 24 companies listed (class holds 345)
+  8121: 24 companies listed (class holds 285)
+  8122: 24 companies listed (class holds 72)
+  8129: 24 companies listed (class holds 100)
+  8130: 24 companies listed (class holds 167)
+  8211: 24 companies listed (class holds 306)
+  8219: 24 companies listed (class holds 42)
+  8220: 24 companies listed (class holds 209)
+  8230: 24 companies listed (class holds 133)
+  8291: 24 companies listed (class holds 64)
+  8292: 24 companies listed (class holds 65)
+  8299: 24 companies listed (class holds 2268)
+  3511: 24 companies listed (class holds 1101)
+  3512: 2 companies listed
+  3513: 6 companies listed
+  3514: 24 companies listed (class holds 85)
+  3521: 3 companies listed
+  3522: 24 companies listed (class holds 36)
+  3523: 12 companies listed
+  3530: 24 companies listed (class holds 114)
+  4110: 24 companies listed (class holds 712)
+  4120: 24 companies listed (class holds 6609)
+  4211: 24 companies listed (class holds 419)
+  4212: 24 companies listed (class holds 34)
+  4213: 24 companies listed (class holds 52)
+  4221: 23 companies listed (class holds 96)
+  4222: 24 companies listed (class holds 142)
+  4291: 24 companies listed (class holds 119)
+  4299: 24 companies listed (class holds 143)
+  4311: 24 companies listed (class holds 138)
+  4312: 24 companies listed (class holds 323)
+  4313: 24 companies listed (class holds 72)
+  4321: 24 companies listed (class holds 972)
+  4322: 24 companies listed (class holds 769)
+  4329: 24 companies listed (class holds 266)
+  4331: 24 companies listed (class holds 100)
+  4332: 24 companies listed (class holds 139)
+  4333: 24 companies listed (class holds 328)
+  4334: 24 companies listed (class holds 155)
+  4391: 24 companies listed (class holds 73)
+  4399: 24 companies listed (class holds 1399)
+  5811: 24 companies listed (class holds 395)
+  5812: 4 companies listed
+  5813: 24 companies listed (class holds 100)
+  5814: 24 companies listed (class holds 143)
+  5819: 24 companies listed (class holds 82)
+  5821: 16 companies listed
+  5829: 24 companies listed (class holds 75)
+  5911: 24 companies listed (class holds 713)
+  5912: 24 companies listed (class holds 25)
+  5913: 24 companies listed (class holds 50)
+  5914: 24 companies listed (class holds 26)
+  5920: 24 companies listed (class holds 121)
+  6010: 24 companies listed (class holds 122)
+  6020: 24 companies listed (class holds 331)
+  6110: 24 companies listed (class holds 216)
+  6120: 24 companies listed (class holds 57)
+  6130: 8 companies listed
+  6190: 24 companies listed (class holds 60)
+  6201: 24 companies listed (class holds 5135)
+  6202: 24 companies listed (class holds 1185)
+  6203: 24 companies listed (class holds 54)
+  6209: 24 companies listed (class holds 322)
+  6311: 24 companies listed (class holds 221)
+  6312: 24 companies listed (class holds 302)
+  6391: 11 companies listed
+  6399: 24 companies listed (class holds 106)
+
+serbia-sectors done: 2659 company URLs discovered · 2659 total in kompanije-sector-urls.json
+
+HONEST SHORTFALL: 102 classes hold more companies than their first page lists, so 50314 companies are NOT reachable without the disallowed ?page= URLs.
+  4120: got 24 of 6609
+  7022: got 24 of 6256
+  6201: got 24 of 5135
+  7112: got 24 of 2543
+  6920: got 24 of 2330
+  8299: got 24 of 2268
+  6820: got 24 of 1869
+  7120: got 24 of 1622
+  7311: got 24 of 1496
+  4399: got 24 of 1399
+  6202: got 24 of 1185
+  3511: got 24 of 1101
+  4321: got 24 of 972
+  4322: got 24 of 769
+  5911: got 24 of 713
+
+The upstream fix for these: KHOV (fund managers, funds, broker-dealers,
+custodians) and NBS (banks, leasing, insurers, voluntary pension funds)
+publish the COMPLETE lists with tier-1/2 provenance.
